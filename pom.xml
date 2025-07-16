@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<thymeleaf.layout.dialect>3.4.0</thymeleaf.layout.dialect>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -49,6 +50,11 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>nz.net.ultraq.thymeleaf</groupId>
+			<artifactId>thymeleaf-layout-dialect</artifactId>
+			<version>${thymeleaf.layout.dialect}</version>
 		</dependency>
 
 		<dependency>

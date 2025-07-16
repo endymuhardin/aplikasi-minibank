@@ -68,3 +68,23 @@ Aplikasi ini akan dirancang untuk melayani kebutuhan berbagai peran pengguna den
 * Java 21
 * Spring Boot 3.5.3
 * PostgreSQL 16
+
+## Menjalankan Aplikasi ##
+
+1.  **Menjalankan Tailwind CSS build process:**
+    Buka terminal dalam folder `src/main/frontend` dan jalankan perintah berikut :
+
+    ```bash
+    npm install
+    npm run watch
+    ```
+
+2.  **Menjalankan aplikasi Spring Boot:**
+    Buka terminal kedua di folder project dan jalankan perintah berikut:
+
+    ```bash
+    mvn spring-boot:run
+    ```
+
+3. **Browse aplikasi:**
+   Buka browser ke alamat [http://localhost:8080/product/list](http://localhost:8080/product/list)
