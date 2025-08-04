@@ -34,3 +34,6 @@ build/
 
 ### Tailwind ###
 node_modules
+
+db-minibank
+.DS_Store
