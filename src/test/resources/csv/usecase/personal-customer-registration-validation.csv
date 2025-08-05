@@ -1,0 +1,23 @@
+testCase,customerNumber,firstName,lastName,dateOfBirth,identityNumber,identityType,email,phoneNumber,address,city,postalCode,country,expectedError,expectedErrorMessage
+missing_customer_number,,Test,Customer,,,,test@email.com,,,,,,customerNumber,Customer number is required
+invalid_email_format,C1000997,Test,Customer,1990-01-01,1234567890123456,KTP,invalid-email-format,081234567890,,,,,email,Email should be valid
+customer_number_too_long,C1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,Test,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,customerNumber,Customer number must not exceed 50 characters
+first_name_too_long,C1000996,TestFirstNameThatIsTooLongAndExceedsTheMaximumAllowedLengthOfOneHundredCharactersInTheDatabaseSchemaX,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,firstName,First name must not exceed 100 characters
+last_name_too_long,C1000995,Test,CustomerLastNameThatIsTooLongAndExceedsTheMaximumAllowedLengthOfOneHundredCharactersInDatabaseXXXXXXX,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,lastName,Last name must not exceed 100 characters
+email_too_long,C1000994,Test,Customer,1990-01-01,1234567890123456,KTP,verylongemailthatexceedsonehundredcharacterslimitintheschemaXXXXXXXXXXXXXXXXX@verylongdomainname.comX,,,,,,email,Email must not exceed 100 characters
+phone_number_too_long,C1000993,Test,Customer,1990-01-01,1234567890123456,KTP,test@email.com,081234567890123456789012345678901234567890,,,,,phoneNumber,Phone number must not exceed 20 characters
+identity_number_too_long,C1000992,Test,Customer,1990-01-01,12345678901234567890123456789012345678901234567890123456789012345678901234567890,KTP,test@email.com,,,,,,identityNumber,Identity number must not exceed 50 characters
+city_too_long,C1000988,Test,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,Very Long City Name That Exceeds One Hundred Characters And Should Trigger Validation ErrorXXXXXXXXXX,,city,City must not exceed 100 characters
+postal_code_too_long,C1000987,Test,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,12345678901234567890,postalCode,Postal code must not exceed 10 characters
+country_too_long,C1000986,Test,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,Very Long Country Name That Exceeds Fifty Characters,country,Country must not exceed 50 characters
+personal_missing_first_name,C1000985,,Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have first name
+personal_missing_last_name,C1000984,Test,,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have last name
+personal_missing_date_of_birth,C1000983,Test,Customer,,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have date of birth
+personal_missing_identity_number,C1000982,Test,Customer,1990-01-01,,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have identity number
+personal_empty_first_name,C1000981,"",Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have first name
+personal_whitespace_first_name,C1000980,"   ",Customer,1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have first name
+personal_empty_last_name,C1000979,Test,"",1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have last name
+personal_whitespace_last_name,C1000978,Test,"   ",1990-01-01,1234567890123456,KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have last name
+personal_empty_identity_number,C1000977,Test,Customer,1990-01-01,"",KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have identity number
+personal_whitespace_identity_number,C1000976,Test,Customer,1990-01-01,"   ",KTP,test@email.com,,,,,,personalFieldsValid,Personal customers must have identity number
+personal_all_required_missing,C1000974,,,,,,,test@email.com,,,,,,personalFieldsValid,Personal customers must have all required fields

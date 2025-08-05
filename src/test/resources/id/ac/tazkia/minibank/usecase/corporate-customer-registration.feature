@@ -1,0 +1,31 @@
+Feature: Corporate Customer Registration API
+
+Background:
+  * url baseUrl
+  * def testData = read('classpath:csv/usecase/corporate-customer-registration-normal.csv')
+
+Scenario Outline: Register corporate customer - <testCase>
+  * def customerData = {}
+  * customerData.customerNumber = '<customerNumber>'
+  * customerData.companyName = '<companyName>'
+  * customerData.companyRegistrationNumber = '<companyRegistrationNumber>'
+  * customerData.taxIdentificationNumber = '<taxIdentificationNumber>'
+  * customerData.email = '<email>'
+  * customerData.phoneNumber = '<phoneNumber>'
+  * customerData.address = '<address>'
+  * customerData.city = '<city>'
+  * customerData.postalCode = '<postalCode>'
+  * customerData.country = '<country>'
+
+  Given path '/api/customers/corporate/register'
+  And request customerData
+  When method POST
+  Then status 201
+  And match response.customerNumber == '<customerNumber>'
+  And match response.companyName == '<companyName>'
+  And match response.email == '<email>'
+  And match response.id == '#uuid'
+  And match response.createdDate == '#present'
+
+Examples:
+| read('classpath:csv/usecase/corporate-customer-registration-normal.csv') |

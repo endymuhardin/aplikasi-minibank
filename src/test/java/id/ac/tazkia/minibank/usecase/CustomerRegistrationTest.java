@@ -15,20 +15,26 @@ class CustomerRegistrationTest {
     private int port;
 
     @Karate.Test
-    Karate testCustomerRegistration() {
+    Karate testPersonalCustomerRegistration() {
         System.setProperty("karate.port", String.valueOf(port));
-        return Karate.run("customer-registration").relativeTo(getClass());
+        return Karate.run("personal-customer-registration").relativeTo(getClass());
     }
     
     @Karate.Test
-    Karate testCustomerRegistrationValidation() {
+    Karate testPersonalCustomerRegistrationValidation() {
         System.setProperty("karate.port", String.valueOf(port));
-        return Karate.run("customer-registration-validation").relativeTo(getClass());
+        return Karate.run("personal-customer-registration-validation").relativeTo(getClass());
     }
     
     @Karate.Test
-    Karate testCustomerRegistrationConstraintValidation() {
+    Karate testCorporateCustomerRegistration() {
         System.setProperty("karate.port", String.valueOf(port));
-        return Karate.run("customer-registration-constraint-validation").relativeTo(getClass());
+        return Karate.run("corporate-customer-registration").relativeTo(getClass());
+    }
+    
+    @Karate.Test
+    Karate testCorporateCustomerRegistrationValidation() {
+        System.setProperty("karate.port", String.valueOf(port));
+        return Karate.run("corporate-customer-registration-validation").relativeTo(getClass());
     }
 }

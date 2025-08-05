@@ -1,0 +1,19 @@
+testCase,customerNumber,companyName,companyRegistrationNumber,taxIdentificationNumber,email,phoneNumber,address,city,postalCode,country,expectedError,expectedErrorMessage
+missing_customer_number,,PT. Test Company,1234567890123456,,test@company.com,,,,,,customerNumber,Customer number is required
+invalid_email_format,C2000997,PT. Test Company,1234567890123456,,invalid-email-format,,,,,,email,Email should be valid
+customer_number_too_long,C2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,PT. Test Company,1234567890123456,,test@company.com,,,,,,customerNumber,Customer number must not exceed 50 characters
+company_name_too_long,C2000991,PT. Very Long Company Name That Exceeds The Maximum Allowed Length Of Two Hundred Characters In The Database Schema And Should Trigger A Validation Error When RegisteringXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,1234567890123456,,test@company.com,,,,,,companyName,Company name must not exceed 200 characters
+company_registration_too_long,C2000990,PT. Test Company,12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890,,test@company.com,,,,,,companyRegistrationNumber,Company registration number must not exceed 100 characters
+tax_id_too_long,C2000989,PT. Test Company,1234567890123456,01.234.567.8-901.000.123.456.789.012.345.678.901.234.567.890,test@company.com,,,,,,taxIdentificationNumber,Tax identification number must not exceed 50 characters
+email_too_long,C2000994,PT. Test Company,1234567890123456,,verylongemailthatexceedsonehundredcharacterslimitintheschemaXXXXXXXXXXXXXXXXX@verylongdomainname.comX,,,,,,email,Email must not exceed 100 characters
+phone_number_too_long,C2000993,PT. Test Company,1234567890123456,,test@company.com,081234567890123456789012345678901234567890,,,,,phoneNumber,Phone number must not exceed 20 characters
+city_too_long,C2000988,PT. Test Company,1234567890123456,,test@company.com,,,Very Long City Name That Exceeds One Hundred Characters And Should Trigger Validation ErrorXXXXXXXXXX,,city,City must not exceed 100 characters
+postal_code_too_long,C2000987,PT. Test Company,1234567890123456,,test@company.com,,,,,12345678901234567890,postalCode,Postal code must not exceed 10 characters
+country_too_long,C2000986,PT. Test Company,1234567890123456,,test@company.com,,,,,Very Long Country Name That Exceeds Fifty Characters,country,Country must not exceed 50 characters
+corporate_missing_company_name,C2000985,,1234567890123456,,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have company name
+corporate_missing_registration_number,C2000984,PT. Test Company,,,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have registration number
+corporate_empty_company_name,C2000983,"",1234567890123456,,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have company name
+corporate_whitespace_company_name,C2000982,"   ",1234567890123456,,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have company name
+corporate_empty_registration_number,C2000981,PT. Test Company,"",,"test@company.com",,,,,,corporateFieldsValid,Corporate customers must have registration number
+corporate_whitespace_registration_number,C2000980,PT. Test Company,"   ",,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have registration number
+corporate_all_required_missing,C2000978,,,,,test@company.com,,,,,,corporateFieldsValid,Corporate customers must have all required fields
