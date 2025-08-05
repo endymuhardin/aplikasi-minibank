@@ -1,0 +1,4 @@
+customerNumber,companyName,companyRegistrationNumber,taxIdentificationNumber,contactPersonName,contactPersonTitle,email,phoneNumber,address,city,postalCode,country
+C1000003,PT. Teknologi Maju,1234567890123456,01.234.567.8-901.000,Budi Santoso,Director,info@teknologimaju.com,02123456789,Jl. HR Rasuna Said No. 789,Jakarta,12950,Indonesia
+C1000004,PT. Inovasi Digital,9876543210987654,02.345.678.9-012.000,Sari Indah,CEO,contact@inovasidigital.com,02187654321,Jl. Gatot Subroto No. 456,Jakarta,12930,Indonesia
+C1000007,PT. Solusi Bisnis,5555666677778888,03.456.789.0-123.000,Agus Wijaya,Managing Director,info@solusibisnis.com,02155556666,Jl. Sudirman No. 999,Jakarta,10220,Indonesia

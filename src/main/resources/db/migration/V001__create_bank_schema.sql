@@ -1,20 +1,8 @@
--- Create customers table for both personal and corporate customers
+-- Create base customers table for joined inheritance
 CREATE TABLE customers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_type VARCHAR(20) NOT NULL CHECK (customer_type IN ('PERSONAL', 'CORPORATE')),
     customer_number VARCHAR(50) UNIQUE NOT NULL,
-    
-    -- Personal customer fields
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    date_of_birth DATE,
-    identity_number VARCHAR(50),
-    identity_type VARCHAR(20) CHECK (identity_type IN ('KTP', 'PASSPORT', 'SIM')),
-    
-    -- Corporate customer fields  
-    company_name VARCHAR(200),
-    company_registration_number VARCHAR(100),
-    tax_identification_number VARCHAR(50),
     
     -- Common fields
     email VARCHAR(100),
@@ -28,17 +16,37 @@ CREATE TABLE customers (
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100),
     updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_by VARCHAR(100),
+    updated_by VARCHAR(100)
+);
+
+-- Create personal_customers table for personal-specific fields
+CREATE TABLE personal_customers (
+    id UUID PRIMARY KEY,
     
-    -- Constraints
-    CONSTRAINT chk_personal_fields CHECK (
-        (customer_type = 'PERSONAL' AND first_name IS NOT NULL AND last_name IS NOT NULL AND date_of_birth IS NOT NULL AND identity_number IS NOT NULL)
-        OR customer_type = 'CORPORATE'
-    ),
-    CONSTRAINT chk_corporate_fields CHECK (
-        (customer_type = 'CORPORATE' AND company_name IS NOT NULL AND company_registration_number IS NOT NULL)
-        OR customer_type = 'PERSONAL'
-    )
+    -- Personal customer specific fields
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    identity_number VARCHAR(50) NOT NULL,
+    identity_type VARCHAR(20) NOT NULL CHECK (identity_type IN ('KTP', 'PASSPORT', 'SIM')),
+    
+    -- Foreign key to base customers table
+    CONSTRAINT fk_personal_customers_id FOREIGN KEY (id) REFERENCES customers(id) ON DELETE CASCADE
+);
+
+-- Create corporate_customers table for corporate-specific fields
+CREATE TABLE corporate_customers (
+    id UUID PRIMARY KEY,
+    
+    -- Corporate customer specific fields
+    company_name VARCHAR(200) NOT NULL,
+    company_registration_number VARCHAR(100) NOT NULL,
+    tax_identification_number VARCHAR(50),
+    contact_person_name VARCHAR(100),
+    contact_person_title VARCHAR(100),
+    
+    -- Foreign key to base customers table
+    CONSTRAINT fk_corporate_customers_id FOREIGN KEY (id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
 -- Create products table for banking product configurations
@@ -176,12 +184,19 @@ CREATE TABLE transactions (
 );
 
 -- Create indexes for performance
--- Customer indexes
+-- Base customers table indexes
 CREATE INDEX idx_customers_customer_number ON customers(customer_number);
 CREATE INDEX idx_customers_customer_type ON customers(customer_type);
-CREATE INDEX idx_customers_identity_number ON customers(identity_number) WHERE identity_number IS NOT NULL;
-CREATE INDEX idx_customers_company_registration_number ON customers(company_registration_number) WHERE company_registration_number IS NOT NULL;
 CREATE INDEX idx_customers_email ON customers(email) WHERE email IS NOT NULL;
+
+-- Personal customer indexes
+CREATE INDEX idx_personal_customers_identity_number ON personal_customers(identity_number);
+CREATE INDEX idx_personal_customers_name ON personal_customers(first_name, last_name);
+
+-- Corporate customer indexes
+CREATE INDEX idx_corporate_customers_company_registration_number ON corporate_customers(company_registration_number);
+CREATE INDEX idx_corporate_customers_company_name ON corporate_customers(company_name);
+CREATE INDEX idx_corporate_customers_tax_id ON corporate_customers(tax_identification_number) WHERE tax_identification_number IS NOT NULL;
 
 -- Product indexes
 CREATE INDEX idx_products_product_code ON products(product_code);

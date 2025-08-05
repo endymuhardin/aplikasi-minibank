@@ -35,7 +35,7 @@ class SequenceNumberRepositoryTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/csv/sequences.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/csv/repository/sequences.csv", numLinesToSkip = 1)
     void shouldSaveAndFindSequenceNumberFromCsv(
             String sequenceName,
             String lastNumberStr,

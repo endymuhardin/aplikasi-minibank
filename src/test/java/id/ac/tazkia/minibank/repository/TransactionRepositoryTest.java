@@ -2,6 +2,7 @@ package id.ac.tazkia.minibank.repository;
 
 import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.entity.Transaction;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +63,7 @@ class TransactionRepositoryTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/csv/transactions.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/csv/repository/transactions.csv", numLinesToSkip = 1)
     void shouldSaveAndFindTransactionFromCsv(
             String transactionNumber,
             String accountNumber,
@@ -350,8 +351,7 @@ class TransactionRepositoryTest {
 
     private void setupTestData() {
         // Create test customers to match CSV transaction data
-        Customer customer1 = new Customer();
-        customer1.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer customer1 = new PersonalCustomer();
         customer1.setCustomerNumber("C1000001");
         customer1.setFirstName("Ahmad");
         customer1.setLastName("Suharto");
@@ -367,8 +367,7 @@ class TransactionRepositoryTest {
         customer1.setCreatedBy("TEST");
         customerRepository.save(customer1);
 
-        Customer customer2 = new Customer();
-        customer2.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer customer2 = new PersonalCustomer();
         customer2.setCustomerNumber("C1000002");
         customer2.setFirstName("Siti");
         customer2.setLastName("Nurhaliza");
@@ -384,8 +383,7 @@ class TransactionRepositoryTest {
         customer2.setCreatedBy("TEST");
         customerRepository.save(customer2);
 
-        Customer customer3 = new Customer();
-        customer3.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer customer3 = new PersonalCustomer();
         customer3.setCustomerNumber("C1000003");
         customer3.setFirstName("Budi");
         customer3.setLastName("Santoso");

@@ -1,0 +1,5 @@
+customerNumber,firstName,lastName,dateOfBirth,identityNumber,identityType,email,phoneNumber,address,city,postalCode,country
+C1000001,Ahmad,Suharto,1985-03-15,3271081503850001,KTP,ahmad.suharto@email.com,081234567890,Jl. Sudirman No. 123,Jakarta,10220,Indonesia
+C1000002,Siti,Nurhaliza,1990-07-22,3271082207900002,KTP,siti.nurhaliza@email.com,081234567891,Jl. Thamrin No. 456,Jakarta,10230,Indonesia
+C1000005,Budi,Santoso,1988-12-10,3271081012880003,KTP,budi.santoso@email.com,081234567892,Jl. Kuningan No. 789,Jakarta,12940,Indonesia
+C1000006,Rina,Wati,1992-05-18,3271081805920004,PASSPORT,rina.wati@email.com,081234567893,Jl. Menteng No. 321,Jakarta,10310,Indonesia

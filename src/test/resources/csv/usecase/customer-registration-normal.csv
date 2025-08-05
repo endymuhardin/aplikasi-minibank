@@ -1,0 +1,7 @@
+testCase,customerType,customerNumber,firstName,lastName,dateOfBirth,identityNumber,identityType,companyName,companyRegistrationNumber,taxIdentificationNumber,email,phoneNumber,address,city,postalCode,country
+personal_basic,PERSONAL,C1000999,Test,Customer,1990-01-01,1234567890123456,KTP,,,,"test.customer@email.com","081234567890","Jl. Test No. 123","Jakarta","10220","Indonesia"
+corporate_basic,CORPORATE,C2000999,,,,,,PT. Test Company,1234567890123456,01.234.567.8-901.000,"info@testcompany.com","02123456789","Jl. Corporate No. 789","Jakarta","12950","Indonesia"
+personal_csv_based,PERSONAL,C1000777,Ahmad,Suharto,1985-03-15,3271081503850001,KTP,,,,"ahmad.suharto.test@email.com","081234567890","Jl. Sudirman No. 123","Jakarta","10220","Indonesia"
+corporate_csv_based,CORPORATE,C2000777,,,,,,PT. Teknologi Maju,1234567890123456,01.234.567.8-901.000,"info.test@teknologimaju.com","02123456789","Jl. HR Rasuna Said No. 789","Jakarta","12950","Indonesia"
+personal_passport,PERSONAL,C1000888,Dewi,Lestari,1992-05-18,P123456789,PASSPORT,,,,"dewi.lestari.test@email.com","081234567893","Jl. Senayan No. 321","Jakarta","10270","Indonesia"
+personal_sim,PERSONAL,C1000889,Budi,Santoso,1988-12-10,1234567890,SIM,,,,"budi.santoso.test@email.com","081234567892","Jl. Gatot Subroto No. 789","Jakarta","12950","Indonesia"

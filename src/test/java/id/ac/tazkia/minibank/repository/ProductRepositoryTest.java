@@ -37,7 +37,7 @@ class ProductRepositoryTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/csv/products.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/csv/repository/products.csv", numLinesToSkip = 1)
     void shouldSaveAndFindProductFromCsv(
             String productCode,
             String productName,

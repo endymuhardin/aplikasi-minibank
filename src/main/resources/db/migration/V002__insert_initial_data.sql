@@ -102,30 +102,34 @@ INSERT INTO products (
  NULL, 'CORPORATE',
  'Akta Pendirian, SIUP, TDP, NPWP, SK Kemenkumham', CURRENT_DATE, 'SYSTEM');
 
--- Sample customers data
+-- Sample personal customers data - first insert into base customers table
 INSERT INTO customers (
-    customer_type, customer_number, first_name, last_name, 
-    date_of_birth, identity_number, identity_type,
-    email, phone_number, address, city, postal_code,
-    created_by
+    id, customer_type, customer_number, email, phone_number, 
+    address, city, postal_code, created_by
 ) VALUES 
-('PERSONAL', 'C1000001', 'Ahmad', 'Suharto', 
- '1985-03-15', '3271081503850001', 'KTP',
- 'ahmad.suharto@email.com', '081234567890', 
+(gen_random_uuid(), 'PERSONAL', 'C1000001', 'ahmad.suharto@email.com', '081234567890', 
  'Jl. Sudirman No. 123', 'Jakarta', '10220', 'SYSTEM'),
 
-('PERSONAL', 'C1000002', 'Siti', 'Nurhaliza', 
- '1990-07-22', '3271082207900002', 'KTP',
- 'siti.nurhaliza@email.com', '081234567891', 
+(gen_random_uuid(), 'PERSONAL', 'C1000002', 'siti.nurhaliza@email.com', '081234567891', 
  'Jl. Thamrin No. 456', 'Jakarta', '10230', 'SYSTEM');
 
-INSERT INTO customers (
-    customer_type, customer_number, company_name, 
-    company_registration_number, tax_identification_number,
-    email, phone_number, address, city, postal_code,
-    created_by
+-- Insert personal customer specific data
+INSERT INTO personal_customers (
+    id, first_name, last_name, date_of_birth, identity_number, identity_type
 ) VALUES 
-('CORPORATE', 'C1000003', 'PT. Teknologi Maju', 
- '1234567890123456', '01.234.567.8-901.000',
- 'info@teknologimaju.com', '02123456789', 
+((SELECT id FROM customers WHERE customer_number = 'C1000001'), 'Ahmad', 'Suharto', '1985-03-15', '3271081503850001', 'KTP'),
+((SELECT id FROM customers WHERE customer_number = 'C1000002'), 'Siti', 'Nurhaliza', '1990-07-22', '3271082207900002', 'KTP');
+
+-- Sample corporate customers data - first insert into base customers table  
+INSERT INTO customers (
+    id, customer_type, customer_number, email, phone_number, 
+    address, city, postal_code, created_by
+) VALUES 
+(gen_random_uuid(), 'CORPORATE', 'C1000003', 'info@teknologimaju.com', '02123456789', 
  'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'SYSTEM');
+
+-- Insert corporate customer specific data
+INSERT INTO corporate_customers (
+    id, company_name, company_registration_number, tax_identification_number
+) VALUES 
+((SELECT id FROM customers WHERE customer_number = 'C1000003'), 'PT. Teknologi Maju', '1234567890123456', '01.234.567.8-901.000');

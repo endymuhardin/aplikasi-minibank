@@ -1,76 +1,56 @@
 package id.ac.tazkia.minibank.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "customers")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "customer_type", discriminatorType = DiscriminatorType.STRING)
 @Data
 @NoArgsConstructor
-public class Customer {
+public abstract class Customer {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "customer_type", nullable = false)
-    private CustomerType customerType;
-    
+    @NotBlank(message = "Customer number is required")
+    @Size(max = 50, message = "Customer number must not exceed 50 characters")
     @Column(name = "customer_number", unique = true, nullable = false, length = 50)
     private String customerNumber;
     
-    // Personal customer fields
-    @Column(name = "first_name", length = 100)
-    private String firstName;
-    
-    @Column(name = "last_name", length = 100)
-    private String lastName;
-    
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
-    
-    @Column(name = "identity_number", length = 50)
-    private String identityNumber;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "identity_type", length = 20)
-    private IdentityType identityType;
-    
-    // Corporate customer fields
-    @Column(name = "company_name", length = 200)
-    private String companyName;
-    
-    @Column(name = "company_registration_number", length = 100)
-    private String companyRegistrationNumber;
-    
-    @Column(name = "tax_identification_number", length = 50)
-    private String taxIdentificationNumber;
-    
     // Common fields
+    @Email(message = "Email should be valid")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
     @Column(name = "email", length = 100)
     private String email;
     
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
     
+    @Size(max = 255, message = "Address must not exceed 255 characters")
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
     
+    @Size(max = 100, message = "City must not exceed 100 characters")
     @Column(name = "city", length = 100)
     private String city;
     
+    @Size(max = 10, message = "Postal code must not exceed 10 characters")
     @Column(name = "postal_code", length = 10)
     private String postalCode;
     
+    @Size(max = 50, message = "Country must not exceed 50 characters")
     @Column(name = "country", length = 50)
     private String country = "Indonesia";
     
@@ -92,6 +72,12 @@ public class Customer {
     // Relationships
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts;
+    
+    // Abstract method to get customer type
+    public abstract CustomerType getCustomerType();
+    
+    // Abstract method to get display name
+    public abstract String getDisplayName();
     
     // Enums
     public enum CustomerType {

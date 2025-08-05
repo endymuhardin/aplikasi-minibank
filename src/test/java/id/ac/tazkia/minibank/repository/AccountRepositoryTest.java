@@ -1,7 +1,9 @@
 package id.ac.tazkia.minibank.repository;
 
 import id.ac.tazkia.minibank.entity.Account;
+import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +57,7 @@ class AccountRepositoryTest {
     }
 
     @ParameterizedTest
-    @CsvFileSource(resources = "/csv/accounts.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/csv/repository/accounts.csv", numLinesToSkip = 1)
     void shouldSaveAndFindAccountFromCsv(
             String customerNumber,
             String productCode,
@@ -291,8 +293,7 @@ class AccountRepositoryTest {
 
     private void setupTestCustomersAndProducts() {
         // Create test customers to match CSV data
-        Customer personal1 = new Customer();
-        personal1.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer personal1 = new PersonalCustomer();
         personal1.setCustomerNumber("C1000001");
         personal1.setFirstName("Ahmad");
         personal1.setLastName("Suharto");
@@ -307,8 +308,7 @@ class AccountRepositoryTest {
         personal1.setCountry("Indonesia");
         personal1.setCreatedBy("TEST");
 
-        Customer personal2 = new Customer();
-        personal2.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer personal2 = new PersonalCustomer();
         personal2.setCustomerNumber("C1000002");
         personal2.setFirstName("Siti");
         personal2.setLastName("Nurhaliza");
@@ -323,8 +323,7 @@ class AccountRepositoryTest {
         personal2.setCountry("Indonesia");
         personal2.setCreatedBy("TEST");
 
-        Customer personal3 = new Customer();
-        personal3.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer personal3 = new PersonalCustomer();
         personal3.setCustomerNumber("C1000003");
         personal3.setFirstName("Budi");
         personal3.setLastName("Santoso");
@@ -339,8 +338,7 @@ class AccountRepositoryTest {
         personal3.setCountry("Indonesia");
         personal3.setCreatedBy("TEST");
 
-        Customer corporate1 = new Customer();
-        corporate1.setCustomerType(Customer.CustomerType.CORPORATE);
+        CorporateCustomer corporate1 = new CorporateCustomer();
         corporate1.setCustomerNumber("C1000004");
         corporate1.setCompanyName("PT. Teknologi Maju");
         corporate1.setCompanyRegistrationNumber("1234567890123456");
@@ -353,8 +351,7 @@ class AccountRepositoryTest {
         corporate1.setCountry("Indonesia");
         corporate1.setCreatedBy("TEST");
 
-        Customer corporate2 = new Customer();
-        corporate2.setCustomerType(Customer.CustomerType.CORPORATE);
+        CorporateCustomer corporate2 = new CorporateCustomer();
         corporate2.setCustomerNumber("C1000005");
         corporate2.setCompanyName("CV. Berkah Jaya");
         corporate2.setCompanyRegistrationNumber("9876543210987654");
@@ -367,8 +364,7 @@ class AccountRepositoryTest {
         corporate2.setCountry("Indonesia");
         corporate2.setCreatedBy("TEST");
 
-        Customer personal4 = new Customer();
-        personal4.setCustomerType(Customer.CustomerType.PERSONAL);
+        PersonalCustomer personal4 = new PersonalCustomer();
         personal4.setCustomerNumber("C1000006");
         personal4.setFirstName("Dewi");
         personal4.setLastName("Lestari");

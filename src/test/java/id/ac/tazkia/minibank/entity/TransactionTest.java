@@ -15,17 +15,19 @@ class TransactionTest {
     private Transaction transaction;
     private Account account;
     private Account destinationAccount;
-    private Customer customer;
+    private PersonalCustomer customer;
     private Product product;
 
     @BeforeEach
     void setUp() {
         // Setup test customer
-        customer = new Customer();
-        customer.setCustomerType(Customer.CustomerType.PERSONAL);
+        customer = new PersonalCustomer();
         customer.setCustomerNumber("C1000001");
         customer.setFirstName("John");
         customer.setLastName("Doe");
+        customer.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        customer.setIdentityNumber("1234567890123456");
+        customer.setIdentityType(Customer.IdentityType.KTP);
 
         // Setup test product
         product = new Product();
