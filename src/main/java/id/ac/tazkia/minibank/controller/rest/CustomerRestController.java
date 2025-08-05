@@ -1,30 +1,33 @@
 package id.ac.tazkia.minibank.controller.rest;
 
-import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.PersonalCustomer;
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
-import id.ac.tazkia.minibank.repository.CustomerRepository;
-import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
-import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
-import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import id.ac.tazkia.minibank.entity.CorporateCustomer;
+import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.PersonalCustomer;
+import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
+import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerRestController {
-
-    @Autowired
-    private CustomerRepository customerRepository;
     
     @Autowired
     private PersonalCustomerRepository personalCustomerRepository;
@@ -41,15 +44,10 @@ public class CustomerRestController {
             );
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-        
-        try {
-            PersonalCustomer savedCustomer = personalCustomerRepository.save(customer);
-            return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to register personal customer: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+        PersonalCustomer savedCustomer = personalCustomerRepository.save(customer);
+        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+
     }
 
     @PostMapping("/corporate/register")
@@ -62,14 +60,9 @@ public class CustomerRestController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
         
-        try {
-            CorporateCustomer savedCustomer = corporateCustomerRepository.save(customer);
-            return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to register corporate customer: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        CorporateCustomer savedCustomer = corporateCustomerRepository.save(customer);
+        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+    
     }
 
     @GetMapping("/personal/{id}")
