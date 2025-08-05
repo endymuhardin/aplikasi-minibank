@@ -1,0 +1,7 @@
+customerType,customerNumber,firstName,lastName,dateOfBirth,identityNumber,identityType,companyName,companyRegistrationNumber,taxIdentificationNumber,email,phoneNumber,address,city,postalCode,country
+PERSONAL,C1000001,Ahmad,Suharto,1985-03-15,3271081503850001,KTP,,,,"ahmad.suharto@email.com","081234567890","Jl. Sudirman No. 123","Jakarta","10220","Indonesia"
+PERSONAL,C1000002,Siti,Nurhaliza,1990-07-22,3271082207900002,KTP,,,,"siti.nurhaliza@email.com","081234567891","Jl. Thamrin No. 456","Jakarta","10230","Indonesia"
+PERSONAL,C1000003,Budi,Santoso,1988-12-10,3271081012880003,KTP,,,,"budi.santoso@email.com","081234567892","Jl. Gatot Subroto No. 789","Jakarta","12950","Indonesia"
+CORPORATE,C1000004,,,,,,"PT. Teknologi Maju","1234567890123456","01.234.567.8-901.000","info@teknologimaju.com","02123456789","Jl. HR Rasuna Said No. 789","Jakarta","12950","Indonesia"
+CORPORATE,C1000005,,,,,,"CV. Berkah Jaya","9876543210987654","98.765.432.1-098.000","admin@berkahjaya.com","02187654321","Jl. Kuningan Raya No. 456","Jakarta","12940","Indonesia"
+PERSONAL,C1000006,Dewi,Lestari,1992-05-18,3271051892920004,PASSPORT,,,,"dewi.lestari@email.com","081234567893","Jl. Senayan No. 321","Jakarta","10270","Indonesia"
