@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.controller;
+package id.ac.tazkia.minibank.controller.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
