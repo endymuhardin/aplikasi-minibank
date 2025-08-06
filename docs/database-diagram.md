@@ -111,33 +111,133 @@ erDiagram
         TIMESTAMP updated_date
     }
 
+    users {
+        UUID id PK
+        VARCHAR username UK
+        VARCHAR email UK
+        VARCHAR full_name
+        BOOLEAN is_active
+        BOOLEAN is_locked
+        TIMESTAMP last_login
+        INTEGER failed_login_attempts
+        TIMESTAMP locked_until
+        TIMESTAMP created_date
+        VARCHAR created_by
+        TIMESTAMP updated_date
+        VARCHAR updated_by
+    }
+
+    user_passwords {
+        UUID id PK
+        UUID id_users FK
+        VARCHAR password_hash
+        TIMESTAMP password_expires_at
+        BOOLEAN is_active
+        TIMESTAMP created_date
+        VARCHAR created_by
+    }
+
+    roles {
+        UUID id PK
+        VARCHAR role_code UK
+        VARCHAR role_name
+        TEXT description
+        BOOLEAN is_active
+        TIMESTAMP created_date
+        VARCHAR created_by
+        TIMESTAMP updated_date
+        VARCHAR updated_by
+    }
+
+    permissions {
+        UUID id PK
+        VARCHAR permission_code UK
+        VARCHAR permission_name
+        VARCHAR permission_category
+        TEXT description
+        VARCHAR resource
+        VARCHAR action
+        TIMESTAMP created_date
+        VARCHAR created_by
+    }
+
+    user_roles {
+        UUID id PK
+        UUID id_users FK
+        UUID id_roles FK
+        TIMESTAMP assigned_date
+        VARCHAR assigned_by
+    }
+
+    role_permissions {
+        UUID id PK
+        UUID id_roles FK
+        UUID id_permissions FK
+        TIMESTAMP granted_date
+        VARCHAR granted_by
+    }
+
     customers ||--o{ accounts : "has"
     products ||--o{ accounts : "defines"
     accounts ||--o{ transactions : "records"
     accounts ||--o{ transactions : "destination"
+    users ||--|| user_passwords : "has"
+    users ||--o{ user_roles : "assigned"
+    roles ||--o{ user_roles : "contains"
+    roles ||--o{ role_permissions : "grants"
+    permissions ||--o{ role_permissions : "granted_to"
 ```
 
 ## Table Relationships
 
-### customers → accounts (One-to-Many)
+### Banking Core Relationships
+
+#### customers → accounts (One-to-Many)
 - One customer can have multiple accounts
 - Each account belongs to exactly one customer
 - Foreign key: `accounts.id_customers` → `customers.id`
 
-### products → accounts (One-to-Many)
+#### products → accounts (One-to-Many)
 - One product can be used for multiple accounts
 - Each account is based on exactly one product
 - Foreign key: `accounts.id_products` → `products.id`
 
-### accounts → transactions (One-to-Many)
+#### accounts → transactions (One-to-Many)
 - One account can have multiple transactions
 - Each transaction belongs to exactly one account
 - Foreign key: `transactions.id_accounts` → `accounts.id`
 
-### accounts → transactions (One-to-Many, for transfers)
+#### accounts → transactions (One-to-Many, for transfers)
 - One account can be the destination for multiple transfer transactions
 - Each transfer transaction can have one destination account (optional)
 - Foreign key: `transactions.id_accounts_destination` → `accounts.id`
+
+### User Authentication & Authorization Relationships
+
+#### users → user_passwords (One-to-One)
+- Each user has exactly one active password record
+- Password is stored separately for easier CRUD operations
+- Foreign key: `user_passwords.id_users` → `users.id`
+
+#### users → user_roles (One-to-Many)
+- One user can have multiple roles (though typically one role per user)
+- Each user-role assignment is tracked separately
+- Foreign key: `user_roles.id_users` → `users.id`
+
+#### roles → user_roles (One-to-Many)
+- One role can be assigned to multiple users
+- Each user-role assignment belongs to exactly one role
+- Foreign key: `user_roles.id_roles` → `roles.id`
+
+#### roles → role_permissions (One-to-Many)
+- One role can have multiple permissions
+- Each permission assignment belongs to exactly one role
+- Foreign key: `role_permissions.id_roles` → `roles.id`
+
+#### permissions → role_permissions (One-to-Many)
+- One permission can be granted to multiple roles
+- Each role-permission assignment involves exactly one permission
+- Foreign key: `role_permissions.id_permissions` → `permissions.id`
 
 ## Key Features
 
@@ -172,3 +272,41 @@ erDiagram
 - **INACTIVE**: Temporarily suspended account
 - **CLOSED**: Permanently closed account
 - **FROZEN**: Frozen due to compliance issues
+
+## User Authentication & Authorization Features
+
+### User Management
+- **Separate Password Storage**: Passwords stored in dedicated table for easier CRUD operations
+- **Account Locking**: Automatic account locking after failed login attempts
+- **Password Expiration**: Configurable password expiration dates
+- **User Status Tracking**: Active/inactive user management with audit trail
+
+### Role-Based Access Control (RBAC)
+- **Three Main Roles**:
+  - **CUSTOMER_SERVICE**: Customer registration and account opening
+  - **TELLER**: Financial transaction processing
+  - **BRANCH_MANAGER**: Full access with monitoring and approval capabilities
+
+### Permission System
+- **Granular Permissions**: Fine-grained permission control by resource and action
+- **Dynamic Menu Display**: UI menus displayed based on user permissions
+- **Permission Categories**:
+  - **CUSTOMER**: Customer management operations
+  - **ACCOUNT**: Account management operations  
+  - **TRANSACTION**: Transaction processing operations
+  - **PRODUCT**: Product information access
+  - **USER**: User management operations
+  - **REPORT**: Business reporting access
+  - **AUDIT**: System audit log access
+
+### Default Setup
+- **Admin User**: Default admin account with Branch Manager role
+  - Username: `admin`
+  - Email: `admin@yopmail.com`
+  - Password: `YTZvdyAUya` (10-character random password using non-ambiguous characters)
+
+### Security Features
+- **Failed Login Tracking**: Automatic account locking after multiple failed attempts
+- **Session Management**: Last login timestamp tracking
+- **Audit Trail**: Full audit trail for user actions with created_by/updated_by fields
+- **Password Security**: BCrypt password hashing with secure storage
