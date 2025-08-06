@@ -85,12 +85,20 @@ class CustomerRepositoryTest {
         // Given
         saveTestCustomers();
 
-        // When
-        List<Customer> results = customerRepository.findCustomersWithSearchTerm("ahmad");
+        // When - Search by email term
+        List<Customer> emailResults = customerRepository.findCustomersWithSearchTerm("ahmad");
+        List<Customer> customerNumberResults = customerRepository.findCustomersWithSearchTerm("C1000001");
+        List<Customer> emptyResults = customerRepository.findCustomersWithSearchTerm("nonexistent");
 
         // Then
-        assertThat(results).hasSizeGreaterThan(0);
-        assertThat(results.get(0).getEmail()).containsIgnoringCase("ahmad");
+        assertThat(emailResults).hasSizeGreaterThan(0);
+        assertThat(emailResults.get(0).getEmail()).containsIgnoringCase("ahmad");
+        assertThat(emailResults.get(0).getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        
+        assertThat(customerNumberResults).hasSizeGreaterThan(0);
+        assertThat(customerNumberResults.get(0).getCustomerNumber()).isEqualTo("C1000001");
+        
+        assertThat(emptyResults).isEmpty();
     }
 
     @Test
@@ -115,10 +123,90 @@ class CustomerRepositoryTest {
         Long count = customerRepository.countAllCustomers();
 
         // Then
-        assertThat(count).isGreaterThan(0);
+        assertThat(count).isEqualTo(2); // One personal, one corporate
+    }
+
+    @Test
+    void shouldFindAllCustomersPolymorphically() {
+        // Given
+        saveTestCustomers();
+
+        // When
+        List<Customer> allCustomers = customerRepository.findAll();
+
+        // Then
+        assertThat(allCustomers).hasSize(2);
+        
+        // Verify we have both types
+        boolean hasPersonal = allCustomers.stream()
+            .anyMatch(c -> c.getCustomerType() == Customer.CustomerType.PERSONAL);
+        boolean hasCorporate = allCustomers.stream()
+            .anyMatch(c -> c.getCustomerType() == Customer.CustomerType.CORPORATE);
+            
+        assertThat(hasPersonal).isTrue();
+        assertThat(hasCorporate).isTrue();
+    }
+
+    @Test
+    void shouldSaveAndRetrieveDifferentCustomerTypes() {
+        // Given
+        PersonalCustomer personalCustomer = new PersonalCustomer();
+        personalCustomer.setCustomerNumber("P001");
+        personalCustomer.setFirstName("John");
+        personalCustomer.setLastName("Doe");
+        personalCustomer.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        personalCustomer.setIdentityNumber("1234567890");
+        personalCustomer.setIdentityType(Customer.IdentityType.KTP);
+        personalCustomer.setEmail("john.doe@email.com");
+        personalCustomer.setPhoneNumber("081234567890");
+        personalCustomer.setAddress("Test Address");
+        personalCustomer.setCity("Test City");
+        personalCustomer.setPostalCode("12345");
+        personalCustomer.setCountry("Indonesia");
+        personalCustomer.setCreatedBy("TEST");
+
+        CorporateCustomer corporateCustomer = new CorporateCustomer();
+        corporateCustomer.setCustomerNumber("C001");
+        corporateCustomer.setCompanyName("Test Company");
+        corporateCustomer.setCompanyRegistrationNumber("123456789");
+        corporateCustomer.setTaxIdentificationNumber("12.345.678.9-123.456");
+        corporateCustomer.setEmail("test@company.com");
+        corporateCustomer.setPhoneNumber("021123456");
+        corporateCustomer.setAddress("Company Address");
+        corporateCustomer.setCity("Jakarta");
+        corporateCustomer.setPostalCode("54321");
+        corporateCustomer.setCountry("Indonesia");
+        corporateCustomer.setCreatedBy("TEST");
+
+        // When
+        Customer savedPersonal = customerRepository.save(personalCustomer);
+        Customer savedCorporate = customerRepository.save(corporateCustomer);
+        entityManager.flush();
+
+        // Then
+        assertThat(savedPersonal.getId()).isNotNull();
+        assertThat(savedPersonal.getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        assertThat(savedPersonal).isInstanceOf(PersonalCustomer.class);
+
+        assertThat(savedCorporate.getId()).isNotNull();
+        assertThat(savedCorporate.getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
+        assertThat(savedCorporate).isInstanceOf(CorporateCustomer.class);
+    }
+
+    @Test
+    void shouldHandleEmptySearchTerm() {
+        // Given
+        saveTestCustomers();
+
+        // When
+        List<Customer> results = customerRepository.findCustomersWithSearchTerm("");
+
+        // Then
+        assertThat(results).hasSize(2); // Should return all customers when search term is empty
     }
 
     private void saveTestCustomers() {
+        // Personal Customer for polymorphic testing
         PersonalCustomer personal1 = new PersonalCustomer();
         personal1.setCustomerNumber("C1000001");
         personal1.setFirstName("Ahmad");
@@ -134,6 +222,7 @@ class CustomerRepositoryTest {
         personal1.setCountry("Indonesia");
         personal1.setCreatedBy("TEST");
 
+        // Corporate Customer for polymorphic testing
         CorporateCustomer corporate1 = new CorporateCustomer();
         corporate1.setCustomerNumber("C1000003");
         corporate1.setCompanyName("PT. Teknologi Maju");
@@ -147,8 +236,9 @@ class CustomerRepositoryTest {
         corporate1.setCountry("Indonesia");
         corporate1.setCreatedBy("TEST");
 
-        personalCustomerRepository.save(personal1);
-        corporateCustomerRepository.save(corporate1);
+        // Save using the base repository to test polymorphic behavior
+        customerRepository.save(personal1);
+        customerRepository.save(corporate1);
         entityManager.flush();
     }
 }
