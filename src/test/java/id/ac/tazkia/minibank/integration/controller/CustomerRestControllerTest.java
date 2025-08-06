@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,6 +32,7 @@ import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 
 @WebMvcTest(CustomerRestController.class)
+@WithMockUser
 public class CustomerRestControllerTest {
 
     @Autowired
@@ -71,7 +74,8 @@ public class CustomerRestControllerTest {
 
         mockMvc.perform(post("/api/customers/personal/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer)))
+                .content(objectMapper.writeValueAsString(customer))
+                .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
@@ -85,7 +89,8 @@ public class CustomerRestControllerTest {
 
         mockMvc.perform(post("/api/customers/personal/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer)))
+                .content(objectMapper.writeValueAsString(customer))
+                .with(csrf()))
                 .andExpect(status().isBadRequest());
     }
 
@@ -114,7 +119,8 @@ public class CustomerRestControllerTest {
 
         mockMvc.perform(post("/api/customers/corporate/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer)))
+                .content(objectMapper.writeValueAsString(customer))
+                .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName").value("PT. Test Company"));
     }
@@ -126,7 +132,8 @@ public class CustomerRestControllerTest {
 
         mockMvc.perform(post("/api/customers/corporate/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer)))
+                .content(objectMapper.writeValueAsString(customer))
+                .with(csrf()))
                 .andExpect(status().isBadRequest());
     }
 

@@ -1,0 +1,7 @@
+username,email,fullName,testDescription
+validuser01,valid01@yopmail.com,Valid User One,Normal valid user
+validuser02,valid02@yopmail.com,Valid User Two,Normal valid user with different email
+test.user,test.user@yopmail.com,Test User With Dots,Username with dots
+user_123,user123@yopmail.com,User With Numbers,Username with numbers and underscore
+shortuser,short@yopmail.com,Short User,Short username
+longuser,long@yopmail.com,Long User Name Here,Longer name but valid

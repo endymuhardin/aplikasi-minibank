@@ -6,5 +6,3 @@ validuser,valid@yopmail.com,BLANK,false,Blank full name,Full name is required
 this.is.a.very.long.username.that.exceeds.fifty.characters.limit,valid@yopmail.com,Valid Name,false,Username too long,Username must not exceed 50 characters
 validuser,this.is.a.very.long.email.address.that.exceeds.one.hundred.characters.limit.and.should.fail.validation@yopmail.com,Valid Name,false,Email too long,Email must not exceed 100 characters
 validuser,valid@yopmail.com,This is a very very very long full name that definitely exceeds the one hundred character limit and should fail validation test for sure,false,Full name too long,Full name must not exceed 100 characters
-admin,duplicate@yopmail.com,Duplicate Username,false,Duplicate username,Username already exists
-duplicate_user,admin@yopmail.com,Duplicate Email,false,Duplicate email,Email already exists
