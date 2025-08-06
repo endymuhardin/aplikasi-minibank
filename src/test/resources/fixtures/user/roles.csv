@@ -1,0 +1,6 @@
+roleCode,roleName,description,isActive,createdBy
+BRANCH_MANAGER,Branch Manager,Monitor operations and provide approvals with full system access,true,SYSTEM
+TELLER,Teller,Handle financial transactions and customer account operations,true,SYSTEM
+CUSTOMER_SERVICE,Customer Service,Handle customer registration and account opening processes,true,SYSTEM
+ADMIN,System Administrator,Full system administration and configuration access,true,SYSTEM
+AUDITOR,Auditor,Read-only access for audit and compliance purposes,true,SYSTEM

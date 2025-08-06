@@ -1,0 +1,8 @@
+username,password,isActive,isLocked,failedAttempts,shouldAuthenticate,testDescription
+admin,YTZvdyAUya,true,false,0,true,Valid admin login
+teller_01,password123,true,false,0,true,Valid teller login
+teller_01,wrongpassword,true,false,0,false,Invalid password
+inactive_user,password123,false,false,0,false,Inactive user cannot login
+locked_user,password123,true,true,5,false,Locked user cannot login
+active_user,password123,true,false,2,true,Active user with previous failed attempts
+active_user,wrongpassword,true,false,2,false,Active user with wrong password increments attempts

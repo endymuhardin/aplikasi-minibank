@@ -1,0 +1,29 @@
+permissionCode,permissionName,permissionCategory,description,resource,action,createdBy
+CUSTOMER_VIEW,View Customer,CUSTOMER,View customer information and details,customer,read,SYSTEM
+CUSTOMER_CREATE,Create Customer,CUSTOMER,Register new customers in the system,customer,create,SYSTEM
+CUSTOMER_UPDATE,Update Customer,CUSTOMER,Update existing customer information,customer,update,SYSTEM
+CUSTOMER_DELETE,Delete Customer,CUSTOMER,Deactivate or remove customer accounts,customer,delete,SYSTEM
+ACCOUNT_VIEW,View Account,ACCOUNT,View account information and balances,account,read,SYSTEM
+ACCOUNT_CREATE,Create Account,ACCOUNT,Open new accounts for customers,account,create,SYSTEM
+ACCOUNT_UPDATE,Update Account,ACCOUNT,Update account information and settings,account,update,SYSTEM
+ACCOUNT_CLOSE,Close Account,ACCOUNT,Close customer accounts,account,close,SYSTEM
+BALANCE_VIEW,View Balance,ACCOUNT,View account balance and transaction history,account,balance,SYSTEM
+TRANSACTION_VIEW,View Transaction,TRANSACTION,View transaction history and details,transaction,read,SYSTEM
+TRANSACTION_DEPOSIT,Process Deposit,TRANSACTION,Process deposit transactions,transaction,deposit,SYSTEM
+TRANSACTION_WITHDRAWAL,Process Withdrawal,TRANSACTION,Process withdrawal transactions,transaction,withdrawal,SYSTEM
+TRANSACTION_TRANSFER,Process Transfer,TRANSACTION,Process transfer transactions between accounts,transaction,transfer,SYSTEM
+TRANSACTION_APPROVE,Approve Transaction,TRANSACTION,Approve high-value transactions,transaction,approve,SYSTEM
+PRODUCT_VIEW,View Product,PRODUCT,View banking products and their configurations,product,read,SYSTEM
+PRODUCT_CREATE,Create Product,PRODUCT,Create new banking products,product,create,SYSTEM
+PRODUCT_UPDATE,Update Product,PRODUCT,Update banking product configurations,product,update,SYSTEM
+USER_VIEW,View Users,USER,View system users and their information,user,read,SYSTEM
+USER_CREATE,Create User,USER,Create new system users,user,create,SYSTEM
+USER_UPDATE,Update User,USER,Update user information and settings,user,update,SYSTEM
+USER_DEACTIVATE,Deactivate User,USER,Deactivate system users,user,deactivate,SYSTEM
+ROLE_VIEW,View Roles,ROLE,View system roles and permissions,role,read,SYSTEM
+ROLE_ASSIGN,Assign Roles,ROLE,Assign roles to users,role,assign,SYSTEM
+REPORT_VIEW,View Reports,REPORT,View business reports and analytics,report,read,SYSTEM
+REPORT_EXPORT,Export Reports,REPORT,Export reports to various formats,report,export,SYSTEM
+AUDIT_VIEW,View Audit Log,AUDIT,View system audit logs and user activities,audit,read,SYSTEM
+CONFIG_VIEW,View Configuration,CONFIG,View system configuration settings,config,read,SYSTEM
+CONFIG_UPDATE,Update Configuration,CONFIG,Update system configuration settings,config,update,SYSTEM
