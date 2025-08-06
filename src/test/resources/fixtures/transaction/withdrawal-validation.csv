@@ -1,0 +1,7 @@
+testCase,accountId,amount,description,referenceNumber,createdBy,expectedStatus,expectedErrorField,expectedErrorMessage
+Invalid account ID,00000000-0000-0000-0000-000000000000,100.00,Test withdrawal,REF001,teller01,400,accountId,Account not found
+Inactive account,ACC0000004,100.00,Test withdrawal,REF002,teller01,400,accountId,Account is not active
+Insufficient balance,ACC0000005,50.00,Test withdrawal,REF003,teller01,400,amount,Insufficient balance
+Negative amount,ACC0000001,-100.00,Test withdrawal,REF004,teller01,400,amount,Amount must be greater than 0
+Zero amount,ACC0000001,0.00,Test withdrawal,REF005,teller01,400,amount,Amount must be greater than 0
+Missing amount,ACC0000001,null,Test withdrawal,REF006,teller01,400,amount,Amount is required
