@@ -20,12 +20,11 @@ import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.entity.SequenceNumber;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
-import id.ac.tazkia.minibank.repository.SequenceNumberRepository;
+import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -45,7 +44,7 @@ public class AccountRestController {
     private ProductRepository productRepository;
     
     @Autowired
-    private SequenceNumberRepository sequenceNumberRepository;
+    private SequenceNumberService sequenceNumberService;
 
     @PostMapping("/open")
     public ResponseEntity<?> openAccount(@Valid @RequestBody AccountOpeningRequest request, BindingResult bindingResult) {
@@ -159,20 +158,6 @@ public class AccountRestController {
     }
 
     private String generateAccountNumber() {
-        // Get or create sequence for account numbers
-        Optional<SequenceNumber> sequenceOpt = sequenceNumberRepository.findBySequenceName("ACCOUNT_NUMBER");
-        SequenceNumber sequence;
-        
-        if (sequenceOpt.isPresent()) {
-            sequence = sequenceOpt.get();
-        } else {
-            sequence = new SequenceNumber();
-            sequence.setSequenceName("ACCOUNT_NUMBER");
-            sequence.setPrefix("ACC");
-            sequence.setLastNumber(0L);
-            sequence = sequenceNumberRepository.save(sequence);
-        }
-        
-        return sequence.generateNextSequence();
+        return sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "ACC");
     }
 }
