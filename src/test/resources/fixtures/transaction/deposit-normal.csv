@@ -1,0 +1,6 @@
+testCase,accountId,amount,description,referenceNumber,createdBy
+Deposit to personal savings account,ACC0000001,1000.00,Cash deposit,REF001,teller01
+Deposit to corporate checking account,ACC0000002,2500.50,Bank transfer deposit,REF002,teller02
+Large deposit,ACC0000001,50000.00,Large cash deposit,REF003,manager01
+Deposit with no reference,ACC0000003,750.25,Counter deposit,,teller01
+Deposit minimal amount,ACC0000001,0.01,Test minimal deposit,REF004,teller03

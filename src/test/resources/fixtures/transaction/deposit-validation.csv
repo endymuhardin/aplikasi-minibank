@@ -1,0 +1,9 @@
+testCase,accountId,amount,description,referenceNumber,createdBy,expectedError
+Invalid account ID,99999999-9999-9999-9999-999999999999,1000.00,Test deposit,REF001,teller01,Account not found
+Zero amount,ACC0000001,0.00,Invalid deposit,REF002,teller01,Amount must be greater than 0
+Negative amount,ACC0000001,-100.00,Invalid deposit,REF003,teller01,Amount must be greater than 0
+Null account ID,null,1000.00,Test deposit,REF004,teller01,Account ID is required
+Null amount,ACC0000001,null,Test deposit,REF005,teller01,Amount is required
+Description too long,ACC0000001,1000.00,"This is a very long description that exceeds the maximum allowed length of 500 characters. Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste natus error sit voluptatem.",REF006,teller01,Description cannot exceed 500 characters
+Reference too long,ACC0000001,1000.00,Test deposit,"This reference number is too long and exceeds the maximum allowed length of 100 characters for reference",teller01,Reference number cannot exceed 100 characters
+CreatedBy too long,ACC0000001,1000.00,Test deposit,REF007,"This created by field is too long and exceeds the maximum allowed length of 100 characters",Created by cannot exceed 100 characters
