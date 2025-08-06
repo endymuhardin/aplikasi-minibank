@@ -1,0 +1,6 @@
+testCase,customerId,productId,accountName,initialDeposit,createdBy
+personal_basic_savings,C1000001,SAV001,Ahmad Suharto - Basic Savings,100000,test-user
+personal_premium_savings,C1000002,SAV002,Siti Nurhaliza - Premium Savings,1500000,test-user
+personal_basic_checking,C1000003,CHK001,Budi Santoso - Basic Checking,200000,test-user
+personal_premium_checking,C1000006,CHK002,Dewi Lestari - Premium Checking,2500000,test-user
+corporate_savings,C1000004,SAV003,PT. Teknologi Maju - Corporate Savings,10000000,test-user

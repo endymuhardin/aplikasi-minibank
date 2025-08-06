@@ -1,0 +1,10 @@
+testCase,customerId,productId,accountName,initialDeposit,createdBy,expectedError,expectedErrorMessage
+missing_customer_id,,SAV001,Test Account,100000,test-user,customerId,Customer ID is required
+missing_product_id,C1000001,,Test Account,100000,test-user,productId,Product ID is required
+missing_account_name,C1000001,SAV001,,100000,test-user,accountName,Account name is required
+account_name_too_long,C1000001,SAV001,This is a very long account name that exceeds the maximum allowed length of two hundred characters in the database schema and should trigger a validation error when opening account XXXXXXXXXXXXXXXXXXXXXX,100000,test-user,accountName,Account name must not exceed 200 characters
+invalid_customer_id,99999999-9999-9999-9999-999999999999,SAV001,Test Account,100000,test-user,customerId,Customer not found
+invalid_product_id,C1000001,99999999-9999-9999-9999-999999999999,Test Account,100000,test-user,productId,Product not found
+insufficient_opening_balance,C1000001,SAV001,Test Account,10000,test-user,initialDeposit,Initial deposit must be at least 50000.00
+negative_deposit,C1000001,SAV001,Test Account,-1000,test-user,initialDeposit,Initial deposit must be at least 50000.00
+corporate_personal_mismatch,C1000004,SAV001,Test Account,100000,test-user,productId,Product not available for CORPORATE customers
