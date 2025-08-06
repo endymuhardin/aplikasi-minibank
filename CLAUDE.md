@@ -109,13 +109,15 @@ id.ac.tazkia.minibank/
 - **Bean Validation** (jakarta.validation)
 - **Flyway** for database migrations
 - **JaCoCo** for test coverage
+- **Karate** for API integration testing
 
 ## Testing Approach
 
 - **@DataJpaTest**: Repository integration tests with real database
-- **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files in `src/test/resources/csv/`
+- **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files in `src/test/resources/fixtures/`
 - **Entity Tests**: Unit tests for business logic in entity classes
 - **TestEntityManager**: For JPA testing utilities
+- **Karate Tests**: Feature-driven API integration testing in `src/test/resources/karate/`
 
 ## Development Workflow
 
