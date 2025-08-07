@@ -1,6 +1,8 @@
 package id.ac.tazkia.minibank.repository;
 
 import id.ac.tazkia.minibank.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     List<User> findUsersWithSearchTerm(@Param("searchTerm") String searchTerm);
+    
+    @Query("SELECT u FROM User u WHERE " +
+           "(:searchTerm IS NULL OR " +
+           "LOWER(u.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    Page<User> findUsersWithSearchTermPage(@Param("searchTerm") String searchTerm, Pageable pageable);
     
     boolean existsByUsername(String username);
     

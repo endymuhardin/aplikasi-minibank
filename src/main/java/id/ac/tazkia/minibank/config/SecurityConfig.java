@@ -23,6 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/product/**").permitAll()
+                .requestMatchers("/rbac/**").permitAll()
                 .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().permitAll()
             )

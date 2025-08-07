@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${role.id != null} ? 'Edit Role' : 'Create Role'">Role Form</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800" 
+                th:text="${role.id != null} ? 'Edit Role' : 'Create Role'">Role Form</h1>
+            <a th:href="@{/rbac/roles/list}" 
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+               id="back-to-list-btn">
+                Back to List
+            </a>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errorMessage}" 
+             class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+             id="error-message">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <form th:action="${role.id != null} ? @{/rbac/roles/edit/{id}(id=${role.id})} : @{/rbac/roles/create}" 
+                  method="post" 
+                  th:object="${role}"
+                  id="role-form">
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Role Code -->
+                    <div>
+                        <label for="roleCode" class="block text-sm font-medium text-gray-700">Role Code *</label>
+                        <input type="text" 
+                               id="roleCode" 
+                               th:field="*{roleCode}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               th:classappend="${#fields.hasErrors('roleCode')} ? 'border-red-500' : ''"
+                               placeholder="e.g., ADMIN, USER, MANAGER"
+                               required>
+                        <p th:if="${#fields.hasErrors('roleCode')}" 
+                           th:errors="*{roleCode}" 
+                           class="mt-1 text-sm text-red-600 rolecode-error"></p>
+                    </div>
+
+                    <!-- Role Name -->
+                    <div>
+                        <label for="roleName" class="block text-sm font-medium text-gray-700">Role Name *</label>
+                        <input type="text" 
+                               id="roleName" 
+                               th:field="*{roleName}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               th:classappend="${#fields.hasErrors('roleName')} ? 'border-red-500' : ''"
+                               placeholder="e.g., Administrator, Regular User, Manager"
+                               required>
+                        <p th:if="${#fields.hasErrors('roleName')}" 
+                           th:errors="*{roleName}" 
+                           class="mt-1 text-sm text-red-600 rolename-error"></p>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="sm:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea id="description" 
+                                  th:field="*{description}"
+                                  rows="3"
+                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                  th:classappend="${#fields.hasErrors('description')} ? 'border-red-500' : ''"
+                                  placeholder="Describe the role and its responsibilities..."></textarea>
+                        <p th:if="${#fields.hasErrors('description')}" 
+                           th:errors="*{description}" 
+                           class="mt-1 text-sm text-red-600 description-error"></p>
+                    </div>
+
+                    <!-- Active Status (only for edit) -->
+                    <div th:if="${role.id != null}">
+                        <label for="isActive" class="flex items-center">
+                            <input type="checkbox" 
+                                   id="isActive" 
+                                   th:field="*{isActive}"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Active</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a th:href="@{/rbac/roles/list}" 
+                       class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                       id="cancel-btn">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            id="save-role-btn">
+                        <span th:text="${role.id != null} ? 'Update Role' : 'Create Role'">Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

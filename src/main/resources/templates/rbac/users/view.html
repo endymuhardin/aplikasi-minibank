@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>View User</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">View User</h1>
+            <div class="space-x-3">
+                <a th:href="@{/rbac/users/edit/{id}(id=${user.id})}" 
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Edit User
+                </a>
+                <a th:href="@{/rbac/users/list}" 
+                   class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">User Information</h3>
+            </div>
+            <div class="px-6 py-4">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Username</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${user.username}"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${user.fullName}"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${user.email}"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="mt-1">
+                            <span th:if="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Active
+                            </span>
+                            <span th:unless="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Inactive
+                            </span>
+                            <span th:if="${user.isLocked}" class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Locked
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm')}"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${user.updatedDate != null ? #temporals.format(user.updatedDate, 'dd/MM/yyyy HH:mm') : 'Never'}"></dd>
+                    </div>
+                    <div th:if="${user.lastLogin != null}">
+                        <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(user.lastLogin, 'dd/MM/yyyy HH:mm')}"></dd>
+                    </div>
+                    <div th:if="${user.failedLoginAttempts != null && user.failedLoginAttempts > 0}">
+                        <dt class="text-sm font-medium text-gray-500">Failed Login Attempts</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${user.failedLoginAttempts}"></dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- User Roles -->
+        <div class="mt-6 bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Assigned Roles</h3>
+                <a th:href="@{/rbac/users/{id}/roles(id=${user.id})}" 
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                    Manage Roles
+                </a>
+            </div>
+            <div class="px-6 py-4">
+                <div th:if="${userRoles.empty}" class="text-gray-500">
+                    No roles assigned to this user.
+                </div>
+                <div th:unless="${userRoles.empty}">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div th:each="userRole : ${userRoles}" class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-900" th:text="${userRole.role.roleName}"></h4>
+                            <p class="text-sm text-gray-500" th:text="${userRole.role.roleCode}"></p>
+                            <p class="text-sm text-gray-500 mt-2" th:text="${userRole.role.description}"></p>
+                            <p class="text-xs text-gray-400 mt-2">
+                                Assigned: <span th:text="${#temporals.format(userRole.assignedDate, 'dd/MM/yyyy')}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

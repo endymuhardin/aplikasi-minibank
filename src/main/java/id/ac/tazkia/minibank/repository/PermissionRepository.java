@@ -1,6 +1,8 @@
 package id.ac.tazkia.minibank.repository;
 
 import id.ac.tazkia.minibank.entity.Permission;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +22,12 @@ public interface PermissionRepository extends JpaRepository<Permission, UUID> {
     
     @Query("SELECT p FROM Permission p WHERE p.resource = :resource AND p.action = :action")
     List<Permission> findByResourceAndAction(@Param("resource") String resource, @Param("action") String action);
+    
+    @Query("SELECT p FROM Permission p WHERE p.permissionCategory = :category")
+    Page<Permission> findByCategoryPage(@Param("category") String category, Pageable pageable);
+    
+    @Query("SELECT DISTINCT p.permissionCategory FROM Permission p ORDER BY p.permissionCategory")
+    List<String> findDistinctCategories();
     
     boolean existsByPermissionCode(String permissionCode);
 }

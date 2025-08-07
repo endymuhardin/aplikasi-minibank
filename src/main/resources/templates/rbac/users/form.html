@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${user.id != null} ? 'Edit User' : 'Create User'">User Form</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800" 
+                th:text="${user.id != null} ? 'Edit User' : 'Create User'">User Form</h1>
+            <a th:href="@{/rbac/users/list}" 
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+               id="back-to-list-btn">
+                Back to List
+            </a>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errorMessage}" 
+             class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+             id="error-message">
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <form th:action="${user.id != null} ? @{/rbac/users/edit/{id}(id=${user.id})} : @{/rbac/users/create}" 
+                  method="post" 
+                  th:object="${user}"
+                  id="user-form">
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">Username *</label>
+                        <input type="text" 
+                               id="username" 
+                               th:field="*{username}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               th:classappend="${#fields.hasErrors('username')} ? 'border-red-500' : ''"
+                               required>
+                        <p th:if="${#fields.hasErrors('username')}" 
+                           th:errors="*{username}" 
+                           class="mt-1 text-sm text-red-600 username-error"></p>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name *</label>
+                        <input type="text" 
+                               id="fullName" 
+                               th:field="*{fullName}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               th:classappend="${#fields.hasErrors('fullName')} ? 'border-red-500' : ''"
+                               required>
+                        <p th:if="${#fields.hasErrors('fullName')}" 
+                           th:errors="*{fullName}" 
+                           class="mt-1 text-sm text-red-600 fullname-error"></p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="sm:col-span-2">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+                        <input type="email" 
+                               id="email" 
+                               th:field="*{email}"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               th:classappend="${#fields.hasErrors('email')} ? 'border-red-500' : ''"
+                               required>
+                        <p th:if="${#fields.hasErrors('email')}" 
+                           th:errors="*{email}" 
+                           class="mt-1 text-sm text-red-600 email-error"></p>
+                    </div>
+
+                    <!-- Password will be handled separately after user creation -->
+
+                    <!-- Active Status (only for edit) -->
+                    <div th:if="${user.id != null}">
+                        <label for="isActive" class="flex items-center">
+                            <input type="checkbox" 
+                                   id="isActive" 
+                                   th:field="*{isActive}"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Active</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a th:href="@{/rbac/users/list}" 
+                       class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                       id="cancel-btn">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            id="save-user-btn">
+                        <span th:text="${user.id != null} ? 'Update User' : 'Create User'">Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
