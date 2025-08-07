@@ -1,16 +1,14 @@
 package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,10 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
-class ProductRepositoryTest {
+class ProductRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;

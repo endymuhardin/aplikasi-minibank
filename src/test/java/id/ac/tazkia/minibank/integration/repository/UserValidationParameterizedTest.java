@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.User;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -10,21 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
-class UserValidationParameterizedTest {
+class UserValidationParameterizedTest extends BaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
