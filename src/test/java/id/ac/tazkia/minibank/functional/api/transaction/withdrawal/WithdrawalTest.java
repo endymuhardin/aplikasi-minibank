@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.feature.transaction.withdrawal;
+package id.ac.tazkia.minibank.functional.api.transaction.withdrawal;
 
 import com.intuit.karate.junit5.Karate;
 import org.springframework.boot.test.context.SpringBootTest;

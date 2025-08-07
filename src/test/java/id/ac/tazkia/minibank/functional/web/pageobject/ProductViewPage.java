@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.integration.web.pageobject;
+package id.ac.tazkia.minibank.functional.web.pageobject;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

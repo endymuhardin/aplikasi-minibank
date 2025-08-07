@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.integration.web;
+package id.ac.tazkia.minibank.functional.web;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

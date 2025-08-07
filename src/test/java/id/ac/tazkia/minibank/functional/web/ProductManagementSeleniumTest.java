@@ -1,8 +1,8 @@
-package id.ac.tazkia.minibank.integration.web;
+package id.ac.tazkia.minibank.functional.web;
 
 import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.integration.web.pageobject.ProductFormPage;
-import id.ac.tazkia.minibank.integration.web.pageobject.ProductListPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.integration.controller;
+package id.ac.tazkia.minibank.functional.web;
 
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.repository.UserRepository;

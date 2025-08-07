@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.feature.customer.registration;
+package id.ac.tazkia.minibank.functional.api.customer.registration;
 
 import com.intuit.karate.junit5.Karate;
 import org.springframework.boot.test.context.SpringBootTest;

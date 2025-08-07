@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.feature.user;
+package id.ac.tazkia.minibank.functional.api.user;
 
 import com.intuit.karate.junit5.Karate;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package id.ac.tazkia.minibank.integration.web;
+package id.ac.tazkia.minibank.functional.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,8 +12,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.integration.web.pageobject.ProductFormPage;
-import id.ac.tazkia.minibank.integration.web.pageobject.ProductListPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
