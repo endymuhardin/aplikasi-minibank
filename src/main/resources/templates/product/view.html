@@ -1,0 +1,284 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Product Details</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Product Details</h1>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/product/edit/{id}(id=${product.id})}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Edit Product
+                        </a>
+                        <a th:href="@{/product/list}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Product Overview -->
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Product Overview</h3>
+                    </div>
+                    <div class="px-6 py-5 space-y-6">
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Product Code</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.productCode}" id="product-code"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Product Name</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.productName}" id="product-name"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Type</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${product.productType}"></span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Category</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.productCategory ?: 'N/A'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Currency</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.currency}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="mt-1">
+                                    <span th:if="${product.isActive}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" id="product-status">Active</span>
+                                    <span th:if="${!product.isActive}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800" id="product-status">Inactive</span>
+                                </dd>
+                            </div>
+                        </div>
+                        <div th:if="${product.description}">
+                            <dt class="text-sm font-medium text-gray-500">Description</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.description}"></dd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Configuration -->
+                <div class="bg-white shadow rounded-lg mt-6">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Financial Configuration</h3>
+                    </div>
+                    <div class="px-6 py-5">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Minimum Opening Balance</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.minimumOpeningBalance != null ? #numbers.formatCurrency(product.minimumOpeningBalance) : 'N/A'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Minimum Balance</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.minimumBalance != null ? #numbers.formatCurrency(product.minimumBalance) : 'N/A'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Maximum Balance</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.maximumBalance != null ? #numbers.formatCurrency(product.maximumBalance) : 'No Limit'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Interest Rate</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestRate != null ? #numbers.formatPercent(product.interestRate, 2, 2) : '0%'}" id="interest-rate"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Interest Calculation</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestCalculationType}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Interest Payment Frequency</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestPaymentFrequency}"></dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Limits and Fees -->
+                <div class="bg-white shadow rounded-lg mt-6">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Limits and Fees</h3>
+                    </div>
+                    <div class="px-6 py-5">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Daily Withdrawal Limit</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.dailyWithdrawalLimit != null ? #numbers.formatCurrency(product.dailyWithdrawalLimit) : 'No Limit'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Monthly Transaction Limit</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.monthlyTransactionLimit != null ? product.monthlyTransactionLimit + ' transactions' : 'No Limit'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Overdraft Limit</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.overdraftLimit != null ? #numbers.formatCurrency(product.overdraftLimit) : 'N/A'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Monthly Maintenance Fee</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.monthlyMaintenanceFee != null ? #numbers.formatCurrency(product.monthlyMaintenanceFee) : 'Free'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">ATM Withdrawal Fee</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.atmWithdrawalFee != null ? #numbers.formatCurrency(product.atmWithdrawalFee) : 'Free'}"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Inter Bank Transfer Fee</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interBankTransferFee != null ? #numbers.formatCurrency(product.interBankTransferFee) : 'Free'}"></dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Settings -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Settings</h3>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Active</span>
+                            <span th:if="${product.isActive}" class="text-green-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span th:if="${!product.isActive}" class="text-red-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Default Product</span>
+                            <span th:if="${product.isDefault}" class="text-green-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span th:if="${!product.isDefault}" class="text-gray-400">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Allow Overdraft</span>
+                            <span th:if="${product.allowOverdraft}" class="text-green-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span th:if="${!product.allowOverdraft}" class="text-red-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Require Maintaining Balance</span>
+                            <span th:if="${product.requireMaintainingBalance}" class="text-green-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span th:if="${!product.requireMaintainingBalance}" class="text-red-600">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Eligibility -->
+                <div class="bg-white shadow rounded-lg mt-6" th:if="${product.minCustomerAge != null or product.maxCustomerAge != null or product.allowedCustomerTypes != null}">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Customer Eligibility</h3>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <div th:if="${product.minCustomerAge != null}">
+                            <dt class="text-sm font-medium text-gray-500">Minimum Age</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.minCustomerAge + ' years'}"></dd>
+                        </div>
+                        <div th:if="${product.maxCustomerAge != null}">
+                            <dt class="text-sm font-medium text-gray-500">Maximum Age</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.maxCustomerAge + ' years'}"></dd>
+                        </div>
+                        <div th:if="${product.allowedCustomerTypes != null}">
+                            <dt class="text-sm font-medium text-gray-500">Allowed Customer Types</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.allowedCustomerTypes}"></dd>
+                        </div>
+                        <div th:if="${product.requiredDocuments != null}">
+                            <dt class="text-sm font-medium text-gray-500">Required Documents</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.requiredDocuments}"></dd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Lifecycle -->
+                <div class="bg-white shadow rounded-lg mt-6" th:if="${product.launchDate != null or product.retirementDate != null}">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Product Lifecycle</h3>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <div th:if="${product.launchDate != null}">
+                            <dt class="text-sm font-medium text-gray-500">Launch Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(product.launchDate, 'MMM dd, yyyy')}"></dd>
+                        </div>
+                        <div th:if="${product.retirementDate != null}">
+                            <dt class="text-sm font-medium text-gray-500">Retirement Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(product.retirementDate, 'MMM dd, yyyy')}"></dd>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Information -->
+                <div class="bg-white shadow rounded-lg mt-6">
+                    <div class="px-6 py-5 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Audit Information</h3>
+                    </div>
+                    <div class="px-6 py-5 space-y-4">
+                        <div th:if="${product.createdDate != null}">
+                            <dt class="text-sm font-medium text-gray-500">Created</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(product.createdDate, 'MMM dd, yyyy HH:mm')}"></dd>
+                        </div>
+                        <div th:if="${product.createdBy != null}">
+                            <dt class="text-sm font-medium text-gray-500">Created By</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.createdBy}"></dd>
+                        </div>
+                        <div th:if="${product.updatedDate != null}">
+                            <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(product.updatedDate, 'MMM dd, yyyy HH:mm')}"></dd>
+                        </div>
+                        <div th:if="${product.updatedBy != null}">
+                            <dt class="text-sm font-medium text-gray-500">Updated By</dt>
+                            <dd class="mt-1 text-sm text-gray-900" th:text="${product.updatedBy}"></dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

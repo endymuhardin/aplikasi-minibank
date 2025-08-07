@@ -1,0 +1,325 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${product.id != null ? 'Edit Product' : 'Create Product'}">Product Form</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900" th:text="${product.id != null ? 'Edit Product' : 'Create Product'}"></h1>
+                    <a th:href="@{/product/list}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800" th:text="${errorMessage}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Form -->
+        <div class="bg-white shadow rounded-lg">
+            <form th:action="${product.id != null ? '/product/edit/' + product.id : '/product/create'}" 
+                  th:object="${product}" method="post" class="space-y-6 p-6" id="product-form" novalidate>
+                
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Basic Information</h3>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="productCode" class="block text-sm font-medium text-gray-700">Product Code *</label>
+                        <input type="text" id="productCode" th:field="*{productCode}" 
+                               class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                               th:class="${#fields.hasErrors('productCode')} ? 'mt-1 block w-full shadow-sm sm:text-sm border-red-300 rounded-md focus:ring-red-500 focus:border-red-500' : 'mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'"
+                               required>
+                        <p th:if="${#fields.hasErrors('productCode')}" th:errors="*{productCode}" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+
+                    <div class="sm:col-span-4">
+                        <label for="productName" class="block text-sm font-medium text-gray-700">Product Name *</label>
+                        <input type="text" id="productName" th:field="*{productName}"
+                               class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                               th:class="${#fields.hasErrors('productName')} ? 'mt-1 block w-full shadow-sm sm:text-sm border-red-300 rounded-md focus:ring-red-500 focus:border-red-500' : 'mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'"
+                               required>
+                        <p th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="productType" class="block text-sm font-medium text-gray-700">Product Type *</label>
+                        <select id="productType" th:field="*{productType}" required
+                                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Select Type</option>
+                            <option th:each="type : ${productTypes}" th:value="${type}" th:text="${type}"></option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('productType')}" th:errors="*{productType}" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="productCategory" class="block text-sm font-medium text-gray-700">Category *</label>
+                        <input type="text" id="productCategory" th:field="*{productCategory}"
+                               class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                               th:class="${#fields.hasErrors('productCategory')} ? 'mt-1 block w-full shadow-sm sm:text-sm border-red-300 rounded-md focus:ring-red-500 focus:border-red-500' : 'mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'"
+                               required>
+                        <p th:if="${#fields.hasErrors('productCategory')}" th:errors="*{productCategory}" class="mt-2 text-sm text-red-600"></p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
+                        <input type="text" id="currency" th:field="*{currency}"
+                               class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea id="description" th:field="*{description}" rows="3"
+                                  class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Status and Settings -->
+                    <div class="sm:col-span-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 mt-8">Settings</h3>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input id="isActive" type="checkbox" th:field="*{isActive}"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="isActive" class="ml-2 block text-sm text-gray-900">Active</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="isDefault" type="checkbox" th:field="*{isDefault}"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="isDefault" class="ml-2 block text-sm text-gray-900">Default Product</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="allowOverdraft" type="checkbox" th:field="*{allowOverdraft}"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="allowOverdraft" class="ml-2 block text-sm text-gray-900">Allow Overdraft</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="requireMaintainingBalance" type="checkbox" th:field="*{requireMaintainingBalance}"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="requireMaintainingBalance" class="ml-2 block text-sm text-gray-900">Require Maintaining Balance</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Configuration -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Financial Configuration</h3>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="minimumOpeningBalance" class="block text-sm font-medium text-gray-700">Minimum Opening Balance</label>
+                            <input type="number" step="0.01" id="minimumOpeningBalance" th:field="*{minimumOpeningBalance}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="minimumBalance" class="block text-sm font-medium text-gray-700">Minimum Balance</label>
+                            <input type="number" step="0.01" id="minimumBalance" th:field="*{minimumBalance}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="maximumBalance" class="block text-sm font-medium text-gray-700">Maximum Balance</label>
+                            <input type="number" step="0.01" id="maximumBalance" th:field="*{maximumBalance}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="interestRate" class="block text-sm font-medium text-gray-700">Interest Rate (decimal)</label>
+                            <input type="number" step="0.0001" min="0" max="1" id="interestRate" th:field="*{interestRate}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <p class="mt-1 text-sm text-gray-500">Enter as decimal (e.g., 0.015 for 1.5%)</p>
+                            <p th:if="${#fields.hasErrors('interestRate')}" th:errors="*{interestRate}" class="mt-2 text-sm text-red-600"></p>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="interestCalculationType" class="block text-sm font-medium text-gray-700">Interest Calculation</label>
+                            <select id="interestCalculationType" th:field="*{interestCalculationType}"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <option th:each="calc : ${interestCalculationTypes}" th:value="${calc}" th:text="${calc}"></option>
+                            </select>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="interestPaymentFrequency" class="block text-sm font-medium text-gray-700">Interest Payment</label>
+                            <select id="interestPaymentFrequency" th:field="*{interestPaymentFrequency}"
+                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                <option th:each="freq : ${interestPaymentFrequencies}" th:value="${freq}" th:text="${freq}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Limits and Fees -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Limits and Fees</h3>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="dailyWithdrawalLimit" class="block text-sm font-medium text-gray-700">Daily Withdrawal Limit</label>
+                            <input type="number" step="0.01" id="dailyWithdrawalLimit" th:field="*{dailyWithdrawalLimit}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="monthlyTransactionLimit" class="block text-sm font-medium text-gray-700">Monthly Transaction Limit</label>
+                            <input type="number" id="monthlyTransactionLimit" th:field="*{monthlyTransactionLimit}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="overdraftLimit" class="block text-sm font-medium text-gray-700">Overdraft Limit</label>
+                            <input type="number" step="0.01" id="overdraftLimit" th:field="*{overdraftLimit}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="monthlyMaintenanceFee" class="block text-sm font-medium text-gray-700">Monthly Maintenance Fee</label>
+                            <input type="number" step="0.01" id="monthlyMaintenanceFee" th:field="*{monthlyMaintenanceFee}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="atmWithdrawalFee" class="block text-sm font-medium text-gray-700">ATM Withdrawal Fee</label>
+                            <input type="number" step="0.01" id="atmWithdrawalFee" th:field="*{atmWithdrawalFee}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="interBankTransferFee" class="block text-sm font-medium text-gray-700">Inter Bank Transfer Fee</label>
+                            <input type="number" step="0.01" id="interBankTransferFee" th:field="*{interBankTransferFee}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Settings -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Transaction Settings</h3>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="freeTransactionsPerMonth" class="block text-sm font-medium text-gray-700">Free Transactions Per Month</label>
+                            <input type="number" id="freeTransactionsPerMonth" th:field="*{freeTransactionsPerMonth}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="excessTransactionFee" class="block text-sm font-medium text-gray-700">Excess Transaction Fee</label>
+                            <input type="number" step="0.01" id="excessTransactionFee" th:field="*{excessTransactionFee}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="belowMinimumBalanceFee" class="block text-sm font-medium text-gray-700">Below Minimum Balance Fee</label>
+                            <input type="number" step="0.01" id="belowMinimumBalanceFee" th:field="*{belowMinimumBalanceFee}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Eligibility -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Customer Eligibility</h3>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="minCustomerAge" class="block text-sm font-medium text-gray-700">Minimum Age</label>
+                            <input type="number" id="minCustomerAge" th:field="*{minCustomerAge}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="maxCustomerAge" class="block text-sm font-medium text-gray-700">Maximum Age</label>
+                            <input type="number" id="maxCustomerAge" th:field="*{maxCustomerAge}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="allowedCustomerTypes" class="block text-sm font-medium text-gray-700">Allowed Customer Types</label>
+                            <input type="text" id="allowedCustomerTypes" th:field="*{allowedCustomerTypes}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <p class="mt-1 text-sm text-gray-500">Comma-separated (e.g., PERSONAL,CORPORATE)</p>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label for="requiredDocuments" class="block text-sm font-medium text-gray-700">Required Documents</label>
+                            <textarea id="requiredDocuments" th:field="*{requiredDocuments}" rows="2"
+                                      class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Lifecycle -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Product Lifecycle</h3>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="launchDate" class="block text-sm font-medium text-gray-700">Launch Date</label>
+                            <input type="date" id="launchDate" th:field="*{launchDate}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="retirementDate" class="block text-sm font-medium text-gray-700">Retirement Date</label>
+                            <input type="date" id="retirementDate" th:field="*{retirementDate}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex justify-end space-x-3">
+                        <a th:href="@{/product/list}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Cancel
+                        </a>
+                        <button type="submit" id="submit-btn"
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span th:text="${product.id != null ? 'Update Product' : 'Create Product'}"></span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

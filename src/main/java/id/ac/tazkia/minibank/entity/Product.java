@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,16 +23,23 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     
+    @NotBlank(message = "Product code is required")
+    @Size(max = 20, message = "Product code must not exceed 20 characters")
     @Column(name = "product_code", unique = true, nullable = false, length = 20)
     private String productCode;
     
+    @NotBlank(message = "Product name is required")
+    @Size(max = 100, message = "Product name must not exceed 100 characters")
     @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
     
+    @NotNull(message = "Product type is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "product_type", nullable = false)
     private ProductType productType;
     
+    @NotBlank(message = "Product category is required")
+    @Size(max = 50, message = "Product category must not exceed 50 characters")
     @Column(name = "product_category", nullable = false, length = 50)
     private String productCategory;
     
@@ -69,6 +77,7 @@ public class Product {
     
     // Interest configurations
     @Column(name = "interest_rate", precision = 5, scale = 4)
+    @DecimalMin("0.0") @DecimalMax("1.0")
     private BigDecimal interestRate = BigDecimal.ZERO;
     
     @Enumerated(EnumType.STRING)
