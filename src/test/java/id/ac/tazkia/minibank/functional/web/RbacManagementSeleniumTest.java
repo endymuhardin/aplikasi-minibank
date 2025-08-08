@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.concurrent.TimeUnit;
 
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.User;
@@ -26,6 +29,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     private RoleRepository roleRepository;
 
     @Test
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadUserManagementPage() {
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
@@ -36,6 +40,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadRoleManagementPage() {
         RoleListPage listPage = new RoleListPage(driver, baseUrl);
         listPage.open();
@@ -46,6 +51,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadPermissionManagementPage() {
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
@@ -56,6 +62,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldCreateNewUser() {
         long timestamp = System.currentTimeMillis();
         String uniqueUsername = "sel_" + timestamp;
@@ -84,6 +91,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldCreateNewRole() {
         String uniqueRoleCode = "SELENIUM_ROLE_" + System.currentTimeMillis();
         String roleName = "Selenium Test Role";
@@ -110,6 +118,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldValidateUserFormRequiredFields() {
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
@@ -127,6 +136,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldValidateRoleFormRequiredFields() {
         RoleListPage listPage = new RoleListPage(driver, baseUrl);
         listPage.open();
@@ -144,6 +154,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldNavigateToUserFormAndBack() {
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
@@ -157,6 +168,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldSearchUsers() {
         // Create a test user with shorter username to avoid 50-character limit
         long timestamp = System.currentTimeMillis();
@@ -177,6 +189,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldDisplayPermissionsList() {
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();

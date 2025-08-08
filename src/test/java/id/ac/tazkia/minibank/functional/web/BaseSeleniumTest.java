@@ -38,25 +38,56 @@ public abstract class BaseSeleniumTest {
     void setUp() {
         Testcontainers.exposeHostPorts(port);
         baseUrl = "http://host.testcontainers.internal:" + port;
-        driver = new RemoteWebDriver(browserContainer.getSeleniumAddress(), new FirefoxOptions());
+        
+        // Retry mechanism for WebDriver creation with shorter waits
+        int maxRetries = 2; // Reduced from 3 to 2
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                driver = new RemoteWebDriver(browserContainer.getSeleniumAddress(), new FirefoxOptions());
+                break;
+            } catch (Exception e) {
+                if (i == maxRetries - 1) {
+                    throw new RuntimeException("Failed to create WebDriver after " + maxRetries + " attempts", e);
+                }
+                try {
+                    Thread.sleep(1000); // Wait 1 second before retrying (reduced from 2)
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Interrupted while waiting to retry WebDriver creation", ie);
+                }
+            }
+        }
     }
     
     @AfterEach
     void tearDown() {
-        browserContainer.afterTest(new TestDescription() {
+        try {
+            browserContainer.afterTest(new TestDescription() {
 
-            @Override
-            public String getFilesystemFriendlyName() {
-                return getTestClassName();
-            }
+                @Override
+                public String getFilesystemFriendlyName() {
+                    return getTestClassName();
+                }
 
-            @Override
-            public String getTestId() {
-                return getFilesystemFriendlyName();
+                @Override
+                public String getTestId() {
+                    return getFilesystemFriendlyName();
+                }
+                
+            }, Optional.empty());
+        } catch (Exception e) {
+            // Log the exception but continue with cleanup
+            System.err.println("Error in browserContainer.afterTest(): " + e.getMessage());
+        }
+        
+        if (driver != null) {
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                // Log the exception but don't fail the test
+                System.err.println("Error quitting driver: " + e.getMessage());
             }
-            
-        }, Optional.empty());
-        driver.quit();
+        }
     }
 
     private String getTestClassName(){

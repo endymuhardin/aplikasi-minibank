@@ -19,7 +19,7 @@ public abstract class BasePage {
     public BasePage(WebDriver driver, String baseUrl) {
         this.driver = driver;
         this.baseUrl = baseUrl;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Reduced from 30 to 10 seconds
         PageFactory.initElements(driver, this);
     }
     

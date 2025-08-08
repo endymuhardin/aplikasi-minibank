@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
@@ -163,11 +164,23 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductFormPage editProduct(String productCode) {
-        // Use ID-based locator for more reliable element finding
-        WebElement editLink = driver.findElement(By.id("edit-" + productCode));
-        waitForElementToBeClickable(editLink);
-        editLink.click();
-        return new ProductFormPage(driver, baseUrl);
+        // First wait for the page and table to be loaded
+        waitForPageToLoad();
+        waitForElementToBeVisible(productsTable);
+        
+        // Wait for the specific edit element to be present and clickable
+        try {
+            // Use explicit wait for the element to be present first
+            WebElement editLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("edit-" + productCode)));
+            // Then wait for it to be clickable
+            wait.until(ExpectedConditions.elementToBeClickable(editLink));
+            editLink.click();
+            return new ProductFormPage(driver, baseUrl);
+        } catch (org.openqa.selenium.TimeoutException e) {
+            // If element not found, fail fast with descriptive error instead of trying fallback
+            throw new RuntimeException("Edit button for product " + productCode + " not found or not clickable within 10 seconds. " +
+                "This may indicate the product was not properly created or is on a different page.", e);
+        }
     }
     
     public ProductListPage deactivateProduct(String productCode) {
@@ -203,10 +216,24 @@ public class ProductListPage extends BasePage {
     }
     
     public String getProductStatus(String productCode) {
-        // Use ID-based locator for more reliable element finding
+        // Wait for page to be loaded first
+        waitForPageToLoad();
+        waitForElementToBeVisible(productsTable);
+        
         try {
-            WebElement statusElement = driver.findElement(By.id("status-" + productCode));
-            return statusElement.getText().trim();
+            // Wait for the status element to be present
+            WebElement statusElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("status-" + productCode)));
+            String text = statusElement.getText().trim();
+            // If text is empty, wait a moment and try again once more
+            if (text.isEmpty()) {
+                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+                text = statusElement.getText().trim();
+            }
+            return text;
+        } catch (org.openqa.selenium.TimeoutException e) {
+            // Fail fast with descriptive error instead of trying fallback
+            throw new RuntimeException("Status element for product " + productCode + " not found within 10 seconds. " +
+                "This may indicate the product was not properly created or the status update failed.", e);
         } catch (Exception e) {
             throw new RuntimeException("Could not find status element for product: " + productCode, e);
         }

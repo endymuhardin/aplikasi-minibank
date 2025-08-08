@@ -5,12 +5,14 @@ import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -20,6 +22,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     private ProductRepository productRepository;
     
     @Test
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldLoadProductListPage() {
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
@@ -29,6 +32,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldCreateNewProduct() {
         // Use timestamp to ensure unique product code
         String uniqueCode = "TEST" + System.currentTimeMillis();
@@ -63,6 +67,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/product/product-creation-data.csv", numLinesToSkip = 1)
+    @Timeout(value = 90, unit = TimeUnit.SECONDS)
     void shouldCreateProductsFromCSVData(String productCode, String productName, String productType,
                                         String productCategory, String description, String interestRate,
                                         boolean isActive, boolean isDefault, String minimumOpeningBalance,
@@ -97,6 +102,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateRequiredFields() {
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
@@ -131,6 +137,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditExistingProduct() {
         // Create initial product with unique code
         String editCode = "EDIT" + System.currentTimeMillis();
@@ -142,8 +149,14 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         product.setIsActive(true);
         productRepository.save(product);
         
+        // Wait a bit for database transaction to commit
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
+        
+        // Verify the product is visible before trying to edit
+        assertTrue(listPage.isProductDisplayed(editCode), "Product should be visible on the list page");
         
         ProductFormPage editPage = listPage.editProduct(editCode);
         
@@ -166,6 +179,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldSearchProducts() {
         // Create test products with unique codes
         long timestamp = System.currentTimeMillis();
@@ -213,6 +227,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldDeactivateAndActivateProduct() {
         // Create active product with unique code
         String statusCode = "STATUS" + System.currentTimeMillis();
@@ -224,8 +239,14 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         product.setIsActive(true);
         productRepository.save(product);
         
+        // Wait a bit for database transaction to commit
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
+        
+        // Verify the product is visible before checking status
+        assertTrue(listPage.isProductDisplayed(statusCode), "Product should be visible on the list page");
         
         // Verify initial status
         assertEquals("Active", listPage.getProductStatus(statusCode));
@@ -235,7 +256,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isSuccessMessageDisplayed());
         
         // Wait for the page to update after deactivation
-        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         
         // Verify status change (the deactivateProduct should have redirected back to the list page)
         assertEquals("Inactive", listPage.getProductStatus(statusCode));
@@ -245,14 +266,15 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isSuccessMessageDisplayed());
         
         // Wait for the page to update after activation
-        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         
         // Verify status change (the activateProduct should have redirected back to the list page)
         assertEquals("Active", listPage.getProductStatus(statusCode));
     }
     
     @ParameterizedTest @Transactional
-    @CsvFileSource(resources = "/fixtures/product/product-validation-data.csv", numLinesToSkip = 1)  
+    @CsvFileSource(resources = "/fixtures/product/product-validation-data.csv", numLinesToSkip = 1)
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateProductInputErrors(String testCase, String productCode, String productName, 
                                         String productType, String expectedError) {
         
