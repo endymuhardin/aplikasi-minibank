@@ -41,6 +41,12 @@ mvn test -Dtest=DepositTest
 
 # Run single Karate test method
 mvn test -Dtest=DepositTest#testDeposit
+
+# Run Selenium tests without recording (default - faster execution)
+mvn test -Dtest=ProductManagementSeleniumTest
+
+# Run Selenium tests with recording enabled
+mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
 ```
 
 ### Database Operations
