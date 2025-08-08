@@ -37,7 +37,8 @@ public class ProductListPage extends BasePage {
     
     public ProductListPage open() {
         // Always go to the first page with newest products first (sorted by creation date desc)
-        driver.get(baseUrl + "/product/list?page=0&sortBy=createdDate&sortDir=desc");
+        // Use larger page size to reduce pagination issues
+        driver.get(baseUrl + "/product/list?page=0&size=50&sortBy=createdDate&sortDir=desc");
         return this;
     }
     
@@ -56,7 +57,8 @@ public class ProductListPage extends BasePage {
         try {
             // URL encode the search term to handle any special characters
             String encodedSearchTerm = java.net.URLEncoder.encode(searchTerm, "UTF-8");
-            String searchUrl = baseUrl + "?search=" + encodedSearchTerm + "&page=0&sortBy=createdDate&sortDir=desc";
+            // Use larger page size to reduce pagination issues and sort by creation date desc to get newest first
+            String searchUrl = baseUrl + "?search=" + encodedSearchTerm + "&page=0&size=50&sortBy=createdDate&sortDir=desc";
             
             driver.get(searchUrl);
             
@@ -160,29 +162,35 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductFormPage editProduct(String productCode) {
-        // First wait for the page and table to be loaded
-        waitForPageToLoad();
-        waitForElementToBeVisible(productsTable);
+        // Ensure we're on the right page with the product visible
+        if (!isProductDisplayed(productCode)) {
+            search(productCode);
+            waitForPageToLoad();
+            waitForElementToBeVisible(productsTable);
+        }
         
-        // Wait for the specific edit element to be present and clickable
+        // Simple direct click on edit button - use presenceOfElementLocated for reliability
         try {
-            // Use explicit wait for the element to be present first
             WebElement editLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("edit-" + productCode)));
-            // Then wait for it to be clickable
-            wait.until(ExpectedConditions.elementToBeClickable(editLink));
+            // Scroll to element if needed to ensure it's clickable
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", editLink);
             editLink.click();
             return new ProductFormPage(driver, baseUrl);
         } catch (org.openqa.selenium.TimeoutException e) {
-            // If element not found, fail fast with descriptive error instead of trying fallback
-            throw new RuntimeException("Edit button for product " + productCode + " not found or not clickable within 10 seconds. " +
-                "This may indicate the product was not properly created or is on a different page.", e);
+            throw new RuntimeException("Edit button for product " + productCode + " not found. Element ID: edit-" + productCode);
         }
     }
     
     public ProductListPage deactivateProduct(String productCode) {
-        // Use ID selector instead of XPath
-        WebElement deactivateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("deactivate-" + productCode)));
-        deactivateButton.click();
+        // Use same approach as edit button - presence + scroll
+        try {
+            WebElement deactivateButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("deactivate-" + productCode)));
+            // Scroll to element if needed to ensure it's clickable
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", deactivateButton);
+            deactivateButton.click();
+        } catch (org.openqa.selenium.TimeoutException e) {
+            throw new RuntimeException("Deactivate button for product " + productCode + " not found. Element ID: deactivate-" + productCode);
+        }
         
         // Handle confirmation dialog
         wait.until(ExpectedConditions.alertIsPresent());
@@ -201,9 +209,15 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductListPage activateProduct(String productCode) {
-        // Use ID selector instead of XPath
-        WebElement activateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("activate-" + productCode)));
-        activateButton.click();
+        // Use same approach as other buttons - presence + scroll
+        try {
+            WebElement activateButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("activate-" + productCode)));
+            // Scroll to element if needed to ensure it's clickable
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", activateButton);
+            activateButton.click();
+        } catch (org.openqa.selenium.TimeoutException e) {
+            throw new RuntimeException("Activate button for product " + productCode + " not found. Element ID: activate-" + productCode);
+        }
         
         // Handle confirmation dialog
         wait.until(ExpectedConditions.alertIsPresent());
@@ -222,34 +236,27 @@ public class ProductListPage extends BasePage {
     }
     
     public String getProductStatus(String productCode) {
-        // Wait for page to load
-        waitForPageToLoad();
-        
-        // Try to wait for the products table, but handle case where there might be no products
-        try {
-            waitForElementToBeVisible(productsTable);
-        } catch (org.openqa.selenium.TimeoutException e) {
-            // Check if we're on an empty page or different page
-            if (driver.getPageSource().contains("No products found")) {
-                throw new RuntimeException("Product " + productCode + " not found - page shows 'No products found'");
-            }
-            // If not on product list page, try to navigate there
-            open();
-            waitForElementToBeVisible(productsTable);
-        }
-        
-        // First check if the product is visible on the page
+        // Ensure we're on the right page with the product visible
         if (!isProductDisplayed(productCode)) {
-            throw new RuntimeException("Product " + productCode + " is not visible on the current page - may be on a different page due to pagination");
+            search(productCode);
+            waitForPageToLoad();
+            waitForElementToBeVisible(productsTable);
         }
         
-        // Use ID selector to find status element
+        // Simple direct lookup for status element - ensure it's visible and has text
         try {
-            WebElement statusElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("status-" + productCode)));
-            return statusElement.getText().trim();
+            WebElement statusElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("status-" + productCode)));
+            // Scroll to element to ensure it's visible
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", statusElement);
+            // Wait a bit for rendering and then check if it's visible
+            wait.until(ExpectedConditions.visibilityOf(statusElement));
+            String text = statusElement.getText().trim();
+            if (text.isEmpty()) {
+                throw new RuntimeException("Status element for product " + productCode + " found but has empty text. Element ID: status-" + productCode);
+            }
+            return text;
         } catch (org.openqa.selenium.TimeoutException e) {
-            throw new RuntimeException("Status element for product " + productCode + " not found within timeout. " +
-                "This may indicate the product status is not properly rendered.", e);
+            throw new RuntimeException("Status element for product " + productCode + " not found or not visible. Element ID: status-" + productCode);
         }
     }
     

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.jdbc.Sql;
 
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
@@ -138,42 +138,26 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Sql("/sql/setup-activate-deactivate-test.sql")
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditExistingProduct() {
-        // Create initial product with unique code
-        String editCode = "EDIT" + System.currentTimeMillis();
-        Product product = new Product();
-        product.setProductCode(editCode);
-        product.setProductName("Original Product Name");
-        product.setProductType(Product.ProductType.SAVINGS);
-        product.setProductCategory("Original Category");
-        product.setIsActive(true);
-        productRepository.save(product);
+        // Use predefined test product from the SQL script - TEST002 is active
+        String editCode = "TEST002";
         
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
         
-        // Search for the specific product to ensure it's visible
-        listPage.search(editCode);
+        // With small dataset (5 products), TEST002 should be visible immediately on page 1
+        // Verify the product is displayed - fail fast if not found
+        assertTrue(listPage.isProductDisplayed(editCode), 
+                  "Product " + editCode + " should be visible on page 1 with small test dataset");
         
-        // Verify the product is visible before trying to edit
-        assertTrue(listPage.isProductDisplayed(editCode), "Product should be visible on the list page");
-        
-        // Try to edit the product with retry logic
-        ProductFormPage editPage = null;
-        try {
-            editPage = listPage.editProduct(editCode);
-        } catch (RuntimeException e) {
-            // If edit fails, refresh the page and try again
-            System.out.println("First edit attempt failed, refreshing and retrying: " + e.getMessage());
-            listPage.open(); // Refresh page
-            assertTrue(listPage.isProductDisplayed(editCode), "Product should still be visible after refresh");
-            editPage = listPage.editProduct(editCode);
-        }
+        // Direct edit - no retry, no search needed
+        ProductFormPage editPage = listPage.editProduct(editCode);
         
         // Verify form is populated with existing data
         assertEquals(editCode, editPage.getProductCode());
-        assertEquals("Original Product Name", editPage.getProductName());
+        assertEquals("Test Checking Account", editPage.getProductName());
         
         // Update product information
         editPage.fillBasicInformation(null, "Updated Product Name", null, "Updated Category", null);
@@ -238,58 +222,41 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Sql("/sql/setup-activate-deactivate-test.sql")
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldDeactivateAndActivateProduct() {
-        // Create active product with unique code
-        String statusCode = "STATUS" + System.currentTimeMillis();
-        Product product = new Product();
-        product.setProductCode(statusCode);
-        product.setProductName("Status Test Product");
-        product.setProductType(Product.ProductType.SAVINGS);
-        product.setProductCategory("Test");
-        product.setIsActive(true);
-        productRepository.save(product);
+        // Use predefined test product from the SQL script - TEST001 is active
+        String statusCode = "TEST001";
         
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
         
-        // Search for the specific product to ensure it's visible
-        listPage.search(statusCode);
         
-        // Verify the product is visible before checking status
-        assertTrue(listPage.isProductDisplayed(statusCode), "Product should be visible on the list page");
+        // With small dataset (5 products), TEST001 should be visible immediately on page 1
+        // Verify the product is displayed - fail fast if not found
+        assertTrue(listPage.isProductDisplayed(statusCode), 
+                  "Product " + statusCode + " should be visible on page 1 with small test dataset");
         
-        // Verify initial status
+        // Verify initial status - fail fast if status element not found
         String initialStatus = listPage.getProductStatus(statusCode);
         assertEquals("Active", initialStatus);
         
-        // Deactivate product
+        // Deactivate product - no search or refresh needed with small dataset
         listPage.deactivateProduct(statusCode);
-        // Note: Success message check removed as it might not appear after redirect
         
-        // After deactivation, we need to search for the product to ensure it's visible
-        // because deactivated products might not appear on the first page due to pagination
-        listPage.open();
-        listPage.search(statusCode);
-        
-        // Verify status change - this is the real test of deactivation success
+        // Verify status change - product should still be visible on page 1
         String deactivatedStatus = listPage.getProductStatus(statusCode);
         assertEquals("Inactive", deactivatedStatus);
         
-        // Reactivate product
+        // Reactivate product - no search or refresh needed with small dataset
         listPage.activateProduct(statusCode);
-        // Note: Success message check removed as it might not appear after redirect
         
-        // After reactivation, search for the product to ensure it's visible
-        listPage.open();
-        listPage.search(statusCode);
-        
-        // Verify status change - this is the real test of activation success
+        // Verify status change - product should still be visible on page 1
         String activatedStatus = listPage.getProductStatus(statusCode);
         assertEquals("Active", activatedStatus);
     }
     
-    @ParameterizedTest @Transactional
+    @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/product/product-validation-data.csv", numLinesToSkip = 1)
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateProductInputErrors(String testCase, String productCode, String productName, 
@@ -324,27 +291,47 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
             formPage.fillFinancialConfiguration(null, null, null, "2.0", null, null); // Invalid rate > 1
         }
         
-        // Create a duplicate product first for duplicate test
-        if (testCase.contains("Duplicate")) {
-            Product existing = new Product();
-            existing.setProductCode("SAV001");
-            existing.setProductName("Existing Savings");
-            existing.setProductType(Product.ProductType.SAVINGS);
-            existing.setIsActive(true);
-            productRepository.save(existing);
-        }
         
         ProductFormPage resultPage = formPage.submitFormExpectingError();
         
-        // Should stay on form page with error
-        assertTrue(driver.getCurrentUrl().contains("/product/create") || 
-                  driver.getCurrentUrl().contains("/product/edit"),
-                  "Should remain on form page after validation error: " + testCase);
+        String currentUrl = driver.getCurrentUrl();
+        
+        // All validation errors should stay on form page with validation errors
+        assertFalse(currentUrl.contains("/product/list"),
+                  "Should not redirect to list page after validation error: " + testCase + ". Current URL: " + currentUrl);
         
         // Check for validation error indicators
         assertTrue(resultPage.isErrorMessageDisplayed() || 
                   hasValidationErrorOnPage(),
                   "Should display validation error for: " + testCase);
+    }
+    
+    @Test
+    @Sql("/sql/setup-duplicate-test.sql")
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldValidateDuplicateProductCode() {
+        
+        ProductListPage listPage = new ProductListPage(driver, baseUrl);
+        listPage.open();
+        
+        ProductFormPage formPage = listPage.clickCreateProduct();
+        
+        String defaultCategory = "Test Category";
+        
+        // Fill form with duplicate product code
+        formPage.fillBasicInformation("SAV001", "Duplicate Savings", "SAVINGS", defaultCategory, "IDR");
+        
+        ProductFormPage resultPage = formPage.submitFormExpectingError();
+        
+        String currentUrl = driver.getCurrentUrl();
+        
+        // Should stay on form page with validation error
+        assertFalse(currentUrl.contains("/product/list"),
+                  "Should not redirect to list page after duplicate product code validation error. Current URL: " + currentUrl);
+        
+        // Check for validation error indicators
+        assertTrue(resultPage.isErrorMessageDisplayed() || hasValidationErrorOnPage(),
+                  "Should display validation error for duplicate product code");
     }
     
     private boolean hasValidationErrorOnPage() {
