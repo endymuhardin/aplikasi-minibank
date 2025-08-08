@@ -81,13 +81,16 @@
                             <div class="text-sm text-gray-900" th:text="${user.email}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span th:if="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            <span th:if="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                                  th:id="'status-user-' + ${user.username}">
                                 Active
                             </span>
-                            <span th:unless="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            <span th:unless="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                                  th:id="'status-user-' + ${user.username}">
                                 Inactive
                             </span>
-                            <span th:if="${user.isLocked}" class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            <span th:if="${user.isLocked}" class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                                  th:id="'locked-user-' + ${user.username}">
                                 Locked
                             </span>
                         </td>
@@ -95,26 +98,33 @@
                             th:text="${#temporals.format(user.createdDate, 'dd/MM/yyyy')}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                             <a th:href="@{/rbac/users/view/{id}(id=${user.id})}" 
-                               class="text-blue-600 hover:text-blue-900 view-user-btn">View</a>
+                               class="text-blue-600 hover:text-blue-900 view-user-btn"
+                               th:id="'view-user-' + ${user.username}">View</a>
                             <a th:href="@{/rbac/users/edit/{id}(id=${user.id})}" 
-                               class="text-indigo-600 hover:text-indigo-900 edit-user-btn">Edit</a>
+                               class="text-indigo-600 hover:text-indigo-900 edit-user-btn"
+                               th:id="'edit-user-' + ${user.username}">Edit</a>
                             <a th:href="@{/rbac/users/{id}/password(id=${user.id})}" 
-                               class="text-orange-600 hover:text-orange-900 set-password-btn">Password</a>
+                               class="text-orange-600 hover:text-orange-900 set-password-btn"
+                               th:id="'password-user-' + ${user.username}">Password</a>
                             <a th:href="@{/rbac/users/{id}/roles(id=${user.id})}" 
-                               class="text-purple-600 hover:text-purple-900 manage-roles-btn">Roles</a>
+                               class="text-purple-600 hover:text-purple-900 manage-roles-btn"
+                               th:id="'roles-user-' + ${user.username}">Roles</a>
                             
                             <!-- Activate/Deactivate -->
                             <form th:if="${!user.isActive}" th:action="@{/rbac/users/{id}/activate(id=${user.id})}" method="post" class="inline">
-                                <button type="submit" class="text-green-600 hover:text-green-900 activate-user-btn">Activate</button>
+                                <button type="submit" class="text-green-600 hover:text-green-900 activate-user-btn"
+                                        th:id="'activate-user-' + ${user.username}">Activate</button>
                             </form>
                             <form th:if="${user.isActive}" th:action="@{/rbac/users/{id}/deactivate(id=${user.id})}" method="post" class="inline">
-                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 deactivate-user-btn">Deactivate</button>
+                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 deactivate-user-btn"
+                                        th:id="'deactivate-user-' + ${user.username}">Deactivate</button>
                             </form>
                             
                             <!-- Delete -->
                             <form th:action="@{/rbac/users/delete/{id}(id=${user.id})}" method="post" class="inline" 
                                   onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                <button type="submit" class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                <button type="submit" class="text-red-600 hover:text-red-900 delete-user-btn"
+                                        th:id="'delete-user-' + ${user.username}">Delete</button>
                             </form>
                         </td>
                     </tr>

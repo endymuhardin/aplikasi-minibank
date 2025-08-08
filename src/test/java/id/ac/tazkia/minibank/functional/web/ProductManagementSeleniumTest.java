@@ -47,29 +47,6 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         
         assertTrue(resultPage.isSuccessMessageDisplayed());
         
-        // Debug: Print page source if product is not displayed
-        if (!resultPage.isProductDisplayed(uniqueCode)) {
-            System.out.println("=== DEBUG: Product not displayed on page ===");
-            System.out.println("Looking for product code: " + uniqueCode);
-            System.out.println("Current URL: " + driver.getCurrentUrl());
-            System.out.println("Page title: " + driver.getTitle());
-            
-            // Check if we have any products at all
-            System.out.println("Product count on page: " + resultPage.getProductCount());
-            
-            String pageSource = driver.getPageSource();
-            System.out.println("Page contains 'No products found': " + pageSource.contains("No products found"));
-            System.out.println("Page contains product code: " + pageSource.contains(uniqueCode));
-            System.out.println("Page length: " + pageSource.length());
-            
-            // Print a snippet of the page around the table
-            if (pageSource.contains("products-table")) {
-                int tableIndex = pageSource.indexOf("products-table");
-                int start = Math.max(0, tableIndex - 200);
-                int end = Math.min(pageSource.length(), tableIndex + 1000);
-                System.out.println("Table section: " + pageSource.substring(start, end));
-            }
-        }
         
         assertTrue(resultPage.isProductDisplayed(uniqueCode));
         
@@ -145,21 +122,6 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
                                    pageSource.contains("must not be blank") ||
                                    pageSource.contains("text-red-600");
         
-        if (!hasValidationError) {
-            System.out.println("=== DEBUG: Validation error not found ===");
-            System.out.println("Current URL: " + driver.getCurrentUrl());
-            System.out.println("Page contains 'text-red-600': " + pageSource.contains("text-red-600"));
-            System.out.println("Page contains 'border-red-300': " + pageSource.contains("border-red-300"));
-            System.out.println("Page contains 'required': " + pageSource.contains("required"));
-            
-            // Print form section
-            if (pageSource.contains("product-form")) {
-                int formIndex = pageSource.indexOf("product-form");
-                int start = Math.max(0, formIndex - 500);
-                int end = Math.min(pageSource.length(), formIndex + 1500);
-                System.out.println("Form section: " + pageSource.substring(start, end));
-            }
-        }
         
         assertTrue(hasValidationError);
     }
@@ -228,15 +190,6 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         // Test search by product code
         listPage.search(savingsCode);
         
-        // Debug: Print what products are displayed after search
-        System.out.println("=== After searching for " + savingsCode + " ===");
-        System.out.println("Savings displayed: " + listPage.isProductDisplayed(savingsCode));
-        System.out.println("Checking displayed: " + listPage.isProductDisplayed(checkingCode));
-        System.out.println("Product count: " + listPage.getProductCount());
-        System.out.println("Current URL: " + driver.getCurrentUrl());
-        
-        // Print all product codes currently displayed
-        System.out.println("All displayed product codes: " + listPage.getProductCodes());
         
         assertTrue(listPage.isProductDisplayed(savingsCode));
         assertFalse(listPage.isProductDisplayed(checkingCode));

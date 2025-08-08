@@ -163,8 +163,9 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductFormPage editProduct(String productCode) {
-        WebElement productRow = findProductRow(productCode);
-        WebElement editLink = productRow.findElement(By.linkText("Edit"));
+        // Use ID-based locator for more reliable element finding
+        WebElement editLink = driver.findElement(By.id("edit-" + productCode));
+        waitForElementToBeClickable(editLink);
         editLink.click();
         return new ProductFormPage(driver, baseUrl);
     }
@@ -202,33 +203,12 @@ public class ProductListPage extends BasePage {
     }
     
     public String getProductStatus(String productCode) {
-        WebElement productRow = findProductRow(productCode);
-        // Look for status text in the status column without relying on color classes
+        // Use ID-based locator for more reliable element finding
         try {
-            // Look for status span in the 6th column (status column)
-            WebElement statusBadge = productRow.findElement(By.cssSelector("td:nth-child(6) span"));
-            String statusText = statusBadge.getText().trim();
-            
-            // Ensure we get the actual status text (Active/Inactive)
-            if (statusText.isEmpty()) {
-                // Try alternative approach - look for any span with status text
-                List<WebElement> statusSpans = productRow.findElements(By.xpath(".//span[contains(text(), 'Active') or contains(text(), 'Inactive')]"));
-                if (!statusSpans.isEmpty()) {
-                    statusText = statusSpans.get(0).getText().trim();
-                }
-            }
-            
-            return statusText;
+            WebElement statusElement = driver.findElement(By.id("status-" + productCode));
+            return statusElement.getText().trim();
         } catch (Exception e) {
-            // Fallback: search for status text anywhere in the row
-            try {
-                WebElement statusElement = productRow.findElement(By.xpath(".//span[contains(text(), 'Active') or contains(text(), 'Inactive')]"));
-                return statusElement.getText().trim();
-            } catch (Exception e2) {
-                // If all else fails, return the text from the status column
-                WebElement statusCell = productRow.findElement(By.cssSelector("td:nth-child(6)"));
-                return statusCell.getText().trim();
-            }
+            throw new RuntimeException("Could not find status element for product: " + productCode, e);
         }
     }
     

@@ -67,4 +67,19 @@ public class PermissionListPage extends BasePage {
         filterButton.click();
         waitForElementToBeVisible(permissionsTable);
     }
+    
+    public PermissionFormPage editPermission(String permissionCode) {
+        WebElement editButton = driver.findElement(By.id("edit-permission-" + permissionCode));
+        waitForElementToBeClickable(editButton);
+        editButton.click();
+        return new PermissionFormPage(driver, baseUrl);
+    }
+    
+    public void deletePermission(String permissionCode) {
+        WebElement deleteButton = driver.findElement(By.id("delete-permission-" + permissionCode));
+        waitForElementToBeClickable(deleteButton);
+        deleteButton.click();
+        // Handle confirmation dialog
+        driver.switchTo().alert().accept();
+    }
 }

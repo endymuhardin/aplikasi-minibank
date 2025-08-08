@@ -69,33 +69,32 @@ public class UserListPage extends BasePage {
     }
     
     public UserFormPage editUser(String username) {
-        WebElement editButton = driver.findElement(
-            By.xpath("//tr[contains(@class, 'user-row')]//div[text()='" + username + "']/ancestor::tr//a[contains(@class, 'edit-user-btn')]")
-        );
+        WebElement editButton = driver.findElement(By.id("edit-user-" + username));
+        waitForElementToBeClickable(editButton);
         editButton.click();
         return new UserFormPage(driver, baseUrl);
     }
     
     public void activateUser(String username) {
-        WebElement activateButton = driver.findElement(
-            By.xpath("//tr[contains(@class, 'user-row')]//div[text()='" + username + "']/ancestor::tr//button[contains(@class, 'activate-user-btn')]")
-        );
+        WebElement activateButton = driver.findElement(By.id("activate-user-" + username));
+        waitForElementToBeClickable(activateButton);
         activateButton.click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("success-message")));
     }
     
     public void deactivateUser(String username) {
-        WebElement deactivateButton = driver.findElement(
-            By.xpath("//tr[contains(@class, 'user-row')]//div[text()='" + username + "']/ancestor::tr//button[contains(@class, 'deactivate-user-btn')]")
-        );
+        WebElement deactivateButton = driver.findElement(By.id("deactivate-user-" + username));
+        waitForElementToBeClickable(deactivateButton);
         deactivateButton.click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("success-message")));
     }
     
     public String getUserStatus(String username) {
-        WebElement statusElement = driver.findElement(
-            By.xpath("//tr[contains(@class, 'user-row')]//div[text()='" + username + "']/ancestor::tr//td[4]")
-        );
-        return statusElement.getText();
+        try {
+            WebElement statusElement = driver.findElement(By.id("status-user-" + username));
+            return statusElement.getText();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not find status element for user: " + username, e);
+        }
     }
 }

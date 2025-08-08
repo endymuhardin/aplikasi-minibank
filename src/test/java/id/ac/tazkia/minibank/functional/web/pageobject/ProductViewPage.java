@@ -18,10 +18,10 @@ public class ProductViewPage extends BasePage {
     @FindBy(id = "interest-rate")
     private WebElement interestRateElement;
     
-    @FindBy(linkText = "Edit Product")
+    @FindBy(id = "edit-product-btn")
     private WebElement editProductButton;
     
-    @FindBy(linkText = "Back to List")
+    @FindBy(id = "back-to-list-btn")
     private WebElement backToListButton;
     
     public ProductViewPage(WebDriver driver, String baseUrl) {

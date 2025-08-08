@@ -49,10 +49,30 @@ public class RoleListPage extends BasePage {
     }
     
     public RoleFormPage editRole(String roleCode) {
-        WebElement editButton = driver.findElement(
-            By.xpath("//tr[contains(@class, 'role-row')]//div[text()='" + roleCode + "']/ancestor::tr//a[contains(@class, 'edit-role-btn')]")
-        );
+        WebElement editButton = driver.findElement(By.id("edit-role-" + roleCode));
+        waitForElementToBeClickable(editButton);
         editButton.click();
         return new RoleFormPage(driver, baseUrl);
+    }
+    
+    public String getRoleStatus(String roleCode) {
+        try {
+            WebElement statusElement = driver.findElement(By.id("status-role-" + roleCode));
+            return statusElement.getText();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not find status element for role: " + roleCode, e);
+        }
+    }
+    
+    public void activateRole(String roleCode) {
+        WebElement activateButton = driver.findElement(By.id("activate-role-" + roleCode));
+        waitForElementToBeClickable(activateButton);
+        activateButton.click();
+    }
+    
+    public void deactivateRole(String roleCode) {
+        WebElement deactivateButton = driver.findElement(By.id("deactivate-role-" + roleCode));
+        waitForElementToBeClickable(deactivateButton);
+        deactivateButton.click();
     }
 }
