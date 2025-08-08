@@ -1,19 +1,245 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
-- secret-detection
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
-- template: Security/Secret-Detection.gitlab-ci.yml
+  - validate
+  - test
+  - security
+  - quality
+  - build
+
 variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  POSTGRES_DB: "pgminibank"
+  POSTGRES_USER: "minibank"
+  POSTGRES_PASSWORD: "minibank1234"
+  POSTGRES_HOST_AUTH_METHOD: "trust"
   SECRET_DETECTION_ENABLED: 'true'
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+
+cache:
+  paths:
+    - .m2/repository/
+    - src/main/frontend/node_modules/
+    - .sonar/cache/
+
+# Security scanning
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
+sast:
+  stage: security
+
 secret_detection:
-  stage: secret-detection
+  stage: security
+
+# Validate project structure and dependencies
+validate:
+  stage: validate
+  image: maven:3.9.9-eclipse-temurin-21
+  script:
+    - mvn $MAVEN_CLI_OPTS dependency:resolve-sources
+    - mvn $MAVEN_CLI_OPTS compile
+  only:
+    - main
+
+# Frontend build stage
+frontend-build:
+  stage: validate
+  image: node:18-alpine
+  before_script:
+    - cd src/main/frontend
+    - npm install
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - src/main/resources/static/css/output.css
+    expire_in: 1 hour
+  only:
+    - main
+
+# Unit tests without database
+unit-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  dependencies:
+    - frontend-build
+  script:
+    - mvn $MAVEN_CLI_OPTS test -Dtest="**/unit/**/*Test"
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+    expire_in: 1 week
+  only:
+    - main
+
+# Integration tests with PostgreSQL
+integration-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: postgres:17
+      alias: postgres
+  dependencies:
+    - frontend-build
+  variables:
+    SPRING_PROFILES_ACTIVE: "test"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/pgminibank"
+    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+  before_script:
+    # Wait for PostgreSQL to be ready
+    - apt-get update -qq && apt-get install -y -qq postgresql-client
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
+  script:
+    - mvn $MAVEN_CLI_OPTS test -Dtest="**/integration/**/*Test"
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+    expire_in: 1 week
+  only:
+    - main
+
+# Feature tests (Karate BDD tests)
+feature-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: postgres:17
+      alias: postgres
+  dependencies:
+    - frontend-build
+  variables:
+    SPRING_PROFILES_ACTIVE: "test"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/pgminibank"
+    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq postgresql-client
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
+  script:
+    - mvn $MAVEN_CLI_OPTS test -Dtest="**/feature/**/*Test"
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+      - target/karate-reports/
+    expire_in: 1 week
+  only:
+    - main
+
+# Functional tests (Selenium with TestContainers)
+functional-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: postgres:17
+      alias: postgres
+    - name: docker:dind
+      alias: docker
+  dependencies:
+    - frontend-build
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    SPRING_PROFILES_ACTIVE: "test"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/pgminibank"
+    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq postgresql-client docker.io
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
+    - docker info
+  script:
+    - mvn $MAVEN_CLI_OPTS test -Dtest="**/functional/**/*Test"
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+    paths:
+      - target/surefire-reports/
+      - target/selenium-recordings/
+    expire_in: 1 week
+  only:
+    - main
+
+# Code coverage report
+coverage-report:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: postgres:17
+      alias: postgres
+  dependencies:
+    - frontend-build
+  variables:
+    SPRING_PROFILES_ACTIVE: "test"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/pgminibank"
+    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq postgresql-client
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
+  script:
+    - mvn $MAVEN_CLI_OPTS test jacoco:report
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: jacoco
+        path: target/site/jacoco/jacoco.xml
+    paths:
+      - target/site/jacoco/
+    expire_in: 1 week
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  only:
+    - main
+
+# SonarCloud code quality analysis
+sonarcloud-check:
+  stage: quality
+  image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: postgres:17
+      alias: postgres
+  dependencies:
+    - frontend-build
+  variables:
+    SPRING_PROFILES_ACTIVE: "test"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/pgminibank"
+    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
+    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq postgresql-client
+    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
+  script:
+    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.projectKey=tazkia.ac.id_aplikasi-minibank
+  only:
+    - main
+
+# Build application
+build:
+  stage: build
+  image: maven:3.9.9-eclipse-temurin-21
+  dependencies:
+    - frontend-build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean compile
+    - mvn $MAVEN_CLI_OPTS package -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 week
+  only:
+    - main
+
