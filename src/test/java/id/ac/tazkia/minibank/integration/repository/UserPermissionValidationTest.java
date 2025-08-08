@@ -1,26 +1,32 @@
-package id.ac.tazkia.minibank.integration;
+package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.*;
-import id.ac.tazkia.minibank.repository.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
-class UserPermissionValidationTest {
+import id.ac.tazkia.minibank.entity.Permission;
+import id.ac.tazkia.minibank.entity.Role;
+import id.ac.tazkia.minibank.entity.RolePermission;
+import id.ac.tazkia.minibank.entity.User;
+import id.ac.tazkia.minibank.entity.UserPassword;
+import id.ac.tazkia.minibank.entity.UserRole;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.PermissionRepository;
+import id.ac.tazkia.minibank.repository.RolePermissionRepository;
+import id.ac.tazkia.minibank.repository.RoleRepository;
+import id.ac.tazkia.minibank.repository.UserPasswordRepository;
+import id.ac.tazkia.minibank.repository.UserRepository;
+import id.ac.tazkia.minibank.repository.UserRoleRepository;
+
+class UserPermissionValidationTest extends BaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;

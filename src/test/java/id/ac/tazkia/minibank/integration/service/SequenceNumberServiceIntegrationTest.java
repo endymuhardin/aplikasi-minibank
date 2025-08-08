@@ -1,8 +1,9 @@
 package id.ac.tazkia.minibank.integration.service;
 
-import id.ac.tazkia.minibank.entity.SequenceNumber;
-import id.ac.tazkia.minibank.repository.SequenceNumberRepository;
-import id.ac.tazkia.minibank.service.SequenceNumberService;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,14 +16,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
+import id.ac.tazkia.minibank.entity.SequenceNumber;
+import id.ac.tazkia.minibank.repository.SequenceNumberRepository;
+import id.ac.tazkia.minibank.service.SequenceNumberService;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import(SequenceNumberService.class)
+@Import({PostgresTestContainersConfiguration.class, SequenceNumberService.class})
 class SequenceNumberServiceIntegrationTest {
 
     @Autowired
