@@ -24,6 +24,11 @@ public class SeleniumTestContainerSingleton {
                 .withCapabilities(createOptionsFor(browserName))
                 .withAccessToHost(true)
                 .withExtraHost("host.testcontainers.internal", "host-gateway");
+        
+        // In GitLab CI environment, configure additional network settings
+        if (isRunningInGitLabCI()) {
+            BROWSER_CONTAINER.withExtraHost("host.testcontainers.internal", "172.17.0.1");
+        }
 
         if (debugMode) {
             BROWSER_CONTAINER
@@ -58,6 +63,12 @@ public class SeleniumTestContainerSingleton {
         Runtime.getRuntime().addShutdownHook(new Thread(DRIVER::quit));
     }
 
+    private static boolean isRunningInGitLabCI() {
+        return System.getenv("GITLAB_CI") != null || 
+               System.getenv("CI_SERVER_HOST") != null ||
+               System.getenv("CI") != null;
+    }
+    
     private static Capabilities createOptionsFor(String browser) {
         switch (browser) {
             case "firefox":

@@ -27,5 +27,6 @@ public abstract class BaseSeleniumTest {
     @PostConstruct
     void setUp() {
         baseUrl = "http://host.testcontainers.internal:" + port;
+        System.out.println(">>> Selenium test baseUrl: " + baseUrl);
     }
 }
