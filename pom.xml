@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		 <sonar.organization>tazkia-ac-id</sonar.organization>
+		 <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<java.version>21</java.version>
 		<thymeleaf.layout.dialect>3.4.0</thymeleaf.layout.dialect>
 	</properties>
