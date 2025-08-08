@@ -1,21 +1,24 @@
 package id.ac.tazkia.minibank.functional.web;
 
-import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
-import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
-import id.ac.tazkia.minibank.repository.ProductRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.TimeUnit;
-import static org.junit.jupiter.api.Assertions.*;
+import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
+import id.ac.tazkia.minibank.repository.ProductRepository;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     
     @Autowired
@@ -118,7 +121,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         );
         
         // Try to submit empty form
-        ProductFormPage resultPage = formPage.submitFormExpectingError();
+        formPage.submitFormExpectingError();
         
         // Should remain on form page
         assertTrue(driver.getCurrentUrl().contains("/product/create"));
