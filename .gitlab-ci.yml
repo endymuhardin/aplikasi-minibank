@@ -81,16 +81,9 @@ comprehensive-tests:
     # Verify Docker for functional tests
     - docker info
   script:
-    # Run all test types in sequence with coverage
-    - echo "=== Running Unit Tests ==="
-    - mvn $MAVEN_CLI_OPTS test -Dtest="**/unit/**/*Test"
-    - echo "=== Running Integration Tests ==="
-    - mvn $MAVEN_CLI_OPTS test -Dtest="**/integration/**/*Test"
-    - echo "=== Running Feature Tests ==="
-    - mvn $MAVEN_CLI_OPTS test -Dtest="**/feature/**/*Test"
-    - echo "=== Running Functional Tests ==="
-    - mvn $MAVEN_CLI_OPTS test -Dtest="**/functional/**/*Test"
-    - echo "=== Generating Coverage Report ==="
+    # Run all test types in sequence with coverage and SonarCloud analysis (includes security scan results)
+    - echo "=== Running All Tests ==="
+    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.projectKey=tazkia.ac.id_aplikasi-minibank
     - mvn $MAVEN_CLI_OPTS jacoco:report
   artifacts:
     reports:
@@ -109,31 +102,10 @@ comprehensive-tests:
   only:
     - main
 
-# Combined security and quality analysis
-security-and-quality:
-  stage: security-quality
-  image: maven:3.9.9-eclipse-temurin-21
-  services:
-    - name: postgres:17
-      alias: postgres
-  dependencies:
-    - build-and-frontend
-  variables:
-    SPRING_DATASOURCE_USERNAME: $POSTGRES_USER
-    SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq postgresql-client
-    - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
-  script:
-    # Run SonarCloud analysis (includes security scan results)
-    - mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.projectKey=tazkia.ac.id_aplikasi-minibank
-  only:
-    - main
-
-# Override security templates to run in security-quality stage
+# Override security templates to run in test stage
 sast:
-  stage: security-quality
+  stage: test
 
 secret_detection:
-  stage: security-quality
+  stage: test
 
