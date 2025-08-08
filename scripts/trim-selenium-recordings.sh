@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the target directory
-RECORDINGS_DIR="../target/selenium-recordings"
+RECORDINGS_DIR="./target/selenium-recordings"
 
 # Check if the directory exists
 if [ ! -d "$RECORDINGS_DIR" ]; then

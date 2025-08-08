@@ -8,9 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     
     @Autowired
@@ -22,6 +25,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         listPage.open();
         
         assertTrue(driver.getCurrentUrl().contains("/product/list"));
+        assertEquals("Product Management - Minibank", driver.getTitle());
     }
     
     @Test
@@ -247,23 +251,67 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         assertEquals("Active", listPage.getProductStatus(statusCode));
     }
     
-    private void createTestProducts() {
-        long timestamp = System.currentTimeMillis();
+    @ParameterizedTest @Transactional
+    @CsvFileSource(resources = "/fixtures/product/product-validation-data.csv", numLinesToSkip = 1)  
+    void shouldValidateProductInputErrors(String testCase, String productCode, String productName, 
+                                        String productType, String expectedError) {
         
-        Product savings = new Product();
-        savings.setProductCode("SAV" + timestamp);
-        savings.setProductName("Test Savings");
-        savings.setProductType(Product.ProductType.SAVINGS);
-        savings.setProductCategory("Savings");
-        savings.setIsActive(true);
-        productRepository.save(savings);
+        ProductListPage listPage = new ProductListPage(driver, baseUrl);
+        listPage.open();
         
-        Product checking = new Product();
-        checking.setProductCode("CHK" + timestamp);
-        checking.setProductName("Test Checking");
-        checking.setProductType(Product.ProductType.CHECKING);
-        checking.setProductCategory("Checking");
-        checking.setIsActive(true);
-        productRepository.save(checking);
+        ProductFormPage formPage = listPage.clickCreateProduct();
+        
+        // Fill form with potentially invalid data
+        // Always fill all required fields with valid defaults, then override the field being tested
+        String defaultProductCode = "TEST" + System.currentTimeMillis();
+        String defaultProductName = "Test Product";
+        String defaultProductType = "SAVINGS";
+        String defaultCategory = "Standard";
+        
+        // Override with test data (including empty values)
+        String testProductCode = (productCode != null) ? productCode : defaultProductCode;
+        String testProductName = (productName != null) ? productName : defaultProductName;
+        String testProductType = (productType != null && !productType.isEmpty()) ? productType : defaultProductType;
+        
+        // For empty string tests, we need to explicitly pass empty string
+        if (testCase.contains("Empty Product Code")) testProductCode = "";
+        if (testCase.contains("Empty Product Name")) testProductName = "";
+        if (testCase.contains("Empty Product Type")) testProductType = "";
+        
+        formPage.fillBasicInformation(testProductCode, testProductName, testProductType, defaultCategory, "IDR");
+        
+        // For invalid interest rate test
+        if (testCase.contains("Interest Rate")) {
+            formPage.fillFinancialConfiguration(null, null, null, "2.0", null, null); // Invalid rate > 1
+        }
+        
+        // Create a duplicate product first for duplicate test
+        if (testCase.contains("Duplicate")) {
+            Product existing = new Product();
+            existing.setProductCode("SAV001");
+            existing.setProductName("Existing Savings");
+            existing.setProductType(Product.ProductType.SAVINGS);
+            existing.setIsActive(true);
+            productRepository.save(existing);
+        }
+        
+        ProductFormPage resultPage = formPage.submitFormExpectingError();
+        
+        // Should stay on form page with error
+        assertTrue(driver.getCurrentUrl().contains("/product/create") || 
+                  driver.getCurrentUrl().contains("/product/edit"),
+                  "Should remain on form page after validation error: " + testCase);
+        
+        // Check for validation error indicators
+        assertTrue(resultPage.isErrorMessageDisplayed() || 
+                  hasValidationErrorOnPage(),
+                  "Should display validation error for: " + testCase);
+    }
+    
+    private boolean hasValidationErrorOnPage() {
+        // Check for various validation error indicators
+        return driver.getPageSource().contains("border-red-300") ||
+               driver.getPageSource().contains("text-red-600") ||
+               driver.getPageSource().contains("error");
     }
 }

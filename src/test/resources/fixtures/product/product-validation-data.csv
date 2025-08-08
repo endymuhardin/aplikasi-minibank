@@ -1,8 +1,8 @@
 testCase,productCode,productName,productType,expectedError
 Empty Product Code,,Test Product,SAVINGS,Product code is required
-Empty Product Name,TEST001,,SAVINGS,Product name is required
-Empty Product Type,TEST002,Test Product,,Product type is required
-Invalid Interest Rate High,TEST003,Test Product,SAVINGS,Interest rate must be between 0 and 1
+Empty Product Name,VAL001,,SAVINGS,Product name is required
+Empty Product Type,VAL002,Test Product,,Product type is required
+Invalid Interest Rate High,VAL003,Test Product,SAVINGS,Interest rate must be between 0 and 1
 Duplicate Product Code,SAV001,Duplicate Savings,SAVINGS,Product code already exists
 Long Product Code,VERYLONGPRODUCTCODETHATEXCEEDSTHELIMIT123456,Test Product,SAVINGS,Product code too long
-Long Product Name,TEST004,This is a very long product name that exceeds the maximum allowed length for product names in the database schema and should trigger validation error,SAVINGS,Product name too long
+Long Product Name,VAL004,This is a very long product name that exceeds the maximum allowed length for product names in the database schema and should trigger validation error,SAVINGS,Product name too long
