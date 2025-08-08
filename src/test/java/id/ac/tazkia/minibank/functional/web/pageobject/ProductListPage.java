@@ -124,15 +124,8 @@ public class ProductListPage extends BasePage {
     
     public boolean isProductDisplayed(String productCode) {
         // Don't refresh the page - preserve current search state
-        // Wait for page to be stable and table to be present
+        // Wait for page to be stable
         waitForPageToLoad();
-        
-        // Wait for products table to be present (or no products message)
-        try {
-            waitForElementToBeVisible(productsTable);
-        } catch (Exception e) {
-            // Table might not be visible if there are no products
-        }
         
         // First check if we're showing "No products found" message
         String pageSource = driver.getPageSource();
@@ -140,18 +133,21 @@ public class ProductListPage extends BasePage {
             return false;
         }
         
-        // Reinitialize page elements to get fresh references
-        org.openqa.selenium.support.PageFactory.initElements(driver, this);
-        
-        // Look for the product code in the table rows
+        // Try to find the products table
         try {
+            waitForElementToBeVisible(productsTable);
+            
+            // Reinitialize page elements to get fresh references
+            org.openqa.selenium.support.PageFactory.initElements(driver, this);
+            
+            // Look for the product code in the table rows
             return productRows.stream()
                 .anyMatch(row -> {
                     String rowText = row.getText();
                     return rowText.contains(productCode);
                 });
         } catch (Exception e) {
-            // Fallback to page source check if table rows fail
+            // If table is not available, fallback to page source check
             return pageSource.contains(productCode);
         }
     }
@@ -184,58 +180,76 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductListPage deactivateProduct(String productCode) {
-        WebElement productRow = findProductRow(productCode);
-        WebElement deactivateButton = productRow.findElement(By.xpath(".//button[text()='Deactivate']"));
+        // Use ID selector instead of XPath
+        WebElement deactivateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("deactivate-" + productCode)));
         deactivateButton.click();
+        
         // Handle confirmation dialog
+        wait.until(ExpectedConditions.alertIsPresent());
         driver.switchTo().alert().accept();
         
-        // Wait for page to reload after form submission
+        // Wait for page to reload after form submission and ensure we're back on the list page
         waitForPageToLoad();
         
-        // Reinitialize page elements after page reload
-        org.openqa.selenium.support.PageFactory.initElements(driver, this);
+        // The form submission should redirect back to the product list page
+        // If not, navigate back to it
+        if (!driver.getCurrentUrl().contains("/product/list")) {
+            open();
+        }
         
         return this;
     }
     
     public ProductListPage activateProduct(String productCode) {
-        WebElement productRow = findProductRow(productCode);
-        WebElement activateButton = productRow.findElement(By.xpath(".//button[text()='Activate']"));
+        // Use ID selector instead of XPath
+        WebElement activateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("activate-" + productCode)));
         activateButton.click();
+        
         // Handle confirmation dialog
+        wait.until(ExpectedConditions.alertIsPresent());
         driver.switchTo().alert().accept();
         
-        // Wait for page to reload after form submission
+        // Wait for page to reload after form submission and ensure we're back on the list page
         waitForPageToLoad();
         
-        // Reinitialize page elements after page reload
-        org.openqa.selenium.support.PageFactory.initElements(driver, this);
+        // The form submission should redirect back to the product list page
+        // If not, navigate back to it
+        if (!driver.getCurrentUrl().contains("/product/list")) {
+            open();
+        }
         
         return this;
     }
     
     public String getProductStatus(String productCode) {
-        // Wait for page to be loaded first
+        // Wait for page to load
         waitForPageToLoad();
-        waitForElementToBeVisible(productsTable);
         
+        // Try to wait for the products table, but handle case where there might be no products
         try {
-            // Wait for the status element to be present
-            WebElement statusElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("status-" + productCode)));
-            String text = statusElement.getText().trim();
-            // If text is empty, wait a moment and try again once more
-            if (text.isEmpty()) {
-                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
-                text = statusElement.getText().trim();
-            }
-            return text;
+            waitForElementToBeVisible(productsTable);
         } catch (org.openqa.selenium.TimeoutException e) {
-            // Fail fast with descriptive error instead of trying fallback
-            throw new RuntimeException("Status element for product " + productCode + " not found within 10 seconds. " +
-                "This may indicate the product was not properly created or the status update failed.", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not find status element for product: " + productCode, e);
+            // Check if we're on an empty page or different page
+            if (driver.getPageSource().contains("No products found")) {
+                throw new RuntimeException("Product " + productCode + " not found - page shows 'No products found'");
+            }
+            // If not on product list page, try to navigate there
+            open();
+            waitForElementToBeVisible(productsTable);
+        }
+        
+        // First check if the product is visible on the page
+        if (!isProductDisplayed(productCode)) {
+            throw new RuntimeException("Product " + productCode + " is not visible on the current page - may be on a different page due to pagination");
+        }
+        
+        // Use ID selector to find status element
+        try {
+            WebElement statusElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("status-" + productCode)));
+            return statusElement.getText().trim();
+        } catch (org.openqa.selenium.TimeoutException e) {
+            throw new RuntimeException("Status element for product " + productCode + " not found within timeout. " +
+                "This may indicate the product status is not properly rendered.", e);
         }
     }
     
@@ -295,9 +309,10 @@ public class ProductListPage extends BasePage {
     
     public boolean isSuccessMessageDisplayed() {
         try {
-            WebElement successMessage = driver.findElement(By.id("success-message"));
+            // Wait for success message to appear (it might take a moment after page redirect)
+            WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-message")));
             return successMessage.isDisplayed();
-        } catch (org.openqa.selenium.NoSuchElementException e) {
+        } catch (org.openqa.selenium.TimeoutException e) {
             return false;
         }
     }
