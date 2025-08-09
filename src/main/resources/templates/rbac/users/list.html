@@ -8,9 +8,9 @@
 <body>
     <div layout:fragment="content">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
+            <h1 class="text-3xl font-bold text-bsi-darker">User Management</h1>
             <a th:href="@{/rbac/users/create}" 
-               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+               class="bg-bsi-primary hover:bg-bsi-teal text-white font-bold py-2 px-4 rounded"
                id="create-user-btn">
                 Create User
             </a>
@@ -18,12 +18,12 @@
 
         <!-- Flash Messages -->
         <div th:if="${successMessage}" 
-             class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+             class="bg-bsi-success bg-opacity-20 border border-bsi-success text-bsi-success px-4 py-3 rounded mb-4"
              id="success-message">
             <span th:text="${successMessage}"></span>
         </div>
         <div th:if="${errorMessage}" 
-             class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+             class="bg-bsi-secondary bg-opacity-20 border border-bsi-secondary text-bsi-secondary px-4 py-3 rounded mb-4"
              id="error-message">
             <span th:text="${errorMessage}"></span>
         </div>
@@ -32,21 +32,21 @@
         <div class="bg-white p-6 rounded-lg shadow mb-6">
             <form th:action="@{/rbac/users/list}" method="get" class="flex gap-4 items-end">
                 <div class="flex-1">
-                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Users</label>
+                    <label for="search" class="block text-sm font-medium text-bsi-dark mb-2">Search Users</label>
                     <input type="text" 
                            id="search" 
                            name="search" 
                            th:value="${search}"
                            placeholder="Search by username, email, or full name..."
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bsi-primary focus:border-bsi-primary">
                 </div>
                 <button type="submit" 
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                        class="bg-bsi-accent hover:bg-bsi-secondary text-white font-bold py-2 px-4 rounded"
                         id="search-btn">
                     Search
                 </button>
                 <a th:href="@{/rbac/users/list}" 
-                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                   class="bg-bsi-bg-light hover:bg-gray-400 text-bsi-dark font-bold py-2 px-4 rounded"
                    id="clear-search-btn">
                     Clear
                 </a>
@@ -56,14 +56,14 @@
         <!-- Users Table -->
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <table class="min-w-full divide-y divide-gray-200" id="users-table">
-                <thead class="bg-gray-50">
+                <thead class="bg-bsi-bg-light">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Full Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Created Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -81,15 +81,15 @@
                             <div class="text-sm text-gray-900" th:text="${user.email}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span th:if="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                            <span th:if="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-bsi-success bg-opacity-20 text-bsi-success"
                                   th:id="'status-user-' + ${user.username}">
                                 Active
                             </span>
-                            <span th:unless="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                            <span th:unless="${user.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-bsi-secondary bg-opacity-20 text-bsi-secondary"
                                   th:id="'status-user-' + ${user.username}">
                                 Inactive
                             </span>
-                            <span th:if="${user.isLocked}" class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                            <span th:if="${user.isLocked}" class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-bsi-secondary bg-opacity-20 text-bsi-secondary"
                                   th:id="'locked-user-' + ${user.username}">
                                 Locked
                             </span>
@@ -98,32 +98,32 @@
                             th:text="${#temporals.format(user.createdDate, 'dd/MM/yyyy')}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                             <a th:href="@{/rbac/users/view/{id}(id=${user.id})}" 
-                               class="text-blue-600 hover:text-blue-900 view-user-btn"
+                               class="text-bsi-info hover:text-bsi-primary view-user-btn"
                                th:id="'view-user-' + ${user.username}">View</a>
                             <a th:href="@{/rbac/users/edit/{id}(id=${user.id})}" 
-                               class="text-indigo-600 hover:text-indigo-900 edit-user-btn"
+                               class="text-bsi-primary hover:text-bsi-teal edit-user-btn"
                                th:id="'edit-user-' + ${user.username}">Edit</a>
                             <a th:href="@{/rbac/users/{id}/password(id=${user.id})}" 
-                               class="text-orange-600 hover:text-orange-900 set-password-btn"
+                               class="text-bsi-accent hover:text-bsi-secondary set-password-btn"
                                th:id="'password-user-' + ${user.username}">Password</a>
                             <a th:href="@{/rbac/users/{id}/roles(id=${user.id})}" 
-                               class="text-purple-600 hover:text-purple-900 manage-roles-btn"
+                               class="text-bsi-primary hover:text-bsi-teal manage-roles-btn"
                                th:id="'roles-user-' + ${user.username}">Roles</a>
                             
                             <!-- Activate/Deactivate -->
                             <form th:if="${!user.isActive}" th:action="@{/rbac/users/{id}/activate(id=${user.id})}" method="post" class="inline">
-                                <button type="submit" class="text-green-600 hover:text-green-900 activate-user-btn"
+                                <button type="submit" class="text-bsi-success hover:text-bsi-light-green activate-user-btn"
                                         th:id="'activate-user-' + ${user.username}">Activate</button>
                             </form>
                             <form th:if="${user.isActive}" th:action="@{/rbac/users/{id}/deactivate(id=${user.id})}" method="post" class="inline">
-                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 deactivate-user-btn"
+                                <button type="submit" class="text-bsi-warning hover:text-bsi-accent deactivate-user-btn"
                                         th:id="'deactivate-user-' + ${user.username}">Deactivate</button>
                             </form>
                             
                             <!-- Delete -->
                             <form th:action="@{/rbac/users/delete/{id}(id=${user.id})}" method="post" class="inline" 
                                   onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                <button type="submit" class="text-red-600 hover:text-red-900 delete-user-btn"
+                                <button type="submit" class="text-bsi-secondary hover:text-bsi-orange-dark delete-user-btn"
                                         th:id="'delete-user-' + ${user.username}">Delete</button>
                             </form>
                         </td>
@@ -142,17 +142,17 @@
                 <!-- Previous -->
                 <a th:if="${users.hasPrevious()}" 
                    th:href="@{/rbac/users/list(page=${users.number - 1}, size=${pageSize}, search=${search})}"
-                   class="px-3 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                   class="px-3 py-2 bg-bsi-bg-light text-bsi-dark rounded hover:bg-gray-400"
                    id="prev-page-btn">Previous</a>
                 
                 <!-- Current page indicator -->
-                <span class="px-3 py-2 bg-blue-500 text-white rounded current-page" 
+                <span class="px-3 py-2 bg-bsi-primary text-white rounded current-page" 
                       th:text="${users.number + 1}"></span>
                 
                 <!-- Next -->
                 <a th:if="${users.hasNext()}" 
                    th:href="@{/rbac/users/list(page=${users.number + 1}, size=${pageSize}, search=${search})}"
-                   class="px-3 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                   class="px-3 py-2 bg-bsi-bg-light text-bsi-dark rounded hover:bg-gray-400"
                    id="next-page-btn">Next</a>
             </div>
         </div>
