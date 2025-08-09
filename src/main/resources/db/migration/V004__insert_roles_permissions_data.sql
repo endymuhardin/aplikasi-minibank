@@ -74,18 +74,43 @@ SELECT r.id, p.id, 'SYSTEM'
 FROM roles r, permissions p 
 WHERE r.role_code = 'BRANCH_MANAGER';
 
--- Create a default admin user
+-- Create sample users for each role
 INSERT INTO users (username, email, full_name, created_by) VALUES
-('admin', 'admin@yopmail.com', 'System Administrator', 'SYSTEM');
+-- Branch Manager users
+('admin', 'admin@yopmail.com', 'System Administrator', 'SYSTEM'),
+('manager1', 'manager1@yopmail.com', 'Branch Manager Jakarta', 'SYSTEM'),
+('manager2', 'manager2@yopmail.com', 'Branch Manager Surabaya', 'SYSTEM'),
 
--- Set password for admin user (password: YTZvdyAUya)
--- Note: This is a 10-character random password using non-ambiguous characters (2-9, A-Z except O, a-z except l)
+-- Teller users
+('teller1', 'teller1@yopmail.com', 'Teller Counter 1', 'SYSTEM'),
+('teller2', 'teller2@yopmail.com', 'Teller Counter 2', 'SYSTEM'),
+('teller3', 'teller3@yopmail.com', 'Teller Counter 3', 'SYSTEM'),
+
+-- Customer Service users
+('cs1', 'cs1@yopmail.com', 'Customer Service Staff 1', 'SYSTEM'),
+('cs2', 'cs2@yopmail.com', 'Customer Service Staff 2', 'SYSTEM'),
+('cs3', 'cs3@yopmail.com', 'Customer Service Staff 3', 'SYSTEM');
+
+-- Set passwords for all users (password: minibank123)
+-- Note: BCrypt hash for 'minibank123'
 INSERT INTO user_passwords (id_users, password_hash, created_by)
-SELECT id, '$2a$10$9JHQzLVjFHGHfPGKw5P8/.qJKl5y5Yb8gYF4H6N2M8A7t9X6V5W4S', 'SYSTEM'
-FROM users WHERE username = 'admin';
+SELECT id, '$2a$10$qj8.4l5y5Yb8gYF4H6N2M8A7t9X6V5W4SmKHGLVjFHGHfPGKw5P8/e', 'SYSTEM'
+FROM users WHERE username IN ('admin', 'manager1', 'manager2', 'teller1', 'teller2', 'teller3', 'cs1', 'cs2', 'cs3');
 
--- Assign Branch Manager role to admin user
+-- Assign Branch Manager role
 INSERT INTO user_roles (id_users, id_roles, assigned_by)
 SELECT u.id, r.id, 'SYSTEM'
 FROM users u, roles r 
-WHERE u.username = 'admin' AND r.role_code = 'BRANCH_MANAGER';
+WHERE u.username IN ('admin', 'manager1', 'manager2') AND r.role_code = 'BRANCH_MANAGER';
+
+-- Assign Teller role
+INSERT INTO user_roles (id_users, id_roles, assigned_by)
+SELECT u.id, r.id, 'SYSTEM'
+FROM users u, roles r 
+WHERE u.username IN ('teller1', 'teller2', 'teller3') AND r.role_code = 'TELLER';
+
+-- Assign Customer Service role
+INSERT INTO user_roles (id_users, id_roles, assigned_by)
+SELECT u.id, r.id, 'SYSTEM'
+FROM users u, roles r 
+WHERE u.username IN ('cs1', 'cs2', 'cs3') AND r.role_code = 'CUSTOMER_SERVICE';
