@@ -21,6 +21,8 @@ import javax.sql.DataSource;
 @RequiredArgsConstructor
 @Profile("!test")
 public class SecurityConfig {
+    
+    private static final String LOGIN_PATH = LOGIN_PATH;
 
     private final DataSource dataSource;
     private final AuthenticationService authenticationService;
@@ -85,7 +87,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/login", "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers(LOGIN_PATH, "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/api/**").hasAnyAuthority("TRANSACTION_READ", "CUSTOMER_READ", "ACCOUNT_READ", "USER_READ")
                 .requestMatchers("/rbac/**").hasAnyAuthority("USER_READ", "USER_CREATE", "USER_UPDATE")
                 .requestMatchers("/product/**").hasAnyAuthority("PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ")
@@ -93,8 +95,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
+                .loginPage(LOGIN_PATH)
+                .loginProcessingUrl(LOGIN_PATH)
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .successHandler(authenticationSuccessHandler())
@@ -107,7 +109,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             .userDetailsService(jdbcUserDetailsManager())
-            .csrf(csrf -> csrf.disable());
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/api/**")
+            );
         return http.build();
     }
 }

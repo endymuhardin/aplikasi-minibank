@@ -5,12 +5,19 @@ import id.ac.tazkia.minibank.entity.UserPassword;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import id.ac.tazkia.minibank.repository.UserPasswordRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -22,45 +29,50 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserRestController {
     
-    @Autowired
-    private UserRepository userRepository;
+    private static final String SYSTEM_USER = "system";
     
-    @Autowired
-    private UserPasswordRepository userPasswordRepository;
+    private final UserRepository userRepository;
+    private final UserPasswordRepository userPasswordRepository;
+    private final PasswordEncoder passwordEncoder;
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserRestController(UserRepository userRepository, 
+                             UserPasswordRepository userPasswordRepository, 
+                             PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userPasswordRepository = userPasswordRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody CreateUserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         // Check for username uniqueness
         if (userRepository.existsByUsername(request.getUsername())) {
             Map<String, String> errors = new HashMap<>();
             errors.put("username", "Username already exists");
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         // Check for email uniqueness
         if (userRepository.existsByEmail(request.getEmail())) {
             Map<String, String> errors = new HashMap<>();
             errors.put("email", "Email already exists");
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
-        user.setCreatedBy("system");
-        user.setUpdatedBy("system");
+        user.setCreatedBy(SYSTEM_USER);
+        user.setUpdatedBy(SYSTEM_USER);
         
         User savedUser = userRepository.save(user);
 
@@ -69,18 +81,18 @@ public class UserRestController {
             UserPassword userPassword = new UserPassword();
             userPassword.setUser(savedUser);
             userPassword.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-            userPassword.setCreatedBy("system");
+            userPassword.setCreatedBy(SYSTEM_USER);
             userPasswordRepository.save(userPassword);
         }
 
-        return new ResponseEntity<>(new UserResponse(savedUser), HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse(savedUser));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
         return userRepository.findById(id)
-                .map(user -> new ResponseEntity<>(new UserResponse(user), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(user -> ResponseEntity.ok(new UserResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
@@ -96,7 +108,7 @@ public class UserRestController {
                 .map(UserResponse::new)
                 .toList();
         
-        return new ResponseEntity<>(userResponses, HttpStatus.OK);
+        return ResponseEntity.ok(userResponses);
     }
 
     @GetMapping("/active")
@@ -105,24 +117,24 @@ public class UserRestController {
         List<UserResponse> userResponses = users.stream()
                 .map(UserResponse::new)
                 .toList();
-        return new ResponseEntity<>(userResponses, HttpStatus.OK);
+        return ResponseEntity.ok(userResponses);
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
         return userRepository.findByUsername(username)
-                .map(user -> new ResponseEntity<>(new UserResponse(user), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(user -> ResponseEntity.ok(new UserResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         return userRepository.findById(id)
@@ -132,7 +144,7 @@ public class UserRestController {
                         userRepository.existsByUsername(request.getUsername())) {
                         Map<String, String> errors = new HashMap<>();
                         errors.put("username", "Username already exists");
-                        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+                        return ResponseEntity.badRequest().body(errors);
                     }
 
                     // Check for email uniqueness (excluding current user)
@@ -140,18 +152,18 @@ public class UserRestController {
                         userRepository.existsByEmail(request.getEmail())) {
                         Map<String, String> errors = new HashMap<>();
                         errors.put("email", "Email already exists");
-                        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+                        return ResponseEntity.badRequest().body(errors);
                     }
 
                     user.setUsername(request.getUsername());
                     user.setEmail(request.getEmail());
                     user.setFullName(request.getFullName());
-                    user.setUpdatedBy("system");
+                    user.setUpdatedBy(SYSTEM_USER);
                     
                     User updatedUser = userRepository.save(user);
-                    return new ResponseEntity<>(new UserResponse(updatedUser), HttpStatus.OK);
+                    return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/activate")
@@ -159,11 +171,11 @@ public class UserRestController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setIsActive(true);
-                    user.setUpdatedBy("system");
+                    user.setUpdatedBy(SYSTEM_USER);
                     User updatedUser = userRepository.save(user);
-                    return new ResponseEntity<>(new UserResponse(updatedUser), HttpStatus.OK);
+                    return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/deactivate")
@@ -171,11 +183,11 @@ public class UserRestController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setIsActive(false);
-                    user.setUpdatedBy("system");
+                    user.setUpdatedBy(SYSTEM_USER);
                     User updatedUser = userRepository.save(user);
-                    return new ResponseEntity<>(new UserResponse(updatedUser), HttpStatus.OK);
+                    return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/unlock")
@@ -184,21 +196,21 @@ public class UserRestController {
                 .map(user -> {
                     user.resetFailedLoginAttempts();
                     user.setIsLocked(false);
-                    user.setUpdatedBy("system");
+                    user.setUpdatedBy(SYSTEM_USER);
                     User updatedUser = userRepository.save(user);
-                    return new ResponseEntity<>(new UserResponse(updatedUser), HttpStatus.OK);
+                    return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/password")
-    public ResponseEntity<?> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         return userRepository.findById(id)
@@ -214,26 +226,26 @@ public class UserRestController {
                     UserPassword userPassword = new UserPassword();
                     userPassword.setUser(user);
                     userPassword.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-                    userPassword.setCreatedBy("system");
+                    userPassword.setCreatedBy(SYSTEM_USER);
                     userPasswordRepository.save(userPassword);
 
                     Map<String, String> response = new HashMap<>();
                     response.put("message", "Password changed successfully");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Object> deleteUser(@PathVariable UUID id) {
         return userRepository.findById(id)
                 .map(user -> {
                     userRepository.delete(user);
                     Map<String, String> response = new HashMap<>();
                     response.put("message", "User deleted successfully");
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                    return ResponseEntity.ok(response);
                 })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(ResponseEntity.notFound().build());
     }
 
 

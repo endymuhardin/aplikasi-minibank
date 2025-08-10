@@ -2,7 +2,6 @@ package id.ac.tazkia.minibank.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +12,11 @@ import id.ac.tazkia.minibank.repository.SequenceNumberRepository;
 @Transactional
 public class SequenceNumberService {
     
-    @Autowired
-    private SequenceNumberRepository sequenceNumberRepository;
+    private final SequenceNumberRepository sequenceNumberRepository;
+    
+    public SequenceNumberService(SequenceNumberRepository sequenceNumberRepository) {
+        this.sequenceNumberRepository = sequenceNumberRepository;
+    }
     
     public String generateNextSequence(String sequenceName, String prefix) {
         SequenceNumber sequence = getOrCreateSequence(sequenceName, prefix);

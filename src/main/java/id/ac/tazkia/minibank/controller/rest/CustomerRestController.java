@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,54 +28,57 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/customers")
 public class CustomerRestController {
     
-    @Autowired
-    private PersonalCustomerRepository personalCustomerRepository;
+    private final PersonalCustomerRepository personalCustomerRepository;
+    private final CorporateCustomerRepository corporateCustomerRepository;
     
-    @Autowired
-    private CorporateCustomerRepository corporateCustomerRepository;
+    public CustomerRestController(PersonalCustomerRepository personalCustomerRepository,
+                                CorporateCustomerRepository corporateCustomerRepository) {
+        this.personalCustomerRepository = personalCustomerRepository;
+        this.corporateCustomerRepository = corporateCustomerRepository;
+    }
 
     @PostMapping("/personal/register")
-    public ResponseEntity<?> registerPersonalCustomer(@Valid @RequestBody PersonalCustomer customer, BindingResult bindingResult) {
+    public ResponseEntity<Object> registerPersonalCustomer(@Valid @RequestBody PersonalCustomer customer, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         PersonalCustomer savedCustomer = personalCustomerRepository.save(customer);
-        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCustomer);
 
     }
 
     @PostMapping("/corporate/register")
-    public ResponseEntity<?> registerCorporateCustomer(@Valid @RequestBody CorporateCustomer customer, BindingResult bindingResult) {
+    public ResponseEntity<Object> registerCorporateCustomer(@Valid @RequestBody CorporateCustomer customer, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
         
         CorporateCustomer savedCustomer = corporateCustomerRepository.save(customer);
-        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCustomer);
     
     }
 
     @GetMapping("/personal/{id}")
     public ResponseEntity<PersonalCustomer> getPersonalCustomer(@PathVariable UUID id) {
         return personalCustomerRepository.findById(id)
-                .map(customer -> new ResponseEntity<>(customer, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/corporate/{id}")
     public ResponseEntity<CorporateCustomer> getCorporateCustomer(@PathVariable UUID id) {
         return corporateCustomerRepository.findById(id)
-                .map(customer -> new ResponseEntity<>(customer, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/personal")
@@ -87,7 +89,7 @@ public class CustomerRestController {
         } else {
             customers = personalCustomerRepository.findAll();
         }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+        return ResponseEntity.ok(customers);
     }
 
     @GetMapping("/corporate")
@@ -98,21 +100,21 @@ public class CustomerRestController {
         } else {
             customers = corporateCustomerRepository.findAll();
         }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+        return ResponseEntity.ok(customers);
     }
 
     @GetMapping("/number/{customerNumber}")
     public ResponseEntity<Customer> getCustomerByNumber(@PathVariable String customerNumber) {
         Optional<PersonalCustomer> personalCustomer = personalCustomerRepository.findByCustomerNumber(customerNumber);
         if (personalCustomer.isPresent()) {
-            return new ResponseEntity<>(personalCustomer.get(), HttpStatus.OK);
+            return ResponseEntity.ok(personalCustomer.get());
         }
         
         Optional<CorporateCustomer> corporateCustomer = corporateCustomerRepository.findByCustomerNumber(customerNumber);
         if (corporateCustomer.isPresent()) {
-            return new ResponseEntity<>(corporateCustomer.get(), HttpStatus.OK);
+            return ResponseEntity.ok(corporateCustomer.get());
         }
         
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.notFound().build();
     }
 }

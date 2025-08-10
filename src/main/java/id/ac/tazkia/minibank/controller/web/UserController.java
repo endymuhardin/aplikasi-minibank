@@ -29,6 +29,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     
+    private static final String REDIRECT_USERS_LIST = "redirect:/rbac/users/list";
+    private static final String SYSTEM_USER = SYSTEM_USER;
+    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
+    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
+    private static final String USER_NOT_FOUND_MSG = USER_NOT_FOUND_MSG;
+    private static final String ROLES_PATH = ROLES_PATH;
+    private static final String REDIRECT_USERS_PREFIX = REDIRECT_USERS_PREFIX;
+    private static final String PASSWORD_PATH = PASSWORD_PATH;
+    
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
@@ -96,14 +105,14 @@ public class UserController {
         }
         
         try {
-            user.setCreatedBy("system");
-            user.setUpdatedBy("system");
+            user.setCreatedBy(SYSTEM_USER);
+            user.setUpdatedBy(SYSTEM_USER);
             userRepository.save(user);
             
-            redirectAttributes.addFlashAttribute("successMessage", "User created successfully. You can set a password from the user details page.");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User created successfully. You can set a password from the user details page.");
+            return REDIRECT_USERS_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error creating user: " + e.getMessage());
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating user: " + e.getMessage());
             return "rbac/users/form";
         }
     }
@@ -112,8 +121,8 @@ public class UserController {
     public String editForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+            return REDIRECT_USERS_LIST;
         }
         
         model.addAttribute("user", user.get());
@@ -129,8 +138,8 @@ public class UserController {
         
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+            return REDIRECT_USERS_LIST;
         }
         
         User existing = existingUser.get();
@@ -154,13 +163,13 @@ public class UserController {
             existing.setEmail(user.getEmail());
             existing.setFullName(user.getFullName());
             existing.setIsActive(user.getIsActive());
-            existing.setUpdatedBy("system");
+            existing.setUpdatedBy(SYSTEM_USER);
             
             userRepository.save(existing);
-            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User updated successfully");
+            return REDIRECT_USERS_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error updating user: " + e.getMessage());
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating user: " + e.getMessage());
             return "rbac/users/form";
         }
     }
@@ -169,8 +178,8 @@ public class UserController {
     public String view(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+            return REDIRECT_USERS_LIST;
         }
         
         List<UserRole> userRoles = userRoleRepository.findByUser(user.get());
@@ -184,8 +193,8 @@ public class UserController {
     public String manageUserRoles(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+            return REDIRECT_USERS_LIST;
         }
         
         List<UserRole> userRoles = userRoleRepository.findByUser(user.get());
@@ -206,27 +215,27 @@ public class UserController {
             Role role = roleRepository.findById(roleId).orElse(null);
             
             if (user == null || role == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User or role not found");
-                return "redirect:/rbac/users/" + id + "/roles";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "User or role not found");
+                return REDIRECT_USERS_PREFIX + id + ROLES_PATH;
             }
             
             if (userRoleRepository.existsByUserAndRole(user, role)) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User already has this role");
-                return "redirect:/rbac/users/" + id + "/roles";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "User already has this role");
+                return REDIRECT_USERS_PREFIX + id + ROLES_PATH;
             }
             
             UserRole userRole = new UserRole();
             userRole.setUser(user);
             userRole.setRole(role);
-            userRole.setAssignedBy("system");
+            userRole.setAssignedBy(SYSTEM_USER);
             userRoleRepository.save(userRole);
             
-            redirectAttributes.addFlashAttribute("successMessage", "Role assigned successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Role assigned successfully");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error assigning role: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error assigning role: " + e.getMessage());
         }
         
-        return "redirect:/rbac/users/" + id + "/roles";
+        return REDIRECT_USERS_PREFIX + id + ROLES_PATH;
     }
     
     @PostMapping("/{id}/roles/remove")
@@ -235,12 +244,12 @@ public class UserController {
                            RedirectAttributes redirectAttributes) {
         try {
             userRoleRepository.deleteById(userRoleId);
-            redirectAttributes.addFlashAttribute("successMessage", "Role removed successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Role removed successfully");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error removing role: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error removing role: " + e.getMessage());
         }
         
-        return "redirect:/rbac/users/" + id + "/roles";
+        return REDIRECT_USERS_PREFIX + id + ROLES_PATH;
     }
     
     @PostMapping("/{id}/activate")
@@ -250,16 +259,16 @@ public class UserController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 user.setIsActive(true);
-                user.setUpdatedBy("system");
+                user.setUpdatedBy(SYSTEM_USER);
                 userRepository.save(user);
-                redirectAttributes.addFlashAttribute("successMessage", "User activated successfully");
+                redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User activated successfully");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "User not found");
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error activating user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error activating user: " + e.getMessage());
         }
-        return "redirect:/rbac/users/list";
+        return REDIRECT_USERS_LIST;
     }
     
     @PostMapping("/{id}/deactivate")
@@ -269,16 +278,16 @@ public class UserController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 user.setIsActive(false);
-                user.setUpdatedBy("system");
+                user.setUpdatedBy(SYSTEM_USER);
                 userRepository.save(user);
-                redirectAttributes.addFlashAttribute("successMessage", "User deactivated successfully");
+                redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User deactivated successfully");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "User not found");
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deactivating user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deactivating user: " + e.getMessage());
         }
-        return "redirect:/rbac/users/list";
+        return REDIRECT_USERS_LIST;
     }
     
     @PostMapping("/delete/{id}")
@@ -287,22 +296,22 @@ public class UserController {
             Optional<User> userOpt = userRepository.findById(id);
             if (userOpt.isPresent()) {
                 userRepository.deleteById(id);
-                redirectAttributes.addFlashAttribute("successMessage", "User deleted successfully");
+                redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User deleted successfully");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "User not found");
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deleting user: " + e.getMessage());
         }
-        return "redirect:/rbac/users/list";
+        return REDIRECT_USERS_LIST;
     }
     
     @GetMapping("/{id}/password")
     public String passwordForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-            return "redirect:/rbac/users/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+            return REDIRECT_USERS_LIST;
         }
         
         model.addAttribute("user", user.get());
@@ -317,25 +326,25 @@ public class UserController {
         try {
             Optional<User> userOpt = userRepository.findById(id);
             if (userOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User not found");
-                return "redirect:/rbac/users/list";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
+                return REDIRECT_USERS_LIST;
             }
             
             User user = userOpt.get();
             
             if (password == null || password.trim().isEmpty()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Password cannot be empty");
-                return "redirect:/rbac/users/" + id + "/password";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Password cannot be empty");
+                return REDIRECT_USERS_PREFIX + id + PASSWORD_PATH;
             }
             
             if (!password.equals(confirmPassword)) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match");
-                return "redirect:/rbac/users/" + id + "/password";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Passwords do not match");
+                return REDIRECT_USERS_PREFIX + id + PASSWORD_PATH;
             }
             
             if (password.length() < 6) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Password must be at least 6 characters long");
-                return "redirect:/rbac/users/" + id + "/password";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Password must be at least 6 characters long");
+                return REDIRECT_USERS_PREFIX + id + PASSWORD_PATH;
             }
             
             // Check if user already has a password
@@ -351,15 +360,15 @@ public class UserController {
                 id.ac.tazkia.minibank.entity.UserPassword userPassword = new id.ac.tazkia.minibank.entity.UserPassword();
                 userPassword.setUser(user);
                 userPassword.setPasswordHash(passwordEncoder.encode(password));
-                userPassword.setCreatedBy("system");
+                userPassword.setCreatedBy(SYSTEM_USER);
                 userPasswordRepository.save(userPassword);
             }
             
-            redirectAttributes.addFlashAttribute("successMessage", "Password updated successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Password updated successfully");
             return "redirect:/rbac/users/view/" + id;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error updating password: " + e.getMessage());
-            return "redirect:/rbac/users/" + id + "/password";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error updating password: " + e.getMessage());
+            return REDIRECT_USERS_PREFIX + id + PASSWORD_PATH;
         }
     }
 }

@@ -10,12 +10,14 @@ import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,40 +29,45 @@ import java.util.Optional;
 @RequestMapping("/api/transactions")
 public class TransactionRestController {
     
-    @Autowired
-    private AccountRepository accountRepository;
+    private static final String ACCOUNT_ID_FIELD = "accountId";
     
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
+    private final SequenceNumberService sequenceNumberService;
     
-    @Autowired
-    private SequenceNumberService sequenceNumberService;
+    public TransactionRestController(AccountRepository accountRepository,
+                                   TransactionRepository transactionRepository,
+                                   SequenceNumberService sequenceNumberService) {
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
+        this.sequenceNumberService = sequenceNumberService;
+    }
     
     @PostMapping("/deposit")
     @Transactional
-    public ResponseEntity<?> deposit(@Valid @RequestBody DepositRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> deposit(@Valid @RequestBody DepositRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
         
         try {
             // Validate account exists and is active
             Optional<Account> accountOpt = accountRepository.findById(request.getAccountId());
-            if (!accountOpt.isPresent()) {
+            if (accountOpt.isEmpty()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("accountId", "Account not found");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                error.put(ACCOUNT_ID_FIELD, "Account not found");
+                return ResponseEntity.badRequest().body(error);
             }
             
             Account account = accountOpt.get();
             if (!account.isActive()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("accountId", "Account is not active");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                error.put(ACCOUNT_ID_FIELD, "Account is not active");
+                return ResponseEntity.badRequest().body(error);
             }
             
             // Record balance before transaction
@@ -115,44 +122,44 @@ public class TransactionRestController {
             accountInfo.setCurrentBalance(savedAccount.getBalance());
             response.setAccount(accountInfo);
             
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
             
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("amount", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(error);
+        } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to process deposit: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            error.put("error", "Transaction processing failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
     
     @PostMapping("/withdrawal")
     @Transactional
-    public ResponseEntity<?> withdrawal(@Valid @RequestBody WithdrawalRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> withdrawal(@Valid @RequestBody WithdrawalRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
         
         try {
             // Validate account exists and is active
             Optional<Account> accountOpt = accountRepository.findById(request.getAccountId());
-            if (!accountOpt.isPresent()) {
+            if (accountOpt.isEmpty()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("accountId", "Account not found");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                error.put(ACCOUNT_ID_FIELD, "Account not found");
+                return ResponseEntity.badRequest().body(error);
             }
             
             Account account = accountOpt.get();
             if (!account.isActive()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("accountId", "Account is not active");
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                error.put(ACCOUNT_ID_FIELD, "Account is not active");
+                return ResponseEntity.badRequest().body(error);
             }
             
             // Record balance before transaction
@@ -207,16 +214,16 @@ public class TransactionRestController {
             accountInfo.setCurrentBalance(savedAccount.getBalance());
             response.setAccount(accountInfo);
             
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
             
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("amount", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(error);
+        } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to process withdrawal: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            error.put("error", "Transaction processing failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 }

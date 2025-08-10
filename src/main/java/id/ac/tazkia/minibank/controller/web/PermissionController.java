@@ -25,6 +25,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PermissionController {
     
+    private static final String CATEGORIES_ATTR = CATEGORIES_ATTR;
+    private static final String PERMISSION_ATTR = PERMISSION_ATTR;
+    private static final String PERMISSIONS_FORM_VIEW = PERMISSIONS_FORM_VIEW;
+    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
+    private static final String REDIRECT_PERMISSIONS_LIST = REDIRECT_PERMISSIONS_LIST;
+    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
+    private static final String PERMISSION_NOT_FOUND_MSG = PERMISSION_NOT_FOUND_MSG;
+    
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
     
@@ -58,17 +66,17 @@ public class PermissionController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("category", category);
-        model.addAttribute("categories", categories);
+        model.addAttribute(CATEGORIES_ATTR, categories);
         
         return "rbac/permissions/list";
     }
     
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("permission", new Permission());
+        model.addAttribute(PERMISSION_ATTR, new Permission());
         List<String> categories = permissionRepository.findDistinctCategories();
-        model.addAttribute("categories", categories);
-        return "rbac/permissions/form";
+        model.addAttribute(CATEGORIES_ATTR, categories);
+        return PERMISSIONS_FORM_VIEW;
     }
     
     @PostMapping("/create")
@@ -83,20 +91,20 @@ public class PermissionController {
         
         if (result.hasErrors()) {
             List<String> categories = permissionRepository.findDistinctCategories();
-            model.addAttribute("categories", categories);
-            return "rbac/permissions/form";
+            model.addAttribute(CATEGORIES_ATTR, categories);
+            return PERMISSIONS_FORM_VIEW;
         }
         
         try {
             permission.setCreatedBy("system");
             permissionRepository.save(permission);
-            redirectAttributes.addFlashAttribute("successMessage", "Permission created successfully");
-            return "redirect:/rbac/permissions/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission created successfully");
+            return REDIRECT_PERMISSIONS_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error creating permission: " + e.getMessage());
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating permission: " + e.getMessage());
             List<String> categories = permissionRepository.findDistinctCategories();
-            model.addAttribute("categories", categories);
-            return "rbac/permissions/form";
+            model.addAttribute(CATEGORIES_ATTR, categories);
+            return PERMISSIONS_FORM_VIEW;
         }
     }
     
@@ -104,14 +112,14 @@ public class PermissionController {
     public String editForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Permission> permission = permissionRepository.findById(id);
         if (permission.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Permission not found");
-            return "redirect:/rbac/permissions/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PERMISSION_NOT_FOUND_MSG);
+            return REDIRECT_PERMISSIONS_LIST;
         }
         
         List<String> categories = permissionRepository.findDistinctCategories();
-        model.addAttribute("permission", permission.get());
-        model.addAttribute("categories", categories);
-        return "rbac/permissions/form";
+        model.addAttribute(PERMISSION_ATTR, permission.get());
+        model.addAttribute(CATEGORIES_ATTR, categories);
+        return PERMISSIONS_FORM_VIEW;
     }
     
     @PostMapping("/edit/{id}")
@@ -123,8 +131,8 @@ public class PermissionController {
         
         Optional<Permission> existingPermission = permissionRepository.findById(id);
         if (existingPermission.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Permission not found");
-            return "redirect:/rbac/permissions/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PERMISSION_NOT_FOUND_MSG);
+            return REDIRECT_PERMISSIONS_LIST;
         }
         
         Permission existing = existingPermission.get();
@@ -136,8 +144,8 @@ public class PermissionController {
         
         if (result.hasErrors()) {
             List<String> categories = permissionRepository.findDistinctCategories();
-            model.addAttribute("categories", categories);
-            return "rbac/permissions/form";
+            model.addAttribute(CATEGORIES_ATTR, categories);
+            return PERMISSIONS_FORM_VIEW;
         }
         
         try {
@@ -149,13 +157,13 @@ public class PermissionController {
             existing.setAction(permission.getAction());
             
             permissionRepository.save(existing);
-            redirectAttributes.addFlashAttribute("successMessage", "Permission updated successfully");
-            return "redirect:/rbac/permissions/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission updated successfully");
+            return REDIRECT_PERMISSIONS_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error updating permission: " + e.getMessage());
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating permission: " + e.getMessage());
             List<String> categories = permissionRepository.findDistinctCategories();
-            model.addAttribute("categories", categories);
-            return "rbac/permissions/form";
+            model.addAttribute(CATEGORIES_ATTR, categories);
+            return PERMISSIONS_FORM_VIEW;
         }
     }
     
@@ -163,13 +171,13 @@ public class PermissionController {
     public String view(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Permission> permission = permissionRepository.findById(id);
         if (permission.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Permission not found");
-            return "redirect:/rbac/permissions/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PERMISSION_NOT_FOUND_MSG);
+            return REDIRECT_PERMISSIONS_LIST;
         }
         
         List<RolePermission> rolePermissions = rolePermissionRepository.findByPermission(permission.get());
         
-        model.addAttribute("permission", permission.get());
+        model.addAttribute(PERMISSION_ATTR, permission.get());
         model.addAttribute("rolePermissions", rolePermissions);
         return "rbac/permissions/view";
     }
@@ -180,13 +188,13 @@ public class PermissionController {
             Optional<Permission> permissionOpt = permissionRepository.findById(id);
             if (permissionOpt.isPresent()) {
                 permissionRepository.deleteById(id);
-                redirectAttributes.addFlashAttribute("successMessage", "Permission deleted successfully");
+                redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission deleted successfully");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Permission not found");
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PERMISSION_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting permission: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deleting permission: " + e.getMessage());
         }
-        return "redirect:/rbac/permissions/list";
+        return REDIRECT_PERMISSIONS_LIST;
     }
 }

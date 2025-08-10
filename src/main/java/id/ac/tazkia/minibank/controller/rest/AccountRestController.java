@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,29 +30,34 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/accounts")
 public class AccountRestController {
     
-    @Autowired
-    private PersonalCustomerRepository personalCustomerRepository;
+    private static final String PRODUCT_ID_FIELD = "productId";
     
-    @Autowired
-    private CorporateCustomerRepository corporateCustomerRepository;
+    private final PersonalCustomerRepository personalCustomerRepository;
+    private final CorporateCustomerRepository corporateCustomerRepository;
+    private final AccountRepository accountRepository;
+    private final ProductRepository productRepository;
+    private final SequenceNumberService sequenceNumberService;
     
-    @Autowired
-    private AccountRepository accountRepository;
-    
-    @Autowired
-    private ProductRepository productRepository;
-    
-    @Autowired
-    private SequenceNumberService sequenceNumberService;
+    public AccountRestController(PersonalCustomerRepository personalCustomerRepository,
+                               CorporateCustomerRepository corporateCustomerRepository,
+                               AccountRepository accountRepository,
+                               ProductRepository productRepository,
+                               SequenceNumberService sequenceNumberService) {
+        this.personalCustomerRepository = personalCustomerRepository;
+        this.corporateCustomerRepository = corporateCustomerRepository;
+        this.accountRepository = accountRepository;
+        this.productRepository = productRepository;
+        this.sequenceNumberService = sequenceNumberService;
+    }
 
     @PostMapping("/open")
-    public ResponseEntity<?> openAccount(@Valid @RequestBody AccountOpeningRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Object> openAccount(@Valid @RequestBody AccountOpeningRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(errors);
         }
 
         try {
@@ -69,22 +73,22 @@ public class AccountRestController {
                 } else {
                     Map<String, String> error = new HashMap<>();
                     error.put("customerId", "Customer not found");
-                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                    return ResponseEntity.badRequest().body(error);
                 }
             }
 
             // Validate product exists and is active
             Optional<Product> productOpt = productRepository.findById(request.getProductId());
-            if (!productOpt.isPresent()) {
+            if (productOpt.isEmpty()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("productId", "Product not found");
+                error.put(PRODUCT_ID_FIELD, "Product not found");
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
             }
             
             Product product = productOpt.get();
             if (!product.getIsActive()) {
                 Map<String, String> error = new HashMap<>();
-                error.put("productId", "Product is not active");
+                error.put(PRODUCT_ID_FIELD, "Product is not active");
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
             }
 
@@ -94,8 +98,8 @@ public class AccountRestController {
                 String customerType = customer.getCustomerType().name();
                 if (!allowedTypes.contains(customerType)) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("productId", "Product not available for " + customerType + " customers");
-                    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+                    error.put(PRODUCT_ID_FIELD, "Product not available for " + customerType + " customers");
+                    return ResponseEntity.badRequest().body(error);
                 }
             }
 
@@ -148,12 +152,12 @@ public class AccountRestController {
             productInfo.setMinimumOpeningBalance(product.getMinimumOpeningBalance());
             response.setProduct(productInfo);
 
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Failed to open account: " + e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            error.put("error", "Account opening failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 

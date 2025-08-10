@@ -28,6 +28,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductController {
     
+    private static final String REDIRECT_PRODUCT_LIST = "redirect:/product/list";
+    private static final String PRODUCT_TYPES_ATTR = "productTypes";
+    private static final String PRODUCT_ATTR = "product";
+    private static final String INTEREST_CALC_TYPES_ATTR = INTEREST_CALC_TYPES_ATTR;
+    private static final String INTEREST_PAYMENT_FREQ_ATTR = INTEREST_PAYMENT_FREQ_ATTR;
+    private static final String PRODUCT_FORM_VIEW = PRODUCT_FORM_VIEW;
+    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
+    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
+    private static final String PRODUCT_NOT_FOUND_MSG = PRODUCT_NOT_FOUND_MSG;
+    
     private final ProductService productService;
     
     @GetMapping("/list")
@@ -66,7 +76,7 @@ public class ProductController {
         model.addAttribute("search", search);
         
         // Add filter options
-        model.addAttribute("productTypes", Product.ProductType.values());
+        model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
         model.addAttribute("categories", productService.findDistinctCategories());
         
         return "product/list";
@@ -74,11 +84,11 @@ public class ProductController {
     
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("product", new Product());
-        model.addAttribute("productTypes", Product.ProductType.values());
-        model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-        model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-        return "product/form";
+        model.addAttribute(PRODUCT_ATTR, new Product());
+        model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+        model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+        model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+        return PRODUCT_FORM_VIEW;
     }
     
     @PostMapping("/create")
@@ -93,22 +103,22 @@ public class ProductController {
         }
         
         if (result.hasErrors()) {
-            model.addAttribute("productTypes", Product.ProductType.values());
-            model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-            model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-            return "product/form";
+            model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            return PRODUCT_FORM_VIEW;
         }
         
         try {
             productService.save(product);
-            redirectAttributes.addFlashAttribute("successMessage", "Product created successfully");
-            return "redirect:/product/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product created successfully");
+            return REDIRECT_PRODUCT_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error creating product: " + e.getMessage());
-            model.addAttribute("productTypes", Product.ProductType.values());
-            model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-            model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-            return "product/form";
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating product: " + e.getMessage());
+            model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            return PRODUCT_FORM_VIEW;
         }
     }
     
@@ -116,15 +126,15 @@ public class ProductController {
     public String editForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Product> product = productService.findById(id);
         if (product.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Product not found");
-            return "redirect:/product/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
+            return REDIRECT_PRODUCT_LIST;
         }
         
-        model.addAttribute("product", product.get());
-        model.addAttribute("productTypes", Product.ProductType.values());
-        model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-        model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-        return "product/form";
+        model.addAttribute(PRODUCT_ATTR, product.get());
+        model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+        model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+        model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+        return PRODUCT_FORM_VIEW;
     }
     
     @PostMapping("/edit/{id}")
@@ -139,23 +149,23 @@ public class ProductController {
         }
         
         if (result.hasErrors()) {
-            model.addAttribute("productTypes", Product.ProductType.values());
-            model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-            model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-            return "product/form";
+            model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            return PRODUCT_FORM_VIEW;
         }
         
         try {
             product.setId(id); // Ensure ID is set
             productService.update(product);
-            redirectAttributes.addFlashAttribute("successMessage", "Product updated successfully");
-            return "redirect:/product/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product updated successfully");
+            return REDIRECT_PRODUCT_LIST;
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error updating product: " + e.getMessage());
-            model.addAttribute("productTypes", Product.ProductType.values());
-            model.addAttribute("interestCalculationTypes", Product.InterestCalculationType.values());
-            model.addAttribute("interestPaymentFrequencies", Product.InterestPaymentFrequency.values());
-            return "product/form";
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating product: " + e.getMessage());
+            model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
+            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
+            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            return PRODUCT_FORM_VIEW;
         }
     }
     
@@ -163,11 +173,11 @@ public class ProductController {
     public String view(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Product> product = productService.findById(id);
         if (product.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Product not found");
-            return "redirect:/product/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
+            return REDIRECT_PRODUCT_LIST;
         }
         
-        model.addAttribute("product", product.get());
+        model.addAttribute(PRODUCT_ATTR, product.get());
         return "product/view";
     }
     
@@ -175,11 +185,11 @@ public class ProductController {
     public String delete(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         try {
             productService.softDelete(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Product deactivated successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product deactivated successfully");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deactivating product: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deactivating product: " + e.getMessage());
         }
-        return "redirect:/product/list";
+        return REDIRECT_PRODUCT_LIST;
     }
     
     @PostMapping("/activate/{id}")
@@ -190,13 +200,13 @@ public class ProductController {
                 Product product = productOpt.get();
                 product.setIsActive(true);
                 productService.update(product);
-                redirectAttributes.addFlashAttribute("successMessage", "Product activated successfully");
+                redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product activated successfully");
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Product not found");
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error activating product: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error activating product: " + e.getMessage());
         }
-        return "redirect:/product/list";
+        return REDIRECT_PRODUCT_LIST;
     }
 }
