@@ -1,39 +1,30 @@
 package id.ac.tazkia.minibank.config;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import javax.sql.DataSource;
 
 /**
- * Test-specific security configuration that provides simplified authentication
- * for Selenium tests that require security to be enabled.
+ * Test-specific security configuration that uses database-backed authentication
+ * for Selenium tests that require security to be enabled. This ensures consistency
+ * between @Sql test data and the authentication mechanism.
  */
 @TestConfiguration
 @EnableWebSecurity
+@RequiredArgsConstructor
 @Profile("test-security")
 public class TestSecurityConfig {
 
-    @Value("classpath:/fixtures/selenium/login_test_data.csv")
-    private Resource loginTestData;
+    private final DataSource dataSource;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,33 +32,34 @@ public class TestSecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() throws IOException, CsvException {
-        List<UserDetails> users = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new InputStreamReader(loginTestData.getInputStream()))) {
-            reader.readNext(); // skip header
-            List<String[]> records = reader.readAll();
-            for (String[] record : records) {
-                if (Boolean.parseBoolean(record[4])) {
-                    users.add(User.builder()
-                            .username(record[0])
-                            .password(passwordEncoder().encode(record[3]))
-                            .authorities(getAuthorities(record[2]))
-                            .build());
-                }
-            }
-        }
-        return new InMemoryUserDetailsManager(users);
-    }
-
-    private String[] getAuthorities(String roleCode) {
-        if (StringUtils.equalsIgnoreCase(roleCode, "BRANCH_MANAGER")) {
-            return new String[]{"ROLE_MANAGER", "USER_READ", "USER_CREATE", "USER_UPDATE", "PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ", "TRANSACTION_READ"};
-        } else if (StringUtils.equalsIgnoreCase(roleCode, "CUSTOMER_SERVICE")) {
-            return new String[]{"ROLE_CS", "CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "ACCOUNT_READ", "ACCOUNT_CREATE"};
-        } else if (StringUtils.equalsIgnoreCase(roleCode, "TELLER")) {
-            return new String[]{"ROLE_TELLER", "TRANSACTION_READ", "TRANSACTION_CREATE", "ACCOUNT_READ", "CUSTOMER_READ"};
-        }
-        return new String[]{"ROLE_USER"};
+    public JdbcUserDetailsManager jdbcUserDetailsManager() {
+        JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+        
+        // Use the same queries as production SecurityConfig for consistency
+        manager.setUsersByUsernameQuery(
+            "SELECT u.username, COALESCE(up.password_hash, '') as password, " +
+            "CASE WHEN u.is_active = true " +
+            "AND (u.is_locked = false OR u.locked_until IS NULL OR u.locked_until < NOW()) " +
+            "AND (up.is_active = true OR up.is_active IS NULL) " +
+            "AND (up.password_expires_at IS NULL OR up.password_expires_at > NOW()) " +
+            "THEN true ELSE false END as enabled " +
+            "FROM users u LEFT JOIN user_passwords up ON u.id = up.id_users " +
+            "WHERE u.username = ?"
+        );
+        
+        // Use the same authorities query as production for consistent permissions
+        manager.setAuthoritiesByUsernameQuery(
+            "SELECT u.username, UPPER(p.resource || '_' || p.action) as authority " +
+            "FROM users u " +
+            "JOIN user_roles ur ON u.id = ur.id_users " +
+            "JOIN roles r ON ur.id_roles = r.id " +
+            "JOIN role_permissions rp ON r.id = rp.id_roles " +
+            "JOIN permissions p ON rp.id_permissions = p.id " +
+            "WHERE u.username = ? AND u.is_active = true AND r.is_active = true " +
+            "AND p.resource IS NOT NULL AND p.action IS NOT NULL"
+        );
+        
+        return manager;
     }
 
     @Bean
@@ -95,6 +87,7 @@ public class TestSecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
+            .userDetailsService(jdbcUserDetailsManager())
             .csrf(csrf -> csrf.disable());
         return http.build();
     }
