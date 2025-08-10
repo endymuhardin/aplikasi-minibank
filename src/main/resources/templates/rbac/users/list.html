@@ -72,7 +72,7 @@
                     </tr>
                     <tr th:each="user : ${users.content}" class="user-row" th:data-user-id="${user.id}">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900" th:text="${user.username}"></div>
+                            <div class="text-sm font-medium text-gray-900" th:text="${user.username}" th:id="'user-name-' + ${user.username}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900" th:text="${user.fullName}"></div>

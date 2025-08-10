@@ -21,19 +21,19 @@ public class LoginPage {
     @FindBy(id = "password")
     private WebElement passwordField;
     
-    @FindBy(css = "button[type='submit']")
+    @FindBy(id = "login-button")
     private WebElement loginButton;
     
-    @FindBy(css = ".bg-red-100")
+    @FindBy(id = "error-message")
     private WebElement errorMessage;
     
-    @FindBy(css = ".bg-green-100")
+    @FindBy(id = "success-message")
     private WebElement successMessage;
     
     @FindBy(id = "remember-me")
     private WebElement rememberMeCheckbox;
     
-    @FindBy(linkText = "Forgot password?")
+    @FindBy(id = "forgot-password-link")
     private WebElement forgotPasswordLink;
     
     public LoginPage(WebDriver driver) {

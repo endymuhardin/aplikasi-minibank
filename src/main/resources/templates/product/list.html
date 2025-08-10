@@ -96,7 +96,7 @@
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m14 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m14 0H8m6 0v5"/>
                     </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+                    <h3 id="no-products-message" class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
                     <p class="mt-1 text-sm text-gray-500">Get started by creating a new product.</p>
                     <div class="mt-6">
                         <a th:href="@{/product/create}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-bsi-primary hover:bg-bsi-teal">
@@ -153,7 +153,7 @@
                                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody id="products-table-body" class="bg-white divide-y divide-gray-200">
                             <tr th:each="product : ${products.content}" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.productCode}"></td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -175,7 +175,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
-                                        <a th:href="@{/product/view/{id}(id=${product.id})}" class="text-bsi-primary hover:text-bsi-teal">View</a>
+                                        <a th:href="@{/product/view/{id}(id=${product.id})}" class="text-bsi-primary hover:text-bsi-teal" th:id="'view-' + ${product.productCode}">View</a>
                                         <a th:href="@{/product/edit/{id}(id=${product.id})}" class="text-bsi-primary hover:text-bsi-teal" th:id="'edit-' + ${product.productCode}">Edit</a>
                                         <form th:if="${product.isActive == true}" th:action="@{/product/delete/{id}(id=${product.id})}" method="post" class="inline" onsubmit="return confirm('Are you sure you want to deactivate this product?')">
                                             <button type="submit" class="text-bsi-secondary hover:text-bsi-orange-dark" th:id="'deactivate-' + ${product.productCode}">Deactivate</button>

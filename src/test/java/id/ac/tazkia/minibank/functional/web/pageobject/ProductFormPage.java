@@ -205,44 +205,20 @@ public class ProductFormPage extends BasePage {
     
     public boolean hasValidationError(String fieldId) {
         try {
-            // Avoid stale element references by finding elements fresh each time
-            // Look for validation error indicators without relying on color classes
-            
-            // Look for validation messages or error indicators
-            boolean hasErrorMessage = false;
-            
+            // Check for validation error by looking for the error message element with ID
+            String errorElementId = fieldId + "-error";
+            WebElement errorElement = driver.findElement(By.id(errorElementId));
+            return errorElement.isDisplayed();
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            // No error element found, check HTML5 validation state as fallback
             try {
-                // Look for required field validation message
-                WebElement errorElement = driver.findElement(
-                    org.openqa.selenium.By.xpath("//input[@id='" + fieldId + "']/following-sibling::*[contains(text(), 'required') or contains(text(), 'must') or contains(text(), 'blank')]"));
-                hasErrorMessage = errorElement.isDisplayed();
-            } catch (org.openqa.selenium.NoSuchElementException e) {
-                // Try alternative selectors for error messages
-                try {
-                    WebElement errorElement = driver.findElement(
-                        org.openqa.selenium.By.xpath("//input[@id='" + fieldId + "']/parent::*//*[contains(text(), 'required') or contains(text(), 'must') or contains(text(), 'blank')]"));
-                    hasErrorMessage = errorElement.isDisplayed();
-                } catch (org.openqa.selenium.NoSuchElementException e2) {
-                    // Check for HTML5 validation state
-                    try {
-                        WebElement field = driver.findElement(org.openqa.selenium.By.id(fieldId));
-                        String validationMessage = field.getAttribute("validationMessage");
-                        hasErrorMessage = validationMessage != null && !validationMessage.isEmpty();
-                    } catch (org.openqa.selenium.StaleElementReferenceException e3) {
-                        // Element became stale, try one more time
-                        try {
-                            WebElement field = driver.findElement(org.openqa.selenium.By.id(fieldId));
-                            String validationMessage = field.getAttribute("validationMessage");
-                            hasErrorMessage = validationMessage != null && !validationMessage.isEmpty();
-                        } catch (Exception e4) {
-                            // If all approaches fail, assume no validation error
-                            hasErrorMessage = false;
-                        }
-                    }
-                }
+                WebElement field = driver.findElement(By.id(fieldId));
+                String validationMessage = field.getAttribute("validationMessage");
+                return validationMessage != null && !validationMessage.isEmpty();
+            } catch (Exception e2) {
+                // If all approaches fail, assume no validation error
+                return false;
             }
-            
-            return hasErrorMessage;
         } catch (Exception e) {
             // If any error occurs, assume no validation error
             return false;
@@ -250,8 +226,8 @@ public class ProductFormPage extends BasePage {
     }
     
     public String getValidationErrorMessage(String fieldId) {
-        WebElement errorElement = driver.findElement(
-            org.openqa.selenium.By.xpath("//input[@id='" + fieldId + "']/following-sibling::p[contains(@class, 'text-red-600')]"));
+        String errorElementId = fieldId + "-error";
+        WebElement errorElement = driver.findElement(By.id(errorElementId));
         return errorElement.getText();
     }
     

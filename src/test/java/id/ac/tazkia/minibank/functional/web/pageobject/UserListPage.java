@@ -50,7 +50,7 @@ public class UserListPage extends BasePage {
     
     public boolean isUserDisplayed(String username) {
         try {
-            WebElement userRow = driver.findElement(By.xpath("//tr[contains(@class, 'user-row')]//div[text()='" + username + "']"));
+            WebElement userRow = driver.findElement(By.id("user-name-" + username));
             return userRow.isDisplayed();
         } catch (Exception e) {
             return false;
@@ -64,7 +64,7 @@ public class UserListPage extends BasePage {
     }
     
     public int getUserCount() {
-        List<WebElement> userRows = driver.findElements(By.cssSelector("tr.user-row"));
+        List<WebElement> userRows = driver.findElements(By.className("user-row"));
         return userRows.size();
     }
     

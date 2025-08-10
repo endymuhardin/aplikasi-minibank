@@ -55,7 +55,7 @@ public class PermissionListPage extends BasePage {
     
     public boolean isPermissionDisplayed(String permissionCode) {
         try {
-            WebElement permissionRow = driver.findElement(By.xpath("//tr[contains(@class, 'permission-row')]//div[text()='" + permissionCode + "']"));
+            WebElement permissionRow = driver.findElement(By.id("permission-code-" + permissionCode));
             return permissionRow.isDisplayed();
         } catch (Exception e) {
             return false;

@@ -41,7 +41,7 @@ public class RoleListPage extends BasePage {
     
     public boolean isRoleDisplayed(String roleCode) {
         try {
-            WebElement roleRow = driver.findElement(By.xpath("//tr[contains(@class, 'role-row')]//div[text()='" + roleCode + "']"));
+            WebElement roleRow = driver.findElement(By.id("role-code-" + roleCode));
             return roleRow.isDisplayed();
         } catch (Exception e) {
             return false;

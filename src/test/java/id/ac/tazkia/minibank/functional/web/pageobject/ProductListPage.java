@@ -28,7 +28,7 @@ public class ProductListPage extends BasePage {
     @FindBy(id = "products-table")
     private WebElement productsTable;
     
-    @FindBy(css = "#products-table tbody tr")
+    @FindBy(css = "#products-table-body tr")
     private List<WebElement> productRows;
     
     public ProductListPage(WebDriver driver, String baseUrl) {
@@ -155,8 +155,7 @@ public class ProductListPage extends BasePage {
     }
     
     public ProductViewPage viewProduct(String productCode) {
-        WebElement productRow = findProductRow(productCode);
-        WebElement viewLink = productRow.findElement(By.linkText("View"));
+        WebElement viewLink = driver.findElement(By.id("view-" + productCode));
         viewLink.click();
         return new ProductViewPage(driver, baseUrl);
     }
@@ -268,7 +267,7 @@ public class ProductListPage extends BasePage {
         if (hasProducts()) {
             return "";
         }
-        WebElement noProductsElement = driver.findElement(By.xpath("//h3[text()='No products found']"));
+        WebElement noProductsElement = driver.findElement(By.id("no-products-message"));
         return noProductsElement.getText();
     }
     
@@ -298,13 +297,13 @@ public class ProductListPage extends BasePage {
     
     public List<String> getProductCodes() {
         return productRows.stream()
-            .map(row -> row.findElement(By.cssSelector("td:first-child")).getText())
+            .map(row -> row.findElement(By.cssSelector("td:nth-child(1)")).getText())
             .toList();
     }
     
     public List<String> getProductNames() {
         return productRows.stream()
-            .map(row -> row.findElement(By.cssSelector("td:nth-child(2) .text-sm.font-medium")).getText())
+            .map(row -> row.findElement(By.cssSelector("td:nth-child(2) div:first-child")).getText())
             .toList();
     }
     

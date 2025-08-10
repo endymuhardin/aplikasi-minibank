@@ -97,8 +97,8 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     }
 
     @Test
-    @Timeout(value = 120, unit = TimeUnit.SECONDS)
-    void shouldShowRoleBasedSidebarMenu() {
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldShowManagerRoleBasedSidebarMenu() {
         LoginPage loginPage = new LoginPage(driver);
         
         // Test Branch Manager - should see all menu items
@@ -108,17 +108,27 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
         assertTrue(dashboardPage.isOnDashboardPage(), "Manager should be on dashboard page");
         // Just verify the page loads successfully - menu visibility depends on actual HTML structure
         assertTrue(dashboardPage.isDashboardLinkVisible() || !dashboardPage.isDashboardLinkVisible(), "Dashboard link assertion");
-        
-        dashboardPage.logout();
+    }
+
+    @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldShowCSRoleBasedSidebarMenu() {
+        LoginPage loginPage = new LoginPage(driver);
         
         // Test CS - should see limited menu items
+        loginPage.navigateToLogin(baseUrl);
         DashboardPage csPage = loginPage.loginSuccessfully("cs", "password123");
         
         assertTrue(csPage.isOnDashboardPage(), "CS should be on dashboard page");
-        
-        csPage.logout();
+    }
+
+    @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldShowTellerRoleBasedSidebarMenu() {
+        LoginPage loginPage = new LoginPage(driver);
         
         // Test Teller - should see transaction-focused menu items
+        loginPage.navigateToLogin(baseUrl);
         DashboardPage tellerPage = loginPage.loginSuccessfully("teller", "password123");
         
         assertTrue(tellerPage.isOnDashboardPage(), "Teller should be on dashboard page");

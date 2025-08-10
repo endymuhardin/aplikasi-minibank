@@ -28,37 +28,37 @@ public class DashboardPage {
     @FindBy(css = "form[action='/logout'] button")
     private WebElement logoutButton;
     
-    @FindBy(css = ".w-64 nav a")
+    @FindBy(css = "#sidebar-nav a")
     private List<WebElement> sidebarMenuItems;
     
-    @FindBy(linkText = "Dashboard")
+    @FindBy(id = "dashboard-link")
     private WebElement dashboardLink;
     
-    @FindBy(linkText = "Product")
+    @FindBy(id = "product-link")
     private WebElement productLink;
     
-    @FindBy(linkText = "Customer")
+    @FindBy(id = "customer-link")
     private WebElement customerLink;
     
-    @FindBy(linkText = "Account")
+    @FindBy(id = "account-link")
     private WebElement accountLink;
     
-    @FindBy(linkText = "Transaction")
+    @FindBy(id = "transaction-link")
     private WebElement transactionLink;
     
-    @FindBy(linkText = "Reports")
+    @FindBy(id = "reports-link")
     private WebElement reportsLink;
     
-    @FindBy(linkText = "Users")
+    @FindBy(id = "users-link")
     private WebElement usersLink;
     
-    @FindBy(linkText = "Roles")
+    @FindBy(id = "roles-link")
     private WebElement rolesLink;
     
-    @FindBy(linkText = "Permissions")
+    @FindBy(id = "permissions-link")
     private WebElement permissionsLink;
     
-    @FindBy(css = ".grid .bg-white")
+    @FindBy(css = "#statistics-cards .bg-white")
     private List<WebElement> statisticsCards;
     
     public DashboardPage(WebDriver driver) {
@@ -75,7 +75,7 @@ public class DashboardPage {
                 ExpectedConditions.urlContains("/product/list"),
                 ExpectedConditions.titleContains("Dashboard"),
                 ExpectedConditions.titleContains("Product"),
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector(".w-64 nav")),
+                ExpectedConditions.presenceOfElementLocated(By.id("sidebar-nav")),
                 ExpectedConditions.presenceOfElementLocated(By.id("userMenuButton"))
             ));
             
@@ -85,7 +85,7 @@ public class DashboardPage {
         } catch (Exception e) {
             // Fallback: try to detect dashboard elements
             try {
-                return driver.findElement(By.cssSelector(".w-64 nav")).isDisplayed() ||
+                return driver.findElement(By.id("sidebar-nav")).isDisplayed() ||
                        driver.findElement(By.id("userMenuButton")).isDisplayed();
             } catch (Exception ex) {
                 return false;
@@ -126,16 +126,12 @@ public class DashboardPage {
     
     public String getCurrentUsername() {
         try {
-            WebElement usernameElement = driver.findElement(By.cssSelector("[sec\\:authentication='name']"));
-            return usernameElement.getText();
-        } catch (Exception e) {
-            try {
-                openUserMenu();
-                WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#userMenu .font-semibold")));
-                return userInfo.getText();
-            } catch (Exception ex) {
-                return "";
-            }
+            // Always use user menu approach for reliability
+            openUserMenu();
+            WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='user-menu-username']")));
+            return userInfo.getText();
+        } catch (Exception ex) {
+            return "";
         }
     }
     
@@ -188,7 +184,7 @@ public class DashboardPage {
     
     public boolean isAdministrationSectionVisible() {
         try {
-            WebElement adminSection = driver.findElement(By.xpath("//h3[contains(text(), 'Administration')]"));
+            WebElement adminSection = driver.findElement(By.id("administration-section"));
             return adminSection.isDisplayed();
         } catch (Exception e) {
             return false;
@@ -267,7 +263,7 @@ public class DashboardPage {
     
     public int getStatisticsCardsCount() {
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".grid .bg-white")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("#statistics-cards .bg-white")));
             return statisticsCards.size();
         } catch (Exception e) {
             return 0;
@@ -276,7 +272,7 @@ public class DashboardPage {
     
     public boolean hasQuickActionsSection() {
         try {
-            WebElement quickActions = driver.findElement(By.xpath("//h3[contains(text(), 'Quick Actions')]"));
+            WebElement quickActions = driver.findElement(By.id("quick-actions-title"));
             return quickActions.isDisplayed();
         } catch (Exception e) {
             return false;
@@ -285,7 +281,7 @@ public class DashboardPage {
     
     public boolean hasRecentTransactionsSection() {
         try {
-            WebElement recentTransactions = driver.findElement(By.xpath("//h3[contains(text(), 'Recent Transactions')]"));
+            WebElement recentTransactions = driver.findElement(By.id("recent-transactions-title"));
             return recentTransactions.isDisplayed();
         } catch (Exception e) {
             return false;

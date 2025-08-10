@@ -47,7 +47,7 @@
                     </tr>
                     <tr th:each="role : ${roles.content}" class="role-row" th:data-role-id="${role.id}">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900" th:text="${role.roleCode}"></div>
+                            <div id="role-code-${role.roleCode}" class="text-sm font-medium text-gray-900" th:text="${role.roleCode}" th:id="'role-code-' + ${role.roleCode}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900" th:text="${role.roleName}"></div>

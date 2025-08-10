@@ -76,7 +76,7 @@
                     </tr>
                     <tr th:each="permission : ${permissions.content}" class="permission-row" th:data-permission-id="${permission.id}">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900" th:text="${permission.permissionCode}"></div>
+                            <div class="text-sm font-medium text-gray-900" th:text="${permission.permissionCode}" th:id="'permission-code-' + ${permission.permissionCode}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900" th:text="${permission.permissionName}"></div>
