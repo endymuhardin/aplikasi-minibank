@@ -1,6 +1,5 @@
 package id.ac.tazkia.minibank.functional.web;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;

@@ -1,7 +1,7 @@
 username,fullName,roleCode,password,shouldSucceed,expectedError
-validuser1,Valid User 1,CUSTOMER_SERVICE,testpass123,true,
-validuser2,Valid User 2,TELLER,testpass123,true,
-validuser3,Valid User 3,BRANCH_MANAGER,testpass123,true,
+validuser1,Valid User 1,CUSTOMER_SERVICE,Lx5mT3gJ7vB9wQ6n,true,
+validuser2,Valid User 2,TELLER,My8#nK6%sL1cF4zA,true,
+validuser3,Valid User 3,BRANCH_MANAGER,Nz1pG9dH3mX7bY4k,true,
 invaliduser1,Invalid User 1,CUSTOMER_SERVICE,wrongpass,false,Invalid username or password
 invaliduser2,Invalid User 2,CUSTOMER_SERVICE,,false,
 nonexistentuser,Non Existent,CUSTOMER_SERVICE,anypass,false,Invalid username or password

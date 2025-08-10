@@ -1,0 +1,43 @@
+package id.ac.tazkia.minibank.util;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.io.Resource;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import id.ac.tazkia.minibank.config.TestSecurityConfig;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
+
+@SpringBootTest
+@Import(TestSecurityConfig.class)
+public class PasswordHashGenerator {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Value("classpath:/fixtures/selenium/login_test_data.csv")
+    private Resource loginTestData;
+
+    @Test
+    public void generateBcryptHashFromCsv() throws IOException, CsvException {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(loginTestData.getInputStream()))) {
+            reader.readNext(); // Skip header
+            List<String[]> records = reader.readAll();
+            for (String[] record : records) {
+                if (Boolean.parseBoolean(record[4])) {
+                    String username = record[0];
+                    String plainPassword = record[3];
+                    String hashedPassword = passwordEncoder.encode(plainPassword);
+                    System.out.println("Username: " + username + ", Plain Password: " + plainPassword + ", Hashed Password: " + hashedPassword);
+                }
+            }
+        }
+    }
+}

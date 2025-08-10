@@ -1,8 +1,13 @@
 package id.ac.tazkia.minibank.config;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -13,6 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Test-specific security configuration that provides simplified authentication
  * for Selenium tests that require security to be enabled.
@@ -22,77 +32,42 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("test-security")
 public class TestSecurityConfig {
 
+    @Value("classpath:/fixtures/selenium/login_test_data.csv")
+    private Resource loginTestData;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        // Create test users with different roles for testing
-        UserDetails manager = User.builder()
-            .username("manager")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_MANAGER", "USER_READ", "USER_CREATE", "USER_UPDATE", "PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ", "TRANSACTION_READ")
-            .build();
+    public UserDetailsService userDetailsService() throws IOException, CsvException {
+        List<UserDetails> users = new ArrayList<>();
+        try (CSVReader reader = new CSVReader(new InputStreamReader(loginTestData.getInputStream()))) {
+            reader.readNext(); // skip header
+            List<String[]> records = reader.readAll();
+            for (String[] record : records) {
+                if (Boolean.parseBoolean(record[4])) {
+                    users.add(User.builder()
+                            .username(record[0])
+                            .password(passwordEncoder().encode(record[3]))
+                            .authorities(getAuthorities(record[2]))
+                            .build());
+                }
+            }
+        }
+        return new InMemoryUserDetailsManager(users);
+    }
 
-        UserDetails cs = User.builder()
-            .username("cs")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_CS", "CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "ACCOUNT_READ", "ACCOUNT_CREATE")
-            .build();
-
-        UserDetails teller = User.builder()
-            .username("teller")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_TELLER", "TRANSACTION_READ", "TRANSACTION_CREATE", "ACCOUNT_READ", "CUSTOMER_READ")
-            .build();
-
-        // Additional test users
-        UserDetails loginuser = User.builder()
-            .username("loginuser")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_USER", "CUSTOMER_READ")
-            .build();
-
-        UserDetails logoutuser = User.builder()
-            .username("logoutuser")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_USER", "CUSTOMER_READ")
-            .build();
-
-        UserDetails userinfo = User.builder()
-            .username("userinfo")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_USER", "CUSTOMER_READ")
-            .build();
-
-        UserDetails statsuser = User.builder()
-            .username("statsuser")
-            .password(passwordEncoder().encode("password123"))
-            .authorities("ROLE_USER", "CUSTOMER_READ")
-            .build();
-
-        // Users from CSV test data
-        UserDetails validuser1 = User.builder()
-            .username("validuser1")
-            .password(passwordEncoder().encode("testpass123"))
-            .authorities("ROLE_CS", "CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "ACCOUNT_READ", "ACCOUNT_CREATE")
-            .build();
-
-        UserDetails validuser2 = User.builder()
-            .username("validuser2")
-            .password(passwordEncoder().encode("testpass123"))
-            .authorities("ROLE_TELLER", "TRANSACTION_READ", "TRANSACTION_CREATE", "ACCOUNT_READ", "CUSTOMER_READ")
-            .build();
-
-        UserDetails validuser3 = User.builder()
-            .username("validuser3")
-            .password(passwordEncoder().encode("testpass123"))
-            .authorities("ROLE_MANAGER", "USER_READ", "USER_CREATE", "USER_UPDATE", "PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ", "TRANSACTION_READ")
-            .build();
-
-        return new InMemoryUserDetailsManager(manager, cs, teller, loginuser, logoutuser, userinfo, statsuser, validuser1, validuser2, validuser3);
+    private String[] getAuthorities(String roleCode) {
+        if (StringUtils.equalsIgnoreCase(roleCode, "BRANCH_MANAGER")) {
+            return new String[]{"ROLE_MANAGER", "USER_READ", "USER_CREATE", "USER_UPDATE", "PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ", "TRANSACTION_READ"};
+        } else if (StringUtils.equalsIgnoreCase(roleCode, "CUSTOMER_SERVICE")) {
+            return new String[]{"ROLE_CS", "CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "ACCOUNT_READ", "ACCOUNT_CREATE"};
+        } else if (StringUtils.equalsIgnoreCase(roleCode, "TELLER")) {
+            return new String[]{"ROLE_TELLER", "TRANSACTION_READ", "TRANSACTION_CREATE", "ACCOUNT_READ", "CUSTOMER_READ"};
+        }
+        return new String[]{"ROLE_USER"};
     }
 
     @Bean

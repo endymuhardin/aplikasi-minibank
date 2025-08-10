@@ -2,7 +2,6 @@ package id.ac.tazkia.minibank.config;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
 
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -54,7 +53,7 @@ public class SeleniumTestContainerSingleton {
         System.out.println(">>> Selenium container started.");
         System.out.println(">>> WebDriver URI: " + BROWSER_CONTAINER.getSeleniumAddress());
         if (debugMode) {
-            System.out.println(">>> VNC debug mode ON. Connect: " +
+            System.out.println(">>> VNC debug mode ON. Connect: vnc://" +
                     BROWSER_CONTAINER.getHost() + ":" + BROWSER_CONTAINER.getMappedPort(5900) +
                     " (password: secret)");
         } else {
