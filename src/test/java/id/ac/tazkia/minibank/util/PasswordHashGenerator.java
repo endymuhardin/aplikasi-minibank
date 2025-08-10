@@ -9,14 +9,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import id.ac.tazkia.minibank.config.TestSecurityConfig;
+import org.springframework.test.context.ActiveProfiles;
+import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
+import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
 @SpringBootTest
-@Import(TestSecurityConfig.class)
+@Import({TestPasswordEncoderConfig.class, PostgresTestContainersConfiguration.class})
+@ActiveProfiles("test")
 public class PasswordHashGenerator {
 
     @Autowired
@@ -30,14 +33,17 @@ public class PasswordHashGenerator {
         try (CSVReader reader = new CSVReader(new InputStreamReader(loginTestData.getInputStream()))) {
             reader.readNext(); // Skip header
             List<String[]> records = reader.readAll();
+            int hashGeneratedCount = 0;
             for (String[] record : records) {
                 if (Boolean.parseBoolean(record[4])) {
                     String username = record[0];
                     String plainPassword = record[3];
                     String hashedPassword = passwordEncoder.encode(plainPassword);
                     System.out.println("Username: " + username + ", Plain Password: " + plainPassword + ", Hashed Password: " + hashedPassword);
+                    hashGeneratedCount++;
                 }
             }
+            assert hashGeneratedCount > 0 : "Should generate at least one password hash";
         }
     }
 }

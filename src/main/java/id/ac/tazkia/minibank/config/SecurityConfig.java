@@ -110,7 +110,7 @@ public class SecurityConfig {
             )
             .userDetailsService(jdbcUserDetailsManager())
             .csrf(csrf -> csrf
-                .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRepository(org.springframework.security.web.csrf.CookieCsrfTokenRepository.withHttpOnlyTrue())
                 .ignoringRequestMatchers("/api/**")
             );
         return http.build();
