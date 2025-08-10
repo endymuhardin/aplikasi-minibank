@@ -98,7 +98,7 @@ public class UserController {
         try {
             user.setCreatedBy("system");
             user.setUpdatedBy("system");
-            User savedUser = userRepository.save(user);
+            userRepository.save(user);
             
             redirectAttributes.addFlashAttribute("successMessage", "User created successfully. You can set a password from the user details page.");
             return "redirect:/rbac/users/list";
