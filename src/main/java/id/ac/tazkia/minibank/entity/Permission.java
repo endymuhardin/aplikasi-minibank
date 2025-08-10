@@ -3,8 +3,10 @@ package id.ac.tazkia.minibank.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,7 +15,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "permissions")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"rolePermissions"})
 @NoArgsConstructor
 public class Permission {
     

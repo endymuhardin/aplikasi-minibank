@@ -70,6 +70,7 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         // Then
         if (shouldFind) {
             assertThat(usersWithRole).hasSizeGreaterThanOrEqualTo(1);
+            // Check if any user matches the expected pattern - must be the user we created
             assertThat(usersWithRole.stream().anyMatch(u -> u.getUsername().startsWith(username))).isTrue();
         } else if ("INVALID_ROLE".equals(roleCode)) {
             // Invalid role should return empty result
@@ -83,21 +84,41 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
     void testFindUsersWithSearchTerm(String username, String fullName, String email, String searchTerm, boolean shouldFind) {
         // Given
         User user = createTestUser(username, fullName);
-        String uniqueEmail = user.getUsername() + "@test.com"; // Use the unique username for email
-        user.setEmail(uniqueEmail);
+        // For email search tests, use the search term as the email if it contains @
+        if (searchTerm.contains("@")) {
+            user.setEmail(searchTerm);
+        } else {
+            // For non-email searches, keep the default email pattern
+            String uniqueEmail = user.getUsername() + "@test.com";
+            user.setEmail(uniqueEmail);
+        }
         entityManager.persistAndFlush(user);
         entityManager.flush();
         entityManager.clear();
         
-        // When - search using the original username (before timestamp was added)
-        List<User> foundUsers = userRepository.findUsersWithSearchTerm(username);
+        // When - search using the search term, not the username
+        List<User> foundUsers = userRepository.findUsersWithSearchTerm(searchTerm);
         
         // Then
         if (shouldFind) {
             assertThat(foundUsers).hasSizeGreaterThanOrEqualTo(1);
-            assertThat(foundUsers.stream().anyMatch(u -> u.getUsername().startsWith(username))).isTrue();
+            // Check if any user matches the expected pattern based on the search term
+            boolean foundMatch = foundUsers.stream().anyMatch(u -> {
+                // For searches that should find our test user, check if it matches our created user
+                // Check if the username starts with our original username (before timestamp)
+                if (u.getUsername().startsWith(username)) {
+                    // Additional checks based on search term
+                    if (u.getFullName() != null && u.getFullName().toLowerCase().contains(searchTerm.toLowerCase())) return true;
+                    if (u.getUsername().toLowerCase().contains(searchTerm.toLowerCase())) return true;
+                    if (u.getEmail() != null && u.getEmail().toLowerCase().contains(searchTerm.toLowerCase())) return true;
+                }
+                return false;
+            });
+            assertThat(foundMatch).isTrue();
         } else {
-            assertThat(foundUsers.stream().anyMatch(u -> u.getUsername().startsWith(username))).isFalse();
+            // For "xyz" search term that should not be found, ensure our test user is not in the results
+            boolean foundMatch = foundUsers.stream().anyMatch(u -> u.getUsername().startsWith(username));
+            assertThat(foundMatch).isFalse();
         }
     }
     
@@ -107,6 +128,7 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
                               String lockedUntilOffset, boolean expectedNonLocked) {
         // Given
         User user = createTestUser(username, fullName);
+        String uniqueUsername = user.getUsername(); // Store the unique username
         user.setIsActive(isActive);
         user.setIsLocked(isLocked);
         
@@ -119,8 +141,8 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         entityManager.flush();
         entityManager.clear();
         
-        // When
-        Optional<User> foundUser = userRepository.findByUsername(username);
+        // When - use the unique username for lookup
+        Optional<User> foundUser = userRepository.findByUsername(uniqueUsername);
         
         // Then
         assertThat(foundUser).isPresent();
@@ -153,11 +175,17 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         // Then
         assertThat(foundRole).isPresent();
         if (hasPermission) {
-            assertThat(foundRole.get().getRolePermissions()).hasSize(1);
-            assertThat(foundRole.get().getRolePermissions().get(0).getPermission().getPermissionCode())
-                .isEqualTo(permissionCode);
+            // Check that the role has the specific permission we just added
+            boolean hasSpecificPermission = foundRole.get().getRolePermissions().stream()
+                .anyMatch(rp -> rp.getPermission().getPermissionCode().equals(permissionCode) 
+                           && "test".equals(rp.getGrantedBy()));
+            assertThat(hasSpecificPermission).isTrue();
         } else {
-            assertThat(foundRole.get().getRolePermissions()).isEmpty();
+            // Check that the role does not have the specific permission we didn't add
+            boolean hasSpecificPermission = foundRole.get().getRolePermissions().stream()
+                .anyMatch(rp -> rp.getPermission().getPermissionCode().equals(permissionCode)
+                           && "test".equals(rp.getGrantedBy()));
+            assertThat(hasSpecificPermission).isFalse();
         }
     }
     

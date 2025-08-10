@@ -2,6 +2,7 @@ package id.ac.tazkia.minibank.functional.api.user;
 
 import com.intuit.karate.junit5.Karate;
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
+import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -12,7 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(PostgresTestContainersConfiguration.class)
+@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})
 @ActiveProfiles("test")
 @Sql(scripts = "/sql/cleanup/cleanup-users.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class UserManagementTest {

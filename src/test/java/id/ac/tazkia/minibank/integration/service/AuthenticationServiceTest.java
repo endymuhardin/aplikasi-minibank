@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.integration.service;
 
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
+import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserPassword;
 import id.ac.tazkia.minibank.repository.UserRepository;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import(PostgresTestContainersConfiguration.class)
+@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})
 @Transactional
 class AuthenticationServiceTest {
 
