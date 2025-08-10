@@ -1,86 +1,142 @@
 package id.ac.tazkia.minibank.config;
 
 import java.io.File;
-import java.net.URL;
+import java.time.Duration;
 
-import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.containers.BrowserWebDriverContainer;
+import org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode;
+import org.testcontainers.containers.VncRecordingContainer.VncRecordingFormat;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SuppressWarnings("resource")
 public class SeleniumTestContainerSingleton {
-    public static final BrowserWebDriverContainer<?> BROWSER_CONTAINER;
-    public static final RemoteWebDriver DRIVER;
-
+    public static final String TESTCONTAINER_HOST_URL = "http://host.testcontainers.internal";
+    private static final File RECORDING_OUTPUT_FOLDER = new File("./target/selenium-recordings/");
+    
+    private static BrowserWebDriverContainer<?> container;
+    public static WebDriver DRIVER;
+    
     static {
-
-        boolean debugMode = Boolean.parseBoolean(
-                System.getenv().getOrDefault("SELENIUM_DEBUG", "false"));
-        String browserName = System.getenv().getOrDefault("BROWSER", "chrome").toLowerCase();
-
-        BROWSER_CONTAINER = new BrowserWebDriverContainer<>()
-                .withCapabilities(createOptionsFor(browserName))
-                .withAccessToHost(true)
-                .withExtraHost("host.testcontainers.internal", "host-gateway");
-        
-        // In GitLab CI environment, configure additional network settings
-        if (isRunningInGitLabCI()) {
-            BROWSER_CONTAINER.withExtraHost("host.testcontainers.internal", "172.17.0.1");
-        }
-
-        if (debugMode) {
-            File recordingDir = new File("./target/selenium-recordings");
-            if (!recordingDir.exists()) {
-                recordingDir.mkdirs();
-            }
-            
-            BROWSER_CONTAINER
-                    .withRecordingMode(
-                            BrowserWebDriverContainer.VncRecordingMode.RECORD_ALL,
-                            recordingDir)
-                    .withExposedPorts(5900); // VNC live view
-        } else {
-            BROWSER_CONTAINER
-                    .withRecordingMode(
-                            BrowserWebDriverContainer.VncRecordingMode.SKIP,
-                            new File("./target"));
-        }
-
-        BROWSER_CONTAINER.start();
-
-        System.out.println(">>> Selenium container started.");
-        System.out.println(">>> WebDriver URI: " + BROWSER_CONTAINER.getSeleniumAddress());
-        if (debugMode) {
-            System.out.println(">>> VNC debug mode ON. Connect: vnc://" +
-                    BROWSER_CONTAINER.getHost() + ":" + BROWSER_CONTAINER.getMappedPort(5900) +
-                    " (password: secret)");
-        } else {
-            System.out.println(">>> VNC debug mode OFF.");
-        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(BROWSER_CONTAINER::stop));
-
-        URL seleniumGridUrl = BROWSER_CONTAINER.getSeleniumAddress();
-        DRIVER = new RemoteWebDriver(seleniumGridUrl, new ChromeOptions());
-
-        Runtime.getRuntime().addShutdownHook(new Thread(DRIVER::quit));
-    }
-
-    private static boolean isRunningInGitLabCI() {
-        return System.getenv("GITLAB_CI") != null || 
-               System.getenv("CI_SERVER_HOST") != null ||
-               System.getenv("CI") != null;
+        initialize();
+        Runtime.getRuntime().addShutdownHook(new Thread(SeleniumTestContainerSingleton::cleanup));
     }
     
-    private static Capabilities createOptionsFor(String browser) {
-        switch (browser) {
-            case "firefox":
-                return new FirefoxOptions();
-            case "chrome":
-            default:
-                return new ChromeOptions();
+    private static void initialize() {
+        try {
+            String browser = System.getProperty("selenium.browser", "firefox").toLowerCase();
+            boolean recordingEnabled = Boolean.parseBoolean(System.getProperty("selenium.recording.enabled", "false"));
+            
+            log.info("Initializing Selenium TestContainer with browser: {} and recording: {}", browser, recordingEnabled);
+            
+            container = new BrowserWebDriverContainer<>()
+                .withAccessToHost(true);
+                
+            // Set browser capabilities
+            switch (browser) {
+                case "chrome":
+                    ChromeOptions chromeOptions = new ChromeOptions();
+                    chromeOptions.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+                    container.withCapabilities(chromeOptions);
+                    break;
+                case "firefox":
+                default:
+                    FirefoxOptions firefoxOptions = new FirefoxOptions();
+                    container.withCapabilities(firefoxOptions);
+                    break;
+            }
+            
+            // Configure recording if enabled
+            if (recordingEnabled) {
+                RECORDING_OUTPUT_FOLDER.mkdirs();
+                container.withRecordingMode(
+                    VncRecordingMode.RECORD_ALL, 
+                    RECORDING_OUTPUT_FOLDER,
+                    VncRecordingFormat.MP4);
+            }
+            
+            log.info("Starting Selenium container...");
+            container.start();
+            log.info("Selenium container started, Selenium URL: {}", container.getSeleniumAddress());
+            
+            // Wait a moment for container to be fully ready
+            Thread.sleep(2000);
+            
+            // Initialize WebDriver with retry logic
+            int maxRetries = 3;
+            Exception lastException = null;
+            
+            for (int retry = 0; retry < maxRetries; retry++) {
+                try {
+                    log.info("Attempting to create WebDriver (attempt {} of {})", retry + 1, maxRetries);
+                    
+                    switch (browser) {
+                        case "chrome":
+                            ChromeOptions chromeOptions = new ChromeOptions();
+                            chromeOptions.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+                            DRIVER = new RemoteWebDriver(container.getSeleniumAddress(), chromeOptions);
+                            break;
+                        case "firefox":
+                        default:
+                            FirefoxOptions firefoxOptions = new FirefoxOptions();
+                            DRIVER = new RemoteWebDriver(container.getSeleniumAddress(), firefoxOptions);
+                            break;
+                    }
+                    
+                    DRIVER.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+                    
+                    log.info("Selenium TestContainer initialized successfully");
+                    log.info("VNC URL: {}", container.getVncAddress());
+                    return;
+                    
+                } catch (Exception e) {
+                    lastException = e;
+                    log.warn("Failed to create WebDriver on attempt {}: {}", retry + 1, e.getMessage());
+                    if (retry < maxRetries - 1) {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException("Interrupted while waiting to retry WebDriver creation", ie);
+                        }
+                    }
+                }
+            }
+            
+            throw new RuntimeException("Failed to initialize WebDriver after " + maxRetries + " attempts", lastException);
+            
+        } catch (Exception e) {
+            log.error("Failed to initialize Selenium TestContainer", e);
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+    
+    public static BrowserWebDriverContainer<?> getContainer() {
+        return container;
+    }
+    
+    private static void cleanup() {
+        if (DRIVER != null) {
+            try {
+                DRIVER.quit();
+                log.info("WebDriver closed successfully");
+            } catch (Exception e) {
+                log.warn("Error closing WebDriver: {}", e.getMessage());
+            }
+        }
+        
+        if (container != null) {
+            try {
+                container.stop();
+                log.info("Selenium container stopped successfully");
+            } catch (Exception e) {
+                log.warn("Error stopping container: {}", e.getMessage());
+            }
         }
     }
 }
