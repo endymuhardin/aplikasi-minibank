@@ -30,13 +30,13 @@ import java.util.List;
 public class UserController {
     
     private static final String REDIRECT_USERS_LIST = "redirect:/rbac/users/list";
-    private static final String SYSTEM_USER = SYSTEM_USER;
-    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
-    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
-    private static final String USER_NOT_FOUND_MSG = USER_NOT_FOUND_MSG;
-    private static final String ROLES_PATH = ROLES_PATH;
-    private static final String REDIRECT_USERS_PREFIX = REDIRECT_USERS_PREFIX;
-    private static final String PASSWORD_PATH = PASSWORD_PATH;
+    private static final String SYSTEM_USER = "system";
+    private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
+    private static final String ERROR_MESSAGE_ATTR = "errorMessage";
+    private static final String USER_NOT_FOUND_MSG = "User not found";
+    private static final String ROLES_PATH = "/roles";
+    private static final String REDIRECT_USERS_PREFIX = "redirect:/rbac/users/";
+    private static final String PASSWORD_PATH = "/password";
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;

@@ -128,7 +128,7 @@ public class UserRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
+    public ResponseEntity<? extends Object> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
@@ -204,7 +204,7 @@ public class UserRestController {
     }
 
     @PutMapping("/{id}/password")
-    public ResponseEntity<Object> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Map<String, String>> changePassword(@PathVariable UUID id, @Valid @RequestBody ChangePasswordRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
@@ -237,7 +237,7 @@ public class UserRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable UUID id) {
         return userRepository.findById(id)
                 .map(user -> {
                     userRepository.delete(user);

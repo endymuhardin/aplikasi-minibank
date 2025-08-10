@@ -25,13 +25,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PermissionController {
     
-    private static final String CATEGORIES_ATTR = CATEGORIES_ATTR;
-    private static final String PERMISSION_ATTR = PERMISSION_ATTR;
-    private static final String PERMISSIONS_FORM_VIEW = PERMISSIONS_FORM_VIEW;
-    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
-    private static final String REDIRECT_PERMISSIONS_LIST = REDIRECT_PERMISSIONS_LIST;
-    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
-    private static final String PERMISSION_NOT_FOUND_MSG = PERMISSION_NOT_FOUND_MSG;
+    private static final String CATEGORIES_ATTR = "categories";
+    private static final String PERMISSION_ATTR = "permission";
+    private static final String PERMISSIONS_FORM_VIEW = "rbac/permissions/form";
+    private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
+    private static final String REDIRECT_PERMISSIONS_LIST = "redirect:/rbac/permissions/list";
+    private static final String ERROR_MESSAGE_ATTR = "errorMessage";
+    private static final String PERMISSION_NOT_FOUND_MSG = "Permission not found";
     
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;

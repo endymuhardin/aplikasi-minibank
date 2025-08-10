@@ -31,12 +31,12 @@ public class ProductController {
     private static final String REDIRECT_PRODUCT_LIST = "redirect:/product/list";
     private static final String PRODUCT_TYPES_ATTR = "productTypes";
     private static final String PRODUCT_ATTR = "product";
-    private static final String INTEREST_CALC_TYPES_ATTR = INTEREST_CALC_TYPES_ATTR;
-    private static final String INTEREST_PAYMENT_FREQ_ATTR = INTEREST_PAYMENT_FREQ_ATTR;
-    private static final String PRODUCT_FORM_VIEW = PRODUCT_FORM_VIEW;
-    private static final String SUCCESS_MESSAGE_ATTR = SUCCESS_MESSAGE_ATTR;
-    private static final String ERROR_MESSAGE_ATTR = ERROR_MESSAGE_ATTR;
-    private static final String PRODUCT_NOT_FOUND_MSG = PRODUCT_NOT_FOUND_MSG;
+    private static final String INTEREST_CALC_TYPES_ATTR = "interestCalculationTypes";
+    private static final String INTEREST_PAYMENT_FREQ_ATTR = "interestPaymentFrequencies";
+    private static final String PRODUCT_FORM_VIEW = "product/form";
+    private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
+    private static final String ERROR_MESSAGE_ATTR = "errorMessage";
+    private static final String PRODUCT_NOT_FOUND_MSG = "Product not found";
     
     private final ProductService productService;
     

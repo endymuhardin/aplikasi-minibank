@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @Profile("!test")
 public class SecurityConfig {
     
-    private static final String LOGIN_PATH = LOGIN_PATH;
+    private static final String LOGIN_PATH = "/login";
 
     private final DataSource dataSource;
     private final AuthenticationService authenticationService;
