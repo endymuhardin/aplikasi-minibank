@@ -14,12 +14,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import id.ac.tazkia.minibank.config.ThymeleafConfiguration;
+import id.ac.tazkia.minibank.config.MinimalSecurityConfig;
 import id.ac.tazkia.minibank.controller.web.ProductController;
 import id.ac.tazkia.minibank.service.ProductService;
 
 @WebMvcTest(ProductController.class)
-@Import(ThymeleafConfiguration.class)
+@Import(MinimalSecurityConfig.class)
 public class ProductControllerValidationTest {
     
     @Autowired
