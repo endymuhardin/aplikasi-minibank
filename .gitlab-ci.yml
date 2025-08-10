@@ -80,6 +80,8 @@ comprehensive-tests:
     - until pg_isready -h postgres -p 5432; do echo "Waiting for postgres..."; sleep 2; done
     # Verify Docker for functional tests
     - docker info
+    # Enable container reuse
+    - echo "testcontainers.reuse.enable=true" > /root/.testcontainers.properties
   script:
     # Run all test types in sequence with coverage and SonarCloud analysis (includes security scan results)
     - echo "=== Running All Tests ==="
