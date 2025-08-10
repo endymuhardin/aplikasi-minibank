@@ -2,6 +2,7 @@ package id.ac.tazkia.minibank.config;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
 
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -31,10 +32,15 @@ public class SeleniumTestContainerSingleton {
         }
 
         if (debugMode) {
+            File recordingDir = new File("./target/selenium-recordings");
+            if (!recordingDir.exists()) {
+                recordingDir.mkdirs();
+            }
+            
             BROWSER_CONTAINER
                     .withRecordingMode(
                             BrowserWebDriverContainer.VncRecordingMode.RECORD_ALL,
-                            new File("./target/selenium-recordings"))
+                            recordingDir)
                     .withExposedPorts(5900); // VNC live view
         } else {
             BROWSER_CONTAINER

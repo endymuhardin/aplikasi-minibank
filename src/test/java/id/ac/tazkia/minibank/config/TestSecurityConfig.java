@@ -51,7 +51,7 @@ public class TestSecurityConfig {
         // Additional test users
         UserDetails loginuser = User.builder()
             .username("loginuser")
-            .password(passwordEncoder().encode("testpass123"))
+            .password(passwordEncoder().encode("password123"))
             .authorities("ROLE_USER", "CUSTOMER_READ")
             .build();
 
@@ -73,7 +73,26 @@ public class TestSecurityConfig {
             .authorities("ROLE_USER", "CUSTOMER_READ")
             .build();
 
-        return new InMemoryUserDetailsManager(manager, cs, teller, loginuser, logoutuser, userinfo, statsuser);
+        // Users from CSV test data
+        UserDetails validuser1 = User.builder()
+            .username("validuser1")
+            .password(passwordEncoder().encode("testpass123"))
+            .authorities("ROLE_CS", "CUSTOMER_READ", "CUSTOMER_CREATE", "CUSTOMER_UPDATE", "ACCOUNT_READ", "ACCOUNT_CREATE")
+            .build();
+
+        UserDetails validuser2 = User.builder()
+            .username("validuser2")
+            .password(passwordEncoder().encode("testpass123"))
+            .authorities("ROLE_TELLER", "TRANSACTION_READ", "TRANSACTION_CREATE", "ACCOUNT_READ", "CUSTOMER_READ")
+            .build();
+
+        UserDetails validuser3 = User.builder()
+            .username("validuser3")
+            .password(passwordEncoder().encode("testpass123"))
+            .authorities("ROLE_MANAGER", "USER_READ", "USER_CREATE", "USER_UPDATE", "PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ", "TRANSACTION_READ")
+            .build();
+
+        return new InMemoryUserDetailsManager(manager, cs, teller, loginuser, logoutuser, userinfo, statsuser, validuser1, validuser2, validuser3);
     }
 
     @Bean
