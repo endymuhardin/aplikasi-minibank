@@ -1,19 +1,27 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.*;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.dao.DataIntegrityViolationException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import id.ac.tazkia.minibank.entity.Permission;
+import id.ac.tazkia.minibank.entity.Role;
+import id.ac.tazkia.minibank.entity.RolePermission;
+import id.ac.tazkia.minibank.entity.User;
+import id.ac.tazkia.minibank.entity.UserRole;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.PermissionRepository;
+import id.ac.tazkia.minibank.repository.RolePermissionRepository;
+import id.ac.tazkia.minibank.repository.RoleRepository;
+import id.ac.tazkia.minibank.repository.UserRepository;
+import id.ac.tazkia.minibank.repository.UserRoleRepository;
 
 class RolePermissionRepositoryTest extends BaseRepositoryTest {
 

@@ -1,0 +1,6 @@
+username,fullName,isActive,initialFailedAttempts
+testuser1,Test User One,true,0
+testuser2,Test User Two,true,1
+testuser3,Test User Three,true,3
+testuser4,Test User Four,true,5
+lockeduser,Locked User,true,10

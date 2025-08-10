@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,32 +14,57 @@
     <div class="w-64 bg-white border-r border-bsi-bg-light text-bsi-darker flex flex-col hidden md:flex shadow-lg">
         <div class="p-4 text-2xl font-bold border-b border-bsi-gray">Minibank</div>
         <nav class="flex-1 px-2 py-4 space-y-2">
-            <a href="#" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+            <!-- Dashboard - Available to all authenticated users -->
+            <a th:href="@{/dashboard}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2 2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </a>
-            <a th:href="@{/product/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+            
+            <!-- Product Management - CS and Branch Manager -->
+            <a sec:authorize="hasAnyAuthority('PRODUCT_READ', 'CUSTOMER_READ')" th:href="@{/product/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg>
                 Product
             </a>
+            
+            <!-- Customer Management - All roles can view customers -->
             <a href="#" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 Customer
             </a>
             
-            <!-- RBAC Section -->
-            <div class="pt-4 pb-2">
-                <h3 class="px-4 text-xs font-semibold text-bsi-light-gray uppercase tracking-wider">Access Control</h3>
+            <!-- Account Management - CS and Teller -->
+            <a sec:authorize="hasAnyAuthority('ACCOUNT_READ', 'ACCOUNT_CREATE')" href="#" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Account
+            </a>
+            
+            <!-- Transaction Management - Teller primary, CS view-only -->
+            <a sec:authorize="hasAnyAuthority('TRANSACTION_READ', 'TRANSACTION_DEPOSIT', 'TRANSACTION_WITHDRAWAL')" href="#" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                </svg>
+                Transaction
+            </a>
+            
+            <!-- Reports - Branch Manager and CS -->
+            <a sec:authorize="hasAnyAuthority('REPORT_READ', 'AUDIT_READ', 'CUSTOMER_READ')" href="#" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+                <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Reports
+            </a>
+            
+            <!-- RBAC Section - Only Branch Manager -->
+            <div sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE')" class="pt-4 pb-2">
+                <h3 class="px-4 text-xs font-semibold text-bsi-light-gray uppercase tracking-wider">Administration</h3>
             </div>
-            <a th:href="@{/rbac/users/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+            <a sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE')" th:href="@{/rbac/users/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg>
                 Users
             </a>
-            <a th:href="@{/rbac/roles/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+            <a sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE')" th:href="@{/rbac/roles/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 Roles
             </a>
-            <a th:href="@{/rbac/permissions/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
+            <a sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE')" th:href="@{/rbac/permissions/list}" class="flex items-center px-4 py-2 text-bsi-gray hover:bg-bsi-primary hover:text-white rounded-md">
                 <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                 Permissions
             </a>
@@ -53,21 +79,47 @@
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
             <div class="text-2xl font-semibold text-gray-800 hidden md:block">Minibank</div>
+            
             <!-- User dropdown -->
             <div class="relative">
                 <button id="userMenuButton" class="flex items-center space-x-2 focus:outline-none">
-                    <img class="h-8 w-8 rounded-full" src="https://via.placeholder.com/150" alt="Profile Picture">
-                    <span class="text-gray-700 font-medium">John Doe</span>
+                    <div class="h-8 w-8 rounded-full bg-bsi-primary flex items-center justify-center">
+                        <span class="text-white text-sm font-semibold" sec:authentication="name" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</span>
+                    </div>
+                    <div class="text-left hidden md:block">
+                        <p class="text-gray-700 font-medium text-sm" sec:authentication="name">Username</p>
+                        <p class="text-gray-500 text-xs">
+                            <span sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE', 'AUDIT_READ')">Branch Manager</span>
+                            <span sec:authorize="hasAnyAuthority('CUSTOMER_READ', 'ACCOUNT_READ') and !hasAnyAuthority('USER_READ')">Customer Service</span>
+                            <span sec:authorize="hasAnyAuthority('TRANSACTION_DEPOSIT', 'TRANSACTION_WITHDRAWAL') and !hasAnyAuthority('USER_READ', 'CUSTOMER_CREATE')">Teller</span>
+                        </p>
+                    </div>
                     <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
-                    <div class="block px-4 py-2 text-sm text-gray-700">
-                        <p class="font-bold">John Doe</p>
-                        <p class="text-gray-500">Administrator</p>
+                <div id="userMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 hidden z-50">
+                    <div class="block px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                        <p class="font-semibold" sec:authentication="name">Username</p>
+                        <p class="text-gray-500 text-xs mt-1">
+                            <span sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE', 'AUDIT_READ')">Branch Manager</span>
+                            <span sec:authorize="hasAnyAuthority('CUSTOMER_READ', 'ACCOUNT_READ') and !hasAnyAuthority('USER_READ')">Customer Service</span>
+                            <span sec:authorize="hasAnyAuthority('TRANSACTION_DEPOSIT', 'TRANSACTION_WITHDRAWAL') and !hasAnyAuthority('USER_READ', 'CUSTOMER_CREATE')">Teller</span>
+                        </p>
+                        <p class="text-gray-400 text-xs mt-1">
+                            Last login: <span>-</span>
+                        </p>
                     </div>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-user mr-2"></i>Profile
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </a>
+                    <div class="border-t border-gray-100 my-1"></div>
+                    <form th:action="@{/logout}" method="post" class="block">
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </header>

@@ -1,0 +1,7 @@
+username,fullName,initialFailedAttempts,expectedFailedAttempts,shouldBeLocked
+failuser1,Fail User One,0,1,false
+failuser2,Fail User Two,1,2,false
+failuser3,Fail User Three,2,3,false
+failuser4,Fail User Four,3,4,false
+failuser5,Fail User Five,4,5,true
+failuser6,Fail User Six,5,6,true

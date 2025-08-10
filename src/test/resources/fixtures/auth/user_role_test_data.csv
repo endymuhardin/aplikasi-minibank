@@ -1,0 +1,6 @@
+username,fullName,roleCode,roleName,shouldFind
+branchmanager1,Manager One,BRANCH_MANAGER,Branch Manager,true
+customerservice1,CS One,CS,Customer Service,true
+telleruser1,Teller One,TELLER,Teller,true
+invaliduser1,User One,INVALID_ROLE,Invalid Role,false
+noroleuser1,User Two,CS,Customer Service,false
