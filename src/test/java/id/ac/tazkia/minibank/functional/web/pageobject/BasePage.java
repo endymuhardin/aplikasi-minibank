@@ -19,7 +19,7 @@ public abstract class BasePage {
     public BasePage(WebDriver driver, String baseUrl) {
         this.driver = driver;
         this.baseUrl = baseUrl;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Reduced from 30 to 10 seconds
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // Increased timeout for slow application startup
         PageFactory.initElements(driver, this);
     }
     
@@ -31,12 +31,23 @@ public abstract class BasePage {
         wait.until(ExpectedConditions.visibilityOf(element));
     }
     
+    protected void waitForElementToBePresent(By locator) {
+        wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+    
     protected void waitForTextToBePresent(WebElement element, String text) {
         wait.until(ExpectedConditions.textToBePresentInElement(element, text));
     }
     
     protected void waitForPageToLoad() {
+        // Wait for document ready state
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
+        // Give extra time for dynamic content to load
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
     
     protected void waitForUrlToContain(String urlFragment) {

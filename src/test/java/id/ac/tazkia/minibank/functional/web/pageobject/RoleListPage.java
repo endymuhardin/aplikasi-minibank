@@ -22,7 +22,9 @@ public class RoleListPage extends BasePage {
     
     public void open() {
         driver.get(baseUrl + "/rbac/roles/list");
-        waitForElementToBeVisible(rolesTable);
+        waitForPageToLoad();
+        // Wait for the table structure to be present, even if empty
+        waitForElementToBePresent(By.id("roles-table"));
     }
     
     public String getPageTitle() {

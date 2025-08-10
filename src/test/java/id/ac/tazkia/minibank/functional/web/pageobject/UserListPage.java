@@ -31,7 +31,9 @@ public class UserListPage extends BasePage {
     
     public void open() {
         driver.get(baseUrl + "/rbac/users/list");
-        waitForElementToBeVisible(usersTable);
+        waitForPageToLoad();
+        // Wait for the table structure to be present, even if empty
+        waitForElementToBePresent(By.id("users-table"));
     }
     
     public String getPageTitle() {

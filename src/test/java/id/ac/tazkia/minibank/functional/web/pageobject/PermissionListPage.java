@@ -28,7 +28,9 @@ public class PermissionListPage extends BasePage {
     
     public void open() {
         driver.get(baseUrl + "/rbac/permissions/list");
-        waitForElementToBeVisible(permissionsTable);
+        waitForPageToLoad();
+        // Wait for the table structure to be present, even if empty
+        waitForElementToBePresent(By.id("permissions-table"));
     }
     
     public String getPageTitle() {

@@ -174,28 +174,13 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @Test
+    @Sql(scripts = "/sql/setup-product-search-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup-product-search-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldSearchProducts() {
-        // Create test products with unique codes
-        long timestamp = System.currentTimeMillis();
-        String savingsCode = "SAV" + timestamp;
-        String checkingCode = "CHK" + timestamp;
-        
-        Product savings = new Product();
-        savings.setProductCode(savingsCode);
-        savings.setProductName("Test Savings");
-        savings.setProductType(Product.ProductType.SAVINGS);
-        savings.setProductCategory("Savings");
-        savings.setIsActive(true);
-        productRepository.save(savings);
-        
-        Product checking = new Product();
-        checking.setProductCode(checkingCode);
-        checking.setProductName("Test Checking");
-        checking.setProductType(Product.ProductType.CHECKING);
-        checking.setProductCategory("Checking");
-        checking.setIsActive(true);
-        productRepository.save(checking);
+        // Use predefined test products from SQL script
+        String savingsCode = "SEARCH_SAV001";
+        String checkingCode = "SEARCH_CHK001";
         
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();

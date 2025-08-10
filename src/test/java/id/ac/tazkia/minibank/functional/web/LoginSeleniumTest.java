@@ -19,7 +19,7 @@ import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
     @Sql(scripts = "/fixtures/sql/login-test-setup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
     @Sql(scripts = "/fixtures/sql/login-test-cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 })
-public class LoginSeleniumTest extends BaseSeleniumTest {
+public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
 
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
