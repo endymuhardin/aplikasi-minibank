@@ -62,5 +62,6 @@ public class Permission {
     
     // Relationships
     @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<RolePermission> rolePermissions;
 }

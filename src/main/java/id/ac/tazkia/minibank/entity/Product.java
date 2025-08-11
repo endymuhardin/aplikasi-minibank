@@ -75,18 +75,36 @@ public class Product {
     @Column(name = "overdraft_limit", precision = 20, scale = 2)
     private BigDecimal overdraftLimit = BigDecimal.ZERO;
     
-    // Interest configurations
-    @Column(name = "interest_rate", precision = 5, scale = 4)
+    // Islamic Profit Sharing configurations
+    @Column(name = "profit_sharing_ratio", precision = 5, scale = 4)
     @DecimalMin("0.0") @DecimalMax("1.0")
-    private BigDecimal interestRate = BigDecimal.ZERO;
+    private BigDecimal profitSharingRatio = BigDecimal.ZERO;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "interest_calculation_type", length = 20)
-    private InterestCalculationType interestCalculationType = InterestCalculationType.DAILY;
+    @Column(name = "profit_sharing_type", length = 20)
+    private ProfitSharingType profitSharingType = ProfitSharingType.MUDHARABAH;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "interest_payment_frequency", length = 20)
-    private InterestPaymentFrequency interestPaymentFrequency = InterestPaymentFrequency.MONTHLY;
+    @Column(name = "profit_distribution_frequency", length = 20)
+    private ProfitDistributionFrequency profitDistributionFrequency = ProfitDistributionFrequency.MONTHLY;
+    
+    // Islamic banking specific fields
+    @Column(name = "nisbah_customer", precision = 5, scale = 4)
+    @DecimalMin("0.0") @DecimalMax("1.0")
+    private BigDecimal nisbahCustomer; // Customer's profit sharing ratio
+    
+    @Column(name = "nisbah_bank", precision = 5, scale = 4)
+    @DecimalMin("0.0") @DecimalMax("1.0")
+    private BigDecimal nisbahBank; // Bank's profit sharing ratio
+    
+    @Column(name = "is_shariah_compliant")
+    private Boolean isShariahCompliant = true;
+    
+    @Column(name = "shariah_board_approval_number", length = 100)
+    private String shariahBoardApprovalNumber;
+    
+    @Column(name = "shariah_board_approval_date")
+    private LocalDate shariahBoardApprovalDate;
     
     // Fee configurations
     @Column(name = "monthly_maintenance_fee", precision = 15, scale = 2)
@@ -154,18 +172,40 @@ public class Product {
     
     // Relationships
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Account> accounts;
     
     // Enums
     public enum ProductType {
-        SAVINGS, CHECKING, LOAN, CREDIT_CARD, DEPOSIT
+        // Conventional products (for legacy support)
+        SAVINGS, CHECKING, DEPOSIT,
+        // Islamic banking products
+        TABUNGAN_WADIAH, // Savings account based on Wadiah (safekeeping) contract
+        TABUNGAN_MUDHARABAH, // Savings account based on Mudharabah (profit sharing) contract
+        DEPOSITO_MUDHARABAH, // Time deposit based on Mudharabah contract
+        PEMBIAYAAN_MURABAHAH, // Financing based on Murabahah (cost-plus sale) contract
+        PEMBIAYAAN_MUDHARABAH, // Financing based on Mudharabah (profit sharing) contract
+        PEMBIAYAAN_MUSHARAKAH, // Financing based on Musharakah (joint venture) contract
+        PEMBIAYAAN_IJARAH, // Financing based on Ijarah (leasing) contract
+        PEMBIAYAAN_SALAM, // Financing based on Salam (forward purchase) contract
+        PEMBIAYAAN_ISTISNA // Financing based on Istisna (manufacturing) contract
     }
     
-    public enum InterestCalculationType {
-        DAILY, MONTHLY, ANNUAL
+    public enum ProfitSharingType {
+        MUDHARABAH,    // Profit-loss sharing partnership
+        MUSHARAKAH,    // Joint venture partnership
+        WADIAH,        // Safekeeping contract (no profit sharing)
+        MURABAHAH,     // Cost-plus sale contract
+        IJARAH,        // Leasing contract
+        SALAM,         // Forward purchase contract
+        ISTISNA        // Manufacturing contract
     }
     
-    public enum InterestPaymentFrequency {
-        DAILY, MONTHLY, QUARTERLY, ANNUALLY
+    public enum ProfitDistributionFrequency {
+        DAILY,        // Daily profit distribution (for high-volume accounts)
+        MONTHLY,      // Monthly profit distribution (most common)
+        QUARTERLY,    // Quarterly profit distribution
+        ANNUALLY,     // Annual profit distribution (for long-term deposits)
+        ON_MATURITY   // Profit distributed only at contract maturity
     }
 }

@@ -47,14 +47,20 @@ public class ProductFormPage extends BasePage {
     @FindBy(id = "maximumBalance")
     private WebElement maximumBalanceField;
     
-    @FindBy(id = "interestRate")
-    private WebElement interestRateField;
+    @FindBy(id = "profitSharingRatio")
+    private WebElement profitSharingRatioField;
     
-    @FindBy(id = "interestCalculationType")
-    private WebElement interestCalculationTypeDropdown;
+    @FindBy(id = "profitSharingType")
+    private WebElement profitSharingTypeDropdown;
     
-    @FindBy(id = "interestPaymentFrequency")
-    private WebElement interestPaymentFrequencyDropdown;
+    @FindBy(id = "profitDistributionFrequency")
+    private WebElement profitDistributionFrequencyDropdown;
+    
+    @FindBy(id = "nisbahCustomer")
+    private WebElement nisbahCustomerField;
+    
+    @FindBy(id = "nisbahBank")
+    private WebElement nisbahBankField;
     
     @FindBy(id = "dailyWithdrawalLimit")
     private WebElement dailyWithdrawalLimitField;
@@ -145,13 +151,19 @@ public class ProductFormPage extends BasePage {
     }
     
     public ProductFormPage fillFinancialConfiguration(String minimumOpeningBalance, String minimumBalance, String maximumBalance,
-                                                   String interestRate, String interestCalculationType, String interestPaymentFrequency) {
+                                                   String profitSharingRatio, String profitSharingType, String profitDistributionFrequency) {
         if (minimumOpeningBalance != null) clearAndType(minimumOpeningBalanceField, minimumOpeningBalance);
         if (minimumBalance != null) clearAndType(minimumBalanceField, minimumBalance);
         if (maximumBalance != null) clearAndType(maximumBalanceField, maximumBalance);
-        if (interestRate != null) clearAndType(interestRateField, interestRate);
-        if (interestCalculationType != null) selectDropdownByText(interestCalculationTypeDropdown, interestCalculationType);
-        if (interestPaymentFrequency != null) selectDropdownByText(interestPaymentFrequencyDropdown, interestPaymentFrequency);
+        if (profitSharingRatio != null) clearAndType(profitSharingRatioField, profitSharingRatio);
+        if (profitSharingType != null) selectDropdownByText(profitSharingTypeDropdown, profitSharingType);
+        if (profitDistributionFrequency != null) selectDropdownByText(profitDistributionFrequencyDropdown, profitDistributionFrequency);
+        return this;
+    }
+    
+    public ProductFormPage fillNisbahConfiguration(String nisbahCustomer, String nisbahBank) {
+        if (nisbahCustomer != null) clearAndType(nisbahCustomerField, nisbahCustomer);
+        if (nisbahBank != null) clearAndType(nisbahBankField, nisbahBank);
         return this;
     }
     
@@ -263,11 +275,12 @@ public class ProductFormPage extends BasePage {
     }
     
     public ProductFormPage fillCompleteProduct(String productCode, String productName, String productType, 
-                                             String category, String description, String interestRate) {
+                                             String category, String description, String profitSharingRatio) {
         fillBasicInformation(productCode, productName, productType, category, "IDR");
         fillDescription(description);
         setSettings(true, false, false, true);
-        fillFinancialConfiguration("100000", "50000", null, interestRate, "DAILY", "MONTHLY");
+        fillFinancialConfiguration("100000", "50000", null, profitSharingRatio, "MUDHARABAH", "MONTHLY");
+        fillNisbahConfiguration("0.7000", "0.3000");
         return this;
     }
 }

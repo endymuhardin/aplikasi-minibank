@@ -4,13 +4,14 @@ INSERT INTO sequence_numbers (sequence_name, last_number, prefix) VALUES
     ('ACCOUNT_NUMBER', 2000000, 'A'),
     ('TRANSACTION_NUMBER', 3000000, 'T');
 
--- Initialize banking products
+-- Initialize Islamic banking products
 INSERT INTO products (
     product_code, product_name, product_type, product_category, description,
     is_active, is_default, currency,
     minimum_opening_balance, minimum_balance, maximum_balance,
     daily_withdrawal_limit, monthly_transaction_limit,
-    interest_rate, interest_calculation_type, interest_payment_frequency,
+    profit_sharing_ratio, profit_sharing_type, profit_distribution_frequency,
+    nisbah_customer, nisbah_bank, is_shariah_compliant,
     monthly_maintenance_fee, atm_withdrawal_fee, inter_bank_transfer_fee,
     below_minimum_balance_fee, account_closure_fee,
     free_transactions_per_month, excess_transaction_fee,
@@ -18,13 +19,14 @@ INSERT INTO products (
     min_customer_age, allowed_customer_types,
     required_documents, launch_date, created_by
 ) VALUES 
--- Basic Savings Account
-('SAV001', 'Basic Savings Account', 'SAVINGS', 'Regular Savings', 
- 'Basic savings account for individual customers with competitive interest rates',
+-- Tabungan Wadiah Basic
+('TAB001', 'Tabungan Wadiah Basic', 'TABUNGAN_WADIAH', 'Tabungan Syariah', 
+ 'Tabungan dengan akad wadiah untuk nasabah perorangan',
  true, true, 'IDR',
  50000, 10000, NULL,
  5000000, 50,
- 0.0275, 'DAILY', 'MONTHLY',
+ 0.0275, 'WADIAH', 'MONTHLY',
+ NULL, NULL, true,
  2500, 5000, 7500,
  10000, 0,
  10, 2500,
@@ -32,13 +34,14 @@ INSERT INTO products (
  17, 'PERSONAL',
  'KTP, NPWP (optional)', CURRENT_DATE, 'SYSTEM'),
 
--- Premium Savings Account  
-('SAV002', 'Premium Savings Account', 'SAVINGS', 'Premium Savings',
- 'Premium savings account with higher interest and more free transactions',
+-- Tabungan Mudharabah Premium  
+('TAB002', 'Tabungan Mudharabah Premium', 'TABUNGAN_MUDHARABAH', 'Tabungan Syariah',
+ 'Tabungan mudharabah dengan nisbah bagi hasil yang menarik',
  true, false, 'IDR',
  1000000, 500000, NULL,
  10000000, 100,
- 0.0350, 'DAILY', 'MONTHLY',
+ 0.0350, 'MUDHARABAH', 'MONTHLY',
+ 0.7000, 0.3000, true,
  0, 0, 5000,
  25000, 0,
  25, 2500,
@@ -46,27 +49,14 @@ INSERT INTO products (
  21, 'PERSONAL',
  'KTP, NPWP, Slip Gaji', CURRENT_DATE, 'SYSTEM'),
 
--- Corporate Savings Account
-('SAV003', 'Corporate Savings Account', 'SAVINGS', 'Corporate',
- 'Savings account designed for corporate customers with business features',
- true, false, 'IDR',
- 5000000, 1000000, NULL,
- 50000000, 200,
- 0.0300, 'DAILY', 'MONTHLY',
- 15000, 5000, 5000,
- 50000, 25000,
- 50, 5000,
- false, true,
- NULL, 'CORPORATE',
- 'Akta Pendirian, SIUP, TDP, NPWP', CURRENT_DATE, 'SYSTEM'),
-
--- Basic Checking Account
-('CHK001', 'Basic Checking Account', 'CHECKING', 'Regular Checking',
- 'Basic checking account with overdraft facility for daily transactions',
+-- Deposito Mudharabah
+('DEP001', 'Deposito Mudharabah', 'DEPOSITO_MUDHARABAH', 'Deposito Syariah',
+ 'Deposito berjangka dengan akad mudharabah',
  true, false, 'IDR',
  100000, 50000, NULL,
  20000000, 100,
- 0.0100, 'DAILY', 'MONTHLY',
+ 0.0100, 'MUDHARABAH', 'ON_MATURITY',
+ 0.7000, 0.3000, true,
  5000, 5000, 7500,
  15000, 10000,
  20, 3000,
@@ -74,33 +64,35 @@ INSERT INTO products (
  18, 'PERSONAL',
  'KTP, NPWP, Slip Gaji', CURRENT_DATE, 'SYSTEM'),
 
--- Premium Checking Account
-('CHK002', 'Premium Checking Account', 'CHECKING', 'Premium Checking',
- 'Premium checking account with higher overdraft limit and more benefits',
+-- Pembiayaan Murabahah
+('PEM001', 'Pembiayaan Murabahah', 'PEMBIAYAAN_MURABAHAH', 'Pembiayaan Syariah',
+ 'Pembiayaan dengan akad murabahah untuk kebutuhan konsumtif',
+ true, false, 'IDR',
+ 5000000, 1000000, NULL,
+ 50000000, 200,
+ 0.0300, 'MURABAHAH', 'MONTHLY',
+ NULL, NULL, true,
+ 15000, 5000, 5000,
+ 50000, 25000,
+ 50, 5000,
+ false, true,
+ NULL, 'CORPORATE',
+ 'Akta Pendirian, SIUP, TDP, NPWP', CURRENT_DATE, 'SYSTEM'),
+
+-- Pembiayaan Musharakah
+('PEM002', 'Pembiayaan Musharakah', 'PEMBIAYAAN_MUSHARAKAH', 'Pembiayaan Syariah',
+ 'Pembiayaan dengan akad musharakah untuk modal usaha',
  true, false, 'IDR',
  2000000, 1000000, NULL,
  50000000, 200,
- 0.0150, 'DAILY', 'MONTHLY',
+ 0.0150, 'MUSHARAKAH', 'QUARTERLY',
+ 0.6000, 0.4000, true,
  0, 0, 5000,
  25000, 15000,
  50, 3000,
  true, true,
  25, 'PERSONAL',
- 'KTP, NPWP, Slip Gaji, Rekening Koran', CURRENT_DATE, 'SYSTEM'),
-
--- Corporate Checking Account
-('CHK003', 'Corporate Checking Account', 'CHECKING', 'Corporate',
- 'Checking account for corporate customers with extensive transaction capabilities',
- true, false, 'IDR',
- 10000000, 2000000, NULL,
- 100000000, 500,
- 0.0125, 'DAILY', 'MONTHLY',
- 25000, 5000, 5000,
- 75000, 50000,
- 100, 5000,
- true, true,
- NULL, 'CORPORATE',
- 'Akta Pendirian, SIUP, TDP, NPWP, SK Kemenkumham', CURRENT_DATE, 'SYSTEM');
+ 'KTP, NPWP, Slip Gaji, Rekening Koran', CURRENT_DATE, 'SYSTEM');
 
 -- Sample personal customers data - first insert into base customers table
 INSERT INTO customers (
@@ -111,14 +103,22 @@ INSERT INTO customers (
  'Jl. Sudirman No. 123', 'Jakarta', '10220', 'SYSTEM'),
 
 (gen_random_uuid(), 'PERSONAL', 'C1000002', 'siti.nurhaliza@email.com', '081234567891', 
- 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'SYSTEM');
+ 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'SYSTEM'),
+
+(gen_random_uuid(), 'PERSONAL', 'C1000004', 'budi.santoso@email.com', '081234567892', 
+ 'Jl. Gatot Subroto No. 321', 'Jakarta', '12930', 'SYSTEM'),
+
+(gen_random_uuid(), 'PERSONAL', 'C1000006', 'dewi.lestari@email.com', '081234567893', 
+ 'Jl. MH Thamrin No. 654', 'Jakarta', '10350', 'SYSTEM');
 
 -- Insert personal customer specific data
 INSERT INTO personal_customers (
     id, first_name, last_name, date_of_birth, identity_number, identity_type
 ) VALUES 
 ((SELECT id FROM customers WHERE customer_number = 'C1000001'), 'Ahmad', 'Suharto', '1985-03-15', '3271081503850001', 'KTP'),
-((SELECT id FROM customers WHERE customer_number = 'C1000002'), 'Siti', 'Nurhaliza', '1990-07-22', '3271082207900002', 'KTP');
+((SELECT id FROM customers WHERE customer_number = 'C1000002'), 'Siti', 'Nurhaliza', '1990-07-22', '3271082207900002', 'KTP'),
+((SELECT id FROM customers WHERE customer_number = 'C1000004'), 'Budi', 'Santoso', '1988-11-10', '3271081011880003', 'KTP'),
+((SELECT id FROM customers WHERE customer_number = 'C1000006'), 'Dewi', 'Lestari', '1992-05-18', '3271081805920004', 'KTP');
 
 -- Sample corporate customers data - first insert into base customers table  
 INSERT INTO customers (

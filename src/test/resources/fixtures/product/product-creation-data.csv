@@ -1,8 +1,8 @@
-productCode,productName,productType,productCategory,description,interestRate,isActive,isDefault,minimumOpeningBalance,minimumBalance
-SAV001,Basic Savings,SAVINGS,Personal Banking,Basic savings account for personal customers,0.0125,true,false,100000,50000
-SAV002,Premium Savings,SAVINGS,Premium Banking,Premium savings account with higher interest rate,0.025,true,false,1000000,500000
+productCode,productName,productType,productCategory,description,profitSharingRatio,isActive,isDefault,minimumOpeningBalance,minimumBalance
+TAB001,Tabungan Wadiah Basic,TABUNGAN_WADIAH,Tabungan Syariah,Basic Islamic savings account for personal customers,0.0125,true,false,100000,50000
+TAB002,Tabungan Mudharabah Premium,TABUNGAN_MUDHARABAH,Tabungan Syariah,Premium Islamic savings account with profit sharing,0.025,true,false,1000000,500000
 CHK001,Basic Checking,CHECKING,Personal Banking,Basic checking account for daily transactions,0.0,true,true,50000,25000
 CHK002,Business Checking,CHECKING,Business Banking,Checking account for business customers,0.005,true,false,500000,100000
-DEP001,Time Deposit 12M,DEPOSIT,Investment,12 months time deposit with competitive rate,0.045,true,false,10000000,10000000
-LON001,Personal Loan,LOAN,Personal Banking,Personal loan for individual customers,0.12,true,false,0,0
-CRD001,Credit Card Gold,CREDIT_CARD,Premium Banking,Gold credit card with rewards program,0.18,true,false,0,0
+DEP001,Deposito Mudharabah,DEPOSITO_MUDHARABAH,Deposito Syariah,Islamic time deposit with profit sharing,0.045,true,false,10000000,10000000
+PEM001,Pembiayaan Murabahah,PEMBIAYAAN_MURABAHAH,Pembiayaan Syariah,Islamic financing for personal customers,0.12,true,false,0,0
+TAB003,Tabungan Syariah Gold,TABUNGAN_MUDHARABAH,Tabungan Syariah,Premium Islamic savings with special benefits,0.18,true,false,500000,100000

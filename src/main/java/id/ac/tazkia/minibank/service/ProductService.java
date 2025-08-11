@@ -101,10 +101,10 @@ public class ProductService {
         if (product.getProductType() == null) {
             throw new IllegalArgumentException("Product type is required");
         }
-        if (product.getInterestRate() != null && 
-            (product.getInterestRate().compareTo(java.math.BigDecimal.ZERO) < 0 || 
-             product.getInterestRate().compareTo(java.math.BigDecimal.ONE) > 0)) {
-            throw new IllegalArgumentException("Interest rate must be between 0 and 1");
+        if (product.getProfitSharingRatio() != null && 
+            (product.getProfitSharingRatio().compareTo(java.math.BigDecimal.ZERO) < 0 || 
+             product.getProfitSharingRatio().compareTo(java.math.BigDecimal.ONE) > 0)) {
+            throw new IllegalArgumentException("Profit sharing ratio must be between 0 and 1");
         }
     }
 }

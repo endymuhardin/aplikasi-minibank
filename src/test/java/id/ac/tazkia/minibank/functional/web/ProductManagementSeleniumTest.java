@@ -70,7 +70,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @CsvFileSource(resources = "/fixtures/product/product-creation-data.csv", numLinesToSkip = 1)
     @Timeout(value = 90, unit = TimeUnit.SECONDS)
     void shouldCreateProductsFromCSVData(String productCode, String productName, String productType,
-                                        String productCategory, String description, String interestRate,
+                                        String productCategory, String description, String profitSharingRatio,
                                         boolean isActive, boolean isDefault, String minimumOpeningBalance,
                                         String minimumBalance) {
         
@@ -86,7 +86,8 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         formPage.fillDescription(description);
         formPage.setSettings(isActive, isDefault, false, true);
         formPage.fillFinancialConfiguration(minimumOpeningBalance, minimumBalance, null,
-                                           interestRate, "DAILY", "MONTHLY");
+                                           profitSharingRatio, "MUDHARABAH", "MONTHLY");
+        formPage.fillNisbahConfiguration("0.7000", "0.3000");
         
         ProductListPage resultPage = formPage.submitForm();
         
@@ -271,9 +272,9 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         
         formPage.fillBasicInformation(testProductCode, testProductName, testProductType, defaultCategory, "IDR");
         
-        // For invalid interest rate test
+        // For invalid profit sharing ratio test
         if (testCase.contains("Interest Rate")) {
-            formPage.fillFinancialConfiguration(null, null, null, "2.0", null, null); // Invalid rate > 1
+            formPage.fillFinancialConfiguration(null, null, null, "2.0", null, null); // Invalid ratio > 1
         }
         
         

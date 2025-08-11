@@ -148,7 +148,7 @@
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Rate</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit Sharing</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
                             </tr>
@@ -165,8 +165,8 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${product.productCategory}"></td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <span th:if="${product.interestRate != null}" th:text="${#numbers.formatPercent(product.interestRate, 2, 2)}"></span>
-                                    <span th:if="${product.interestRate == null}">-</span>
+                                    <span th:if="${product.profitSharingRatio != null}" th:text="${#numbers.formatPercent(product.profitSharingRatio, 2, 2)}"></span>
+                                    <span th:if="${product.profitSharingRatio == null}">-</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span th:if="${product.isActive == true}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-bsi-success bg-opacity-20 text-bsi-success" th:id="'status-' + ${product.productCode}">Active</span>

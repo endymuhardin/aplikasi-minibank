@@ -15,7 +15,6 @@ public class PostgresTestContainersConfiguration {
         return new PostgreSQLContainer<>(DockerImageName.parse("postgres:17"))
                 .withDatabaseName("pgminibank")
                 .withUsername("minibank")
-                .withPassword("minibank1234")
-                .withReuse(true);
+                .withPassword("minibank1234");
     }
 }

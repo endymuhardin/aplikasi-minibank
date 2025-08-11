@@ -41,5 +41,6 @@ public class AccountOpeningResponse {
         private String productName;
         private String productType;
         private BigDecimal minimumOpeningBalance;
+        private BigDecimal profitSharingRatio;
     }
 }

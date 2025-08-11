@@ -54,7 +54,7 @@ CREATE TABLE products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_code VARCHAR(20) UNIQUE NOT NULL,
     product_name VARCHAR(100) NOT NULL,
-    product_type VARCHAR(20) NOT NULL CHECK (product_type IN ('SAVINGS', 'CHECKING', 'LOAN', 'CREDIT_CARD', 'DEPOSIT')),
+    product_type VARCHAR(50) NOT NULL CHECK (product_type IN ('SAVINGS', 'CHECKING', 'DEPOSIT', 'TABUNGAN_WADIAH', 'TABUNGAN_MUDHARABAH', 'DEPOSITO_MUDHARABAH', 'PEMBIAYAAN_MURABAHAH', 'PEMBIAYAAN_MUDHARABAH', 'PEMBIAYAAN_MUSHARAKAH', 'PEMBIAYAAN_IJARAH', 'PEMBIAYAAN_SALAM', 'PEMBIAYAAN_ISTISNA')),
     product_category VARCHAR(50) NOT NULL,
     description TEXT,
     
@@ -71,10 +71,17 @@ CREATE TABLE products (
     monthly_transaction_limit INTEGER,
     overdraft_limit DECIMAL(20,2) DEFAULT 0.00,
     
-    -- Interest configurations
-    interest_rate DECIMAL(5,4) DEFAULT 0.0000,
-    interest_calculation_type VARCHAR(20) DEFAULT 'DAILY' CHECK (interest_calculation_type IN ('DAILY', 'MONTHLY', 'ANNUAL')),
-    interest_payment_frequency VARCHAR(20) DEFAULT 'MONTHLY' CHECK (interest_payment_frequency IN ('DAILY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY')),
+    -- Islamic Profit Sharing configurations
+    profit_sharing_ratio DECIMAL(5,4) DEFAULT 0.0000,
+    profit_sharing_type VARCHAR(20) DEFAULT 'MUDHARABAH' CHECK (profit_sharing_type IN ('MUDHARABAH', 'MUSHARAKAH', 'WADIAH', 'MURABAHAH', 'IJARAH', 'SALAM', 'ISTISNA')),
+    profit_distribution_frequency VARCHAR(20) DEFAULT 'MONTHLY' CHECK (profit_distribution_frequency IN ('DAILY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY', 'ON_MATURITY')),
+    
+    -- Islamic banking specific fields
+    nisbah_customer DECIMAL(5,4),
+    nisbah_bank DECIMAL(5,4),
+    is_shariah_compliant BOOLEAN DEFAULT true,
+    shariah_board_approval_number VARCHAR(100),
+    shariah_board_approval_date DATE,
     
     -- Fee configurations
     monthly_maintenance_fee DECIMAL(15,2) DEFAULT 0.00,
@@ -107,7 +114,13 @@ CREATE TABLE products (
     
     -- Business rules
     CONSTRAINT chk_minimum_balances CHECK (minimum_opening_balance >= 0 AND minimum_balance >= 0),
-    CONSTRAINT chk_interest_rate CHECK (interest_rate >= 0 AND interest_rate <= 1),
+    CONSTRAINT chk_profit_sharing_ratio CHECK (profit_sharing_ratio >= 0 AND profit_sharing_ratio <= 1),
+    CONSTRAINT chk_nisbah_customer CHECK (nisbah_customer IS NULL OR (nisbah_customer >= 0 AND nisbah_customer <= 1)),
+    CONSTRAINT chk_nisbah_bank CHECK (nisbah_bank IS NULL OR (nisbah_bank >= 0 AND nisbah_bank <= 1)),
+    CONSTRAINT chk_nisbah_sum CHECK (
+        (profit_sharing_type IN ('MUDHARABAH', 'MUSHARAKAH') AND nisbah_customer IS NOT NULL AND nisbah_bank IS NOT NULL AND nisbah_customer + nisbah_bank = 1.0)
+        OR (profit_sharing_type NOT IN ('MUDHARABAH', 'MUSHARAKAH'))
+    ),
     CONSTRAINT chk_fees_positive CHECK (
         monthly_maintenance_fee >= 0 AND 
         atm_withdrawal_fee >= 0 AND 

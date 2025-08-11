@@ -5,20 +5,25 @@ Background:
   * def customerLookup = {}
   * def productLookup = {}
   
-  # Set up customer ID mappings (using fixed UUIDs from setup SQL)
-  * customerLookup['C1000001'] = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-  * customerLookup['C1000002'] = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-  * customerLookup['C1000003'] = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
-  * customerLookup['C1000004'] = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
-  * customerLookup['C1000005'] = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
-  * customerLookup['C1000006'] = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+  # Lookup customers dynamically from API - get both personal and corporate
+  * path '/api/customers/personal'
+  * method GET
+  * status 200
+  * def personalCustomers = response
+  * personalCustomers.forEach(function(customer) { customerLookup[customer.customerNumber] = customer.id })
   
-  # Set up product ID mappings (using fixed UUIDs from setup SQL)
-  * productLookup['SAV001'] = '11111111-1111-1111-1111-111111111111'
-  * productLookup['SAV002'] = '22222222-2222-2222-2222-222222222222'
-  * productLookup['SAV003'] = '44444444-4444-4444-4444-444444444444'
-  * productLookup['CHK001'] = '33333333-3333-3333-3333-333333333333'
-  * productLookup['CHK002'] = '55555555-5555-5555-5555-555555555555'
+  * path '/api/customers/corporate'
+  * method GET
+  * status 200
+  * def corporateCustomers = response
+  * corporateCustomers.forEach(function(customer) { customerLookup[customer.customerNumber] = customer.id })
+  
+  # Lookup products dynamically from API
+  * path '/api/products'
+  * method GET  
+  * status 200
+  * def products = response
+  * products.forEach(function(product) { productLookup[product.productCode] = product.id })
 
 Scenario Outline: Open account - <testCase>
   * def accountData = {}
@@ -52,7 +57,7 @@ Scenario Outline: Open account - <testCase>
   And match response.product.productCode == '<productId>'
   And match response.product.productName == '#string'
   And match response.product.productType == '#string'
-  And match response.product.minimumOpeningBalance == '#number'
+  And match response.product.profitSharingRatio == '#number'
 
 Examples:
 | read('classpath:fixtures/account/account-opening-normal.csv') |

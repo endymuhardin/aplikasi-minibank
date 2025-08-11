@@ -71,6 +71,7 @@ public abstract class Customer {
     
     // Relationships
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Account> accounts;
     
     // Abstract method to get customer type

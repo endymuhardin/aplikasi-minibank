@@ -31,8 +31,8 @@ public class ProductController {
     private static final String REDIRECT_PRODUCT_LIST = "redirect:/product/list";
     private static final String PRODUCT_TYPES_ATTR = "productTypes";
     private static final String PRODUCT_ATTR = "product";
-    private static final String INTEREST_CALC_TYPES_ATTR = "interestCalculationTypes";
-    private static final String INTEREST_PAYMENT_FREQ_ATTR = "interestPaymentFrequencies";
+    private static final String PROFIT_SHARING_TYPES_ATTR = "profitSharingTypes";
+    private static final String PROFIT_DISTRIBUTION_FREQ_ATTR = "profitDistributionFrequencies";
     private static final String PRODUCT_FORM_VIEW = "product/form";
     private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
     private static final String ERROR_MESSAGE_ATTR = "errorMessage";
@@ -86,8 +86,8 @@ public class ProductController {
     public String createForm(Model model) {
         model.addAttribute(PRODUCT_ATTR, new Product());
         model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-        model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-        model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+        model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+        model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
         return PRODUCT_FORM_VIEW;
     }
     
@@ -104,8 +104,8 @@ public class ProductController {
         
         if (result.hasErrors()) {
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+            model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
             return PRODUCT_FORM_VIEW;
         }
         
@@ -116,8 +116,8 @@ public class ProductController {
         } catch (Exception e) {
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating product: " + e.getMessage());
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+            model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
             return PRODUCT_FORM_VIEW;
         }
     }
@@ -132,8 +132,8 @@ public class ProductController {
         
         model.addAttribute(PRODUCT_ATTR, product.get());
         model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-        model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-        model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+        model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+        model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
         return PRODUCT_FORM_VIEW;
     }
     
@@ -150,8 +150,8 @@ public class ProductController {
         
         if (result.hasErrors()) {
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+            model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
             return PRODUCT_FORM_VIEW;
         }
         
@@ -163,8 +163,8 @@ public class ProductController {
         } catch (Exception e) {
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating product: " + e.getMessage());
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
-            model.addAttribute(INTEREST_CALC_TYPES_ATTR, Product.InterestCalculationType.values());
-            model.addAttribute(INTEREST_PAYMENT_FREQ_ATTR, Product.InterestPaymentFrequency.values());
+            model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
+            model.addAttribute(PROFIT_DISTRIBUTION_FREQ_ATTR, Product.ProfitDistributionFrequency.values());
             return PRODUCT_FORM_VIEW;
         }
     }

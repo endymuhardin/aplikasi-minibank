@@ -48,9 +48,12 @@ class ProductRepositoryTest extends BaseRepositoryTest {
             String maximumBalanceStr,
             String dailyWithdrawalLimitStr,
             String monthlyTransactionLimitStr,
-            String interestRateStr,
-            String interestCalculationType,
-            String interestPaymentFrequency,
+            String profitSharingRatioStr,
+            String profitSharingType,
+            String profitDistributionFrequency,
+            String nisbahCustomerStr,
+            String nisbahBankStr,
+            String isShariahCompliantStr,
             String monthlyMaintenanceFeeStr,
             String atmWithdrawalFeeStr,
             String interBankTransferFeeStr,
@@ -88,9 +91,22 @@ class ProductRepositoryTest extends BaseRepositoryTest {
             product.setMonthlyTransactionLimit(Integer.parseInt(monthlyTransactionLimitStr));
         }
         
-        product.setInterestRate(new BigDecimal(interestRateStr));
-        product.setInterestCalculationType(Product.InterestCalculationType.valueOf(interestCalculationType));
-        product.setInterestPaymentFrequency(Product.InterestPaymentFrequency.valueOf(interestPaymentFrequency));
+        product.setProfitSharingRatio(new BigDecimal(profitSharingRatioStr));
+        product.setProfitSharingType(Product.ProfitSharingType.valueOf(profitSharingType));
+        product.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.valueOf(profitDistributionFrequency));
+        
+        // Set nisbah values if provided
+        if (nisbahCustomerStr != null && !nisbahCustomerStr.isEmpty()) {
+            product.setNisbahCustomer(new BigDecimal(nisbahCustomerStr));
+        }
+        if (nisbahBankStr != null && !nisbahBankStr.isEmpty()) {
+            product.setNisbahBank(new BigDecimal(nisbahBankStr));
+        }
+        
+        // Set Shariah compliance
+        if (isShariahCompliantStr != null && !isShariahCompliantStr.isEmpty()) {
+            product.setIsShariahCompliant(Boolean.parseBoolean(isShariahCompliantStr));
+        }
         
         product.setMonthlyMaintenanceFee(new BigDecimal(monthlyMaintenanceFeeStr));
         product.setAtmWithdrawalFee(new BigDecimal(atmWithdrawalFeeStr));
@@ -295,9 +311,11 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         basicSavings.setMinimumBalance(new BigDecimal("10000.00"));
         basicSavings.setDailyWithdrawalLimit(new BigDecimal("5000000.00"));
         basicSavings.setMonthlyTransactionLimit(50);
-        basicSavings.setInterestRate(new BigDecimal("0.0275"));
-        basicSavings.setInterestCalculationType(Product.InterestCalculationType.DAILY);
-        basicSavings.setInterestPaymentFrequency(Product.InterestPaymentFrequency.MONTHLY);
+        basicSavings.setProfitSharingRatio(new BigDecimal("0.0275"));
+        basicSavings.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
+        basicSavings.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
+        basicSavings.setNisbahCustomer(new BigDecimal("0.7000"));
+        basicSavings.setNisbahBank(new BigDecimal("0.3000"));
         basicSavings.setMonthlyMaintenanceFee(new BigDecimal("2500.00"));
         basicSavings.setAtmWithdrawalFee(new BigDecimal("5000.00"));
         basicSavings.setInterBankTransferFee(new BigDecimal("7500.00"));
@@ -327,9 +345,11 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         premiumSavings.setMinimumBalance(new BigDecimal("500000.00"));
         premiumSavings.setDailyWithdrawalLimit(new BigDecimal("10000000.00"));
         premiumSavings.setMonthlyTransactionLimit(100);
-        premiumSavings.setInterestRate(new BigDecimal("0.0350"));
-        premiumSavings.setInterestCalculationType(Product.InterestCalculationType.DAILY);
-        premiumSavings.setInterestPaymentFrequency(Product.InterestPaymentFrequency.MONTHLY);
+        premiumSavings.setProfitSharingRatio(new BigDecimal("0.0350"));
+        premiumSavings.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
+        premiumSavings.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
+        premiumSavings.setNisbahCustomer(new BigDecimal("0.7000"));
+        premiumSavings.setNisbahBank(new BigDecimal("0.3000"));
         premiumSavings.setMonthlyMaintenanceFee(new BigDecimal("0.00"));
         premiumSavings.setAtmWithdrawalFee(new BigDecimal("0.00"));
         premiumSavings.setInterBankTransferFee(new BigDecimal("5000.00"));
@@ -359,9 +379,9 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         basicChecking.setMinimumBalance(new BigDecimal("50000.00"));
         basicChecking.setDailyWithdrawalLimit(new BigDecimal("20000000.00"));
         basicChecking.setMonthlyTransactionLimit(100);
-        basicChecking.setInterestRate(new BigDecimal("0.0100"));
-        basicChecking.setInterestCalculationType(Product.InterestCalculationType.DAILY);
-        basicChecking.setInterestPaymentFrequency(Product.InterestPaymentFrequency.MONTHLY);
+        basicChecking.setProfitSharingRatio(new BigDecimal("0.0100"));
+        basicChecking.setProfitSharingType(Product.ProfitSharingType.WADIAH);
+        basicChecking.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
         basicChecking.setMonthlyMaintenanceFee(new BigDecimal("5000.00"));
         basicChecking.setAtmWithdrawalFee(new BigDecimal("5000.00"));
         basicChecking.setInterBankTransferFee(new BigDecimal("7500.00"));

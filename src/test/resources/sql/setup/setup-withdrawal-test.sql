@@ -24,10 +24,15 @@ INSERT INTO corporate_customers (id, company_name, company_registration_number, 
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'ABC Company Ltd', '1234567890123456', '01.234.567.8-901.000', 'Robert Johnson', 'CEO');
 
 -- Insert test products
-INSERT INTO products (id, product_code, product_name, product_type, product_category, description, minimum_opening_balance, minimum_balance, maximum_balance, interest_rate, monthly_maintenance_fee, currency, is_active, is_default, launch_date, created_by, created_date, updated_by, updated_date) VALUES
-('11111111-1111-1111-1111-111111111111', 'SAV001', 'Basic Savings', 'SAVINGS', 'RETAIL', 'Basic savings account for individuals', 100.00, 10.00, 1000000.00, 0.015, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('22222222-2222-2222-2222-222222222222', 'CHK001', 'Business Checking', 'CHECKING', 'BUSINESS', 'Business checking account for companies', 1000.00, 100.00, 10000000.00, 0.005, 5.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('33333333-3333-3333-3333-333333333333', 'SAV002', 'Premium Savings', 'SAVINGS', 'RETAIL', 'Premium savings account with higher interest', 500.00, 50.00, 5000000.00, 0.020, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+INSERT INTO products (id, product_code, product_name, product_type, product_category, description, minimum_opening_balance, minimum_balance, maximum_balance, profit_sharing_ratio, profit_sharing_type, profit_distribution_frequency, nisbah_customer, nisbah_bank, is_shariah_compliant, monthly_maintenance_fee, currency, is_active, is_default, launch_date, created_by, created_date, updated_by, updated_date,
+free_transactions_per_month, excess_transaction_fee, allow_overdraft, require_maintaining_balance, allowed_customer_types, required_documents,
+atm_withdrawal_fee, inter_bank_transfer_fee, below_minimum_balance_fee, account_closure_fee) VALUES
+('11111111-1111-1111-1111-111111111111', 'SAV001', 'Basic Savings', 'SAVINGS', 'RETAIL', 'Basic savings account for individuals', 100.00, 10.00, 1000000.00, 0.015, 'WADIAH', 'MONTHLY', NULL, NULL, true, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
+10, 2500, false, true, 'PERSONAL', 'KTP', 5000, 7500, 10000, 0),
+('22222222-2222-2222-2222-222222222222', 'CHK001', 'Business Checking', 'CHECKING', 'BUSINESS', 'Business checking account for companies', 1000.00, 100.00, 10000000.00, 0.005, 'WADIAH', 'MONTHLY', NULL, NULL, true, 5.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
+20, 3000, true, true, 'CORPORATE', 'Akta Pendirian, SIUP', 5000, 7500, 15000, 10000),
+('33333333-3333-3333-3333-333333333333', 'SAV002', 'Premium Savings', 'SAVINGS', 'RETAIL', 'Premium savings account with higher interest', 500.00, 50.00, 5000000.00, 0.020, 'MUDHARABAH', 'MONTHLY', 0.7000, 0.3000, true, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
+25, 2500, false, true, 'PERSONAL', 'KTP, NPWP', 0, 5000, 25000, 0);
 
 -- Insert test accounts with sufficient balance for withdrawal tests
 INSERT INTO accounts (id, id_customers, id_products, account_number, account_name, balance, status, opened_date, created_by, created_date, updated_by, updated_date) VALUES

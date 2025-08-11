@@ -99,16 +99,28 @@
                                 <dd class="mt-1 text-sm text-gray-900" th:text="${product.maximumBalance != null ? #numbers.formatCurrency(product.maximumBalance) : 'No Limit'}"></dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Interest Rate</dt>
-                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestRate != null ? #numbers.formatPercent(product.interestRate, 2, 2) : '0%'}" id="interest-rate"></dd>
+                                <dt class="text-sm font-medium text-gray-500">Profit Sharing Ratio</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.profitSharingRatio != null ? #numbers.formatPercent(product.profitSharingRatio, 2, 2) : '0%'}" id="profit-sharing-ratio"></dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Interest Calculation</dt>
-                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestCalculationType}"></dd>
+                                <dt class="text-sm font-medium text-gray-500">Profit Sharing Type</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.profitSharingType}" id="profit-sharing-type"></dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Interest Payment Frequency</dt>
-                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.interestPaymentFrequency}"></dd>
+                                <dt class="text-sm font-medium text-gray-500">Profit Distribution Frequency</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.profitDistributionFrequency}" id="profit-distribution-frequency"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Nisbah Customer</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.nisbahCustomer != null ? #numbers.formatPercent(product.nisbahCustomer, 1, 1) : 'N/A'}" id="nisbah-customer"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Nisbah Bank</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.nisbahBank != null ? #numbers.formatPercent(product.nisbahBank, 1, 1) : 'N/A'}" id="nisbah-bank"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Shariah Compliant</dt>
+                                <dd class="mt-1 text-sm text-gray-900" th:text="${product.isShariahCompliant ? 'Yes' : 'No'}" id="shariah-compliant"></dd>
                             </div>
                         </dl>
                     </div>

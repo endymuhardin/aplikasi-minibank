@@ -127,11 +127,11 @@
                     </div>
                 </div>
 
-                <!-- Financial Configuration -->
+                <!-- Islamic Banking Configuration -->
                 <div class="border-t border-gray-200 pt-6">
                     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                         <div class="sm:col-span-6">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Financial Configuration</h3>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Islamic Banking Configuration</h3>
                         </div>
 
                         <div class="sm:col-span-2">
@@ -153,27 +153,61 @@
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label for="interestRate" class="block text-sm font-medium text-gray-700">Interest Rate (decimal)</label>
-                            <input type="number" step="0.0001" min="0" max="1" id="interestRate" th:field="*{interestRate}"
+                            <label for="profitSharingRatio" class="block text-sm font-medium text-gray-700">Profit Sharing Ratio (decimal)</label>
+                            <input type="number" step="0.0001" min="0" max="1" id="profitSharingRatio" th:field="*{profitSharingRatio}"
                                    class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
                             <p class="mt-1 text-sm text-gray-500">Enter as decimal (e.g., 0.015 for 1.5%)</p>
-                            <p th:if="${#fields.hasErrors('interestRate')}" th:errors="*{interestRate}" id="interestRate-error" class="mt-2 text-sm text-red-600"></p>
+                            <p th:if="${#fields.hasErrors('profitSharingRatio')}" th:errors="*{profitSharingRatio}" id="profitSharingRatio-error" class="mt-2 text-sm text-red-600"></p>
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label for="interestCalculationType" class="block text-sm font-medium text-gray-700">Interest Calculation</label>
-                            <select id="interestCalculationType" th:field="*{interestCalculationType}"
+                            <label for="profitSharingType" class="block text-sm font-medium text-gray-700">Profit Sharing Type</label>
+                            <select id="profitSharingType" th:field="*{profitSharingType}"
                                     class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                                <option th:each="calc : ${interestCalculationTypes}" th:value="${calc}" th:text="${calc}"></option>
+                                <option th:each="type : ${profitSharingTypes}" th:value="${type}" th:text="${type}"></option>
                             </select>
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label for="interestPaymentFrequency" class="block text-sm font-medium text-gray-700">Interest Payment</label>
-                            <select id="interestPaymentFrequency" th:field="*{interestPaymentFrequency}"
+                            <label for="profitDistributionFrequency" class="block text-sm font-medium text-gray-700">Profit Distribution</label>
+                            <select id="profitDistributionFrequency" th:field="*{profitDistributionFrequency}"
                                     class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                                <option th:each="freq : ${interestPaymentFrequencies}" th:value="${freq}" th:text="${freq}"></option>
+                                <option th:each="freq : ${profitDistributionFrequencies}" th:value="${freq}" th:text="${freq}"></option>
                             </select>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="nisbahCustomer" class="block text-sm font-medium text-gray-700">Nisbah Customer</label>
+                            <input type="number" step="0.0001" min="0" max="1" id="nisbahCustomer" th:field="*{nisbahCustomer}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <p class="mt-1 text-sm text-gray-500">Customer's profit share (e.g., 0.7 for 70%)</p>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="nisbahBank" class="block text-sm font-medium text-gray-700">Nisbah Bank</label>
+                            <input type="number" step="0.0001" min="0" max="1" id="nisbahBank" th:field="*{nisbahBank}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                            <p class="mt-1 text-sm text-gray-500">Bank's profit share (e.g., 0.3 for 30%)</p>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <div class="flex items-center mt-6">
+                                <input id="isShariahCompliant" type="checkbox" th:field="*{isShariahCompliant}"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="isShariahCompliant" class="ml-2 block text-sm text-gray-900">Shariah Compliant</label>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="shariahBoardApprovalNumber" class="block text-sm font-medium text-gray-700">Shariah Board Approval Number</label>
+                            <input type="text" id="shariahBoardApprovalNumber" th:field="*{shariahBoardApprovalNumber}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label for="shariahBoardApprovalDate" class="block text-sm font-medium text-gray-700">Shariah Board Approval Date</label>
+                            <input type="date" id="shariahBoardApprovalDate" th:field="*{shariahBoardApprovalDate}"
+                                   class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
                     </div>
                 </div>

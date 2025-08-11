@@ -150,6 +150,7 @@ public class AccountRestController {
             productInfo.setProductName(product.getProductName());
             productInfo.setProductType(product.getProductType().name());
             productInfo.setMinimumOpeningBalance(product.getMinimumOpeningBalance());
+            productInfo.setProfitSharingRatio(product.getProfitSharingRatio());
             response.setProduct(productInfo);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

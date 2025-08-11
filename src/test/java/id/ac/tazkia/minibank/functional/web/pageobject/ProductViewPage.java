@@ -15,8 +15,17 @@ public class ProductViewPage extends BasePage {
     @FindBy(id = "product-status")
     private WebElement productStatusElement;
     
-    @FindBy(id = "interest-rate")
-    private WebElement interestRateElement;
+    @FindBy(id = "profit-sharing-ratio")
+    private WebElement profitSharingRatioElement;
+    
+    @FindBy(id = "profit-sharing-type")
+    private WebElement profitSharingTypeElement;
+    
+    @FindBy(id = "nisbah-customer")
+    private WebElement nisbahCustomerElement;
+    
+    @FindBy(id = "nisbah-bank")
+    private WebElement nisbahBankElement;
     
     @FindBy(id = "edit-product-btn")
     private WebElement editProductButton;
@@ -43,9 +52,24 @@ public class ProductViewPage extends BasePage {
         return productStatusElement.getText();
     }
     
-    public String getInterestRate() {
-        waitForElementToBeVisible(interestRateElement);
-        return interestRateElement.getText();
+    public String getProfitSharingRatio() {
+        waitForElementToBeVisible(profitSharingRatioElement);
+        return profitSharingRatioElement.getText();
+    }
+    
+    public String getProfitSharingType() {
+        waitForElementToBeVisible(profitSharingTypeElement);
+        return profitSharingTypeElement.getText();
+    }
+    
+    public String getNisbahCustomer() {
+        waitForElementToBeVisible(nisbahCustomerElement);
+        return nisbahCustomerElement.getText();
+    }
+    
+    public String getNisbahBank() {
+        waitForElementToBeVisible(nisbahBankElement);
+        return nisbahBankElement.getText();
     }
     
     public ProductFormPage clickEditProduct() {

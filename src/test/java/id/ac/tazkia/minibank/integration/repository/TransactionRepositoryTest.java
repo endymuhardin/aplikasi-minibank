@@ -410,9 +410,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         savingsProduct.setCurrency("IDR");
         savingsProduct.setMinimumOpeningBalance(new BigDecimal("50000"));
         savingsProduct.setMinimumBalance(new BigDecimal("10000"));
-        savingsProduct.setInterestRate(new BigDecimal("0.0275"));
-        savingsProduct.setInterestCalculationType(Product.InterestCalculationType.DAILY);
-        savingsProduct.setInterestPaymentFrequency(Product.InterestPaymentFrequency.MONTHLY);
+        savingsProduct.setProfitSharingRatio(new BigDecimal("0.0275"));
+        savingsProduct.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
+        savingsProduct.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
+        savingsProduct.setNisbahCustomer(new BigDecimal("0.7000"));
+        savingsProduct.setNisbahBank(new BigDecimal("0.3000"));
         savingsProduct.setCreatedBy("TEST");
         productRepository.save(savingsProduct);
 
@@ -427,9 +429,9 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         checkingProduct.setCurrency("IDR");
         checkingProduct.setMinimumOpeningBalance(new BigDecimal("100000"));
         checkingProduct.setMinimumBalance(new BigDecimal("50000"));
-        checkingProduct.setInterestRate(new BigDecimal("0.0100"));
-        checkingProduct.setInterestCalculationType(Product.InterestCalculationType.DAILY);
-        checkingProduct.setInterestPaymentFrequency(Product.InterestPaymentFrequency.MONTHLY);
+        checkingProduct.setProfitSharingRatio(new BigDecimal("0.0100"));
+        checkingProduct.setProfitSharingType(Product.ProfitSharingType.WADIAH);
+        checkingProduct.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
         checkingProduct.setAllowOverdraft(true);
         checkingProduct.setCreatedBy("TEST");
         productRepository.save(checkingProduct);

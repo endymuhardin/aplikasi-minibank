@@ -66,6 +66,7 @@ public class Account {
     
     // Relationships
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Transaction> transactions;
     
     // Business methods

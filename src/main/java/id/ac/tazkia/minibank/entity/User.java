@@ -78,6 +78,7 @@ public class User {
     private UserPassword password;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<UserRole> userRoles;
     
     // Business methods
