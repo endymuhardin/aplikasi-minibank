@@ -130,9 +130,14 @@ public class ProductListPage extends BasePage {
         waitForPageToLoad();
         
         // First check if we're showing "No products found" message
-        String pageSource = driver.getPageSource();
-        if (pageSource.contains("No products found")) {
-            return false;
+        String pageSource = null;
+        try {
+            pageSource = driver.getPageSource();
+            if (pageSource != null && pageSource.contains("No products found")) {
+                return false;
+            }
+        } catch (Exception e) {
+            // Page source might not be available, continue with table check
         }
         
         // Try to find the products table
@@ -150,7 +155,11 @@ public class ProductListPage extends BasePage {
                 });
         } catch (Exception e) {
             // If table is not available, fallback to page source check
-            return pageSource.contains(productCode);
+            if (pageSource != null) {
+                return pageSource.contains(productCode);
+            }
+            // If both approaches fail, return false
+            return false;
         }
     }
     

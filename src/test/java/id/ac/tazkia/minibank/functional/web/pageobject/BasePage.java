@@ -60,11 +60,27 @@ public abstract class BasePage {
     }
     
     protected void selectDropdownByText(WebElement dropdown, String text) {
+        // Scroll dropdown into view first
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown
+        );
+        
+        // Wait for dropdown to be interactable
+        wait.until(ExpectedConditions.elementToBeClickable(dropdown));
+        
         Select select = new Select(dropdown);
         select.selectByVisibleText(text);
     }
     
     protected void selectDropdownByValue(WebElement dropdown, String value) {
+        // Scroll dropdown into view first
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown
+        );
+        
+        // Wait for dropdown to be interactable
+        wait.until(ExpectedConditions.elementToBeClickable(dropdown));
+        
         Select select = new Select(dropdown);
         select.selectByValue(value);
     }
@@ -95,6 +111,14 @@ public abstract class BasePage {
     }
     
     protected void clearAndType(WebElement element, String text) {
+        // Scroll element into view first
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element
+        );
+        
+        // Wait for element to be interactable
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        
         element.clear();
         element.sendKeys(text);
     }
