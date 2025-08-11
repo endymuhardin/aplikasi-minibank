@@ -441,6 +441,125 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 4. **Browse aplikasi:**
    Buka browser ke alamat [http://localhost:8080/product/list](http://localhost:8080/product/list)
 
+## Menggunakan Aplikasi ##
+
+### Login Credentials ###
+
+Aplikasi memiliki sample users untuk setiap role dengan credentials berikut:
+
+#### Branch Manager (Kepala Cabang) ####
+| Username | Password | Email | Full Name |
+|----------|----------|-------|-----------|
+| `admin` | `minibank123` | admin@yopmail.com | System Administrator |
+| `manager1` | `minibank123` | manager1@yopmail.com | Branch Manager Jakarta |
+| `manager2` | `minibank123` | manager2@yopmail.com | Branch Manager Surabaya |
+
+**Hak Akses:** Akses penuh ke seluruh fitur aplikasi, monitoring, approval, user management, dan laporan.
+
+#### Teller ####
+| Username | Password | Email | Full Name |
+|----------|----------|-------|-----------|
+| `teller1` | `minibank123` | teller1@yopmail.com | Teller Counter 1 |
+| `teller2` | `minibank123` | teller2@yopmail.com | Teller Counter 2 |
+| `teller3` | `minibank123` | teller3@yopmail.com | Teller Counter 3 |
+
+**Hak Akses:** Transaksi tunai (setoran/tarik tunai/transfer), cetak buku tabungan, lihat data nasabah dan saldo.
+
+#### Customer Service ####
+| Username | Password | Email | Full Name |
+|----------|----------|-------|-----------|
+| `cs1` | `minibank123` | cs1@yopmail.com | Customer Service Staff 1 |
+| `cs2` | `minibank123` | cs2@yopmail.com | Customer Service Staff 2 |
+| `cs3` | `minibank123` | cs3@yopmail.com | Customer Service Staff 3 |
+
+**Hak Akses:** Pembukaan rekening tabungan/deposito, input data nasabah, pengajuan pembiayaan (tanpa approval).
+
+### Akses URL ###
+
+- **Web UI**: [http://localhost:8080/product/list](http://localhost:8080/product/list)
+- **REST API**: [http://localhost:8080/api/](http://localhost:8080/api/)
+  - Customers: `/api/customers`
+  - Accounts: `/api/accounts`
+  - Transactions: `/api/transactions`
+  - Users: `/api/users`
+
+### Sample Data Nasabah ###
+
+Aplikasi telah memiliki data sample nasabah yang dapat digunakan untuk testing:
+
+**Nasabah Perorangan:**
+- Ahmad Suharto (C1000001) - KTP: 3271081503850001
+- Siti Nurhaliza (C1000002) - KTP: 3271082207900002
+- Budi Santoso (C1000004) - KTP: 3271081011880003
+- Dewi Lestari (C1000006) - KTP: 3271081805920004
+
+**Nasabah Korporasi:**
+- PT. Teknologi Maju (C1000003) - NPWP: 01.234.567.8-901.000
+
+### Produk Perbankan Tersedia ###
+
+**Tabungan Syariah:**
+- **Tabungan Wadiah Basic (TAB001)**: Setoran awal Rp 50.000, saldo minimum Rp 10.000
+- **Tabungan Mudharabah Premium (TAB002)**: Setoran awal Rp 1.000.000, nisbah 70:30
+
+**Deposito Syariah:**
+- **Deposito Mudharabah (DEP001)**: Setoran awal Rp 100.000, nisbah 70:30
+
+**Pembiayaan Syariah:**
+- **Pembiayaan Murabahah (PEM001)**: Untuk nasabah korporasi, minimal Rp 5.000.000
+- **Pembiayaan Musharakah (PEM002)**: Untuk nasabah perorangan, minimal Rp 2.000.000
+
+### Cara Menggunakan Fitur ###
+
+#### 1. Customer Service - Pembukaan Rekening ####
+- Login dengan user CS (cs1/cs2/cs3)
+- Akses menu pembukaan rekening tabungan/deposito
+- Input data nasabah atau pilih dari nasabah existing
+- Pilih jenis produk banking
+- Generate nomor rekening otomatis
+- Cetak formulir pembukaan rekening
+
+#### 2. Teller - Transaksi Tunai ####
+- Login dengan user Teller (teller1/teller2/teller3)
+- Akses menu setoran tunai
+- Input nomor rekening tujuan
+- Input nominal setoran
+- Sistem otomatis update saldo
+- Cetak bukti setoran
+- Akses menu cetak buku tabungan untuk pencetakan transaksi
+
+#### 3. Branch Manager - Monitoring dan Approval ####
+- Login dengan user Branch Manager (admin/manager1/manager2)
+- Akses semua fitur aplikasi
+- Monitor seluruh transaksi dan aktivitas
+- Approve pengajuan pembiayaan murabahah/mudharabah
+- Kelola data pengguna dan hak akses
+- Generate laporan operasional
+
+#### 4. REST API Usage ####
+```bash
+# Contoh penggunaan API dengan curl
+
+# Get daftar nasabah
+curl http://localhost:8080/api/customers
+
+# Get detail nasabah
+curl http://localhost:8080/api/customers/{customerId}
+
+# Create nasabah baru
+curl -X POST http://localhost:8080/api/customers \
+  -H "Content-Type: application/json" \
+  -d '{"customerType":"PERSONAL","email":"test@email.com","phoneNumber":"081234567890"}'
+
+# Get daftar rekening
+curl http://localhost:8080/api/accounts
+
+# Proses setoran
+curl -X POST http://localhost:8080/api/transactions/deposit \
+  -H "Content-Type: application/json" \
+  -d '{"accountId":"account-id","amount":100000,"description":"Setoran tunai"}'
+```
+
 ## Testing ##
 
 ### Unit dan Integration Tests ###
