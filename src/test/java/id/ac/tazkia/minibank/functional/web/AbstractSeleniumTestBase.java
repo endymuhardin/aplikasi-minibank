@@ -24,7 +24,7 @@ public abstract class AbstractSeleniumTestBase {
     @BeforeEach
     void setupWebDriver() throws Exception {
         Testcontainers.exposeHostPorts(webappPort); 
-        driver = SeleniumTestContainerSingleton.DRIVER;
+        driver = SeleniumTestContainerSingleton.driver;
         log.info("Using singleton WebDriver");
         log.info("VNC URL : {}", SeleniumTestContainerSingleton.getContainer().getVncAddress());
         baseUrl = getHostUrl();

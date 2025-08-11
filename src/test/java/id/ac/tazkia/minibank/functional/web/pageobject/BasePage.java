@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -42,12 +43,16 @@ public abstract class BasePage {
     protected void waitForPageToLoad() {
         // Wait for document ready state
         wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete';"));
-        // Give extra time for dynamic content to load
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Use WebDriver wait instead of Thread.sleep for better reliability
+        wait.until(webDriver -> {
+            try {
+                return ((JavascriptExecutor) webDriver)
+                    .executeScript("return jQuery.active == 0") instanceof Boolean;
+            } catch (Exception e) {
+                // If jQuery is not available, just return true
+                return true;
+            }
+        });
     }
     
     protected void waitForUrlToContain(String urlFragment) {

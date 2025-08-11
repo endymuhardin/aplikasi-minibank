@@ -20,7 +20,7 @@ public class SeleniumTestContainerSingleton {
     private static final File RECORDING_OUTPUT_FOLDER = new File("./target/selenium-recordings/");
     
     private static BrowserWebDriverContainer<?> container;
-    public static WebDriver DRIVER;
+    public static WebDriver driver;
     
     static {
         initialize();
@@ -65,7 +65,12 @@ public class SeleniumTestContainerSingleton {
             log.info("Selenium container started, Selenium URL: {}", container.getSeleniumAddress());
             
             // Wait a moment for container to be fully ready
-            Thread.sleep(2000);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Interrupted while waiting for container", e);
+            }
             
             // Initialize WebDriver with retry logic
             int maxRetries = 3;
@@ -79,16 +84,16 @@ public class SeleniumTestContainerSingleton {
                         case "chrome":
                             ChromeOptions chromeOptions = new ChromeOptions();
                             chromeOptions.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
-                            DRIVER = new RemoteWebDriver(container.getSeleniumAddress(), chromeOptions);
+                            driver = new RemoteWebDriver(container.getSeleniumAddress(), chromeOptions);
                             break;
                         case "firefox":
                         default:
                             FirefoxOptions firefoxOptions = new FirefoxOptions();
-                            DRIVER = new RemoteWebDriver(container.getSeleniumAddress(), firefoxOptions);
+                            driver = new RemoteWebDriver(container.getSeleniumAddress(), firefoxOptions);
                             break;
                     }
                     
-                    DRIVER.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+                    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
                     
                     log.info("Selenium TestContainer initialized successfully");
                     log.info("VNC URL: {}", container.getVncAddress());
@@ -121,9 +126,9 @@ public class SeleniumTestContainerSingleton {
     }
     
     private static void cleanup() {
-        if (DRIVER != null) {
+        if (driver != null) {
             try {
-                DRIVER.quit();
+                driver.quit();
                 log.info("WebDriver closed successfully");
             } catch (Exception e) {
                 log.warn("Error closing WebDriver: {}", e.getMessage());

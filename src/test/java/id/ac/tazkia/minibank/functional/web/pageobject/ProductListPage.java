@@ -271,30 +271,6 @@ public class ProductListPage extends BasePage {
         return noProductsElement.getText();
     }
     
-    private WebElement findProductRow(String productCode) {
-        // Don't refresh the page - preserve current search state  
-        waitForPageToLoad();
-        
-        // Reinitialize page elements to get fresh references
-        org.openqa.selenium.support.PageFactory.initElements(driver, this);
-        
-        // Only debug if we can't find the product
-        boolean found = productRows.stream().anyMatch(row -> row.getText().contains(productCode));
-        if (!found) {
-            System.out.println("=== DEBUG: Product not found: " + productCode + " ===");
-            System.out.println("Total product rows: " + productRows.size());
-            System.out.println("Current URL: " + driver.getCurrentUrl());
-            for (int i = 0; i < Math.min(3, productRows.size()); i++) {
-                System.out.println("Row " + (i + 1) + ": " + productRows.get(i).getText().substring(0, Math.min(100, productRows.get(i).getText().length())));
-            }
-        }
-        
-        return productRows.stream()
-            .filter(row -> row.getText().contains(productCode))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Product with code " + productCode + " not found"));
-    }
-    
     public List<String> getProductCodes() {
         return productRows.stream()
             .map(row -> row.findElement(By.cssSelector("td:nth-child(1)")).getText())

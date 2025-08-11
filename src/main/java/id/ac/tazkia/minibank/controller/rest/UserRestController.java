@@ -92,7 +92,7 @@ public class UserRestController {
     public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
         return userRepository.findById(id)
                 .map(user -> ResponseEntity.ok(new UserResponse(user)))
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.<Object>notFound().build());
     }
 
     @GetMapping
@@ -124,11 +124,11 @@ public class UserRestController {
     public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
         return userRepository.findByUsername(username)
                 .map(user -> ResponseEntity.ok(new UserResponse(user)))
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.<Object>notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<? extends Object> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
+    public ResponseEntity<?> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> 
@@ -233,7 +233,7 @@ public class UserRestController {
                     response.put("message", "Password changed successfully");
                     return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.<Object>notFound().build());
     }
 
     @DeleteMapping("/{id}")
@@ -245,7 +245,7 @@ public class UserRestController {
                     response.put("message", "User deleted successfully");
                     return ResponseEntity.ok(response);
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.<Object>notFound().build());
     }
 
 

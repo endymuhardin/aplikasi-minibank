@@ -20,7 +20,7 @@ import java.util.List;
 @SpringBootTest
 @Import({TestPasswordEncoderConfig.class, PostgresTestContainersConfiguration.class})
 @ActiveProfiles("test")
-public class PasswordHashGenerator {
+public class PasswordHashGeneratorTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;

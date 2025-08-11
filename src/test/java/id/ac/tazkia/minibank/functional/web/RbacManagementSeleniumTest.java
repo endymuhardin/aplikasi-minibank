@@ -20,12 +20,8 @@ import id.ac.tazkia.minibank.functional.web.pageobject.UserListPage;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
-
-@SqlGroup({
-    @Sql(scripts = "/sql/setup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-    @Sql(scripts = "/sql/cleanup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-})
+@Sql(scripts = "/sql/setup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/sql/cleanup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class RbacManagementSeleniumTest extends BaseSeleniumTest {
 
     @Autowired
