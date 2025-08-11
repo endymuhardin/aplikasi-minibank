@@ -1,21 +1,23 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
-import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.jdbc.Sql;
 
-import java.util.List;
-import java.util.Optional;
+import id.ac.tazkia.minibank.entity.CorporateCustomer;
+import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+@Sql("/sql/corporate-customer-test-data.sql")
 class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
@@ -23,13 +25,6 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private CorporateCustomerRepository corporateCustomerRepository;
-
-    @BeforeEach
-    void setUp() {
-        corporateCustomerRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-    }
 
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/customer/corporate/corporate_customers.csv", numLinesToSkip = 1)
@@ -84,94 +79,73 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindCorporateCustomerByCompanyRegistrationNumber() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
         Optional<CorporateCustomer> customer = corporateCustomerRepository
                 .findByCompanyRegistrationNumber("1234567890123456");
 
         // Then
         assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("PT. Teknologi Maju");
+        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
     }
 
     @Test
     void shouldFindCorporateCustomerByTaxIdentificationNumber() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
         Optional<CorporateCustomer> customer = corporateCustomerRepository
                 .findByTaxIdentificationNumber("01.234.567.8-901.000");
 
         // Then
         assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("PT. Teknologi Maju");
+        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
     }
 
     @Test
     void shouldFindCorporateCustomerByEmail() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
-        Optional<CorporateCustomer> customer = corporateCustomerRepository.findByEmail("info@teknologimaju.com");
+        Optional<CorporateCustomer> customer = corporateCustomerRepository.findByEmail("test.corp2@email.com");
 
         // Then
         assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("PT. Teknologi Maju");
+        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
     }
 
     @Test
     void shouldFindCorporateCustomersByCompanyName() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
         List<CorporateCustomer> customers = corporateCustomerRepository
-                .findByCompanyNameContainingIgnoreCase("Teknologi");
+                .findByCompanyNameContainingIgnoreCase("Test Corp");
 
         // Then
         assertThat(customers).hasSizeGreaterThan(0);
-        assertThat(customers.get(0).getCompanyName()).containsIgnoringCase("Teknologi");
+        assertThat(customers.get(0).getCompanyName()).containsIgnoringCase("Test Corp");
     }
 
     @Test
     void shouldFindCorporateCustomersWithSearchTerm() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
         List<CorporateCustomer> results = corporateCustomerRepository
-                .findCorporateCustomersWithSearchTerm("Teknologi");
+                .findCorporateCustomersWithSearchTerm("Test Corp");
 
         // Then
         assertThat(results).hasSizeGreaterThan(0);
-        assertThat(results.get(0).getCompanyName()).containsIgnoringCase("Teknologi");
+        assertThat(results.get(0).getCompanyName()).containsIgnoringCase("Test Corp");
     }
 
     @Test
     void shouldCheckExistenceByUniqueFields() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When & Then
-        assertThat(corporateCustomerRepository.existsByCustomerNumber("C1000003")).isTrue();
+        assertThat(corporateCustomerRepository.existsByCustomerNumber("C2000001")).isTrue();
         assertThat(corporateCustomerRepository.existsByCustomerNumber("C9999999")).isFalse();
-        
+
         assertThat(corporateCustomerRepository.existsByCompanyRegistrationNumber("1234567890123456")).isTrue();
         assertThat(corporateCustomerRepository.existsByCompanyRegistrationNumber("9999999999999999")).isFalse();
-        
-        assertThat(corporateCustomerRepository.existsByEmail("info@teknologimaju.com")).isTrue();
+
+        assertThat(corporateCustomerRepository.existsByEmail("test.corp1@email.com")).isTrue();
         assertThat(corporateCustomerRepository.existsByEmail("nonexistent@email.com")).isFalse();
     }
 
     @Test
     void shouldCountCorporateCustomers() {
-        // Given
-        saveTestCorporateCustomers();
-
         // When
         Long count = corporateCustomerRepository.countCorporateCustomers();
 
@@ -206,39 +180,4 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
         assertThat(fullName).isEqualTo("John Doe");
     }
 
-    private void saveTestCorporateCustomers() {
-        CorporateCustomer corporate1 = new CorporateCustomer();
-        corporate1.setCustomerNumber("C1000003");
-        corporate1.setCompanyName("PT. Teknologi Maju");
-        corporate1.setCompanyRegistrationNumber("1234567890123456");
-        corporate1.setTaxIdentificationNumber("01.234.567.8-901.000");
-        corporate1.setContactPersonName("Budi Santoso");
-        corporate1.setContactPersonTitle("Director");
-        corporate1.setEmail("info@teknologimaju.com");
-        corporate1.setPhoneNumber("02123456789");
-        corporate1.setAddress("Jl. HR Rasuna Said No. 789");
-        corporate1.setCity("Jakarta");
-        corporate1.setPostalCode("12950");
-        corporate1.setCountry("Indonesia");
-        corporate1.setCreatedBy("TEST");
-
-        CorporateCustomer corporate2 = new CorporateCustomer();
-        corporate2.setCustomerNumber("C1000004");
-        corporate2.setCompanyName("PT. Inovasi Digital");
-        corporate2.setCompanyRegistrationNumber("9876543210987654");
-        corporate2.setTaxIdentificationNumber("02.345.678.9-012.000");
-        corporate2.setContactPersonName("Sari Indah");
-        corporate2.setContactPersonTitle("CEO");
-        corporate2.setEmail("contact@inovasidigital.com");
-        corporate2.setPhoneNumber("02187654321");
-        corporate2.setAddress("Jl. Gatot Subroto No. 456");
-        corporate2.setCity("Jakarta");
-        corporate2.setPostalCode("12930");
-        corporate2.setCountry("Indonesia");
-        corporate2.setCreatedBy("TEST");
-
-        corporateCustomerRepository.save(corporate1);
-        corporateCustomerRepository.save(corporate2);
-        entityManager.flush();
-    }
 }
