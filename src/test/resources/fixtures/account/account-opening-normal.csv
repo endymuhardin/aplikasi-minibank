@@ -1,6 +1,6 @@
 testCase,customerId,productId,accountName,initialDeposit,createdBy
-tabungan_wadiah_basic,C1000001,TAB001,Ahmad Suharto - Tabungan Wadiah,100000,test-user
-tabungan_mudharabah_premium,C1000002,TAB002,Siti Nurhaliza - Tabungan Mudharabah,1500000,test-user
-deposito_mudharabah,C1000004,DEP001,Budi Santoso - Deposito Mudharabah,200000,test-user
-pembiayaan_murabahah,C1000003,PEM001,PT. Teknologi Maju - Pembiayaan Murabahah,2500000,test-user
-pembiayaan_musharakah,C1000006,PEM002,Dewi Lestari - Pembiayaan Musharakah,10000000,test-user
+basic_savings,C1000001,SAV001,Ahmad Suharto - Basic Savings,100000,test-user
+premium_savings,C1000002,SAV002,Siti Nurhaliza - Premium Savings,1500000,test-user
+basic_checking,C1000003,CHK001,Budi Santoso - Basic Checking,200000,test-user
+corporate_savings,C1000004,SAV003,PT. Teknologi Maju - Corporate Savings,6000000,test-user
+premium_checking,C1000006,CHK002,Dewi Lestari - Premium Checking,3000000,test-user
