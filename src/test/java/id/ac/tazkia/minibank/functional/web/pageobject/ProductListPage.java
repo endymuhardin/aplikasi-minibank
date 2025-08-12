@@ -28,7 +28,7 @@ public class ProductListPage extends BasePage {
     @FindBy(id = "products-table")
     private WebElement productsTable;
     
-    @FindBy(css = "#products-table-body tr")
+    @FindBy(id = "products-table-body")
     private List<WebElement> productRows;
     
     public ProductListPage(WebDriver driver, String baseUrl) {
@@ -282,19 +282,19 @@ public class ProductListPage extends BasePage {
     
     public List<String> getProductCodes() {
         return productRows.stream()
-            .map(row -> row.findElement(By.cssSelector("td:nth-child(1)")).getText())
+            .map(row -> row.findElement(By.id("product-code-cell")).getText())
             .toList();
     }
     
     public List<String> getProductNames() {
         return productRows.stream()
-            .map(row -> row.findElement(By.cssSelector("td:nth-child(2) div:first-child")).getText())
+            .map(row -> row.findElement(By.id("product-name-cell")).getText())
             .toList();
     }
     
     public List<String> getProductTypes() {
         return productRows.stream()
-            .map(row -> row.findElement(By.cssSelector("td:nth-child(3) span")).getText())
+            .map(row -> row.findElement(By.id("product-type-cell")).getText())
             .toList();
     }
     

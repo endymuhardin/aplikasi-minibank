@@ -354,7 +354,7 @@ public class ProductFormPage extends BasePage {
     private void navigateToStep(int stepNumber) {
         try {
             // Click on the step indicator to navigate
-            WebElement stepIndicator = driver.findElement(By.cssSelector("[data-step='" + stepNumber + "']"));
+            WebElement stepIndicator = driver.findElement(By.id("step-indicator-" + stepNumber));
             if (stepIndicator.isDisplayed() && stepIndicator.isEnabled()) {
                 stepIndicator.click();
                 

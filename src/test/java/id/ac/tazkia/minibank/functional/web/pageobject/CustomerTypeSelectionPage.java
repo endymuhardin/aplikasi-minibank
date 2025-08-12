@@ -12,9 +12,9 @@ public class CustomerTypeSelectionPage extends BasePage {
     private final WebDriverWait wait;
     
     // Page elements
-    private static final By PERSONAL_CUSTOMER_CARD = By.xpath("//a[contains(@href, '/customer/create/personal')]");
-    private static final By CORPORATE_CUSTOMER_CARD = By.xpath("//a[contains(@href, '/customer/create/corporate')]");
-    private static final By BACK_TO_LIST = By.xpath("//a[contains(@href, '/customer/list')]");
+    private static final By PERSONAL_CUSTOMER_CARD = By.id("personal-customer-card");
+    private static final By CORPORATE_CUSTOMER_CARD = By.id("corporate-customer-card");
+    private static final By BACK_TO_LIST = By.id("back-to-list");
     
     public CustomerTypeSelectionPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);

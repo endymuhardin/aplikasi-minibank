@@ -19,7 +19,7 @@ public class PermissionListPage extends BasePage {
     @FindBy(id = "filter-btn")
     private WebElement filterButton;
     
-    @FindBy(tagName = "h1")
+    @FindBy(id = "page-title")
     private WebElement pageTitle;
     
     public PermissionListPage(WebDriver driver, String baseUrl) {
@@ -39,8 +39,8 @@ public class PermissionListPage extends BasePage {
         wait.until(webDriver -> 
             isElementPresent(By.id("success-message")) ||
             isElementPresent(By.id("error-message")) ||
-            isElementPresent(By.cssSelector("#permissions-table tbody tr")) ||
-            isElementPresent(By.cssSelector(".no-permissions-message"))
+            isElementPresent(By.id("permissions-table-rows")) ||
+            isElementPresent(By.id("no-permissions-message"))
         );
     }
     

@@ -22,7 +22,7 @@ public class UserListPage extends BasePage {
     @FindBy(id = "search-btn")
     private WebElement searchButton;
     
-    @FindBy(tagName = "h1")
+    @FindBy(id = "page-title")
     private WebElement pageTitle;
     
     public UserListPage(WebDriver driver, String baseUrl) {
@@ -66,7 +66,7 @@ public class UserListPage extends BasePage {
     }
     
     public int getUserCount() {
-        List<WebElement> userRows = driver.findElements(By.className("user-row"));
+        List<WebElement> userRows = driver.findElements(By.id("user-rows"));
         return userRows.size();
     }
     

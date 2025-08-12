@@ -19,8 +19,8 @@ public class CustomerListPage extends BasePage {
     private static final By SEARCH_INPUT = By.id("search");
     private static final By SEARCH_BUTTON = By.id("search-btn");
     private static final By CUSTOMER_TYPE_FILTER = By.id("customerTypeFilter");
-    private static final By SUCCESS_MESSAGE = By.cssSelector(".alert-success, .text-green-600");
-    private static final By ERROR_MESSAGE = By.cssSelector(".alert-danger, .text-red-600");
+    private static final By SUCCESS_MESSAGE = By.id("success-message");
+    private static final By ERROR_MESSAGE = By.id("error-message");
     
     public CustomerListPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);

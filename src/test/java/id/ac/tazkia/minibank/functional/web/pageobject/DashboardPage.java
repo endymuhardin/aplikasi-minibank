@@ -16,7 +16,7 @@ public class DashboardPage {
     private final WebDriver driver;
     private final WebDriverWait wait;
     
-    @FindBy(css = "h1")
+    @FindBy(id = "page-title")
     private WebElement pageTitle;
     
     @FindBy(id = "userMenuButton")
@@ -25,10 +25,10 @@ public class DashboardPage {
     @FindBy(id = "userMenu")
     private WebElement userMenu;
     
-    @FindBy(css = "form[action='/logout'] button")
+    @FindBy(id = "logout-button")
     private WebElement logoutButton;
     
-    @FindBy(css = "#sidebar-nav a")
+    @FindBy(id = "sidebar-nav-items")
     private List<WebElement> sidebarMenuItems;
     
     @FindBy(id = "dashboard-link")
@@ -58,7 +58,7 @@ public class DashboardPage {
     @FindBy(id = "permissions-link")
     private WebElement permissionsLink;
     
-    @FindBy(css = "#statistics-cards .bg-white")
+    @FindBy(id = "statistics-cards")
     private List<WebElement> statisticsCards;
     
     public DashboardPage(WebDriver driver) {
@@ -128,7 +128,7 @@ public class DashboardPage {
         try {
             // Always use user menu approach for reliability
             openUserMenu();
-            WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='user-menu-username']")));
+            WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-menu-username")));
             return userInfo.getText();
         } catch (Exception ex) {
             return "";
@@ -138,7 +138,7 @@ public class DashboardPage {
     public String getCurrentUserRole() {
         openUserMenu();
         try {
-            WebElement roleElement = driver.findElement(By.cssSelector("#userMenu .text-gray-500"));
+            WebElement roleElement = driver.findElement(By.id("user-menu-role"));
             return roleElement.getText();
         } catch (Exception e) {
             return "";
@@ -263,7 +263,7 @@ public class DashboardPage {
     
     public int getStatisticsCardsCount() {
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("#statistics-cards .bg-white")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.id("statistics-cards")));
             return statisticsCards.size();
         } catch (Exception e) {
             return 0;
@@ -291,7 +291,7 @@ public class DashboardPage {
     // Additional methods for enhanced dashboard testing
     public boolean isDashboardContentVisible() {
         try {
-            return driver.findElement(By.cssSelector("main, .dashboard-content, .container")).isDisplayed();
+            return driver.findElement(By.id("dashboard-content")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -299,7 +299,7 @@ public class DashboardPage {
     
     public boolean hasStatisticsSection() {
         try {
-            return driver.findElement(By.cssSelector("#statistics-cards, .statistics, .stats")).isDisplayed();
+            return driver.findElement(By.id("statistics-section")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -307,31 +307,31 @@ public class DashboardPage {
     
     public boolean isProductManagementLinkVisible() {
         try {
-            return driver.findElement(By.xpath("//a[contains(@href, 'product') or contains(text(), 'Product')]")).isDisplayed();
+            return driver.findElement(By.id("product-management-link")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
     
     public void clickProductManagementLink() {
-        driver.findElement(By.xpath("//a[contains(@href, 'product') or contains(text(), 'Product')]")).click();
+        driver.findElement(By.id("product-management-link")).click();
     }
     
     public boolean isUserManagementLinkVisible() {
         try {
-            return driver.findElement(By.xpath("//a[contains(@href, 'users') or contains(text(), 'User')]")).isDisplayed();
+            return driver.findElement(By.id("user-management-link")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
     
     public void clickUserManagementLink() {
-        driver.findElement(By.xpath("//a[contains(@href, 'users') or contains(text(), 'User')]")).click();
+        driver.findElement(By.id("user-management-link")).click();
     }
     
     public boolean isTransactionManagementLinkVisible() {
         try {
-            return driver.findElement(By.xpath("//a[contains(@href, 'transaction') or contains(text(), 'Transaction')]")).isDisplayed();
+            return driver.findElement(By.id("transaction-management-link")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -339,7 +339,7 @@ public class DashboardPage {
     
     public boolean areQuickActionsDisplayed() {
         try {
-            return driver.findElements(By.cssSelector(".quick-action, .quick-button")).size() > 0;
+            return driver.findElements(By.id("quick-actions")).size() > 0;
         } catch (Exception e) {
             return false;
         }
@@ -347,7 +347,7 @@ public class DashboardPage {
     
     public boolean isCreateProductButtonVisible() {
         try {
-            return driver.findElement(By.xpath("//button[contains(text(), 'Create Product') or contains(@title, 'Create Product')]")).isDisplayed();
+            return driver.findElement(By.id("create-product-button")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -355,7 +355,7 @@ public class DashboardPage {
     
     public boolean isCreateUserButtonVisible() {
         try {
-            return driver.findElement(By.xpath("//button[contains(text(), 'Create User') or contains(@title, 'Create User')]")).isDisplayed();
+            return driver.findElement(By.id("create-user-button")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -363,7 +363,7 @@ public class DashboardPage {
     
     public boolean isSystemConfigLinkVisible() {
         try {
-            return driver.findElement(By.xpath("//a[contains(@href, 'config') or contains(text(), 'Config')]")).isDisplayed();
+            return driver.findElement(By.id("system-config-link")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -371,7 +371,7 @@ public class DashboardPage {
     
     public boolean isProcessTransactionButtonVisible() {
         try {
-            return driver.findElement(By.xpath("//button[contains(text(), 'Process Transaction') or contains(@title, 'Transaction')]")).isDisplayed();
+            return driver.findElement(By.id("process-transaction-button")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -379,7 +379,7 @@ public class DashboardPage {
     
     public boolean isAccountLookupButtonVisible() {
         try {
-            return driver.findElement(By.xpath("//button[contains(text(), 'Account Lookup') or contains(@title, 'Account')]")).isDisplayed();
+            return driver.findElement(By.id("account-lookup-button")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -387,7 +387,7 @@ public class DashboardPage {
     
     public boolean isLogoutLinkVisible() {
         try {
-            return driver.findElement(By.xpath("//a[contains(@href, 'logout') or contains(text(), 'Logout')] | //button[contains(text(), 'Logout')]")).isDisplayed();
+            return driver.findElement(By.id("logout-link")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -395,7 +395,7 @@ public class DashboardPage {
     
     public boolean hasRecentActivitiesSection() {
         try {
-            return driver.findElement(By.cssSelector("#recent-activities, .recent-activities")).isDisplayed();
+            return driver.findElement(By.id("recent-activities")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -403,7 +403,7 @@ public class DashboardPage {
     
     public boolean areRecentActivitiesDisplayed() {
         try {
-            return driver.findElements(By.cssSelector(".activity-item, .recent-activity")).size() > 0;
+            return driver.findElements(By.id("activity-items")).size() > 0;
         } catch (Exception e) {
             return false;
         }
@@ -411,7 +411,7 @@ public class DashboardPage {
     
     public boolean hasNotificationsSection() {
         try {
-            return driver.findElement(By.cssSelector("#notifications, .notifications")).isDisplayed();
+            return driver.findElement(By.id("notifications")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -419,7 +419,7 @@ public class DashboardPage {
     
     public boolean areNotificationsDisplayed() {
         try {
-            return driver.findElements(By.cssSelector(".notification, .alert")).size() > 0;
+            return driver.findElements(By.id("notification-items")).size() > 0;
         } catch (Exception e) {
             return false;
         }

@@ -24,10 +24,10 @@ public class CorporateCustomerFormPage extends BasePage {
     private static final By PHONE_INPUT = By.id("phoneNumber");
     private static final By ADDRESS_INPUT = By.id("address");
     private static final By CITY_INPUT = By.id("city");
-    private static final By SUBMIT_BUTTON = By.xpath("//button[@type='submit']");
-    private static final By BACK_BUTTON = By.xpath("//a[contains(@href, 'list') or contains(text(), 'Back')]");
-    private static final By SUCCESS_MESSAGE = By.cssSelector(".alert-success, .text-green-600");
-    private static final By ERROR_MESSAGE = By.cssSelector(".alert-danger, .text-red-600");
+    private static final By SUBMIT_BUTTON = By.id("submit-button");
+    private static final By BACK_BUTTON = By.id("back-button");
+    private static final By SUCCESS_MESSAGE = By.id("success-message");
+    private static final By ERROR_MESSAGE = By.id("error-message");
     
     public CorporateCustomerFormPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);
@@ -78,7 +78,7 @@ public class CorporateCustomerFormPage extends BasePage {
         scrollToElementAndClick(SUBMIT_BUTTON);
         wait.until(ExpectedConditions.or(
             ExpectedConditions.presenceOfElementLocated(ERROR_MESSAGE),
-            ExpectedConditions.presenceOfElementLocated(By.cssSelector(".border-red-300, .text-red-600"))
+            ExpectedConditions.presenceOfElementLocated(By.id("validation-errors"))
         ));
         return this;
     }
@@ -98,7 +98,7 @@ public class CorporateCustomerFormPage extends BasePage {
     
     public boolean hasValidationError(String fieldName) {
         try {
-            return driver.findElement(By.xpath("//input[@id='" + fieldName + "' or @name='" + fieldName + "']//following-sibling::*[contains(@class, 'error') or contains(@class, 'text-red')]")).isDisplayed();
+            return driver.findElement(By.id(fieldName + "-error")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
