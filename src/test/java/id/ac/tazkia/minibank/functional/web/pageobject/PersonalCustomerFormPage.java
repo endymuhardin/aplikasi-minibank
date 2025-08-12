@@ -71,7 +71,7 @@ public class PersonalCustomerFormPage extends BasePage {
     }
     
     public CustomerListPage submitForm() {
-        driver.findElement(SUBMIT_BUTTON).click();
+        scrollToElementAndClick(SUBMIT_BUTTON);
         wait.until(ExpectedConditions.or(
             ExpectedConditions.urlContains("/customer/list"),
             ExpectedConditions.presenceOfElementLocated(SUCCESS_MESSAGE),
@@ -81,7 +81,7 @@ public class PersonalCustomerFormPage extends BasePage {
     }
     
     public PersonalCustomerFormPage submitFormExpectingError() {
-        driver.findElement(SUBMIT_BUTTON).click();
+        scrollToElementAndClick(SUBMIT_BUTTON);
         wait.until(ExpectedConditions.or(
             ExpectedConditions.presenceOfElementLocated(ERROR_MESSAGE),
             ExpectedConditions.presenceOfElementLocated(By.cssSelector(".border-red-300, .text-red-600"))

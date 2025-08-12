@@ -5,4 +5,4 @@ Empty Last Name,VALID002,John,,valid@example.com,081234567890,Last name is requi
 Empty Email,VALID003,John,Doe,,081234567890,Email is required
 Empty Phone,VALID004,John,Doe,valid@example.com,,Phone is required
 Invalid Email,VALID005,John,Doe,invalid-email,081234567890,Invalid email format
-Too Long First Name,VALID006,CustomerFirstNameThatIsTooLongAndExceedsTheMaximumAllowedLengthOfOneHundredCharactersInDatabaseX,Doe,valid@example.com,081234567890,First name too long
+Too Long First Name,VALID006,ThisFirstNameIsVeryLongAndShouldExceedLimitXXXXXXXXXXXXXXXXXXXX,Doe,valid@example.com,081234567890,First name too long

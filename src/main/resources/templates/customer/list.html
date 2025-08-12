@@ -79,7 +79,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody id="search-results" class="bg-white divide-y divide-gray-200">
                         <tr th:each="customer : ${customers.content}" th:id="'customer-' + ${customer.customerNumber}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerNumber}">
                             </td>
@@ -90,7 +90,8 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerType}">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm status">
-                                <span th:class="${customer.status.name() == 'ACTIVE' ? 'text-green-600' : 'text-red-600'}"
+                                <span th:id="'status-' + ${customer.customerNumber}"
+                                      th:class="${customer.status.name() == 'ACTIVE' ? 'text-green-600' : 'text-red-600'}"
                                       th:text="${customer.status.name() == 'ACTIVE' ? 'Active' : 'Inactive'}"></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

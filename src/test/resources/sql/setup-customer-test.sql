@@ -10,8 +10,10 @@ VALUES
     ('22222222-2222-2222-2222-222222222001', 'EDIT001', 'PERSONAL', 'john.doe@example.com', '081234567890', '123 Main Street', 'Jakarta', '12345', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
     ('22222222-2222-2222-2222-222222222002', 'SEARCH001', 'PERSONAL', 'test.customer@example.com', '081234567891', '456 Search Street', 'Surabaya', '54321', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
     ('22222222-2222-2222-2222-222222222003', 'STATUS001', 'PERSONAL', 'status.test@example.com', '081234567892', '789 Status Avenue', 'Bandung', '98765', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
-    ('22222222-2222-2222-2222-222222222004', 'VIEW001', 'CORPORATE', 'contact@testcorp.com', '081234567893', '100 Corporate Blvd', 'Jakarta', '11111', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
-    ('22222222-2222-2222-2222-222222222005', 'DUPLICATE001', 'PERSONAL', 'duplicate@example.com', '081234567894', '200 Duplicate Road', 'Yogyakarta', '55555', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW());
+    ('22222222-2222-2222-2222-222222222004', 'VIEW001', 'PERSONAL', 'view.test@example.com', '081234567893', '100 View Street', 'Jakarta', '11111', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
+    ('22222222-2222-2222-2222-222222222005', 'DUPLICATE001', 'PERSONAL', 'duplicate@example.com', '081234567894', '200 Duplicate Road', 'Yogyakarta', '55555', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
+    ('22222222-2222-2222-2222-222222222006', 'CORP_EDIT001', 'CORPORATE', 'edit@corpedit.com', '081234567895', '300 Corporate Edit Blvd', 'Jakarta', '22222', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW()),
+    ('22222222-2222-2222-2222-222222222007', 'CORP_VIEW001', 'CORPORATE', 'contact@corpview.com', '081234567896', '400 Corporate View Street', 'Surabaya', '33333', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW());
 
 -- Insert personal customer specific data
 INSERT INTO personal_customers (id, first_name, last_name, date_of_birth, identity_number, identity_type)
@@ -19,9 +21,11 @@ VALUES
     ('22222222-2222-2222-2222-222222222001', 'John', 'Doe', '1990-01-01', '1234567890123456', 'KTP'),
     ('22222222-2222-2222-2222-222222222002', 'Test', 'Customer', '1985-05-15', '1234567890123457', 'KTP'),
     ('22222222-2222-2222-2222-222222222003', 'Status', 'Test', '1992-12-25', '1234567890123458', 'KTP'),
+    ('22222222-2222-2222-2222-222222222004', 'View', 'Test', '1987-07-07', '1234567890123460', 'KTP'),
     ('22222222-2222-2222-2222-222222222005', 'Duplicate', 'Test', '1988-08-08', '1234567890123459', 'KTP');
 
 -- Insert corporate customer specific data
 INSERT INTO corporate_customers (id, company_name, company_registration_number, tax_identification_number, contact_person_name, contact_person_title)
 VALUES
-    ('22222222-2222-2222-2222-222222222004', 'Test Corporation', '12345678901234', '12.345.678.9-012.000', 'Jane Smith', 'Manager');
+    ('22222222-2222-2222-2222-222222222006', 'Corporate Edit Company', '98765432109876', '98.765.432.1-098.000', 'John Manager', 'General Manager'),
+    ('22222222-2222-2222-2222-222222222007', 'Corporate View Inc', '11111111111111', '11.111.111.1-111.000', 'Jane Director', 'Director');

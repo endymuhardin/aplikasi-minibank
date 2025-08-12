@@ -123,6 +123,36 @@ public abstract class BasePage {
         element.sendKeys(text);
     }
     
+    protected void scrollToElementAndClick(WebElement element) {
+        // Scroll element into view first
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element
+        );
+        
+        // Wait a moment for scrolling to complete
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Wait for element to be clickable
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        
+        // Try clicking normally first, fallback to JavaScript click if needed
+        try {
+            element.click();
+        } catch (Exception e) {
+            // If regular click fails, use JavaScript click
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
+    }
+    
+    protected void scrollToElementAndClick(By locator) {
+        WebElement element = driver.findElement(locator);
+        scrollToElementAndClick(element);
+    }
+    
     public boolean isSuccessMessageDisplayed() {
         try {
             // Wait up to 5 seconds for success message to appear

@@ -40,9 +40,9 @@ public class CustomerListPage extends BasePage {
         try {
             return driver.findElement(CREATE_BUTTON).isDisplayed();
         } catch (Exception e) {
-            // Fallback: look for any create button
+            // Fallback: use alternative create button id
             try {
-                return driver.findElement(By.xpath("//a[contains(@href, 'create') or contains(text(), 'Create') or contains(text(), 'Add')]")).isDisplayed();
+                return driver.findElement(By.id("create-btn")).isDisplayed();
             } catch (Exception ex) {
                 return false;
             }
@@ -66,8 +66,8 @@ public class CustomerListPage extends BasePage {
         try {
             driver.findElement(CREATE_BUTTON).click();
         } catch (Exception e) {
-            // Fallback: click any create link
-            driver.findElement(By.xpath("//a[contains(@href, 'create') or contains(text(), 'Create') or contains(text(), 'Add')]")).click();
+            // Fallback: use alternative create button id
+            driver.findElement(By.id("create-btn")).click();
         }
         return new CustomerTypeSelectionPage(driver, baseUrl);
     }
@@ -86,7 +86,7 @@ public class CustomerListPage extends BasePage {
     
     public boolean isCustomerDisplayed(String customerNumber) {
         try {
-            return driver.findElement(By.xpath("//td[contains(text(), '" + customerNumber + "')]")).isDisplayed();
+            return driver.findElement(By.id("customer-" + customerNumber)).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -125,12 +125,8 @@ public class CustomerListPage extends BasePage {
             
             waitForPageLoad();
         } catch (Exception e) {
-            // Fallback: find any search input
-            WebElement searchInput = driver.findElement(By.xpath("//input[@type='text' or @type='search']"));
-            searchInput.clear();
-            searchInput.sendKeys(searchTerm);
-            searchInput.submit();
-            waitForPageLoad();
+            // The primary search input should always be available
+            throw new RuntimeException("Search functionality not available", e);
         }
     }
     
@@ -146,7 +142,8 @@ public class CustomerListPage extends BasePage {
     
     public boolean hasSearchResults() {
         try {
-            return driver.findElements(By.xpath("//table//tbody//tr")).size() > 0;
+            WebElement searchResults = driver.findElement(By.id("search-results"));
+            return searchResults.findElements(By.tagName("tr")).size() > 0;
         } catch (Exception e) {
             return false;
         }
@@ -157,7 +154,7 @@ public class CustomerListPage extends BasePage {
     }
     
     public PersonalCustomerFormPage editPersonalCustomer(String customerNumber) {
-        driver.findElement(By.id("edit-" + customerNumber)).click();
+        scrollToElementAndClick(By.id("edit-" + customerNumber));
         
         // Wait for personal customer edit form to load
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("firstName")));
@@ -165,7 +162,7 @@ public class CustomerListPage extends BasePage {
     }
     
     public CorporateCustomerFormPage editCorporateCustomer(String customerNumber) {
-        driver.findElement(By.id("edit-" + customerNumber)).click();
+        scrollToElementAndClick(By.id("edit-" + customerNumber));
         
         // Wait for corporate customer edit form to load
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("companyName")));
@@ -173,7 +170,7 @@ public class CustomerListPage extends BasePage {
     }
     
     public PersonalCustomerViewPage viewPersonalCustomer(String customerNumber) {
-        driver.findElement(By.id("view-" + customerNumber)).click();
+        scrollToElementAndClick(By.id("view-" + customerNumber));
         
         // Wait for personal customer view page to load
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("firstName")));
@@ -181,7 +178,7 @@ public class CustomerListPage extends BasePage {
     }
     
     public CorporateCustomerViewPage viewCorporateCustomer(String customerNumber) {
-        driver.findElement(By.id("view-" + customerNumber)).click();
+        scrollToElementAndClick(By.id("view-" + customerNumber));
         
         // Wait for corporate customer view page to load
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("companyName")));
@@ -190,7 +187,7 @@ public class CustomerListPage extends BasePage {
     
     public String getCustomerStatus(String customerNumber) {
         try {
-            WebElement statusCell = driver.findElement(By.xpath("//tr[td[contains(text(), '" + customerNumber + "')]]//td[contains(@class, 'status') or position()=last()]"));
+            WebElement statusCell = driver.findElement(By.id("status-" + customerNumber));
             return statusCell.getText().trim();
         } catch (Exception e) {
             return "Unknown";
@@ -198,20 +195,12 @@ public class CustomerListPage extends BasePage {
     }
     
     public void activateCustomer(String customerNumber) {
-        try {
-            driver.findElement(By.id("activate-" + customerNumber)).click();
-            waitForPageLoad();
-        } catch (Exception e) {
-            // If no activate button, ignore
-        }
+        scrollToElementAndClick(By.id("activate-" + customerNumber));
+        waitForPageLoad();
     }
     
     public void deactivateCustomer(String customerNumber) {
-        try {
-            driver.findElement(By.id("deactivate-" + customerNumber)).click();
-            waitForPageLoad();
-        } catch (Exception e) {
-            // If no deactivate button, ignore
-        }
+        scrollToElementAndClick(By.id("deactivate-" + customerNumber));
+        waitForPageLoad();
     }
 }
