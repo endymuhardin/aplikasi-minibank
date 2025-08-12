@@ -63,32 +63,46 @@ public class PermissionFormPage extends BasePage {
     
     public boolean hasValidationError(String fieldName) {
         try {
-            return driver.findElement(org.openqa.selenium.By.xpath("//input[@id='" + fieldName + "' or @name='" + fieldName + "']//following-sibling::*[contains(@class, 'error') or contains(@class, 'text-red')]")).isDisplayed();
+            return driver.findElement(org.openqa.selenium.By.id(fieldName + "-error")).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
     
-    public boolean isErrorMessageDisplayed() {
-        try {
-            return driver.findElement(org.openqa.selenium.By.cssSelector(".alert-danger, .text-red-600")).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
     
     public PermissionListPage submitForm() {
         waitForElementToBeClickable(saveButton);
         saveButton.click();
+        // Wait for redirect to complete
         waitForUrlToContain("/rbac/permissions/list");
+        // Wait for page to be fully loaded after redirect
+        waitForPageToLoad();
+        // Wait for either success or error message to appear
+        wait.until(webDriver -> 
+            isElementPresent(org.openqa.selenium.By.id("success-message")) ||
+            isElementPresent(org.openqa.selenium.By.id("error-message")) ||
+            isElementPresent(org.openqa.selenium.By.id("permissions-table"))
+        );
         return new PermissionListPage(driver, baseUrl);
     }
     
     public PermissionFormPage submitFormExpectingError() {
         waitForElementToBeClickable(saveButton);
         saveButton.click();
-        // Wait briefly for any validation to occur
-        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        
+        // Wait for page to reload with validation errors
+        waitForPageToLoad();
+        
+        // Wait for validation errors to appear
+        wait.until(webDriver -> 
+            hasValidationError("permissionCode") || 
+            hasValidationError("permissionName") || 
+            hasValidationError("permissionCategory") || 
+            isErrorMessageDisplayed() ||
+            // Ensure we stayed on create page (validation failed)
+            driver.getCurrentUrl().contains("/rbac/permissions/create")
+        );
+        
         return this;
     }
     

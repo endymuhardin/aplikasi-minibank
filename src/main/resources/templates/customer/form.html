@@ -1,0 +1,218 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Customer Form - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800" 
+                    th:text="${customer.id != null ? 'Edit Customer' : 'Create New Customer'}">
+                    Create New Customer
+                </h1>
+                <a href="/customer/list" 
+                   class="text-gray-600 hover:text-gray-800">
+                    ← Back to List
+                </a>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form action="/customer/create" method="post" class="space-y-6">
+                
+                <!-- Customer Type -->
+                <div>
+                    <label for="customerType" class="block text-sm font-medium text-gray-700 mb-1">
+                        Customer Type <span class="text-red-500">*</span>
+                    </label>
+                    <select id="customerType" name="customerType" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onchange="toggleCustomerFields()" required>
+                        <option value="">Select Customer Type</option>
+                        <option value="PERSONAL">Personal</option>
+                        <option value="CORPORATE">Corporate</option>
+                    </select>
+                </div>
+
+                <!-- Customer Number -->
+                <div>
+                    <label for="customerNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                        Customer Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="customerNumber" name="customerNumber" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           required>
+                </div>
+
+                <!-- Personal Customer Fields -->
+                <div id="personalFields" style="display: none;">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
+                                First Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="firstName" name="firstName" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Last Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="lastName" name="lastName" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">
+                                Date of Birth
+                            </label>
+                            <input type="date" id="dateOfBirth" name="dateOfBirth" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">
+                                Gender
+                            </label>
+                            <select id="gender" name="gender" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="idNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                            ID Number
+                        </label>
+                        <input type="text" id="idNumber" name="idNumber" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300">
+                    </div>
+                </div>
+
+                <!-- Corporate Customer Fields -->
+                <div id="corporateFields" style="display: none;">
+                    <div>
+                        <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">
+                            Company Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="companyName" name="companyName" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contactPersonName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Contact Person
+                            </label>
+                            <input type="text" id="contactPersonName" name="contactPersonName" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="taxId" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tax ID
+                            </label>
+                            <input type="text" id="taxId" name="taxId" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="companyType" class="block text-sm font-medium text-gray-700 mb-1">
+                                Company Type
+                            </label>
+                            <input type="text" id="companyType" name="companyType" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="businessType" class="block text-sm font-medium text-gray-700 mb-1">
+                                Business Type
+                            </label>
+                            <input type="text" id="businessType" name="businessType" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Fields -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" id="email" name="email" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+
+                <div>
+                    <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
+                        Address
+                    </label>
+                    <textarea id="address" name="address" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">
+                        City
+                    </label>
+                    <input type="text" id="city" name="city" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-4 pt-6 border-t">
+                    <a href="/customer/list" 
+                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        <span th:text="${customer.id != null ? 'Update Customer' : 'Create Customer'}">Create Customer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleCustomerFields() {
+            const customerType = document.getElementById('customerType').value;
+            const personalFields = document.getElementById('personalFields');
+            const corporateFields = document.getElementById('corporateFields');
+            
+            if (customerType === 'PERSONAL') {
+                personalFields.style.display = 'block';
+                corporateFields.style.display = 'none';
+            } else if (customerType === 'CORPORATE') {
+                personalFields.style.display = 'none';
+                corporateFields.style.display = 'block';
+            } else {
+                personalFields.style.display = 'none';
+                corporateFields.style.display = 'none';
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleCustomerFields();
+        });
+    </script>
+</body>
+</html>

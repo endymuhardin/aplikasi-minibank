@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.functional.web.pageobject.CustomerFormPage;
-import id.ac.tazkia.minibank.functional.web.pageobject.CustomerListPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.*;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 
 @Sql(scripts = "/sql/setup-customer-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -53,10 +52,10 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
+        PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
-        formPage.fillPersonalCustomer(uniqueId, firstName, lastName, email, phone, 
-                                    address, city, idNumber, "1990-01-01", "Male");
+        formPage.fillForm(uniqueId, firstName, lastName, "1990-01-01", "Male", 
+                         idNumber, email, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
         
@@ -89,10 +88,10 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
+        CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
         
-        formPage.fillCorporateCustomer(uniqueId, companyName, contactPerson, email, phone,
-                                     address, city, taxId, "PT", "Technology");
+        formPage.fillForm(uniqueId, companyName, "PT", "Technology", taxId, 
+                         contactPerson, "Manager", email, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
         
@@ -111,11 +110,11 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @ParameterizedTest
-    @CsvFileSource(resources = "/fixtures/customer/customer-creation-data.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/fixtures/customer/personal-customer-creation-data.csv", numLinesToSkip = 1)
     @Timeout(value = 90, unit = TimeUnit.SECONDS)
-    void shouldCreateCustomersFromCSVData(String customerType, String customerNumber, 
-                                        String firstName, String lastName, String companyName,
-                                        String email, String phone, String address, String city) {
+    void shouldCreatePersonalCustomersFromCSVData(String customerNumber, String firstName, String lastName,
+                                                String email, String phone, String address, String city,
+                                                String idNumber, String dateOfBirth, String gender) {
         
         String uniqueNumber = customerNumber + System.currentTimeMillis();
         String uniqueEmail = "test" + System.currentTimeMillis() + email;
@@ -123,28 +122,51 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
-        
-        if ("PERSONAL".equals(customerType)) {
-            formPage.fillPersonalCustomer(uniqueNumber, firstName, lastName, uniqueEmail, 
-                                        phone, address, city, "1234567890123456", 
-                                        "1990-01-01", "Male");
-        } else {
-            formPage.fillCorporateCustomer(uniqueNumber, companyName, firstName, uniqueEmail,
-                                         phone, address, city, "12.345.678.9-012.000", 
-                                         "PT", "Business");
-        }
+        PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
+        formPage.fillForm(uniqueNumber, firstName, lastName, dateOfBirth, gender, 
+                         idNumber, uniqueEmail, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
         
         assertTrue(resultPage.isSuccessMessageDisplayed(), 
-                  "Customer creation failed for: " + uniqueNumber);
+                  "Personal customer creation failed for: " + uniqueNumber);
         assertTrue(resultPage.isCustomerDisplayed(uniqueNumber));
         
         // Verify database persistence
         Customer savedCustomer = customerRepository.findByCustomerNumber(uniqueNumber).orElse(null);
         assertNotNull(savedCustomer, "Customer not saved to database: " + uniqueNumber);
         assertEquals(uniqueEmail, savedCustomer.getEmail());
+        assertEquals(Customer.CustomerType.PERSONAL, savedCustomer.getCustomerType());
+    }
+    
+    @ParameterizedTest
+    @CsvFileSource(resources = "/fixtures/customer/corporate-customer-creation-data.csv", numLinesToSkip = 1)
+    @Timeout(value = 90, unit = TimeUnit.SECONDS)
+    void shouldCreateCorporateCustomersFromCSVData(String customerNumber, String companyName, String contactPersonName,
+                                                 String email, String phone, String address, String city,
+                                                 String taxId, String companyType, String businessType) {
+        
+        String uniqueNumber = customerNumber + System.currentTimeMillis();
+        String uniqueEmail = "test" + System.currentTimeMillis() + email;
+        
+        CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
+        listPage.open();
+        
+        CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
+        formPage.fillForm(uniqueNumber, companyName, companyType, businessType, taxId,
+                         contactPersonName, "Manager", uniqueEmail, phone, address, city);
+        
+        CustomerListPage resultPage = formPage.submitForm();
+        
+        assertTrue(resultPage.isSuccessMessageDisplayed(), 
+                  "Corporate customer creation failed for: " + uniqueNumber);
+        assertTrue(resultPage.isCustomerDisplayed(uniqueNumber));
+        
+        // Verify database persistence
+        Customer savedCustomer = customerRepository.findByCustomerNumber(uniqueNumber).orElse(null);
+        assertNotNull(savedCustomer, "Customer not saved to database: " + uniqueNumber);
+        assertEquals(uniqueEmail, savedCustomer.getEmail());
+        assertEquals(Customer.CustomerType.CORPORATE, savedCustomer.getCustomerType());
     }
     
     @Test
@@ -153,7 +175,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
+        PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
         // Try to submit empty form
         formPage.submitFormExpectingError();
@@ -169,8 +191,8 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
-    void shouldEditExistingCustomer() {
-        String editNumber = "EDIT001";
+    void shouldEditPersonalCustomer() {
+        String editNumber = "EDIT001"; // Assuming this is a personal customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
@@ -178,7 +200,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isCustomerDisplayed(editNumber), 
                   "Customer " + editNumber + " should be visible");
         
-        CustomerFormPage editPage = listPage.editCustomer(editNumber);
+        PersonalCustomerFormPage editPage = listPage.editPersonalCustomer(editNumber);
         
         // Verify form is populated with existing data
         assertEquals(editNumber, editPage.getCustomerNumber());
@@ -197,6 +219,40 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         assertNotNull(updatedCustomer);
         assertTrue(updatedCustomer.getEmail().contains("updated"));
         assertEquals("087654321098", updatedCustomer.getPhoneNumber());
+        assertEquals(Customer.CustomerType.PERSONAL, updatedCustomer.getCustomerType());
+    }
+    
+    @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldEditCorporateCustomer() {
+        String editNumber = "CORP_EDIT001"; // Need a corporate customer in test data
+        
+        CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
+        listPage.open();
+        
+        assertTrue(listPage.isCustomerDisplayed(editNumber), 
+                  "Customer " + editNumber + " should be visible");
+        
+        CorporateCustomerFormPage editPage = listPage.editCorporateCustomer(editNumber);
+        
+        // Verify form is populated with existing data
+        assertEquals(editNumber, editPage.getCustomerNumber());
+        
+        // Update customer information
+        editPage.updateEmail("corp_updated" + System.currentTimeMillis() + "@example.com");
+        editPage.updatePhone("087654321099");
+        editPage.updateAddress("Updated Corporate Address 456");
+        
+        CustomerListPage resultPage = editPage.submitForm();
+        
+        assertTrue(resultPage.isSuccessMessageDisplayed());
+        
+        // Verify changes in database
+        Customer updatedCustomer = customerRepository.findByCustomerNumber(editNumber).orElse(null);
+        assertNotNull(updatedCustomer);
+        assertTrue(updatedCustomer.getEmail().contains("corp_updated"));
+        assertEquals("087654321099", updatedCustomer.getPhoneNumber());
+        assertEquals(Customer.CustomerType.CORPORATE, updatedCustomer.getCustomerType());
     }
     
     @Test
@@ -266,8 +322,8 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
-    void shouldViewCustomerDetails() {
-        String viewNumber = "VIEW001";
+    void shouldViewPersonalCustomerDetails() {
+        String viewNumber = "VIEW001"; // Assuming this is a personal customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
@@ -275,10 +331,31 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isCustomerDisplayed(viewNumber), 
                   "Customer " + viewNumber + " should be visible");
         
-        listPage.viewCustomer(viewNumber);
+        PersonalCustomerViewPage viewPage = listPage.viewPersonalCustomer(viewNumber);
         
         assertTrue(driver.getCurrentUrl().contains("/customer/view/"));
-        assertTrue(driver.getPageSource().contains(viewNumber));
+        assertTrue(viewPage.isViewPageDisplayed());
+        assertEquals(viewNumber, viewPage.getCustomerNumber());
+        assertTrue(viewPage.isEditButtonDisplayed());
+    }
+    
+    @Test
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldViewCorporateCustomerDetails() {
+        String viewNumber = "CORP_VIEW001"; // Need a corporate customer in test data
+        
+        CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
+        listPage.open();
+        
+        assertTrue(listPage.isCustomerDisplayed(viewNumber), 
+                  "Customer " + viewNumber + " should be visible");
+        
+        CorporateCustomerViewPage viewPage = listPage.viewCorporateCustomer(viewNumber);
+        
+        assertTrue(driver.getCurrentUrl().contains("/customer/view/"));
+        assertTrue(viewPage.isViewPageDisplayed());
+        assertEquals(viewNumber, viewPage.getCustomerNumber());
+        assertTrue(viewPage.isEditButtonDisplayed());
     }
     
     @Test
@@ -287,15 +364,14 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
+        PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
         // Try to create customer with existing number
-        formPage.fillPersonalCustomer("DUPLICATE001", "John", "Doe", 
-                                    "test@example.com", "081234567890",
-                                    "Test Address", "Jakarta", "1234567890123456",
-                                    "1990-01-01", "Male");
+        formPage.fillForm("DUPLICATE001", "John", "Doe", "1990-01-01", "Male",
+                         "1234567890123456", "test@example.com", "081234567890", 
+                         "Test Address", "Jakarta");
         
-        CustomerFormPage resultPage = formPage.submitFormExpectingError();
+        PersonalCustomerFormPage resultPage = formPage.submitFormExpectingError();
         
         // Should stay on form page with validation error
         assertTrue(driver.getCurrentUrl().contains("/customer/create"));
@@ -307,36 +383,75 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     @ParameterizedTest
-    @CsvFileSource(resources = "/fixtures/customer/customer-validation-data.csv", numLinesToSkip = 1)
+    @CsvFileSource(resources = "/fixtures/customer/personal-customer-validation-data.csv", numLinesToSkip = 1)
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
-    void shouldValidateCustomerInputErrors(String testCase, String customerNumber, 
-                                         String email, String phone, 
-                                         String expectedError) {
+    void shouldValidatePersonalCustomerInputErrors(String testCase, String customerNumber, 
+                                                 String firstName, String lastName,
+                                                 String email, String phone, 
+                                                 String expectedError) {
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
-        CustomerFormPage formPage = listPage.clickCreateCustomer();
+        PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
-        // Fill form with potentially invalid data
-        String defaultNumber = "TEST" + System.currentTimeMillis();
-        String defaultEmail = "test" + System.currentTimeMillis() + "@example.com";
-        String defaultPhone = "081234567890";
+        // Use provided values or defaults
+        String testNumber = (customerNumber != null && !customerNumber.isEmpty()) ? customerNumber : "TEST" + System.currentTimeMillis();
+        String testFirstName = (firstName != null && !firstName.isEmpty()) ? firstName : "Test";
+        String testLastName = (lastName != null && !lastName.isEmpty()) ? lastName : "Customer";
+        String testEmail = (email != null && !email.isEmpty()) ? email : "test" + System.currentTimeMillis() + "@example.com";
+        String testPhone = (phone != null && !phone.isEmpty()) ? phone : "081234567890";
         
-        String testNumber = (customerNumber != null) ? customerNumber : defaultNumber;
-        String testEmail = (email != null) ? email : defaultEmail;
-        String testPhone = (phone != null) ? phone : defaultPhone;
-        
-        // For empty string tests
+        // Handle empty field cases
         if (testCase.contains("Empty Customer Number")) testNumber = "";
+        if (testCase.contains("Empty First Name")) testFirstName = "";
+        if (testCase.contains("Empty Last Name")) testLastName = "";
         if (testCase.contains("Empty Email")) testEmail = "";
         if (testCase.contains("Empty Phone")) testPhone = "";
         
-        formPage.fillPersonalCustomer(testNumber, "Test", "Customer", testEmail, testPhone,
-                                    "Test Address", "Jakarta", "1234567890123456",
-                                    "1990-01-01", "Male");
+        formPage.fillForm(testNumber, testFirstName, testLastName, "1990-01-01", "Male",
+                         "1234567890123456", testEmail, testPhone, "Test Address", "Jakarta");
         
-        CustomerFormPage resultPage = formPage.submitFormExpectingError();
+        PersonalCustomerFormPage resultPage = formPage.submitFormExpectingError();
+        
+        // Should stay on form page with validation error
+        assertTrue(driver.getCurrentUrl().contains("/customer/create"));
+        
+        // Check for validation error indicators
+        assertTrue(resultPage.isErrorMessageDisplayed() || hasValidationErrorOnPage(),
+                  "Should display validation error for: " + testCase);
+    }
+    
+    @ParameterizedTest
+    @CsvFileSource(resources = "/fixtures/customer/corporate-customer-validation-data.csv", numLinesToSkip = 1)
+    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    void shouldValidateCorporateCustomerInputErrors(String testCase, String customerNumber, 
+                                                  String companyName, String contactPersonName,
+                                                  String email, String phone, 
+                                                  String expectedError) {
+        
+        CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
+        listPage.open();
+        
+        CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
+        
+        // Use provided values or defaults
+        String testNumber = (customerNumber != null && !customerNumber.isEmpty()) ? customerNumber : "TEST" + System.currentTimeMillis();
+        String testCompanyName = (companyName != null && !companyName.isEmpty()) ? companyName : "Test Company";
+        String testContactPerson = (contactPersonName != null && !contactPersonName.isEmpty()) ? contactPersonName : "Contact Person";
+        String testEmail = (email != null && !email.isEmpty()) ? email : "test" + System.currentTimeMillis() + "@example.com";
+        String testPhone = (phone != null && !phone.isEmpty()) ? phone : "081234567890";
+        
+        // Handle empty field cases
+        if (testCase.contains("Empty Customer Number")) testNumber = "";
+        if (testCase.contains("Empty Company Name")) testCompanyName = "";
+        if (testCase.contains("Empty Email")) testEmail = "";
+        if (testCase.contains("Empty Phone")) testPhone = "";
+        
+        formPage.fillForm(testNumber, testCompanyName, "PT", "Business", "12.345.678.9-012.000",
+                         testContactPerson, "Manager", testEmail, testPhone, "Test Address", "Jakarta");
+        
+        CorporateCustomerFormPage resultPage = formPage.submitFormExpectingError();
         
         // Should stay on form page with validation error
         assertTrue(driver.getCurrentUrl().contains("/customer/create"));

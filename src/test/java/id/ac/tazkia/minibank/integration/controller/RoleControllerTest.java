@@ -3,6 +3,7 @@ package id.ac.tazkia.minibank.integration.controller;
 import id.ac.tazkia.minibank.entity.Permission;
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.RolePermission;
+import id.ac.tazkia.minibank.integration.BaseIntegrationTest;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 import id.ac.tazkia.minibank.repository.RolePermissionRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
@@ -11,9 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +26,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
 @Transactional
 @DisplayName("RoleController Integration Tests")
-class RoleControllerTest {
+class RoleControllerTest extends BaseIntegrationTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -54,7 +51,6 @@ class RoleControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .apply(springSecurity())
                 .build();
         
         // Create test role
@@ -70,13 +66,13 @@ class RoleControllerTest {
         testPermission = new Permission();
         testPermission.setPermissionCode("TEST_PERMISSION");
         testPermission.setPermissionName("Test Permission");
+        testPermission.setPermissionCategory("TEST_CATEGORY");
         testPermission.setDescription("Test permission description");
         testPermission.setCreatedBy("system");
         testPermission = permissionRepository.save(testPermission);
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display roles list page")
     void shouldDisplayRolesListPage() throws Exception {
         mockMvc.perform(get("/rbac/roles/list"))
@@ -92,7 +88,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display roles list with pagination parameters")
     void shouldDisplayRolesListWithPagination() throws Exception {
         mockMvc.perform(get("/rbac/roles/list")
@@ -109,7 +104,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display create role form")
     void shouldDisplayCreateRoleForm() throws Exception {
         mockMvc.perform(get("/rbac/roles/create"))
@@ -119,7 +113,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should create role successfully")
     void shouldCreateRoleSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/roles/create")
@@ -133,7 +126,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject create role with duplicate role code")
     void shouldRejectCreateRoleWithDuplicateRoleCode() throws Exception {
         mockMvc.perform(post("/rbac/roles/create")
@@ -147,7 +139,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display edit role form")
     void shouldDisplayEditRoleForm() throws Exception {
         mockMvc.perform(get("/rbac/roles/edit/" + testRole.getId()))
@@ -157,7 +148,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when edit non-existing role")
     void shouldRedirectWhenEditNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -168,7 +158,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should update role successfully")
     void shouldUpdateRoleSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/roles/edit/" + testRole.getId())
@@ -182,7 +171,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject update role with duplicate role code")
     void shouldRejectUpdateRoleWithDuplicateRoleCode() throws Exception {
         // Create another role
@@ -205,7 +193,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display role view")
     void shouldDisplayRoleView() throws Exception {
         mockMvc.perform(get("/rbac/roles/view/" + testRole.getId()))
@@ -216,7 +203,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when view non-existing role")
     void shouldRedirectWhenViewNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -227,7 +213,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display manage role permissions page")
     void shouldDisplayManageRolePermissionsPage() throws Exception {
         mockMvc.perform(get("/rbac/roles/" + testRole.getId() + "/permissions"))
@@ -239,7 +224,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when manage permissions for non-existing role")
     void shouldRedirectWhenManagePermissionsForNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -250,7 +234,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should assign permission to role successfully")
     void shouldAssignPermissionToRoleSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/roles/" + testRole.getId() + "/permissions/assign")
@@ -261,7 +244,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject assigning duplicate permission")
     void shouldRejectAssigningDuplicatePermission() throws Exception {
         // First assign the permission
@@ -280,7 +262,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle assign permission with invalid role")
     void shouldHandleAssignPermissionWithInvalidRole() throws Exception {
         UUID invalidRoleId = UUID.randomUUID();
@@ -292,7 +273,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle assign permission with invalid permission")
     void shouldHandleAssignPermissionWithInvalidPermission() throws Exception {
         UUID invalidPermissionId = UUID.randomUUID();
@@ -304,7 +284,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should remove permission from role successfully")
     void shouldRemovePermissionFromRoleSuccessfully() throws Exception {
         // First assign a permission
@@ -322,7 +301,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should activate role successfully")
     void shouldActivateRoleSuccessfully() throws Exception {
         // First deactivate the role
@@ -336,7 +314,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should deactivate role successfully")
     void shouldDeactivateRoleSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/roles/" + testRole.getId() + "/deactivate"))
@@ -346,7 +323,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should delete role successfully")
     void shouldDeleteRoleSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/roles/delete/" + testRole.getId()))
@@ -356,7 +332,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle activate non-existing role")
     void shouldHandleActivateNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -367,7 +342,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle deactivate non-existing role")
     void shouldHandleDeactivateNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -378,7 +352,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle delete non-existing role")
     void shouldHandleDeleteNonExistingRole() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -389,7 +362,6 @@ class RoleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should allow updating role with same role code")
     void shouldAllowUpdatingRoleWithSameRoleCode() throws Exception {
         mockMvc.perform(post("/rbac/roles/edit/" + testRole.getId())

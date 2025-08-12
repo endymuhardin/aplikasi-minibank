@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -105,30 +107,46 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
         
         PermissionFormPage formPage = listPage.clickCreatePermission();
         
-        // Try to submit empty form
+        // Disable HTML5 validation for testing server-side validation
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+            "document.getElementById('permission-form').setAttribute('novalidate', 'true');"
+        );
+        
+        // Try to submit empty form (HTML5 validation now disabled)
         formPage.submitFormExpectingError();
         
-        // Should remain on form page
+        // Should remain on form page with server validation errors
         assertTrue(driver.getCurrentUrl().contains("/rbac/permissions/create"));
         
-        // Check for validation errors
+        // Check for server-side validation errors
         assertTrue(formPage.hasValidationError("permissionCode") || 
-                  driver.getPageSource().contains("text-red-600") ||
-                  driver.getPageSource().contains("border-red-300"));
+                  formPage.hasValidationError("permissionName") || 
+                  formPage.hasValidationError("permissionCategory") ||
+                  formPage.isErrorMessageDisplayed() ||
+                  hasValidationErrorOnPage());
     }
     
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditExistingPermission() {
-        String editCode = "EDIT_TEST_PERM";
+        String editCode = "TEST_EDIT_" + System.currentTimeMillis();
+        String editName = "Test Edit Permission";
+        String editCategory = "Test Category";
         
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
-        assertTrue(listPage.isPermissionDisplayed(editCode), 
+        // First create a permission to edit
+        PermissionFormPage createPage = listPage.clickCreatePermission();
+        createPage.fillPermissionForm(editCode, editName, editCategory, 
+                                     "Permission for testing edit", "test_resource", "UPDATE");
+        PermissionListPage resultList = createPage.submitForm();
+        
+        // Now edit the permission
+        assertTrue(resultList.isPermissionDisplayed(editCode), 
                   "Permission " + editCode + " should be visible");
         
-        PermissionFormPage editPage = listPage.editPermission(editCode);
+        PermissionFormPage editPage = resultList.editPermission(editCode);
         
         // Verify form is populated with existing data
         assertEquals(editCode, editPage.getPermissionCode());
@@ -200,7 +218,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
         
         // Check for validation error indicators
         assertTrue(resultPage.isErrorMessageDisplayed() || 
-                  driver.getPageSource().contains("already exists") ||
+                  resultPage.hasValidationError("permissionCode") ||
                   hasValidationErrorOnPage());
     }
     
@@ -215,6 +233,11 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
         listPage.open();
         
         PermissionFormPage formPage = listPage.clickCreatePermission();
+        
+        // Disable HTML5 validation for testing server-side validation
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+            "document.getElementById('permission-form').setAttribute('novalidate', 'true');"
+        );
         
         // Fill form with potentially invalid data
         String defaultCode = "TEST" + System.currentTimeMillis();
@@ -249,8 +272,31 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     }
     
     private boolean hasValidationErrorOnPage() {
-        return driver.getPageSource().contains("border-red-300") ||
-               driver.getPageSource().contains("text-red-600") ||
-               driver.getPageSource().contains("error");
+        try {
+            return driver.findElement(By.id("permissionCode-error")).isDisplayed() ||
+                   driver.findElement(By.id("permissionName-error")).isDisplayed() ||
+                   driver.findElement(By.id("permissionCategory-error")).isDisplayed() ||
+                   driver.findElement(By.id("error-message")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private boolean hasHtml5ValidationError() {
+        try {
+            // Check if any of the required fields has HTML5 validation errors
+            String[] requiredFieldIds = {"permissionCode", "permissionName", "permissionCategory"};
+            for (String fieldId : requiredFieldIds) {
+                WebElement field = driver.findElement(By.id(fieldId));
+                String validationMessage = (String) ((org.openqa.selenium.JavascriptExecutor) driver)
+                    .executeScript("return arguments[0].validationMessage;", field);
+                if (validationMessage != null && !validationMessage.isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

@@ -3,6 +3,7 @@ package id.ac.tazkia.minibank.integration.controller;
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserRole;
+import id.ac.tazkia.minibank.integration.BaseIntegrationTest;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserPasswordRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
@@ -12,10 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +22,14 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
 @Transactional
 @DisplayName("UserController Integration Tests")
-class UserControllerTest {
+class UserControllerTest extends BaseIntegrationTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -62,7 +57,6 @@ class UserControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .apply(springSecurity())
                 .build();
         
         // Create test user
@@ -84,7 +78,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display users list page")
     void shouldDisplayUsersListPage() throws Exception {
         mockMvc.perform(get("/rbac/users/list"))
@@ -100,7 +93,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display users list with pagination parameters")
     void shouldDisplayUsersListWithPagination() throws Exception {
         mockMvc.perform(get("/rbac/users/list")
@@ -117,7 +109,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display users list with search")
     void shouldDisplayUsersListWithSearch() throws Exception {
         mockMvc.perform(get("/rbac/users/list")
@@ -128,7 +119,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display create user form")
     void shouldDisplayCreateUserForm() throws Exception {
         mockMvc.perform(get("/rbac/users/create"))
@@ -138,7 +128,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should create user successfully")
     void shouldCreateUserSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/create")
@@ -153,7 +142,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject create user with duplicate username")
     void shouldRejectCreateUserWithDuplicateUsername() throws Exception {
         mockMvc.perform(post("/rbac/users/create")
@@ -167,7 +155,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject create user with duplicate email")
     void shouldRejectCreateUserWithDuplicateEmail() throws Exception {
         mockMvc.perform(post("/rbac/users/create")
@@ -181,7 +168,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display edit user form")
     void shouldDisplayEditUserForm() throws Exception {
         mockMvc.perform(get("/rbac/users/edit/" + testUser.getId()))
@@ -191,7 +177,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when edit non-existing user")
     void shouldRedirectWhenEditNonExistingUser() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -202,7 +187,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should update user successfully")
     void shouldUpdateUserSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/edit/" + testUser.getId())
@@ -216,7 +200,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display user view")
     void shouldDisplayUserView() throws Exception {
         mockMvc.perform(get("/rbac/users/view/" + testUser.getId()))
@@ -227,7 +210,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display manage user roles page")
     void shouldDisplayManageUserRolesPage() throws Exception {
         mockMvc.perform(get("/rbac/users/" + testUser.getId() + "/roles"))
@@ -239,7 +221,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should assign role to user successfully")
     void shouldAssignRoleToUserSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/roles/assign")
@@ -250,7 +231,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject assigning duplicate role")
     void shouldRejectAssigningDuplicateRole() throws Exception {
         // First assign the role
@@ -269,7 +249,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should remove role from user successfully")
     void shouldRemoveRoleFromUserSuccessfully() throws Exception {
         // First assign a role
@@ -287,7 +266,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should activate user successfully")
     void shouldActivateUserSuccessfully() throws Exception {
         // First deactivate the user
@@ -301,7 +279,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should deactivate user successfully")
     void shouldDeactivateUserSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/deactivate"))
@@ -311,7 +288,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should delete user successfully")
     void shouldDeleteUserSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/delete/" + testUser.getId()))
@@ -321,7 +297,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display password form")
     void shouldDisplayPasswordForm() throws Exception {
         mockMvc.perform(get("/rbac/users/" + testUser.getId() + "/password"))
@@ -331,7 +306,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should change password successfully")
     void shouldChangePasswordSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/password")
@@ -343,7 +317,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject password change when passwords don't match")
     void shouldRejectPasswordChangeWhenPasswordsDontMatch() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/password")
@@ -355,7 +328,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject password change when password is too short")
     void shouldRejectPasswordChangeWhenPasswordIsTooShort() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/password")
@@ -367,7 +339,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject password change when password is empty")
     void shouldRejectPasswordChangeWhenPasswordIsEmpty() throws Exception {
         mockMvc.perform(post("/rbac/users/" + testUser.getId() + "/password")
@@ -379,7 +350,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle non-existing user in operations")
     void shouldHandleNonExistingUserInOperations() throws Exception {
         UUID nonExistingId = UUID.randomUUID();

@@ -6,10 +6,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
 import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
+import id.ac.tazkia.minibank.config.NoSecurityConfig;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration"})
-@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})
+@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class, NoSecurityConfig.class})
 @ActiveProfiles("test")
 public abstract class BaseSeleniumTest extends AbstractSeleniumTestBase {
 

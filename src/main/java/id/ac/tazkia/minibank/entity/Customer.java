@@ -54,6 +54,10 @@ public abstract class Customer {
     @Column(name = "country", length = 50)
     private String country = "Indonesia";
     
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    private CustomerStatus status = CustomerStatus.ACTIVE;
+    
     // Audit fields
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
@@ -83,6 +87,10 @@ public abstract class Customer {
     // Enums
     public enum CustomerType {
         PERSONAL, CORPORATE
+    }
+    
+    public enum CustomerStatus {
+        ACTIVE, INACTIVE, CLOSED, FROZEN
     }
     
     public enum IdentityType {

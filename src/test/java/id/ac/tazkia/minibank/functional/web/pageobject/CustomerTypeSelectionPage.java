@@ -1,0 +1,63 @@
+package id.ac.tazkia.minibank.functional.web.pageobject;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import java.time.Duration;
+
+public class CustomerTypeSelectionPage extends BasePage {
+    
+    private final WebDriverWait wait;
+    
+    // Page elements
+    private static final By PERSONAL_CUSTOMER_CARD = By.xpath("//a[contains(@href, '/customer/create/personal')]");
+    private static final By CORPORATE_CUSTOMER_CARD = By.xpath("//a[contains(@href, '/customer/create/corporate')]");
+    private static final By BACK_TO_LIST = By.xpath("//a[contains(@href, '/customer/list')]");
+    
+    public CustomerTypeSelectionPage(WebDriver driver, String baseUrl) {
+        super(driver, baseUrl);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+    
+    public void open() {
+        driver.get(baseUrl + "/customer/create");
+        waitForPageLoad();
+    }
+    
+    private void waitForPageLoad() {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+    }
+    
+    public PersonalCustomerFormPage clickPersonalCustomer() {
+        driver.findElement(PERSONAL_CUSTOMER_CARD).click();
+        return new PersonalCustomerFormPage(driver, baseUrl);
+    }
+    
+    public CorporateCustomerFormPage clickCorporateCustomer() {
+        driver.findElement(CORPORATE_CUSTOMER_CARD).click();
+        return new CorporateCustomerFormPage(driver, baseUrl);
+    }
+    
+    public CustomerListPage clickBackToList() {
+        driver.findElement(BACK_TO_LIST).click();
+        return new CustomerListPage(driver, baseUrl);
+    }
+    
+    public boolean isPersonalCardDisplayed() {
+        try {
+            return driver.findElement(PERSONAL_CUSTOMER_CARD).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isCorporateCardDisplayed() {
+        try {
+            return driver.findElement(CORPORATE_CUSTOMER_CARD).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+}

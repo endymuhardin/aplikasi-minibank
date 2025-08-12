@@ -24,6 +24,13 @@
             <span th:text="${errorMessage}"></span>
         </div>
 
+        <!-- Success Messages -->
+        <div th:if="${successMessage}" 
+             class="bg-bsi-success bg-opacity-20 border border-bsi-success text-bsi-success px-4 py-3 rounded mb-4"
+             id="success-message">
+            <span th:text="${successMessage}"></span>
+        </div>
+
         <div class="bg-white shadow rounded-lg p-6">
             <form th:action="${permission.id != null} ? @{/rbac/permissions/edit/{id}(id=${permission.id})} : @{/rbac/permissions/create}" 
                   method="post" 
@@ -43,7 +50,8 @@
                                required>
                         <p th:if="${#fields.hasErrors('permissionCode')}" 
                            th:errors="*{permissionCode}" 
-                           class="mt-1 text-sm text-bsi-secondary permissioncode-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary permissioncode-error"
+                           id="permissionCode-error"></p>
                     </div>
 
                     <!-- Permission Name -->
@@ -58,7 +66,8 @@
                                required>
                         <p th:if="${#fields.hasErrors('permissionName')}" 
                            th:errors="*{permissionName}" 
-                           class="mt-1 text-sm text-bsi-secondary permissionname-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary permissionname-error"
+                           id="permissionName-error"></p>
                     </div>
 
                     <!-- Permission Category -->
@@ -77,7 +86,8 @@
                         </datalist>
                         <p th:if="${#fields.hasErrors('permissionCategory')}" 
                            th:errors="*{permissionCategory}" 
-                           class="mt-1 text-sm text-bsi-secondary permissioncategory-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary permissioncategory-error"
+                           id="permissionCategory-error"></p>
                     </div>
 
                     <!-- Resource -->

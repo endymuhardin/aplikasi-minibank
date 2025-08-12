@@ -62,14 +62,26 @@ public class CustomerListPage extends BasePage {
         }
     }
     
-    public CustomerFormPage clickCreateCustomer() {
+    public CustomerTypeSelectionPage clickCreateCustomer() {
         try {
             driver.findElement(CREATE_BUTTON).click();
         } catch (Exception e) {
             // Fallback: click any create link
             driver.findElement(By.xpath("//a[contains(@href, 'create') or contains(text(), 'Create') or contains(text(), 'Add')]")).click();
         }
-        return new CustomerFormPage(driver, baseUrl);
+        return new CustomerTypeSelectionPage(driver, baseUrl);
+    }
+    
+    public PersonalCustomerFormPage clickCreatePersonalCustomer() {
+        // Navigate directly to personal customer form
+        driver.get(baseUrl + "/customer/create/personal");
+        return new PersonalCustomerFormPage(driver, baseUrl);
+    }
+    
+    public CorporateCustomerFormPage clickCreateCorporateCustomer() {
+        // Navigate directly to corporate customer form
+        driver.get(baseUrl + "/customer/create/corporate");
+        return new CorporateCustomerFormPage(driver, baseUrl);
     }
     
     public boolean isCustomerDisplayed(String customerNumber) {
@@ -144,15 +156,36 @@ public class CustomerListPage extends BasePage {
         return hasSearchResults();
     }
     
-    public CustomerFormPage editCustomer(String customerNumber) {
-        WebElement editButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + customerNumber + "')]]//a[contains(@href, 'edit') or contains(text(), 'Edit')]"));
-        editButton.click();
-        return new CustomerFormPage(driver, baseUrl);
+    public PersonalCustomerFormPage editPersonalCustomer(String customerNumber) {
+        driver.findElement(By.id("edit-" + customerNumber)).click();
+        
+        // Wait for personal customer edit form to load
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("firstName")));
+        return new PersonalCustomerFormPage(driver, baseUrl);
     }
     
-    public void viewCustomer(String customerNumber) {
-        WebElement viewButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + customerNumber + "')]]//a[contains(@href, 'view') or contains(text(), 'View')]"));
-        viewButton.click();
+    public CorporateCustomerFormPage editCorporateCustomer(String customerNumber) {
+        driver.findElement(By.id("edit-" + customerNumber)).click();
+        
+        // Wait for corporate customer edit form to load
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("companyName")));
+        return new CorporateCustomerFormPage(driver, baseUrl);
+    }
+    
+    public PersonalCustomerViewPage viewPersonalCustomer(String customerNumber) {
+        driver.findElement(By.id("view-" + customerNumber)).click();
+        
+        // Wait for personal customer view page to load
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("firstName")));
+        return new PersonalCustomerViewPage(driver, baseUrl);
+    }
+    
+    public CorporateCustomerViewPage viewCorporateCustomer(String customerNumber) {
+        driver.findElement(By.id("view-" + customerNumber)).click();
+        
+        // Wait for corporate customer view page to load
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("companyName")));
+        return new CorporateCustomerViewPage(driver, baseUrl);
     }
     
     public String getCustomerStatus(String customerNumber) {
@@ -166,8 +199,7 @@ public class CustomerListPage extends BasePage {
     
     public void activateCustomer(String customerNumber) {
         try {
-            WebElement activateButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + customerNumber + "')]]//button[contains(text(), 'Activate') or contains(@title, 'Activate')]"));
-            activateButton.click();
+            driver.findElement(By.id("activate-" + customerNumber)).click();
             waitForPageLoad();
         } catch (Exception e) {
             // If no activate button, ignore
@@ -176,8 +208,7 @@ public class CustomerListPage extends BasePage {
     
     public void deactivateCustomer(String customerNumber) {
         try {
-            WebElement deactivateButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + customerNumber + "')]]//button[contains(text(), 'Deactivate') or contains(@title, 'Deactivate')]"));
-            deactivateButton.click();
+            driver.findElement(By.id("deactivate-" + customerNumber)).click();
             waitForPageLoad();
         } catch (Exception e) {
             // If no deactivate button, ignore

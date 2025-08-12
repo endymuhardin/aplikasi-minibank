@@ -33,6 +33,17 @@ public class PermissionListPage extends BasePage {
         waitForElementToBePresent(By.id("permissions-table"));
     }
     
+    public void openAndWaitForLoad() {
+        open();
+        // Wait for flash messages or table content to be rendered
+        wait.until(webDriver -> 
+            isElementPresent(By.id("success-message")) ||
+            isElementPresent(By.id("error-message")) ||
+            isElementPresent(By.cssSelector("#permissions-table tbody tr")) ||
+            isElementPresent(By.cssSelector(".no-permissions-message"))
+        );
+    }
+    
     public String getPageTitle() {
         return pageTitle.getText();
     }
@@ -69,21 +80,6 @@ public class PermissionListPage extends BasePage {
         }
     }
     
-    public boolean isSuccessMessageDisplayed() {
-        try {
-            return driver.findElement(By.cssSelector(".alert-success, .text-green-600")).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
-    public boolean isErrorMessageDisplayed() {
-        try {
-            return driver.findElement(By.cssSelector(".alert-danger, .text-red-600")).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
     
     public void viewPermission(String permissionCode) {
         try {

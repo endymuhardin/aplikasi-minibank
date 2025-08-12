@@ -1,0 +1,4 @@
+customerNumber,companyName,contactPersonName,email,phone,address,city,taxId,companyType,businessType
+CORP001,Tech Solutions Inc,Contact Person,contact@techsolutions.com,081234567893,100 Corporate Blvd,Jakarta,12.345.678.9-012.000,PT,Technology
+CORP002,Global Trading Co,Manager Admin,admin@globaltrading.com,081234567894,200 Business Street,Surabaya,12.345.678.9-012.001,PT,Trading
+CORP003,Creative Agency Ltd,Creative Director,director@creativeagency.com,081234567895,300 Design Avenue,Bandung,12.345.678.9-012.002,PT,Marketing

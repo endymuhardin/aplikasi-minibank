@@ -3,6 +3,7 @@ package id.ac.tazkia.minibank.integration.controller;
 import id.ac.tazkia.minibank.entity.Permission;
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.RolePermission;
+import id.ac.tazkia.minibank.integration.BaseIntegrationTest;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 import id.ac.tazkia.minibank.repository.RolePermissionRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
@@ -11,9 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,12 +26,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
 @Transactional
 @DisplayName("PermissionController Integration Tests")
-class PermissionControllerTest {
+class PermissionControllerTest extends BaseIntegrationTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -54,7 +51,6 @@ class PermissionControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .apply(springSecurity())
                 .build();
         
         // Create test permission
@@ -78,7 +74,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display permissions list page")
     void shouldDisplayPermissionsListPage() throws Exception {
         mockMvc.perform(get("/rbac/permissions/list"))
@@ -95,7 +90,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display permissions list with pagination parameters")
     void shouldDisplayPermissionsListWithPagination() throws Exception {
         mockMvc.perform(get("/rbac/permissions/list")
@@ -112,7 +106,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display permissions list with category filter")
     void shouldDisplayPermissionsListWithCategoryFilter() throws Exception {
         mockMvc.perform(get("/rbac/permissions/list")
@@ -123,7 +116,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display create permission form")
     void shouldDisplayCreatePermissionForm() throws Exception {
         mockMvc.perform(get("/rbac/permissions/create"))
@@ -134,7 +126,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should create permission successfully")
     void shouldCreatePermissionSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/permissions/create")
@@ -150,7 +141,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject create permission with duplicate permission code")
     void shouldRejectCreatePermissionWithDuplicatePermissionCode() throws Exception {
         mockMvc.perform(post("/rbac/permissions/create")
@@ -167,7 +157,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display edit permission form")
     void shouldDisplayEditPermissionForm() throws Exception {
         mockMvc.perform(get("/rbac/permissions/edit/" + testPermission.getId()))
@@ -178,7 +167,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when edit non-existing permission")
     void shouldRedirectWhenEditNonExistingPermission() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -189,7 +177,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should update permission successfully")
     void shouldUpdatePermissionSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/permissions/edit/" + testPermission.getId())
@@ -205,7 +192,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should reject update permission with duplicate permission code")
     void shouldRejectUpdatePermissionWithDuplicatePermissionCode() throws Exception {
         // Create another permission
@@ -231,7 +217,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should allow updating permission with same permission code")
     void shouldAllowUpdatingPermissionWithSamePermissionCode() throws Exception {
         mockMvc.perform(post("/rbac/permissions/edit/" + testPermission.getId())
@@ -247,7 +232,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when update non-existing permission")
     void shouldRedirectWhenUpdateNonExistingPermission() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -262,7 +246,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display permission view")
     void shouldDisplayPermissionView() throws Exception {
         mockMvc.perform(get("/rbac/permissions/view/" + testPermission.getId()))
@@ -273,7 +256,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should redirect when view non-existing permission")
     void shouldRedirectWhenViewNonExistingPermission() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -284,7 +266,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should display permission view with role permissions")
     void shouldDisplayPermissionViewWithRolePermissions() throws Exception {
         // Create a role permission association
@@ -302,7 +283,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should delete permission successfully")
     void shouldDeletePermissionSuccessfully() throws Exception {
         mockMvc.perform(post("/rbac/permissions/delete/" + testPermission.getId()))
@@ -312,7 +292,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle delete non-existing permission")
     void shouldHandleDeleteNonExistingPermission() throws Exception {
         UUID nonExistingId = UUID.randomUUID();
@@ -323,7 +302,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle validation errors on create")
     void shouldHandleValidationErrorsOnCreate() throws Exception {
         mockMvc.perform(post("/rbac/permissions/create")
@@ -338,7 +316,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should handle validation errors on update")
     void shouldHandleValidationErrorsOnUpdate() throws Exception {
         mockMvc.perform(post("/rbac/permissions/edit/" + testPermission.getId())
@@ -353,7 +330,6 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should show categories in create form even on error")
     void shouldShowCategoriesInCreateFormEvenOnError() throws Exception {
         mockMvc.perform(post("/rbac/permissions/create")
@@ -367,13 +343,13 @@ class PermissionControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     @DisplayName("Should show categories in update form even on error")
     void shouldShowCategoriesInUpdateFormEvenOnError() throws Exception {
         // Create another permission to cause duplicate error
         Permission anotherPermission = new Permission();
         anotherPermission.setPermissionCode("ANOTHER_PERMISSION");
         anotherPermission.setPermissionName("Another Permission");
+        anotherPermission.setPermissionCategory("ANOTHER_CATEGORY");
         anotherPermission.setCreatedBy("system");
         permissionRepository.save(anotherPermission);
 

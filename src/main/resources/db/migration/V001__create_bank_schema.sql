@@ -11,6 +11,7 @@ CREATE TABLE customers (
     city VARCHAR(100),
     postal_code VARCHAR(10),
     country VARCHAR(50) DEFAULT 'Indonesia',
+    status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'INACTIVE', 'CLOSED', 'FROZEN')),
     
     -- Audit fields
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

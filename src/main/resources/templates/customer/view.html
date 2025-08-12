@@ -1,0 +1,138 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Customer Details - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Customer Details</h1>
+                <div class="flex space-x-2">
+                    <a th:href="@{/customer/edit/{id}(id=${customer.id})}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                        Edit
+                    </a>
+                    <a href="/customer/list" 
+                       class="text-gray-600 hover:text-gray-800 px-4 py-2">
+                        ← Back to List
+                    </a>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Customer Number</label>
+                        <p class="mt-1 text-gray-900 font-semibold" th:text="${customer.customerNumber}"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Customer Type</label>
+                        <p class="mt-1 text-gray-900" th:text="${customer.customerType}"></p>
+                    </div>
+                </div>
+
+                <!-- Personal Customer Details -->
+                <div th:if="${customer.customerType.name() == 'PERSONAL'}" class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">First Name</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.firstName}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.lastName}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.dateOfBirth}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Gender</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.gender}"></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">ID Number</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.idNumber}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corporate Customer Details -->
+                <div th:if="${customer.customerType.name() == 'CORPORATE'}" class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Company Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Company Name</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.companyName}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Contact Person</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.contactPersonName}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tax ID</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.taxId}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Company Type</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.companyType}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Business Type</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.businessType}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Contact Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.email}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.phoneNumber}"></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Address</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.address}"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">City</label>
+                            <p class="mt-1 text-gray-900" th:text="${customer.city}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status and Audit Information -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Status & Audit</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <p class="mt-1">
+                                <span th:class="${customer.status.name() == 'ACTIVE' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'} + ' px-2 py-1 rounded-full text-sm'"
+                                      th:text="${customer.status.name() == 'ACTIVE' ? 'Active' : 'Inactive'}"></span>
+                            </p>
+                        </div>
+                        <div th:if="${customer.createdDate}">
+                            <label class="block text-sm font-medium text-gray-700">Created Date</label>
+                            <p class="mt-1 text-gray-900" th:text="${#temporals.format(customer.createdDate, 'yyyy-MM-dd HH:mm')}"></p>
+                        </div>
+                        <div th:if="${customer.updatedDate}">
+                            <label class="block text-sm font-medium text-gray-700">Last Updated</label>
+                            <p class="mt-1 text-gray-900" th:text="${#temporals.format(customer.updatedDate, 'yyyy-MM-dd HH:mm')}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

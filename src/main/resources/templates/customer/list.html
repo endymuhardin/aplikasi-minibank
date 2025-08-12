@@ -1,0 +1,166 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Customer Management</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Customer Management</h1>
+                <a id="create-customer-btn" href="/customer/create" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    Create New Customer
+                </a>
+            </div>
+
+            <!-- Flash messages -->
+            <div th:if="${successMessage}" class="alert-success bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="alert-danger bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                <form method="get" action="/customer/list" class="flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-48">
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                        <input type="text" id="search" name="search" th:value="${search}"
+                               placeholder="Search by customer number or email"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="min-w-32">
+                        <label for="customerTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <select id="customerTypeFilter" name="customerType" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Types</option>
+                            <option th:each="type : ${customerTypes}" th:value="${type}" 
+                                    th:text="${type}" th:selected="${type.toString() == customerType}"></option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="search-btn" type="submit" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                            Search
+                        </button>
+                        <a href="/customer/list" 
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+                            Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Customer Table -->
+            <div class="overflow-x-auto">
+                <table id="customer-table" class="min-w-full bg-white border border-gray-300">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Customer Number
+                            </th>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th class="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:each="customer : ${customers.content}" th:id="'customer-' + ${customer.customerNumber}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerNumber}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.displayName}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.email}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerType}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm status">
+                                <span th:class="${customer.status.name() == 'ACTIVE' ? 'text-green-600' : 'text-red-600'}"
+                                      th:text="${customer.status.name() == 'ACTIVE' ? 'Active' : 'Inactive'}"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex space-x-2">
+                                    <a th:id="'view-' + ${customer.customerNumber}"
+                                       th:href="@{/customer/view/{id}(id=${customer.id})}" 
+                                       class="text-blue-600 hover:text-blue-900">View</a>
+                                    <a th:id="'edit-' + ${customer.customerNumber}"
+                                       th:href="@{/customer/edit/{id}(id=${customer.id})}" 
+                                       class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                    <form th:if="${customer.status.name() == 'ACTIVE'}" 
+                                          th:action="@{/customer/deactivate/{id}(id=${customer.id})}" 
+                                          method="post" class="inline">
+                                        <button th:id="'deactivate-' + ${customer.customerNumber}"
+                                                type="submit" title="Deactivate"
+                                                class="text-red-600 hover:text-red-900"
+                                                onclick="return confirm('Are you sure you want to deactivate this customer?')">
+                                            Deactivate
+                                        </button>
+                                    </form>
+                                    <form th:if="${customer.status.name() == 'INACTIVE'}" 
+                                          th:action="@{/customer/activate/{id}(id=${customer.id})}" 
+                                          method="post" class="inline">
+                                        <button th:id="'activate-' + ${customer.customerNumber}"
+                                                type="submit" title="Activate"
+                                                class="text-green-600 hover:text-green-900">
+                                            Activate
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${customers.content.empty}">
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                No customers found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${customers.totalPages > 1}" class="mt-6 flex justify-center">
+                <nav class="flex space-x-2">
+                    <a th:if="${customers.hasPrevious()}" 
+                       th:href="@{/customer/list(page=${customers.number - 1}, size=${customers.size}, search=${search}, customerType=${customerType})}"
+                       class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-md">
+                        Previous
+                    </a>
+                    
+                    <span th:each="pageNum : ${#numbers.sequence(0, customers.totalPages - 1)}">
+                        <a th:if="${pageNum != customers.number}"
+                           th:href="@{/customer/list(page=${pageNum}, size=${customers.size}, search=${search}, customerType=${customerType})}"
+                           th:text="${pageNum + 1}"
+                           class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-md">
+                        </a>
+                        <span th:if="${pageNum == customers.number}"
+                              th:text="${pageNum + 1}"
+                              class="px-3 py-2 text-sm bg-blue-600 text-white border border-blue-600 rounded-md">
+                        </span>
+                    </span>
+                    
+                    <a th:if="${customers.hasNext()}" 
+                       th:href="@{/customer/list(page=${customers.number + 1}, size=${customers.size}, search=${search}, customerType=${customerType})}"
+                       class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-md">
+                        Next
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

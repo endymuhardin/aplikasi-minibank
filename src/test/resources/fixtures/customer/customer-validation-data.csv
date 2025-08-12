@@ -1,7 +1,0 @@
-testCase,customerNumber,email,phone,expectedError
-Empty Customer Number,,valid@example.com,081234567890,Customer number is required
-Empty Email,VALID001,,081234567890,Email is required
-Empty Phone,VALID002,valid@example.com,,Phone is required
-Invalid Email,VALID003,invalid-email,081234567890,Invalid email format
-Invalid Phone,VALID004,valid@example.com,123,Invalid phone format
-Too Long Customer Number,CUSTOMER_NUMBER_THAT_IS_TOO_LONG_AND_EXCEEDS_MAXIMUM_LENGTH_LIMIT_IN_DATABASE,valid@example.com,081234567890,Customer number too long

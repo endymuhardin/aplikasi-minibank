@@ -1,0 +1,4 @@
+customerNumber,firstName,lastName,email,phone,address,city,idNumber,dateOfBirth,gender
+PERS001,John,Doe,john.doe@example.com,081234567890,123 Main Street,Jakarta,1234567890123456,1990-01-01,Male
+PERS002,Jane,Smith,jane.smith@example.com,081234567891,456 Oak Avenue,Surabaya,1234567890123457,1985-05-15,Female
+PERS003,Bob,Johnson,bob.johnson@example.com,081234567892,789 Pine Road,Bandung,1234567890123458,1988-12-20,Male
