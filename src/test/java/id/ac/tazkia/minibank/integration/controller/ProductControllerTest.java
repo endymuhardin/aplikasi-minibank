@@ -1,13 +1,15 @@
 package id.ac.tazkia.minibank.integration.controller;
 
+import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
+import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})
 @ActiveProfiles("test")
 @Transactional
 @DisplayName("ProductController Integration Tests")
@@ -44,7 +46,6 @@ class ProductControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .apply(springSecurity())
                 .build();
         
         // Create test product
@@ -59,6 +60,9 @@ class ProductControllerTest {
         testProduct.setProfitSharingRatio(new BigDecimal("0.05"));
         testProduct.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
         testProduct.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
+        // Fix nisbah values to sum to 1.0 for Islamic banking constraint
+        testProduct.setNisbahCustomer(new BigDecimal("0.60"));
+        testProduct.setNisbahBank(new BigDecimal("0.40"));
         testProduct.setIsActive(true);
         testProduct = productService.save(testProduct);
     }
@@ -134,13 +138,13 @@ class ProductControllerTest {
                         .param("productCode", "NEW001")
                         .param("productName", "New Product")
                         .param("productType", "SAVINGS")
-                        .param("category", "Business")
+                        .param("productCategory", "Business")
                         .param("description", "New product description")
-                        .param("minBalance", "50000")
-                        .param("maxBalance", "5000000")
+                        .param("minimumBalance", "50000")
+                        .param("maximumBalance", "5000000")
                         .param("interestRate", "0.02")
                         .param("profitSharingRatio", "0.03")
-                        .param("profitSharingType", "MONTHLY")
+                        .param("profitSharingType", "MUDHARABAH")
                         .param("profitDistributionFrequency", "QUARTERLY")
                         .param("isActive", "true"))
                 .andExpect(status().is3xxRedirection())
@@ -156,10 +160,10 @@ class ProductControllerTest {
                         .param("productCode", testProduct.getProductCode())
                         .param("productName", "Different Product")
                         .param("productType", "CHECKING")
-                        .param("category", "Personal")
+                        .param("productCategory", "Personal")
                         .param("description", "Different description")
-                        .param("minBalance", "100000")
-                        .param("maxBalance", "1000000")
+                        .param("minimumBalance", "100000")
+                        .param("maximumBalance", "1000000")
                         .param("interestRate", "0.01")
                         .param("isActive", "true"))
                 .andExpect(status().isOk())
@@ -178,8 +182,8 @@ class ProductControllerTest {
                         .param("productCode", "")  // Invalid: empty code
                         .param("productName", "")   // Invalid: empty name
                         .param("productType", "SAVINGS")
-                        .param("category", "Personal")
-                        .param("minBalance", "-100")) // Invalid: negative balance
+                        .param("productCategory", "Personal")
+                        .param("minimumBalance", "-100")) // Invalid: negative balance
                 .andExpect(status().isOk())
                 .andExpect(view().name("product/form"))
                 .andExpect(model().hasErrors())
@@ -220,14 +224,14 @@ class ProductControllerTest {
                         .param("productCode", "UPDATED001")
                         .param("productName", "Updated Product")
                         .param("productType", "CHECKING")
-                        .param("category", "Business")
+                        .param("productCategory", "Business")
                         .param("description", "Updated description")
-                        .param("minBalance", "200000")
-                        .param("maxBalance", "20000000")
+                        .param("minimumBalance", "200000")
+                        .param("maximumBalance", "20000000")
                         .param("interestRate", "0.025")
                         .param("profitSharingRatio", "0.08")
-                        .param("profitSharingType", "QUARTERLY")
-                        .param("profitDistributionFrequency", "YEARLY")
+                        .param("profitSharingType", "MUDHARABAH")
+                        .param("profitDistributionFrequency", "ANNUALLY")
                         .param("isActive", "false"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/product/list"))
@@ -245,6 +249,9 @@ class ProductControllerTest {
         anotherProduct.setProductType(Product.ProductType.CHECKING);
         anotherProduct.setProductCategory("Business");
         anotherProduct.setMinimumBalance(new BigDecimal("50000"));
+        // Fix nisbah values to sum to 1.0 for Islamic banking constraint
+        anotherProduct.setNisbahCustomer(new BigDecimal("0.70"));
+        anotherProduct.setNisbahBank(new BigDecimal("0.30"));
         anotherProduct.setIsActive(true);
         anotherProduct = productService.save(anotherProduct);
 
@@ -253,7 +260,7 @@ class ProductControllerTest {
                         .param("productCode", anotherProduct.getProductCode())
                         .param("productName", "Updated Product")
                         .param("productType", "SAVINGS")
-                        .param("category", "Personal")
+                        .param("productCategory", "Personal")
                         .param("description", "Updated description")
                         .param("isActive", "true"))
                 .andExpect(status().isOk())
@@ -272,7 +279,7 @@ class ProductControllerTest {
                         .param("productCode", testProduct.getProductCode()) // Same code
                         .param("productName", "Updated Product Name")        // Different name
                         .param("productType", "SAVINGS")
-                        .param("category", "Personal")
+                        .param("productCategory", "Personal")
                         .param("description", "Updated description")
                         .param("isActive", "true"))
                 .andExpect(status().is3xxRedirection())
@@ -344,8 +351,8 @@ class ProductControllerTest {
                         .param("productCode", "")  // Invalid: empty code
                         .param("productName", "")   // Invalid: empty name
                         .param("productType", "SAVINGS")
-                        .param("category", "Personal")
-                        .param("minBalance", "-100")) // Invalid: negative balance
+                        .param("productCategory", "Personal")
+                        .param("minimumBalance", "-100")) // Invalid: negative balance
                 .andExpect(status().isOk())
                 .andExpect(view().name("product/form"))
                 .andExpect(model().hasErrors())

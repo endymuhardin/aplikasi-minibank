@@ -1,0 +1,6 @@
+customerType,customerNumber,firstName,lastName,companyName,email,phone,address,city
+PERSONAL,PERS,John,Doe,,@example.com,081234567890,123 Main Street,Jakarta
+PERSONAL,PERS,Jane,Smith,,@example.com,081234567891,456 Oak Avenue,Surabaya
+PERSONAL,PERS,Bob,Johnson,,@example.com,081234567892,789 Pine Road,Bandung
+CORPORATE,CORP,Contact,Person,Tech Solutions Inc,@techsolutions.com,081234567893,100 Corporate Blvd,Jakarta
+CORPORATE,CORP,Manager,Admin,Global Trading Co,@globaltrading.com,081234567894,200 Business Street,Surabaya

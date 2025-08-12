@@ -60,7 +60,40 @@ public class PermissionListPage extends BasePage {
             WebElement permissionRow = driver.findElement(By.id("permission-code-" + permissionCode));
             return permissionRow.isDisplayed();
         } catch (Exception e) {
+            // Fallback: search by text content
+            try {
+                return driver.findElement(By.xpath("//td[contains(text(), '" + permissionCode + "')]")).isDisplayed();
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+    }
+    
+    public boolean isSuccessMessageDisplayed() {
+        try {
+            return driver.findElement(By.cssSelector(".alert-success, .text-green-600")).isDisplayed();
+        } catch (Exception e) {
             return false;
+        }
+    }
+    
+    public boolean isErrorMessageDisplayed() {
+        try {
+            return driver.findElement(By.cssSelector(".alert-danger, .text-red-600")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public void viewPermission(String permissionCode) {
+        try {
+            WebElement viewButton = driver.findElement(By.id("view-permission-" + permissionCode));
+            waitForElementToBeClickable(viewButton);
+            viewButton.click();
+        } catch (Exception e) {
+            // Fallback: find view button by table row
+            WebElement viewButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + permissionCode + "')]]//a[contains(@href, 'view') or contains(text(), 'View')]"));
+            viewButton.click();
         }
     }
     
@@ -71,9 +104,15 @@ public class PermissionListPage extends BasePage {
     }
     
     public PermissionFormPage editPermission(String permissionCode) {
-        WebElement editButton = driver.findElement(By.id("edit-permission-" + permissionCode));
-        waitForElementToBeClickable(editButton);
-        editButton.click();
+        try {
+            WebElement editButton = driver.findElement(By.id("edit-permission-" + permissionCode));
+            waitForElementToBeClickable(editButton);
+            editButton.click();
+        } catch (Exception e) {
+            // Fallback: find edit button by table row
+            WebElement editButton = driver.findElement(By.xpath("//tr[td[contains(text(), '" + permissionCode + "')]]//a[contains(@href, 'edit') or contains(text(), 'Edit')]"));
+            editButton.click();
+        }
         return new PermissionFormPage(driver, baseUrl);
     }
     

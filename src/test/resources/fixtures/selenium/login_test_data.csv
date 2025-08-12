@@ -2,6 +2,11 @@ username,fullName,roleCode,password,shouldSucceed,expectedError
 validuser1,Valid User 1,CUSTOMER_SERVICE,Lx5mT3gJ7vB9wQ6n,true,
 validuser2,Valid User 2,TELLER,My8#nK6%sL1cF4zA,true,
 validuser3,Valid User 3,BRANCH_MANAGER,Nz1pG9dH3mX7bY4k,true,
+manager,Branch Manager,BRANCH_MANAGER,Fw8*jC5&uT1kQ7eR,true,
+cs,Customer Service,CUSTOMER_SERVICE,Gx3pM7bN2vZ9wS4k,true,
+teller,Teller User,TELLER,Hy6@lK4#sF8cX2qT,true,
+dashuser,Dashboard Test User,CUSTOMER_SERVICE,Dash123@Strong!,true,
+statsuser,Statistics Test User,CUSTOMER_SERVICE,Stats456@Secure!,true,
 invaliduser1,Invalid User 1,CUSTOMER_SERVICE,wrongpass,false,Invalid username or password
 invaliduser2,Invalid User 2,CUSTOMER_SERVICE,,false,
 nonexistentuser,Non Existent,CUSTOMER_SERVICE,anypass,false,Invalid username or password

@@ -288,6 +288,143 @@ public class DashboardPage {
         }
     }
     
+    // Additional methods for enhanced dashboard testing
+    public boolean isDashboardContentVisible() {
+        try {
+            return driver.findElement(By.cssSelector("main, .dashboard-content, .container")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean hasStatisticsSection() {
+        try {
+            return driver.findElement(By.cssSelector("#statistics-cards, .statistics, .stats")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isProductManagementLinkVisible() {
+        try {
+            return driver.findElement(By.xpath("//a[contains(@href, 'product') or contains(text(), 'Product')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public void clickProductManagementLink() {
+        driver.findElement(By.xpath("//a[contains(@href, 'product') or contains(text(), 'Product')]")).click();
+    }
+    
+    public boolean isUserManagementLinkVisible() {
+        try {
+            return driver.findElement(By.xpath("//a[contains(@href, 'users') or contains(text(), 'User')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public void clickUserManagementLink() {
+        driver.findElement(By.xpath("//a[contains(@href, 'users') or contains(text(), 'User')]")).click();
+    }
+    
+    public boolean isTransactionManagementLinkVisible() {
+        try {
+            return driver.findElement(By.xpath("//a[contains(@href, 'transaction') or contains(text(), 'Transaction')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean areQuickActionsDisplayed() {
+        try {
+            return driver.findElements(By.cssSelector(".quick-action, .quick-button")).size() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isCreateProductButtonVisible() {
+        try {
+            return driver.findElement(By.xpath("//button[contains(text(), 'Create Product') or contains(@title, 'Create Product')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isCreateUserButtonVisible() {
+        try {
+            return driver.findElement(By.xpath("//button[contains(text(), 'Create User') or contains(@title, 'Create User')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isSystemConfigLinkVisible() {
+        try {
+            return driver.findElement(By.xpath("//a[contains(@href, 'config') or contains(text(), 'Config')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isProcessTransactionButtonVisible() {
+        try {
+            return driver.findElement(By.xpath("//button[contains(text(), 'Process Transaction') or contains(@title, 'Transaction')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isAccountLookupButtonVisible() {
+        try {
+            return driver.findElement(By.xpath("//button[contains(text(), 'Account Lookup') or contains(@title, 'Account')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isLogoutLinkVisible() {
+        try {
+            return driver.findElement(By.xpath("//a[contains(@href, 'logout') or contains(text(), 'Logout')] | //button[contains(text(), 'Logout')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean hasRecentActivitiesSection() {
+        try {
+            return driver.findElement(By.cssSelector("#recent-activities, .recent-activities")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean areRecentActivitiesDisplayed() {
+        try {
+            return driver.findElements(By.cssSelector(".activity-item, .recent-activity")).size() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean hasNotificationsSection() {
+        try {
+            return driver.findElement(By.cssSelector("#notifications, .notifications")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean areNotificationsDisplayed() {
+        try {
+            return driver.findElements(By.cssSelector(".notification, .alert")).size() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
     private boolean isElementVisible(WebElement element) {
         try {
             return element.isDisplayed();

@@ -24,6 +24,9 @@ public class PermissionFormPage extends BasePage {
     @FindBy(id = "action")
     private WebElement actionField;
     
+    @FindBy(id = "description")
+    private WebElement descriptionField;
+    
     @FindBy(id = "save-permission-btn")
     private WebElement saveButton;
     
@@ -45,12 +48,33 @@ public class PermissionFormPage extends BasePage {
         return isElementVisible(permissionForm);
     }
     
-    public void fillPermissionForm(String permissionCode, String permissionName, String category, String resource, String action) {
+    public void fillPermissionForm(String permissionCode, String permissionName, String category, String description, String resource, String action) {
         if (permissionCode != null) clearAndType(permissionCodeField, permissionCode);
         if (permissionName != null) clearAndType(permissionNameField, permissionName);
-        if (category != null) selectDropdownByValue(permissionCategoryField, category);
+        if (category != null) clearAndType(permissionCategoryField, category);
+        if (description != null) clearAndType(descriptionField, description);
         if (resource != null) clearAndType(resourceField, resource);
         if (action != null) clearAndType(actionField, action);
+    }
+    
+    public String getPermissionCode() {
+        return permissionCodeField.getAttribute("value");
+    }
+    
+    public boolean hasValidationError(String fieldName) {
+        try {
+            return driver.findElement(org.openqa.selenium.By.xpath("//input[@id='" + fieldName + "' or @name='" + fieldName + "']//following-sibling::*[contains(@class, 'error') or contains(@class, 'text-red')]")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isErrorMessageDisplayed() {
+        try {
+            return driver.findElement(org.openqa.selenium.By.cssSelector(".alert-danger, .text-red-600")).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     public PermissionListPage submitForm() {

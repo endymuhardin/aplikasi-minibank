@@ -1,0 +1,4 @@
+username,role,expectedMenuItems
+manager,BRANCH_MANAGER,products,users,transactions,reports
+cs,CUSTOMER_SERVICE,customers,products
+teller,TELLER,transactions,customers
