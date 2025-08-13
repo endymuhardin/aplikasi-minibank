@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -8,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
+@Slf4j
 public class CorporateCustomerFormPage extends BasePage {
     
     private final WebDriverWait wait;
@@ -59,7 +61,7 @@ public class CorporateCustomerFormPage extends BasePage {
                 field.clear();
                 field.sendKeys(value);
             } catch (Exception e) {
-                // If field not found, continue
+                log.warn("Field not found, continuing", e);
             }
         }
     }

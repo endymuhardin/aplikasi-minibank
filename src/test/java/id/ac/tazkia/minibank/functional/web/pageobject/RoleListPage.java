@@ -1,10 +1,12 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+@Slf4j
 public class RoleListPage extends BasePage {
     
     @FindBy(id = "create-role-btn")
@@ -46,6 +48,7 @@ public class RoleListPage extends BasePage {
             WebElement roleRow = driver.findElement(By.id("role-code-" + roleCode));
             return roleRow.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }

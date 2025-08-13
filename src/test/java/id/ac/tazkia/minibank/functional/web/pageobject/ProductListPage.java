@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -8,6 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 
+@Slf4j
 public class ProductListPage extends BasePage {
     
     @FindBy(id = "create-product-btn")
@@ -137,7 +139,7 @@ public class ProductListPage extends BasePage {
                 return false;
             }
         } catch (Exception e) {
-            // Page source might not be available, continue with table check
+            log.warn("Page source might not be available, continuing with table check", e);
         }
         
         // Try to find the products table
@@ -154,6 +156,7 @@ public class ProductListPage extends BasePage {
                     return rowText.contains(productCode);
                 });
         } catch (Exception e) {
+            log.error("Error checking products table, falling back to page source check", e);
             // If table is not available, fallback to page source check
             if (pageSource != null) {
                 return pageSource.contains(productCode);

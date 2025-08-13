@@ -21,7 +21,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/rbac/roles")
 @RequiredArgsConstructor
@@ -83,6 +85,7 @@ public class RoleController {
             redirectAttributes.addFlashAttribute("successMessage", "Role created successfully");
             return "redirect:/rbac/roles/list";
         } catch (Exception e) {
+            log.error("Error creating role", e);
             model.addAttribute("errorMessage", "Error creating role: " + e.getMessage());
             return "rbac/roles/form";
         }
@@ -135,6 +138,7 @@ public class RoleController {
             redirectAttributes.addFlashAttribute("successMessage", "Role updated successfully");
             return "redirect:/rbac/roles/list";
         } catch (Exception e) {
+            log.error("Error updating role", e);
             model.addAttribute("errorMessage", "Error updating role: " + e.getMessage());
             return "rbac/roles/form";
         }
@@ -198,6 +202,7 @@ public class RoleController {
             
             redirectAttributes.addFlashAttribute("successMessage", "Permission assigned successfully");
         } catch (Exception e) {
+            log.error("Error assigning permission to role", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Error assigning permission: " + e.getMessage());
         }
         
@@ -212,6 +217,7 @@ public class RoleController {
             rolePermissionRepository.deleteById(rolePermissionId);
             redirectAttributes.addFlashAttribute("successMessage", "Permission removed successfully");
         } catch (Exception e) {
+            log.error("Error removing permission from role", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Error removing permission: " + e.getMessage());
         }
         
@@ -232,6 +238,7 @@ public class RoleController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Role not found");
             }
         } catch (Exception e) {
+            log.error("Error activating role", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Error activating role: " + e.getMessage());
         }
         return "redirect:/rbac/roles/list";
@@ -251,6 +258,7 @@ public class RoleController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Role not found");
             }
         } catch (Exception e) {
+            log.error("Error deactivating role", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Error deactivating role: " + e.getMessage());
         }
         return "redirect:/rbac/roles/list";
@@ -267,6 +275,7 @@ public class RoleController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Role not found");
             }
         } catch (Exception e) {
+            log.error("Error deleting role", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting role: " + e.getMessage());
         }
         return "redirect:/rbac/roles/list";

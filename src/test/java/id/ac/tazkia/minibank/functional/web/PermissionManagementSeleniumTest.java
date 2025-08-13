@@ -299,6 +299,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
                    driver.findElement(By.id("permissionCategory-error")).isDisplayed() ||
                    driver.findElement(By.id("error-message")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking for validation errors on page", e);
             return false;
         }
     }

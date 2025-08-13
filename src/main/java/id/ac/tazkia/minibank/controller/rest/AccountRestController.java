@@ -25,7 +25,9 @@ import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountRestController {
@@ -156,6 +158,7 @@ public class AccountRestController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (RuntimeException e) {
+            log.error("Account opening failed", e);
             Map<String, String> error = new HashMap<>();
             error.put("error", "Account opening failed");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

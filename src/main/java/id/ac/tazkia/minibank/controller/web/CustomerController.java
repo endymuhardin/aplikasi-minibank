@@ -17,9 +17,11 @@ import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Controller
 @RequestMapping("/customer")
 public class CustomerController {
@@ -113,6 +115,7 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("successMessage", "Personal customer created successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
+            log.error("Failed to create personal customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
             return "customer/personal-form";
         }
@@ -159,6 +162,7 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("successMessage", "Corporate customer created successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
+            log.error("Failed to create corporate customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
             return "customer/corporate-form";
         }
@@ -265,6 +269,7 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("successMessage", "Customer updated successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
+            log.error("Failed to update customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
             
             // Return to appropriate form based on customer type

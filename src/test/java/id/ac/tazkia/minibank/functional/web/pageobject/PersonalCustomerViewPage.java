@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -7,6 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
+@Slf4j
 public class PersonalCustomerViewPage extends BasePage {
     
     private final WebDriverWait wait;
@@ -41,6 +43,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(CUSTOMER_NUMBER_DISPLAY).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -49,6 +52,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(CUSTOMER_NUMBER_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -57,6 +61,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(FIRST_NAME_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -65,6 +70,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(LAST_NAME_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -77,6 +83,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(EMAIL_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -85,6 +92,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(PHONE_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -93,6 +101,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(ADDRESS_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -101,6 +110,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(CITY_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -109,6 +119,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(DATE_OF_BIRTH_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -117,6 +128,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(GENDER_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -125,6 +137,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(ID_NUMBER_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -133,6 +146,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(STATUS_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -141,6 +155,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(CUSTOMER_TYPE_DISPLAY).getText();
         } catch (Exception e) {
+            log.error("Error getting text from element", e);
             return "";
         }
     }
@@ -161,6 +176,7 @@ public class PersonalCustomerViewPage extends BasePage {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             return this;
         } catch (Exception e) {
+            log.error("Error performing page action", e);
             return this;
         }
     }
@@ -171,6 +187,7 @@ public class PersonalCustomerViewPage extends BasePage {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             return this;
         } catch (Exception e) {
+            log.error("Error performing page action", e);
             return this;
         }
     }
@@ -179,6 +196,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(EDIT_BUTTON).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -187,6 +205,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(ACTIVATE_BUTTON).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -195,6 +214,7 @@ public class PersonalCustomerViewPage extends BasePage {
         try {
             return driver.findElement(DEACTIVATE_BUTTON).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }

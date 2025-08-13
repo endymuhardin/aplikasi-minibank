@@ -19,7 +19,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/rbac/permissions")
 @RequiredArgsConstructor
@@ -101,6 +103,7 @@ public class PermissionController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission created successfully");
             return REDIRECT_PERMISSIONS_LIST;
         } catch (Exception e) {
+            log.error("Error creating permission", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating permission: " + e.getMessage());
             List<String> categories = permissionRepository.findDistinctCategories();
             model.addAttribute(CATEGORIES_ATTR, categories);
@@ -160,6 +163,7 @@ public class PermissionController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission updated successfully");
             return REDIRECT_PERMISSIONS_LIST;
         } catch (Exception e) {
+            log.error("Error updating permission", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating permission: " + e.getMessage());
             List<String> categories = permissionRepository.findDistinctCategories();
             model.addAttribute(CATEGORIES_ATTR, categories);
@@ -193,6 +197,7 @@ public class PermissionController {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PERMISSION_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
+            log.error("Error deleting permission", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deleting permission: " + e.getMessage());
         }
         return REDIRECT_PERMISSIONS_LIST;

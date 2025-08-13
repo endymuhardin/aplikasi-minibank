@@ -23,7 +23,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/rbac/users")
 @RequiredArgsConstructor
@@ -112,6 +114,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User created successfully. You can set a password from the user details page.");
             return REDIRECT_USERS_LIST;
         } catch (Exception e) {
+            log.error("Error creating user", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating user: " + e.getMessage());
             return "rbac/users/form";
         }
@@ -169,6 +172,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User updated successfully");
             return REDIRECT_USERS_LIST;
         } catch (Exception e) {
+            log.error("Error updating user", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating user: " + e.getMessage());
             return "rbac/users/form";
         }
@@ -232,6 +236,7 @@ public class UserController {
             
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Role assigned successfully");
         } catch (Exception e) {
+            log.error("Error assigning role to user", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error assigning role: " + e.getMessage());
         }
         
@@ -246,6 +251,7 @@ public class UserController {
             userRoleRepository.deleteById(userRoleId);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Role removed successfully");
         } catch (Exception e) {
+            log.error("Error removing role from user", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error removing role: " + e.getMessage());
         }
         
@@ -266,6 +272,7 @@ public class UserController {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
+            log.error("Error activating user", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error activating user: " + e.getMessage());
         }
         return REDIRECT_USERS_LIST;
@@ -285,6 +292,7 @@ public class UserController {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
+            log.error("Error deactivating user", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deactivating user: " + e.getMessage());
         }
         return REDIRECT_USERS_LIST;
@@ -301,6 +309,7 @@ public class UserController {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, USER_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
+            log.error("Error deleting user", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deleting user: " + e.getMessage());
         }
         return REDIRECT_USERS_LIST;
@@ -367,6 +376,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Password updated successfully");
             return "redirect:/rbac/users/view/" + id;
         } catch (Exception e) {
+            log.error("Error updating user password", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error updating password: " + e.getMessage());
             return REDIRECT_USERS_PREFIX + id + PASSWORD_PATH;
         }

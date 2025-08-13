@@ -22,7 +22,9 @@ import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/product")
 @RequiredArgsConstructor
@@ -114,6 +116,7 @@ public class ProductController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product created successfully");
             return REDIRECT_PRODUCT_LIST;
         } catch (Exception e) {
+            log.error("Error creating product", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating product: " + e.getMessage());
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
             model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
@@ -161,6 +164,7 @@ public class ProductController {
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product updated successfully");
             return REDIRECT_PRODUCT_LIST;
         } catch (Exception e) {
+            log.error("Error updating product", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating product: " + e.getMessage());
             model.addAttribute(PRODUCT_TYPES_ATTR, Product.ProductType.values());
             model.addAttribute(PROFIT_SHARING_TYPES_ATTR, Product.ProfitSharingType.values());
@@ -187,6 +191,7 @@ public class ProductController {
             productService.softDelete(id);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Product deactivated successfully");
         } catch (Exception e) {
+            log.error("Error deactivating product", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error deactivating product: " + e.getMessage());
         }
         return REDIRECT_PRODUCT_LIST;
@@ -205,6 +210,7 @@ public class ProductController {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
             }
         } catch (Exception e) {
+            log.error("Error activating product", e);
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Error activating product: " + e.getMessage());
         }
         return REDIRECT_PRODUCT_LIST;

@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,6 +10,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
+@Slf4j
 public class CustomerListPage extends BasePage {
     
     private final WebDriverWait wait;
@@ -88,6 +90,7 @@ public class CustomerListPage extends BasePage {
         try {
             return driver.findElement(By.id("customer-" + customerNumber)).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -97,6 +100,7 @@ public class CustomerListPage extends BasePage {
             WebElement message = driver.findElement(SUCCESS_MESSAGE);
             return message.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -106,6 +110,7 @@ public class CustomerListPage extends BasePage {
             WebElement message = driver.findElement(ERROR_MESSAGE);
             return message.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -136,7 +141,7 @@ public class CustomerListPage extends BasePage {
             typeSelect.selectByValue(customerType);
             waitForPageLoad();
         } catch (Exception e) {
-            // If filter not available, ignore
+            log.warn("Customer type filter not available, ignoring", e);
         }
     }
     
@@ -145,6 +150,7 @@ public class CustomerListPage extends BasePage {
             WebElement searchResults = driver.findElement(By.id("search-results"));
             return searchResults.findElements(By.tagName("tr")).size() > 0;
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -190,6 +196,7 @@ public class CustomerListPage extends BasePage {
             WebElement statusCell = driver.findElement(By.id("status-" + customerNumber));
             return statusCell.getText().trim();
         } catch (Exception e) {
+            log.error("Error getting customer type from table", e);
             return "Unknown";
         }
     }

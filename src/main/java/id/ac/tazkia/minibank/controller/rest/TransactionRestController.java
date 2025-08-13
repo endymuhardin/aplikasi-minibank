@@ -24,7 +24,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionRestController {
@@ -125,10 +127,12 @@ public class TransactionRestController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
             
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid transaction amount: {}", e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("amount", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         } catch (RuntimeException e) {
+            log.error("Transaction processing failed", e);
             Map<String, String> error = new HashMap<>();
             error.put("error", "Transaction processing failed");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -217,10 +221,12 @@ public class TransactionRestController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
             
         } catch (IllegalArgumentException e) {
+            log.warn("Invalid transaction amount: {}", e.getMessage());
             Map<String, String> error = new HashMap<>();
             error.put("amount", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         } catch (RuntimeException e) {
+            log.error("Transaction processing failed", e);
             Map<String, String> error = new HashMap<>();
             error.put("error", "Transaction processing failed");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

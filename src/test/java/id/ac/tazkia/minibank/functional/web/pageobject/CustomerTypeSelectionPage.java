@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -7,6 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 
+@Slf4j
 public class CustomerTypeSelectionPage extends BasePage {
     
     private final WebDriverWait wait;
@@ -49,6 +51,7 @@ public class CustomerTypeSelectionPage extends BasePage {
         try {
             return driver.findElement(PERSONAL_CUSTOMER_CARD).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -57,6 +60,7 @@ public class CustomerTypeSelectionPage extends BasePage {
         try {
             return driver.findElement(CORPORATE_CUSTOMER_CARD).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }

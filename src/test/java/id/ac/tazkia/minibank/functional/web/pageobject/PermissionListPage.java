@@ -1,10 +1,12 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+@Slf4j
 public class PermissionListPage extends BasePage {
     
     @FindBy(id = "create-permission-btn")
@@ -71,6 +73,7 @@ public class PermissionListPage extends BasePage {
             WebElement permissionRow = driver.findElement(By.id("permission-code-" + permissionCode));
             return permissionRow.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }

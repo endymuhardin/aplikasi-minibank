@@ -6,11 +6,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
 import java.util.List;
 
+@Slf4j
 public class DashboardPage {
     
     private final WebDriver driver;
@@ -76,6 +80,7 @@ public class DashboardPage {
             ));
             
             String currentUrl = driver.getCurrentUrl();
+            System.out.println("Current URL : " +currentUrl);
             // Check if we're on the dashboard URL
             boolean isOnDashboardUrl = currentUrl.contains("/dashboard");
             
@@ -85,6 +90,7 @@ public class DashboardPage {
             
             return isOnDashboardUrl && (hasSidebar || hasUserMenu);
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -122,23 +128,42 @@ public class DashboardPage {
     
     public String getCurrentUsername() {
         try {
-            // Always use user menu approach for reliability
-            openUserMenu();
-            WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-menu-username")));
-            return userInfo.getText();
-        } catch (Exception ex) {
-            return "";
+            // First try to get username from header (faster)
+            WebElement headerUsername = driver.findElement(By.id("header-username"));
+            if (headerUsername.isDisplayed()) {
+                return headerUsername.getText().trim();
+            }
+        } catch (Exception e) {
+            // Fallback to user menu approach
+            try {
+                openUserMenu();
+                WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-menu-username")));
+                return userInfo.getText().trim();
+            } catch (Exception ex) {
+                return "";
+            }
         }
+        return "";
     }
     
     public String getCurrentUserRole() {
-        openUserMenu();
         try {
-            WebElement roleElement = driver.findElement(By.id("user-menu-role"));
-            return roleElement.getText();
+            // First try to get role from header (faster)
+            WebElement headerRole = driver.findElement(By.id("header-role"));
+            if (headerRole.isDisplayed()) {
+                return headerRole.getText().trim();
+            }
         } catch (Exception e) {
-            return "";
+            // Fallback to user menu approach
+            try {
+                openUserMenu();
+                WebElement roleElement = driver.findElement(By.id("user-menu-role"));
+                return roleElement.getText().trim();
+            } catch (Exception ex) {
+                return "";
+            }
         }
+        return "";
     }
     
     // Sidebar navigation methods
@@ -183,6 +208,7 @@ public class DashboardPage {
             WebElement adminSection = driver.findElement(By.id("administration-section"));
             return adminSection.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -271,6 +297,7 @@ public class DashboardPage {
             WebElement quickActions = driver.findElement(By.id("quick-actions-title"));
             return quickActions.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -280,6 +307,7 @@ public class DashboardPage {
             WebElement recentTransactions = driver.findElement(By.id("recent-transactions-title"));
             return recentTransactions.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -289,6 +317,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("dashboard-content")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -297,6 +326,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("statistics-section")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -305,6 +335,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("product-management-link")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -317,6 +348,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("user-management-link")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -329,6 +361,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("transaction-management-link")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -337,6 +370,7 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("quick-actions")).size() > 0;
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -345,6 +379,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("create-product-button")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -353,6 +388,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("create-user-button")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -361,6 +397,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("system-config-link")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -369,6 +406,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("process-transaction-button")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -377,6 +415,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("account-lookup-button")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -385,6 +424,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("logout-link")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -393,6 +433,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("recent-activities")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -401,6 +442,7 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("activity-items")).size() > 0;
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -409,6 +451,7 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("notifications")).isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -417,6 +460,7 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("notification-items")).size() > 0;
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
@@ -425,6 +469,7 @@ public class DashboardPage {
         try {
             return element.isDisplayed();
         } catch (Exception e) {
+            log.error("Error checking element display status", e);
             return false;
         }
     }
