@@ -29,15 +29,12 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
 
     @BeforeEach
     void setupSelenium() throws Exception {
-        // Manually ensure WebDriver is set up
+        // Setup WebDriver once per test class
+        setupWebDriverOnce();
+        
+        // Initialize LoginHelper
         if (loginHelper == null) {
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-            } else {
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
+            loginHelper = new LoginHelper(driver, baseUrl);
         }
     }
 

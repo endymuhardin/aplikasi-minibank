@@ -20,16 +20,18 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
 
     @BeforeEach
     void setupSelenium() throws Exception {
-        // Manually ensure WebDriver is set up
+        // Setup WebDriver once per test class
+        setupWebDriverOnce();
+        
+        // Initialize LoginHelper without authentication (since we test login itself)
         if (loginHelper == null) {
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-            } else {
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
+            loginHelper = new LoginHelper(driver, baseUrl);
         }
+    }
+    
+    @Override
+    protected void performInitialLogin() {
+        // No initial login for LoginSeleniumTest - we test the login process itself
     }
 
     private String getPasswordFor(String username) {

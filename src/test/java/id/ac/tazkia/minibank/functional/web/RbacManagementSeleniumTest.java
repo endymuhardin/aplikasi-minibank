@@ -40,24 +40,9 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private RoleRepository roleRepository;
     
-    @BeforeEach
-    void authenticateUser() throws Exception {
-        log.info("RbacManagementSeleniumTest.authenticateUser() started");
-        
-        // Manually ensure WebDriver is set up
-        if (loginHelper == null) {
-            log.info("LoginHelper is null, calling parent setup methods");
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-                log.info("LoginHelper manually initialized: {}", loginHelper);
-            } else {
-                log.error("Driver or baseUrl is still null after setup: driver={}, baseUrl={}", driver, baseUrl);
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
-        }
-        
+    @Override
+    protected void performInitialLogin() {
+        log.info("RbacManagementSeleniumTest performInitialLogin() - START");
         log.info("About to call loginAsManager with loginHelper: {}", loginHelper);
         // Login as Manager who has all permissions including USER_READ, USER_CREATE, USER_UPDATE
         loginHelper.loginAsManager();

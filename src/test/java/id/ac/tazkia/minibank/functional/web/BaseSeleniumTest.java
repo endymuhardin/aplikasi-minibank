@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
-import id.ac.tazkia.minibank.config.SeleniumTestContainerSingleton;
 import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,30 +20,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class BaseSeleniumTest extends AbstractSeleniumTestBase {
     
-    protected LoginHelper loginHelper;
+    protected static LoginHelper loginHelper;
     
     @BeforeEach
-    void initializeLoginHelper() throws Exception {
+    void ensureAuthentication() throws Exception {
         String testClass = this.getClass().getSimpleName();
-        log.info("🔐 LOGIN HELPER SETUP: {} starting setupLoginHelper()", testClass);
         
-        // Log container status before calling super.setupWebDriver()
-        SeleniumTestContainerSingleton.logCurrentStatus();
+        // Setup WebDriver once per test class (this gives us the main optimization)
+        setupWebDriverOnce();
         
-        super.setupWebDriver();
-        log.info("✅ PARENT SETUP COMPLETE: {} super.setupWebDriver() completed. Driver: {}, BaseUrl: {}", 
-                testClass, driver != null ? "AVAILABLE" : "NULL", baseUrl != null ? baseUrl : "NULL");
-        
-        // Log container status after setupWebDriver
-        SeleniumTestContainerSingleton.logCurrentStatus();
-        
-        if (driver != null && baseUrl != null) {
-            this.loginHelper = new LoginHelper(driver, baseUrl);
-            log.info("✅ LOGIN HELPER READY: {} initialized successfully: {}", testClass, loginHelper);
-        } else {
-            log.error("❌ LOGIN HELPER FAILED: {} - selenium container failed to initialize", testClass);
-            log.error("Details - Driver: {}, BaseUrl: {}", driver, baseUrl);
-            throw new RuntimeException("Selenium container failed to initialize - driver or baseUrl is null");
+        if (loginHelper == null) {
+            loginHelper = new LoginHelper(driver, baseUrl);
+            log.info("✅ LOGIN HELPER READY: {} initialized successfully", testClass);
         }
+        
+        // Perform authentication for each test to ensure clean state
+        log.info("🔑 AUTHENTICATION: {} performing authentication", testClass);
+        performInitialLogin();
+    }
+    
+    protected void performInitialLogin() {
+        // Default implementation - subclasses can override for specific user types
+        loginHelper.loginAsManager();
     }
 }

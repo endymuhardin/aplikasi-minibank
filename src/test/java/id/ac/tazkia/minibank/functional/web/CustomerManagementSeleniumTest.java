@@ -36,19 +36,8 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private CustomerRepository customerRepository;
     
-    @BeforeEach
-    void authenticateUser() throws Exception {
-        // Manually ensure WebDriver is set up
-        if (loginHelper == null) {
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-            } else {
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
-        }
-        
+    @Override
+    protected void performInitialLogin() {
         // Login as Customer Service user who has CUSTOMER_READ, CUSTOMER_CREATE, CUSTOMER_UPDATE permissions
         loginHelper.loginAsCustomerServiceUser();
     }

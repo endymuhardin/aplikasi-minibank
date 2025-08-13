@@ -30,19 +30,8 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private ProductRepository productRepository;
     
-    @BeforeEach
-    void authenticateUser() throws Exception {
-        // Manually ensure WebDriver is set up
-        if (loginHelper == null) {
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-            } else {
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
-        }
-        
+    @Override
+    protected void performInitialLogin() {
         // Login as Customer Service user who has PRODUCT_READ, CUSTOMER_READ, ACCOUNT_READ permissions
         loginHelper.loginAsCustomerServiceUser();
     }
@@ -53,9 +42,17 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         log.info("Starting test: shouldLoadProductListPage");
         Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
+        
+        log.info("🔍 DEBUG: Before opening product list - Current URL: {}", driver.getCurrentUrl());
+        log.info("🔍 DEBUG: BaseURL: {}", baseUrl);
+        
         listPage.open();
         
-        assertTrue(driver.getCurrentUrl().contains("/product/list"));
+        log.info("🔍 DEBUG: After opening product list - Current URL: {}", driver.getCurrentUrl());
+        log.info("🔍 DEBUG: Page title: {}", driver.getTitle());
+        
+        assertTrue(driver.getCurrentUrl().contains("/product/list"), 
+                  "Expected URL to contain '/product/list' but was: " + driver.getCurrentUrl());
         assertEquals("Product Management - Minibank", driver.getTitle());
     }
     

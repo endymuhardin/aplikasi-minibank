@@ -33,19 +33,8 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private PermissionRepository permissionRepository;
     
-    @BeforeEach
-    void authenticateUser() throws Exception {
-        // Manually ensure WebDriver is set up
-        if (loginHelper == null) {
-            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
-            
-            if (driver != null && baseUrl != null) {
-                this.loginHelper = new LoginHelper(driver, baseUrl);
-            } else {
-                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
-            }
-        }
-        
+    @Override
+    protected void performInitialLogin() {
         // Login as Manager who has USER_READ, USER_CREATE, USER_UPDATE permissions for RBAC management
         loginHelper.loginAsManager();
     }
