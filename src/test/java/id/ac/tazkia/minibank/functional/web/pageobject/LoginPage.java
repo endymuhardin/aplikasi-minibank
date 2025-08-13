@@ -1,15 +1,18 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import java.time.Duration;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoginPage {
     
     private final WebDriver driver;
@@ -74,16 +77,44 @@ public class LoginPage {
     }
     
     public DashboardPage clickLogin() {
+        log.info("About to click login button");
+        
+        // Check if there are any CSRF tokens or hidden fields
+        try {
+            var hiddenInputs = driver.findElements(By.xpath("//input[@type='hidden']"));
+            log.info("Found {} hidden input fields in the form", hiddenInputs.size());
+            for (var input : hiddenInputs) {
+                String name = input.getAttribute("name");
+                String value = input.getAttribute("value");
+                log.info("Hidden field: {}={}", name, value);
+            }
+        } catch (Exception e) {
+            log.warn("Could not check hidden fields: {}", e.getMessage());
+        }
+        
         loginButton.click();
+        log.info("Login button clicked");
+        
         // Wait a moment for the form submission and redirect
         try {
             wait.until(ExpectedConditions.or(
                 ExpectedConditions.urlContains("/dashboard"),
                 ExpectedConditions.urlContains("/product/list"),
+                ExpectedConditions.urlContains("/login?error"),
                 ExpectedConditions.visibilityOf(errorMessage)
             ));
         } catch (Exception e) {
-            // Continue anyway - the dashboard page will handle its own validation
+            log.error("Login wait condition failed: {}", e.getMessage());
+            String currentUrl = driver.getCurrentUrl();
+            log.error("Current URL after login attempt: {}", currentUrl);
+            
+            // Check if there's an error message
+            if (isErrorMessageDisplayed()) {
+                String error = getErrorMessage();
+                log.error("Login error message displayed: {}", error);
+            } else {
+                log.info("No error message displayed");
+            }
         }
         return new DashboardPage(driver);
     }
@@ -101,9 +132,19 @@ public class LoginPage {
     }
     
     public DashboardPage loginSuccessfully(String username, String password) {
+        log.info("Attempting login with username: {}", username);
         enterUsername(username);
         enterPassword(password);
-        return clickLogin();
+        
+        String urlBeforeLogin = driver.getCurrentUrl();
+        log.info("URL before login: {}", urlBeforeLogin);
+        
+        DashboardPage result = clickLogin();
+        
+        String urlAfterLogin = driver.getCurrentUrl();
+        log.info("URL after login: {}", urlAfterLogin);
+        
+        return result;
     }
     
     public String getErrorMessage() {

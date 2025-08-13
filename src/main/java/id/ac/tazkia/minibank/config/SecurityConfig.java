@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!test")
 public class SecurityConfig {
     
     private static final String LOGIN_PATH = "/login";
@@ -109,6 +108,8 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
+            // Enable HTTP Basic authentication for API testing (Karate tests)
+            .httpBasic(basic -> basic.realmName("Minibank API"))
             .userDetailsService(jdbcUserDetailsManager())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/**")

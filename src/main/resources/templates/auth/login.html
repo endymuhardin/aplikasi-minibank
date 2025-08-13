@@ -25,6 +25,9 @@
 
         <!-- Login Form -->
         <form method="post" action="/login" class="space-y-6">
+            <!-- CSRF Token -->
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
                 <input type="text" id="username" name="username" required

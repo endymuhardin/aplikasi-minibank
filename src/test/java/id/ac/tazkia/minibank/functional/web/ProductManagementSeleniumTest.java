@@ -8,17 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
 import id.ac.tazkia.minibank.repository.ProductRepository;
