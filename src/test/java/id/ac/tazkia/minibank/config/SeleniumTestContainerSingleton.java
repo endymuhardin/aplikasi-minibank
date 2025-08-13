@@ -33,8 +33,9 @@ public class SeleniumTestContainerSingleton {
         try {
             String browser = System.getProperty("selenium.browser", "chrome").toLowerCase(); // Default to chrome for faster startup
             boolean recordingEnabled = Boolean.parseBoolean(System.getProperty("selenium.recording.enabled", "false"));
+            boolean headlessEnabled = Boolean.parseBoolean(System.getProperty("selenium.headless", "true")); // Default to headless mode
             
-            log.info("Initializing Selenium TestContainer with browser: {} and recording: {}", browser, recordingEnabled);
+            log.info("Initializing Selenium TestContainer with browser: {}, recording: {}, headless: {}", browser, recordingEnabled, headlessEnabled);
             
             container = new BrowserWebDriverContainer<>()
                 .withAccessToHost(true)
@@ -51,15 +52,25 @@ public class SeleniumTestContainerSingleton {
                         "--disable-dev-shm-usage", 
                         "--disable-gpu",
                         "--disable-web-security",
-                        "--disable-features=VizDisplayCompositor",
-                        "--headless" // Run in headless mode for faster startup
+                        "--disable-features=VizDisplayCompositor"
                     );
+                    if (headlessEnabled) {
+                        chromeOptions.addArguments("--headless");
+                        log.info("Chrome headless mode enabled");
+                    } else {
+                        log.info("Chrome headless mode disabled - browser window will be visible");
+                    }
                     container.withCapabilities(chromeOptions);
                     break;
                 case "firefox":
                 default:
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.addArguments("--headless"); // Run in headless mode
+                    if (headlessEnabled) {
+                        firefoxOptions.addArguments("--headless");
+                        log.info("Firefox headless mode enabled");
+                    } else {
+                        log.info("Firefox headless mode disabled - browser window will be visible");
+                    }
                     container.withCapabilities(firefoxOptions);
                     break;
             }
@@ -89,15 +100,19 @@ public class SeleniumTestContainerSingleton {
                         "--disable-dev-shm-usage", 
                         "--disable-gpu",
                         "--disable-web-security",
-                        "--disable-features=VizDisplayCompositor",
-                        "--headless"
+                        "--disable-features=VizDisplayCompositor"
                     );
+                    if (headlessEnabled) {
+                        chromeDriverOptions.addArguments("--headless");
+                    }
                     driver = new RemoteWebDriver(container.getSeleniumAddress(), chromeDriverOptions);
                     break;
                 case "firefox":
                 default:
                     FirefoxOptions firefoxDriverOptions = new FirefoxOptions();
-                    firefoxDriverOptions.addArguments("--headless");
+                    if (headlessEnabled) {
+                        firefoxDriverOptions.addArguments("--headless");
+                    }
                     driver = new RemoteWebDriver(container.getSeleniumAddress(), firefoxDriverOptions);
                     break;
             }

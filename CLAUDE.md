@@ -42,11 +42,20 @@ mvn test -Dtest=DepositTest
 # Run single Karate test method
 mvn test -Dtest=DepositTest#testDeposit
 
-# Run Selenium tests without recording (default - faster execution)
+# Run Selenium tests (default: headless mode, no recording)
 mvn test -Dtest=ProductManagementSeleniumTest
+
+# Run Selenium tests with visible browser window (for debugging)
+mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
 
 # Run Selenium tests with recording enabled
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
+
+# Run Selenium tests with Firefox instead of Chrome
+mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox
+
+# Combined options for debugging
+mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
 ```
 
 ### Database Operations

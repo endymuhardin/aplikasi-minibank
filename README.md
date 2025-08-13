@@ -588,8 +588,11 @@ Aplikasi menggunakan Selenium dengan TestContainers untuk automated UI testing. 
 #### Menjalankan Selenium Tests ####
 
 ```bash
-# Mode default (tanpa recording, lebih cepat)
+# Mode default (headless mode, tanpa recording - fastest)
 mvn test -Dtest=ProductManagementSeleniumTest
+
+# Mode dengan browser window visible (untuk debugging)
+mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
 
 # Mode dengan video recording untuk monitoring/debugging
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
@@ -597,8 +600,14 @@ mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
 # Run semua Selenium tests
 mvn test -Dtest="*Selenium*"
 
-# Run dengan browser Chrome (default: Firefox)
+# Run dengan browser Chrome (default: Chrome)
 mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=chrome
+
+# Run dengan browser Firefox
+mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=firefox
+
+# Kombinasi opsi untuk debugging maksimal
+mvn test -Dtest=LoginSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true -Dselenium.browser=chrome
 ```
 
 #### Monitoring Selenium Tests ####
@@ -607,6 +616,7 @@ mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=chrome
 - Saat test berjalan, check log untuk VNC URL: `VNC URL : http://localhost:[port]`
 - Buka URL tersebut di browser untuk melihat browser automation secara real-time
 - Berguna untuk debugging test failures dan memantau test execution
+- **Note**: VNC viewer tersedia baik dalam headless maupun non-headless mode
 
 **Video Recordings:**
 - Lokasi: `target/selenium-recordings/`
@@ -626,10 +636,15 @@ mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=chrome
 
 #### Selenium Test Configuration ####
 
-- **Browser**: Firefox (default), Chrome (dengan `-Dselenium.browser=chrome`)
+**Runtime Options:**
+- **Browser**: Chrome (default), Firefox (dengan `-Dselenium.browser=firefox`)
+- **Headless Mode**: Enabled by default (fastest), disable dengan `-Dselenium.headless=false` untuk debugging
 - **Recording**: Disabled by default, enable dengan `-Dselenium.recording.enabled=true`
 - **TestContainers**: Otomatis start/stop Selenium Grid container
+
+**Test Architecture:**
 - **Page Objects**: Menggunakan Page Object Pattern untuk maintainability
+- **LoginHelper**: Centralized authentication utilities untuk semua user roles
 
 #### Troubleshooting ####
 
