@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,10 +12,25 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
 
 public class LoginSeleniumTest extends BaseSeleniumTest {
+
+    @BeforeEach
+    void setupSelenium() throws Exception {
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+            } else {
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+    }
 
     private String getPasswordFor(String username) {
         // All migration users have password: minibank123

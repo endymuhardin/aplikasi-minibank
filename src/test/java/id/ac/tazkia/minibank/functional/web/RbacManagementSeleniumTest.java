@@ -7,12 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeUnit;
 
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.User;
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionListPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.RoleFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.RoleListPage;
@@ -35,9 +38,27 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     private RoleRepository roleRepository;
     
     @BeforeEach
-    void authenticateUser() {
+    void authenticateUser() throws Exception {
+        System.out.println("RbacManagementSeleniumTest.authenticateUser() started");
+        
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            System.out.println("LoginHelper is null, calling parent setup methods");
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+                System.out.println("LoginHelper manually initialized: " + loginHelper);
+            } else {
+                System.out.println("Driver or baseUrl is still null after setup: driver=" + driver + ", baseUrl=" + baseUrl);
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+        
+        System.out.println("About to call loginAsManager with loginHelper: " + loginHelper);
         // Login as Manager who has all permissions including USER_READ, USER_CREATE, USER_UPDATE
         loginHelper.loginAsManager();
+        System.out.println("loginAsManager completed successfully");
     }
 
     @Test

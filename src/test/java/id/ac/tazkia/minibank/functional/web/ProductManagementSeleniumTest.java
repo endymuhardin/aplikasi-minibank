@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -17,6 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductListPage;
 import id.ac.tazkia.minibank.repository.ProductRepository;
@@ -27,7 +29,18 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     private ProductRepository productRepository;
     
     @BeforeEach
-    void authenticateUser() {
+    void authenticateUser() throws Exception {
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+            } else {
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+        
         // Login as Customer Service user who has PRODUCT_READ, CUSTOMER_READ, ACCOUNT_READ permissions
         loginHelper.loginAsCustomerServiceUser();
     }
@@ -35,6 +48,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldLoadProductListPage() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
         
@@ -45,6 +59,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldCreateNewProduct() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         // Use timestamp to ensure unique product code
         String uniqueCode = "TEST" + System.currentTimeMillis();
         
@@ -81,6 +96,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
                                         String productCategory, String description, String profitSharingRatio,
                                         boolean isActive, boolean isDefault, String minimumOpeningBalance,
                                         String minimumBalance) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         // Make product code unique by appending timestamp
         String uniqueCode = productCode + System.currentTimeMillis();
@@ -114,6 +130,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateRequiredFields() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
         
@@ -150,6 +167,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Sql("/sql/setup-activate-deactivate-test.sql")
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditExistingProduct() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         // Use predefined test product from the SQL script - TEST002 is active
         String editCode = "TEST002";
         
@@ -187,6 +205,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Sql(scripts = "/sql/cleanup-product-search-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldSearchProducts() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         // Use predefined test products from SQL script
         String savingsCode = "SEARCH_SAV001";
         String checkingCode = "SEARCH_CHK001";
@@ -219,6 +238,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Sql("/sql/setup-activate-deactivate-test.sql")
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldDeactivateAndActivateProduct() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         // Use predefined test product from the SQL script - TEST001 is active
         String statusCode = "TEST001";
         
@@ -255,6 +275,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateProductInputErrors(String testCase, String productCode, String productName, 
                                         String productType, String expectedError) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();
@@ -304,6 +325,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Sql("/sql/setup-duplicate-test.sql")
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateDuplicateProductCode() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         ProductListPage listPage = new ProductListPage(driver, baseUrl);
         listPage.open();

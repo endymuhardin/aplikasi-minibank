@@ -13,14 +13,31 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
+
+import org.junit.jupiter.api.BeforeEach;
 
 @SqlGroup({
     @Sql(scripts = "/fixtures/sql/dashboard-test-setup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
     @Sql(scripts = "/fixtures/sql/dashboard-test-cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 })
 public class DashboardSeleniumTest extends BaseSeleniumTest {
+
+    @BeforeEach
+    void setupSelenium() throws Exception {
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+            } else {
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+    }
 
     private String getPasswordFor(String username) {
         // All migration users have password: minibank123

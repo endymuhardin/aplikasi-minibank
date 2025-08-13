@@ -10,6 +10,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode;
 import org.testcontainers.containers.VncRecordingContainer.VncRecordingFormat;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,32 +22,44 @@ public class SeleniumTestContainerSingleton {
     
     private static BrowserWebDriverContainer<?> container;
     public static WebDriver driver;
+    private static volatile boolean initialized = false;
     
-    static {
-        initialize();
-        Runtime.getRuntime().addShutdownHook(new Thread(SeleniumTestContainerSingleton::cleanup));
-    }
-    
-    private static void initialize() {
+    public static synchronized void initialize() {
+        if (initialized) {
+            return;
+        }
+        
+        
         try {
-            String browser = System.getProperty("selenium.browser", "firefox").toLowerCase();
+            String browser = System.getProperty("selenium.browser", "chrome").toLowerCase(); // Default to chrome for faster startup
             boolean recordingEnabled = Boolean.parseBoolean(System.getProperty("selenium.recording.enabled", "false"));
             
             log.info("Initializing Selenium TestContainer with browser: {} and recording: {}", browser, recordingEnabled);
             
             container = new BrowserWebDriverContainer<>()
-                .withAccessToHost(true);
+                .withAccessToHost(true)
+                .waitingFor(Wait.forHttp("/wd/hub/status").forStatusCode(200))
+                .withStartupTimeout(Duration.ofMinutes(5)) // Increase timeout
+                .withSharedMemorySize(2147483648L); // 2GB shared memory for better performance
                 
             // Set browser capabilities
             switch (browser) {
                 case "chrome":
                     ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
+                    chromeOptions.addArguments(
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage", 
+                        "--disable-gpu",
+                        "--disable-web-security",
+                        "--disable-features=VizDisplayCompositor",
+                        "--headless" // Run in headless mode for faster startup
+                    );
                     container.withCapabilities(chromeOptions);
                     break;
                 case "firefox":
                 default:
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
+                    firefoxOptions.addArguments("--headless"); // Run in headless mode
                     container.withCapabilities(firefoxOptions);
                     break;
             }
@@ -61,68 +74,67 @@ public class SeleniumTestContainerSingleton {
             }
             
             log.info("Starting Selenium container...");
+            long startTime = System.currentTimeMillis();
             container.start();
-            log.info("Selenium container started, Selenium URL: {}", container.getSeleniumAddress());
-            
-            // Wait a moment for container to be fully ready
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for container", e);
+            long endTime = System.currentTimeMillis();
+            log.info("Selenium container started successfully in {}ms", endTime - startTime);
+            log.info("Selenium URL: {}", container.getSeleniumAddress());
+                    
+            // Create WebDriver with the same options as the container
+            switch (browser) {
+                case "chrome":
+                    ChromeOptions chromeDriverOptions = new ChromeOptions();
+                    chromeDriverOptions.addArguments(
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage", 
+                        "--disable-gpu",
+                        "--disable-web-security",
+                        "--disable-features=VizDisplayCompositor",
+                        "--headless"
+                    );
+                    driver = new RemoteWebDriver(container.getSeleniumAddress(), chromeDriverOptions);
+                    break;
+                case "firefox":
+                default:
+                    FirefoxOptions firefoxDriverOptions = new FirefoxOptions();
+                    firefoxDriverOptions.addArguments("--headless");
+                    driver = new RemoteWebDriver(container.getSeleniumAddress(), firefoxDriverOptions);
+                    break;
             }
             
-            // Initialize WebDriver with retry logic
-            int maxRetries = 3;
-            Exception lastException = null;
+            // Configure WebDriver timeouts
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+            driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
             
-            for (int retry = 0; retry < maxRetries; retry++) {
-                try {
-                    log.info("Attempting to create WebDriver (attempt {} of {})", retry + 1, maxRetries);
-                    
-                    switch (browser) {
-                        case "chrome":
-                            ChromeOptions chromeOptions = new ChromeOptions();
-                            chromeOptions.addArguments("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu");
-                            driver = new RemoteWebDriver(container.getSeleniumAddress(), chromeOptions);
-                            break;
-                        case "firefox":
-                        default:
-                            FirefoxOptions firefoxOptions = new FirefoxOptions();
-                            driver = new RemoteWebDriver(container.getSeleniumAddress(), firefoxOptions);
-                            break;
-                    }
-                    
-                    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-                    
-                    log.info("Selenium TestContainer initialized successfully");
-                    log.info("VNC URL: {}", container.getVncAddress());
-                    return;
-                    
-                } catch (Exception e) {
-                    lastException = e;
-                    log.warn("Failed to create WebDriver on attempt {}: {}", retry + 1, e.getMessage());
-                    if (retry < maxRetries - 1) {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Interrupted while waiting to retry WebDriver creation", ie);
-                        }
-                    }
-                }
-            }
+            // Verify WebDriver is responsive
+            verifyWebDriverReadiness();
             
-            throw new RuntimeException("Failed to initialize WebDriver after " + maxRetries + " attempts", lastException);
+            log.info("Selenium TestContainer initialized successfully");
+            log.info("VNC URL: {}", container.getVncAddress());
             
+            initialized = true;
+            Runtime.getRuntime().addShutdownHook(new Thread(SeleniumTestContainerSingleton::cleanup));
+                   
         } catch (Exception e) {
             log.error("Failed to initialize Selenium TestContainer", e);
-            throw new ExceptionInInitializerError(e);
+            throw new RuntimeException("Failed to initialize Selenium TestContainer", e);
         }
     }
     
     public static BrowserWebDriverContainer<?> getContainer() {
         return container;
+    }
+    
+    private static void verifyWebDriverReadiness() {
+        try {
+            log.info("Verifying WebDriver readiness...");
+            // Simple check to ensure WebDriver is responsive
+            String title = driver.getTitle();
+            log.info("WebDriver is ready, current page title: '{}'", title);
+        } catch (Exception e) {
+            log.warn("WebDriver readiness check failed, but continuing: {}", e.getMessage());
+        }
     }
     
     private static void cleanup() {

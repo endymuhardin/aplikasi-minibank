@@ -17,6 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Permission;
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionListPage;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
@@ -31,7 +32,18 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     private PermissionRepository permissionRepository;
     
     @BeforeEach
-    void authenticateUser() {
+    void authenticateUser() throws Exception {
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+            } else {
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+        
         // Login as Manager who has USER_READ, USER_CREATE, USER_UPDATE permissions for RBAC management
         loginHelper.loginAsManager();
     }

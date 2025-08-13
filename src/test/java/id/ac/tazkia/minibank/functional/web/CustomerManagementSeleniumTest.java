@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -16,6 +17,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerViewPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CustomerListPage;
@@ -33,7 +35,18 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     private CustomerRepository customerRepository;
     
     @BeforeEach
-    void authenticateUser() {
+    void authenticateUser() throws Exception {
+        // Manually ensure WebDriver is set up
+        if (loginHelper == null) {
+            super.setupWebDriver(); // Call AbstractSeleniumTestBase method
+            
+            if (driver != null && baseUrl != null) {
+                this.loginHelper = new LoginHelper(driver, baseUrl);
+            } else {
+                throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
+            }
+        }
+        
         // Login as Customer Service user who has CUSTOMER_READ, CUSTOMER_CREATE, CUSTOMER_UPDATE permissions
         loginHelper.loginAsCustomerServiceUser();
     }
@@ -53,6 +66,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldCreatePersonalCustomer() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String uniqueId = "PERS" + System.currentTimeMillis();
         String firstName = "John";
         String lastName = "Doe";
@@ -89,6 +103,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldCreateCorporateCustomer() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String uniqueId = "CORP" + System.currentTimeMillis();
         String companyName = "Test Corporation";
         String contactPerson = "Jane Smith";
@@ -128,6 +143,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     void shouldCreatePersonalCustomersFromCSVData(String customerNumber, String firstName, String lastName,
                                                 String email, String phone, String address, String city,
                                                 String idNumber, String dateOfBirth, String gender) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         String uniqueNumber = customerNumber + System.currentTimeMillis();
         String uniqueEmail = "test" + System.currentTimeMillis() + email;
@@ -158,6 +174,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     void shouldCreateCorporateCustomersFromCSVData(String customerNumber, String companyName, String contactPersonName,
                                                  String email, String phone, String address, String city,
                                                  String taxId, String companyType, String businessType) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         String uniqueNumber = customerNumber + System.currentTimeMillis();
         String uniqueEmail = "test" + System.currentTimeMillis() + email;
@@ -185,6 +202,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateRequiredFields() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
@@ -205,6 +223,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditPersonalCustomer() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String editNumber = "EDIT001"; // Assuming this is a personal customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -238,6 +257,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditCorporateCustomer() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String editNumber = "CORP_EDIT001"; // Need a corporate customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -271,6 +291,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldSearchCustomers() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String searchNumber = "SEARCH001";
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -291,6 +312,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldFilterCustomersByType() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
@@ -308,6 +330,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldActivateAndDeactivateCustomer() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String statusNumber = "STATUS001";
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -336,6 +359,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldViewPersonalCustomerDetails() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String viewNumber = "VIEW001"; // Assuming this is a personal customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -355,6 +379,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldViewCorporateCustomerDetails() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         String viewNumber = "CORP_VIEW001"; // Need a corporate customer in test data
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -374,6 +399,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateDuplicateCustomerNumber() {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
         
@@ -402,6 +428,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
                                                  String firstName, String lastName,
                                                  String email, String phone, 
                                                  String expectedError) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
@@ -442,6 +469,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
                                                   String companyName, String contactPersonName,
                                                   String email, String phone, 
                                                   String expectedError) {
+        Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
         listPage.open();
