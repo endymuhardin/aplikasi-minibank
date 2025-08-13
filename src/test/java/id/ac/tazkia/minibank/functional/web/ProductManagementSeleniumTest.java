@@ -7,12 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.functional.web.pageobject.ProductFormPage;
@@ -23,6 +25,12 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     
     @Autowired
     private ProductRepository productRepository;
+    
+    @BeforeEach
+    void authenticateUser() {
+        // Login as Customer Service user who has PRODUCT_READ, CUSTOMER_READ, ACCOUNT_READ permissions
+        loginHelper.loginAsCustomerServiceUser();
+    }
     
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)

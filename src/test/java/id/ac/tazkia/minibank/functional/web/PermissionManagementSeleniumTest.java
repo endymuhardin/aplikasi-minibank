@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,18 +14,27 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Permission;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionListPage;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 
-@Sql(scripts = "/sql/setup-permission-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/sql/cleanup-permission-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@SqlGroup({
+    @Sql(scripts = "/sql/setup-permission-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+    @Sql(scripts = "/sql/cleanup-permission-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     
     @Autowired
     private PermissionRepository permissionRepository;
+    
+    @BeforeEach
+    void authenticateUser() {
+        // Login as Manager who has USER_READ, USER_CREATE, USER_UPDATE permissions for RBAC management
+        loginHelper.loginAsManager();
+    }
     
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)

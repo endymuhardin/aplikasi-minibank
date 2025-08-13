@@ -27,12 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
-import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
+
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.service.ProductService;
 
 @SpringBootTest
-@Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})
+@Import({PostgresTestContainersConfiguration.class})
 @ActiveProfiles("test")
 @Transactional
 @DisplayName("ProductController Integration Tests")

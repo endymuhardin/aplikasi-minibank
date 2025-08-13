@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,11 @@ import id.ac.tazkia.minibank.functional.web.pageobject.UserListPage;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import org.springframework.test.context.jdbc.Sql;
-@Sql(scripts = "/sql/setup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/sql/cleanup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+import org.springframework.test.context.jdbc.SqlGroup;
+@SqlGroup({
+    @Sql(scripts = "/sql/setup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+    @Sql(scripts = "/sql/cleanup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 public class RbacManagementSeleniumTest extends BaseSeleniumTest {
 
     @Autowired
@@ -29,8 +33,12 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
 
     @Autowired
     private RoleRepository roleRepository;
-
     
+    @BeforeEach
+    void authenticateUser() {
+        // Login as Manager who has all permissions including USER_READ, USER_CREATE, USER_UPDATE
+        loginHelper.loginAsManager();
+    }
 
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)

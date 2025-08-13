@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
+
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 @SpringBootTest
-@Import({TestPasswordEncoderConfig.class, PostgresTestContainersConfiguration.class})
+@Import({PostgresTestContainersConfiguration.class})
 @ActiveProfiles("test")
 public class PasswordHashGeneratorTest {
 

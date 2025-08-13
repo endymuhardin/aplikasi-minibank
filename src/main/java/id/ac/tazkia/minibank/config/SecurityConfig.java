@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!test")
 public class SecurityConfig {
     
     private static final String LOGIN_PATH = "/login";

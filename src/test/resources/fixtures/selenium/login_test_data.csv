@@ -1,11 +1,13 @@
 username,fullName,roleCode,password,shouldSucceed,expectedError
-validuser1,Valid User 1,CUSTOMER_SERVICE,Lx5mT3gJ7vB9wQ6n,true,
-validuser2,Valid User 2,TELLER,My8#nK6%sL1cF4zA,true,
-validuser3,Valid User 3,BRANCH_MANAGER,Nz1pG9dH3mX7bY4k,true,
-manager,Branch Manager,BRANCH_MANAGER,Fw8*jC5&uT1kQ7eR,true,
-cs,Customer Service,CUSTOMER_SERVICE,Gx3pM7bN2vZ9wS4k,true,
-teller,Teller User,TELLER,Hy6@lK4#sF8cX2qT,true,
-statsuser,Statistics Test User,CUSTOMER_SERVICE,Kw2pR8fH4nC6xZ3m,true,
+admin,System Administrator,BRANCH_MANAGER,minibank123,true,
+manager1,Branch Manager Jakarta,BRANCH_MANAGER,minibank123,true,
+manager2,Branch Manager Surabaya,BRANCH_MANAGER,minibank123,true,
+cs1,Customer Service Staff 1,CUSTOMER_SERVICE,minibank123,true,
+cs2,Customer Service Staff 2,CUSTOMER_SERVICE,minibank123,true,
+cs3,Customer Service Staff 3,CUSTOMER_SERVICE,minibank123,true,
+teller1,Teller Counter 1,TELLER,minibank123,true,
+teller2,Teller Counter 2,TELLER,minibank123,true,
+teller3,Teller Counter 3,TELLER,minibank123,true,
 invaliduser1,Invalid User 1,CUSTOMER_SERVICE,wrongpass,false,Invalid username or password
 invaliduser2,Invalid User 2,CUSTOMER_SERVICE,,false,
 nonexistentuser,Non Existent,CUSTOMER_SERVICE,anypass,false,Invalid username or password

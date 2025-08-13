@@ -14,26 +14,11 @@ import org.springframework.test.context.jdbc.SqlGroup;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
 
-@SqlGroup({
-    @Sql(scripts = "/fixtures/sql/login-test-setup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
-    @Sql(scripts = "/fixtures/sql/login-test-cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-})
-public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
+public class LoginSeleniumTest extends BaseSeleniumTest {
 
-    private String getStrongPasswordFor(String username) {
-        switch (username) {
-            case "loginuser": return "Tr7@mK9pL2nX8qW5";
-            case "logoutuser": return "Bs4#nR6%vH3mY9zA";
-            case "manager": return "Fw8*jC5&uT1kQ7eR";
-            case "cs": return "Gx3pM7bN2vZ9wS4k";
-            case "teller": return "Hy6@lK4#sF8cX2qT";
-            case "userinfo": return "Jz9%nB5*dG1mV7uY";
-            case "statsuser": return "Kw2pR8fH4nC6xZ3m";
-            case "validuser1": return "Lx5mT3gJ7vB9wQ6n";
-            case "validuser2": return "My8#nK6%sL1cF4zA";
-            case "validuser3": return "Nz1pG9dH3mX7bY4k";
-            default: return "DefaultStrongPass123!";
-        }
+    private String getPasswordFor(String username) {
+        // All migration users have password: minibank123
+        return "minibank123";
     }
 
     @Test
@@ -60,9 +45,9 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
         System.out.println("Attempting login for user "+username);
         
         if (shouldSucceed) {
-            // Use strong passwords for valid users (as defined in SQL fixtures)
-            String strongPassword = getStrongPasswordFor(username);
-            DashboardPage dashboardPage = loginPage.loginSuccessfully(username, strongPassword);
+            // Use migration user password
+            String migrationPassword = getPasswordFor(username);
+            DashboardPage dashboardPage = loginPage.loginSuccessfully(username, migrationPassword);
             assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after successful login");
         } else {
             // Handle null or empty password
@@ -77,11 +62,11 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     void shouldHandleSuccessfulLoginFlow() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("loginuser", "Tr7@mK9pL2nX8qW5");
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", "minibank123");
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page");
         String username = dashboardPage.getCurrentUsername();
-        assertTrue(username.isEmpty() || username.contains("loginuser"), "Username should be empty or contain loginuser");
+        assertTrue(username.isEmpty() || username.contains("admin"), "Username should be empty or contain admin");
     }
 
     @Test
@@ -105,7 +90,7 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     void shouldHandleLogoutFlow() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("logoutuser", "Bs4#nR6%vH3mY9zA");
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("manager1", "minibank123");
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page before logout");
         
@@ -120,7 +105,7 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
         
         // Test Branch Manager - should see all menu items
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("manager", "Fw8*jC5&uT1kQ7eR");
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", "minibank123");
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Manager should be on dashboard page");
         // Just verify the page loads successfully - menu visibility depends on actual HTML structure
@@ -134,7 +119,7 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
         
         // Test CS - should see limited menu items
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage csPage = loginPage.loginSuccessfully("cs", "Gx3pM7bN2vZ9wS4k");
+        DashboardPage csPage = loginPage.loginSuccessfully("cs1", "minibank123");
         
         assertTrue(csPage.isOnDashboardPage(), "CS should be on dashboard page");
     }
@@ -146,7 +131,7 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
         
         // Test Teller - should see transaction-focused menu items
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage tellerPage = loginPage.loginSuccessfully("teller", "Hy6@lK4#sF8cX2qT");
+        DashboardPage tellerPage = loginPage.loginSuccessfully("teller1", "minibank123");
         
         assertTrue(tellerPage.isOnDashboardPage(), "Teller should be on dashboard page");
     }
@@ -156,11 +141,11 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     void shouldDisplayUserInformationCorrectly() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("userinfo", "Jz9%nB5*dG1mV7uY");
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", "minibank123");
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page");
         String username = dashboardPage.getCurrentUsername();
-        assertTrue(username.isEmpty() || username.contains("userinfo"), "Username should be empty or contain userinfo");
+        assertTrue(username.isEmpty() || username.contains("admin"), "Username should be empty or contain admin");
     }
 
     @Test
@@ -168,7 +153,7 @@ public class LoginSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     void shouldDisplayDashboardStatisticsAndSections() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("statsuser", "Kw2pR8fH4nC6xZ3m");
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", "minibank123");
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page");
         assertTrue(dashboardPage.getStatisticsCardsCount() >= 0, "Statistics cards count should be non-negative");

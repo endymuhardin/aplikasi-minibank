@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerFormPage;
@@ -21,12 +23,20 @@ import id.ac.tazkia.minibank.functional.web.pageobject.PersonalCustomerFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.PersonalCustomerViewPage;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 
-@Sql(scripts = "/sql/setup-customer-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/sql/cleanup-customer-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+@SqlGroup({
+    @Sql(scripts = "/sql/setup-customer-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+    @Sql(scripts = "/sql/cleanup-customer-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     
     @Autowired
     private CustomerRepository customerRepository;
+    
+    @BeforeEach
+    void authenticateUser() {
+        // Login as Customer Service user who has CUSTOMER_READ, CUSTOMER_CREATE, CUSTOMER_UPDATE permissions
+        loginHelper.loginAsCustomerServiceUser();
+    }
     
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
