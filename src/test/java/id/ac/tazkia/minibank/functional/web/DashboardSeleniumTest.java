@@ -122,7 +122,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         
         DashboardPage dashboardPage = loginPage.loginSuccessfully(username, getPasswordFor(username));
         
-        assertTrue(dashboardPage.isOnDashboardPage());
+        assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after login");
         
         // Verify role-based menu visibility
         String[] menuItems = expectedMenuItems.split(",");
@@ -130,24 +130,19 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
             menuItem = menuItem.trim();
             switch (menuItem) {
                 case "products":
-                    if (dashboardPage.isProductManagementLinkVisible()) {
-                        assertTrue(true, "Products menu visible for " + role);
-                    }
+                    assertTrue(dashboardPage.isProductManagementLinkVisible(), "Products menu should be visible for " + role);
                     break;
                 case "users":
-                    if (dashboardPage.isUserManagementLinkVisible()) {
-                        assertTrue(true, "Users menu visible for " + role);
-                    }
+                    assertTrue(dashboardPage.isUserManagementLinkVisible(), "Users menu should be visible for " + role);
                     break;
                 case "transactions":
-                    if (dashboardPage.isTransactionManagementLinkVisible()) {
-                        assertTrue(true, "Transactions menu visible for " + role);
-                    }
+                    assertTrue(dashboardPage.isTransactionManagementLinkVisible(), "Transactions menu should be visible for " + role);
                     break;
                 case "reports":
-                    if (dashboardPage.isReportsLinkVisible()) {
-                        assertTrue(true, "Reports menu visible for " + role);
-                    }
+                    assertTrue(dashboardPage.isReportsLinkVisible(), "Reports menu should be visible for " + role);
+                    break;
+                case "customers":
+                    assertTrue(dashboardPage.isCustomerLinkVisible(), "Customers menu should be visible for " + role);
                     break;
             }
         }
@@ -162,15 +157,14 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         
         DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
         
-        assertTrue(dashboardPage.isOnDashboardPage());
+        assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after login");
         
         // Check if user information is displayed in header
-        String username = dashboardPage.getCurrentUsername();
-        assertTrue(username.isEmpty() || username.contains("admin") || username.length() > 0,
-                  "User information should be displayed");
+        String currentUsername = dashboardPage.getCurrentUsername();
+        assertEquals("System Administrator", currentUsername, "Username in header should be 'System Administrator'");
         
         // Check if logout functionality is available
-        assertTrue(dashboardPage.isLogoutLinkVisible());
+        assertTrue(dashboardPage.isLogoutLinkVisible(), "Logout link should be visible");
     }
     
     @Test
