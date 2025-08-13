@@ -2,6 +2,11 @@ Feature: Personal Customer Registration API
 
 Background:
   * url baseUrl
+  * configure cookies = true
+  
+  # Authenticate as Customer Service (has CUSTOMER_CREATE permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  
   * def testData = read('classpath:fixtures/customer/personal/personal-customer-registration-normal.csv')
 
 Scenario Outline: Register personal customer - <testCase>

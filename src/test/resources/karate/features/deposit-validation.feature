@@ -2,6 +2,11 @@ Feature: Deposit Transaction Validation API
 
 Background:
   * url baseUrl
+  * configure cookies = true
+  
+  # Authenticate as Teller (has TRANSACTION_DEPOSIT permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Teller')
+  
   * def accountLookup = {}
   
   # Set up account ID mappings (using fixed UUIDs from setup SQL)

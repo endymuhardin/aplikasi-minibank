@@ -2,6 +2,10 @@ Feature: User Management API Validation
 
 Background:
   * url baseUrl
+  * configure cookies = true
+  
+  # Authenticate as Branch Manager (has USER_CREATE permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Branch Manager')
 
 Scenario Outline: Create user validation - <testDescription>
   * def userData = {}

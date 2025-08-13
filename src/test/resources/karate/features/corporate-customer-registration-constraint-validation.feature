@@ -3,7 +3,12 @@ Feature: Corporate Customer Registration API - Database Constraint Validation Te
 # All tests should return 400 (validation error) instead of 500 (database constraint violation)
 
 Background:
-  * url baseUrl  
+  * url baseUrl
+  * configure cookies = true
+  
+  # Authenticate as Customer Service (has CUSTOMER_CREATE permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  
   * def testData = read('classpath:fixtures/customer/corporate/corporate-customer-registration-validation.csv')
 
 Scenario Outline: Corporate customer database constraint validation - <testCase>

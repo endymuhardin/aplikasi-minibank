@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("!test")
-public class SecurityConfig {
+@Profile("test")
+public class TestSecurityConfig {
     
     private static final String LOGIN_PATH = "/login";
 
@@ -29,11 +30,13 @@ public class SecurityConfig {
     private final AuthenticationService authenticationService;
 
     @Bean
+    @Primary
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
+    @Primary
     public JdbcUserDetailsManager jdbcUserDetailsManager() {
         JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
         
@@ -50,7 +53,6 @@ public class SecurityConfig {
         );
         
         // Custom query to get user authorities (permissions)
-        // Note: Spring Security only provides one parameter (username) to this query
         manager.setAuthoritiesByUsernameQuery(
             "SELECT u.username, UPPER(p.resource || '_' || p.action) as authority " +
             "FROM users u " +
@@ -66,6 +68,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Primary
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (request, response, authentication) -> {
             authenticationService.recordSuccessfulLogin(authentication.getName());
@@ -74,6 +77,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Primary
     public AuthenticationFailureHandler authenticationFailureHandler() {
         return (request, response, exception) -> {
             String username = request.getParameter("username");
@@ -85,10 +89,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Primary
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(LOGIN_PATH, "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
+                // Allow API access with proper authentication - keeping real security
                 .requestMatchers("/api/**").hasAnyAuthority("TRANSACTION_READ", "CUSTOMER_READ", "ACCOUNT_READ", "USER_READ")
                 .requestMatchers("/rbac/**").hasAnyAuthority("USER_READ", "USER_CREATE", "USER_UPDATE")
                 .requestMatchers("/product/**").hasAnyAuthority("PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ")
@@ -109,6 +115,8 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
+            // Enable HTTP Basic authentication for API testing
+            .httpBasic(basic -> basic.realmName("Minibank API"))
             .userDetailsService(jdbcUserDetailsManager())
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/**")

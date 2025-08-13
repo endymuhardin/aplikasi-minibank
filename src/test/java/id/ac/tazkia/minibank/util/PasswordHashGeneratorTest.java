@@ -29,6 +29,24 @@ public class PasswordHashGeneratorTest {
     private Resource loginTestData;
 
     @Test
+    public void generatePasswordHash() {
+        String password = "minibank123";
+        String hash = passwordEncoder.encode(password);
+        
+        System.out.println("Password: " + password);
+        System.out.println("BCrypt hash: " + hash);
+        
+        // Test if the hash matches
+        boolean matches = passwordEncoder.matches(password, hash);
+        System.out.println("Hash matches password: " + matches);
+        
+        // Test the existing hash from database
+        String existingHash = "$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da";
+        boolean existingMatches = passwordEncoder.matches(password, existingHash);
+        System.out.println("Existing hash matches password: " + existingMatches);
+    }
+
+    @Test
     public void generateBcryptHashFromCsv() throws IOException, CsvException {
         try (CSVReader reader = new CSVReader(new InputStreamReader(loginTestData.getInputStream()))) {
             reader.readNext(); // Skip header

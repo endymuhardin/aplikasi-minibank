@@ -2,6 +2,10 @@ Feature: Account Opening API
 
 Background:
   * url baseUrl
+  
+  # Authenticate as Customer Service (has CUSTOMER_READ, ACCOUNT_CREATE permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  
   * def customerLookup = {}
   * def productLookup = {}
   

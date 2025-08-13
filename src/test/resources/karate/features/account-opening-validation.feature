@@ -2,14 +2,23 @@ Feature: Account Opening API - Validation Tests
 
 Background:
   * url baseUrl
+  
+  # Authenticate as Customer Service (has CUSTOMER_READ, ACCOUNT_CREATE permissions)
+  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  
   * def customerLookup = {}
   * def productLookup = {}
   
   # Lookup customers dynamically from API - get both personal and corporate
   * path '/api/customers/personal'
   * method GET
+  * print 'Personal customers API response status:', responseStatus
+  * print 'Personal customers API response:', response
   * status 200
   * def personalCustomers = response
+  * print 'personalCustomers type:', karate.typeOf(personalCustomers)
+  * print 'personalCustomers:', personalCustomers
+  * match karate.typeOf(personalCustomers) == 'object'
   * personalCustomers.forEach(function(customer) { customerLookup[customer.customerNumber] = customer.id })
   
   * path '/api/customers/corporate'

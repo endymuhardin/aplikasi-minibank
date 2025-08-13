@@ -94,7 +94,7 @@ INSERT INTO users (username, email, full_name, created_by) VALUES
 -- Set passwords for all users (password: minibank123)
 -- Note: BCrypt hash for 'minibank123'
 INSERT INTO user_passwords (id_users, password_hash, created_by)
-SELECT id, '$2a$10$qj8.4l5y5Yb8gYF4H6N2M8A7t9X6V5W4SmKHGLVjFHGHfPGKw5P8/e', 'SYSTEM'
+SELECT id, '$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da', 'SYSTEM'
 FROM users WHERE username IN ('admin', 'manager1', 'manager2', 'teller1', 'teller2', 'teller3', 'cs1', 'cs2', 'cs3');
 
 -- Assign Branch Manager role
