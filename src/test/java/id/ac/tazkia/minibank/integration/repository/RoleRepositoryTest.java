@@ -148,7 +148,7 @@ class RoleRepositoryTest extends BaseRepositoryTest {
         savedRole.setRoleName("Updated Name");
         savedRole.setDescription("Updated description");
         savedRole.setUpdatedBy("UPDATER");
-        Role updatedRole = roleRepository.save(savedRole);
+        roleRepository.save(savedRole);
         entityManager.flush();
 
         // Then

@@ -53,9 +53,9 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldFindUserRolesByUser() {
         // Given
-        UserRole userRole1 = createUserRole(testUser1, branchManagerRole);
-        UserRole userRole2 = createUserRole(testUser1, tellerRole); // User with multiple roles
-        UserRole userRole3 = createUserRole(testUser2, customerServiceRole);
+        createUserRole(testUser1, branchManagerRole);
+        createUserRole(testUser1, tellerRole); // User with multiple roles
+        createUserRole(testUser2, customerServiceRole);
 
         // When
         List<UserRole> user1Roles = userRoleRepository.findByUser(testUser1);
@@ -73,8 +73,8 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldFindUserRolesByRole() {
         // Given
-        UserRole userRole1 = createUserRole(testUser1, tellerRole);
-        UserRole userRole2 = createUserRole(testUser2, tellerRole); // Multiple users with same role
+        createUserRole(testUser1, tellerRole);
+        createUserRole(testUser2, tellerRole); // Multiple users with same role
 
         // When
         List<UserRole> tellerUsers = userRoleRepository.findByRole(tellerRole);
@@ -91,7 +91,7 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldFindSpecificUserRole() {
         // Given
-        UserRole savedUserRole = createUserRole(testUser1, branchManagerRole);
+        createUserRole(testUser1, branchManagerRole);
 
         // When
         Optional<UserRole> foundUserRole = userRoleRepository.findByUserAndRole(testUser1, branchManagerRole);
@@ -193,8 +193,8 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldCascadeDeleteWhenUserIsDeleted() {
         // Given
-        UserRole userRole1 = createUserRole(testUser1, branchManagerRole);
-        UserRole userRole2 = createUserRole(testUser1, tellerRole);
+        createUserRole(testUser1, branchManagerRole);
+        createUserRole(testUser1, tellerRole);
         entityManager.flush();
         
         // Verify initial state

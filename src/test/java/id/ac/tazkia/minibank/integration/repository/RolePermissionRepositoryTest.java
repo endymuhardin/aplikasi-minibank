@@ -104,7 +104,7 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldFindSpecificRolePermission() {
         // Given
-        RolePermission savedRolePermission = createRolePermission(branchManagerRole, customerViewPermission);
+        createRolePermission(branchManagerRole, customerViewPermission);
 
         // When
         Optional<RolePermission> found = rolePermissionRepository.findByRoleAndPermission(
@@ -170,7 +170,7 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
     void shouldFindPermissionsByUsername() {
         // Given - Create user with role and permissions
         User testUser = createUser("testuser", "testuser@yopmail.com", "Test User");
-        UserRole userRole = createUserRole(testUser, branchManagerRole);
+        createUserRole(testUser, branchManagerRole);
         
         createRolePermission(branchManagerRole, customerViewPermission);
         createRolePermission(branchManagerRole, customerCreatePermission);

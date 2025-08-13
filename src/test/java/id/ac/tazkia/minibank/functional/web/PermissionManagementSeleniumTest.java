@@ -7,11 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import org.openqa.selenium.By;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -277,24 +276,6 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
                    driver.findElement(By.id("permissionName-error")).isDisplayed() ||
                    driver.findElement(By.id("permissionCategory-error")).isDisplayed() ||
                    driver.findElement(By.id("error-message")).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
-    private boolean hasHtml5ValidationError() {
-        try {
-            // Check if any of the required fields has HTML5 validation errors
-            String[] requiredFieldIds = {"permissionCode", "permissionName", "permissionCategory"};
-            for (String fieldId : requiredFieldIds) {
-                WebElement field = driver.findElement(By.id(fieldId));
-                String validationMessage = (String) ((org.openqa.selenium.JavascriptExecutor) driver)
-                    .executeScript("return arguments[0].validationMessage;", field);
-                if (validationMessage != null && !validationMessage.isEmpty()) {
-                    return true;
-                }
-            }
-            return false;
         } catch (Exception e) {
             return false;
         }

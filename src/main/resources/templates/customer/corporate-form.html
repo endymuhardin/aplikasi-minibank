@@ -16,11 +16,11 @@
             </div>
 
             <!-- Error messages -->
-            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <form action="/customer/create/corporate" method="post" class="space-y-6">
+            <form th:action="${customer != null ? '/customer/update/' + customer.id : '/customer/create/corporate'}" method="post" class="space-y-6">
                 <input type="hidden" name="customerType" value="CORPORATE">
                 
                 <!-- Customer Number -->
@@ -29,6 +29,7 @@
                         Customer Number <span class="text-red-500">*</span>
                     </label>
                     <input type="text" id="customerNumber" name="customerNumber" 
+                           th:value="${customer?.customerNumber}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                            required>
                     <p class="text-sm text-gray-500 mt-1">Unique identifier for this corporate customer</p>
@@ -43,6 +44,7 @@
                             Company Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="companyName" name="companyName" 
+                               th:value="${customer?.companyName}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                required>
                         <p class="text-sm text-gray-500 mt-1">Full registered company name</p>
@@ -70,6 +72,7 @@
                                 Business Type
                             </label>
                             <input type="text" id="businessType" name="businessType" 
+                                   th:value="${customer?.businessType}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    placeholder="e.g., Manufacturing, Trading, Services">
                         </div>
@@ -80,6 +83,7 @@
                             Tax Identification Number (NPWP)
                         </label>
                         <input type="text" id="taxId" name="taxId" 
+                               th:value="${customer?.taxIdentificationNumber}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                placeholder="XX.XXX.XXX.X-XXX.XXX">
                         <p class="text-sm text-gray-500 mt-1">Corporate tax number (optional)</p>
@@ -96,6 +100,7 @@
                                 Contact Person Name
                             </label>
                             <input type="text" id="contactPersonName" name="contactPersonName" 
+                                   th:value="${customer?.contactPersonName}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
@@ -103,6 +108,7 @@
                                 Title/Position
                             </label>
                             <input type="text" id="contactPersonTitle" name="contactPersonTitle" 
+                                   th:value="${customer?.contactPersonTitle}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    placeholder="e.g., Director, Manager">
                         </div>
@@ -118,6 +124,7 @@
                             Email <span class="text-red-500">*</span>
                         </label>
                         <input type="email" id="email" name="email" 
+                               th:value="${customer?.email}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                required>
                         <p class="text-sm text-gray-500 mt-1">Company or contact person email</p>
@@ -128,6 +135,7 @@
                             Phone Number <span class="text-red-500">*</span>
                         </label>
                         <input type="tel" id="phoneNumber" name="phoneNumber" 
+                               th:value="${customer?.phoneNumber}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                required>
                         <p class="text-sm text-gray-500 mt-1">Company main phone number</p>
@@ -138,6 +146,7 @@
                             Company Address
                         </label>
                         <textarea id="address" name="address" rows="3"
+                                  th:text="${customer?.address}"
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                   placeholder="Complete company address"></textarea>
                     </div>
@@ -147,6 +156,7 @@
                             City
                         </label>
                         <input type="text" id="city" name="city" 
+                               th:value="${customer?.city}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -157,7 +167,7 @@
                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                         Cancel
                     </a>
-                    <button type="submit" 
+                    <button type="submit" id="submit-button"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                         Create Corporate Customer
                     </button>

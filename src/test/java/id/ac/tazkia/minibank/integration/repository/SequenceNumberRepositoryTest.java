@@ -250,7 +250,7 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
         sequenceNumber.setPrefix("PT");
 
         // When - Save and retrieve
-        SequenceNumber savedSequence = sequenceNumberRepository.save(sequenceNumber);
+        sequenceNumberRepository.save(sequenceNumber);
         entityManager.flush();
         entityManager.clear();
 

@@ -34,7 +34,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
 
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayDashboardCorrectly() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -47,7 +47,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayStatisticsCards() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -65,7 +65,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateToProductManagement() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -82,7 +82,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateToUserManagement() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -100,7 +100,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/selenium/dashboard_navigation_data.csv", numLinesToSkip = 1)
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateBasedOnUserRole(String username, String role, String expectedMenuItems) {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -139,7 +139,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayUserInformationInHeader() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -158,7 +158,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayRecentActivities() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -174,7 +174,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayQuickActionsForManager() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -198,7 +198,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayLimitedFunctionalityForCS() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -218,7 +218,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayTransactionFunctionsForTeller() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -239,7 +239,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldHandlePageRefresh() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
@@ -256,7 +256,7 @@ public class DashboardSeleniumTest extends BaseSecurityEnabledSeleniumTest {
     }
     
     @Test
-    @Timeout(value = 60, unit = TimeUnit.SECONDS)
+    @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplaySystemNotifications() {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);

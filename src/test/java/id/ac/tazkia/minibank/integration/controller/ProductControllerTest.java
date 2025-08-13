@@ -1,9 +1,18 @@
 package id.ac.tazkia.minibank.integration.controller;
 
-import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
-import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
-import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.service.ProductService;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,14 +26,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
-import static org.hamcrest.Matchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
+import id.ac.tazkia.minibank.config.TestPasswordEncoderConfig;
+import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.service.ProductService;
 
 @SpringBootTest
 @Import({PostgresTestContainersConfiguration.class, TestPasswordEncoderConfig.class})

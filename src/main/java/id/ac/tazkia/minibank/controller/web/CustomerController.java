@@ -190,9 +190,19 @@ public class CustomerController {
     public String editForm(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) {
-            model.addAttribute("customer", customer.get());
+            Customer c = customer.get();
+            model.addAttribute("customer", c);
             model.addAttribute("customerTypes", Customer.CustomerType.values());
-            return "customer/form";
+            
+            // Route to appropriate edit form based on customer type
+            if (c.getCustomerType() == Customer.CustomerType.PERSONAL) {
+                return "customer/personal-form";
+            } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
+                return "customer/corporate-form";
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "Unknown customer type");
+                return "redirect:/customer/list";
+            }
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
             return "redirect:/customer/list";
@@ -201,31 +211,73 @@ public class CustomerController {
 
     @PostMapping("/update/{id}")
     public String update(@PathVariable UUID id, 
-                        @Valid @ModelAttribute Customer customer, 
-                        BindingResult result, 
+                        @RequestParam String customerNumber,
+                        @RequestParam String email,
+                        @RequestParam String phoneNumber,
+                        @RequestParam(required = false) String address,
+                        @RequestParam(required = false) String city,
+                        @RequestParam(required = false) String firstName,
+                        @RequestParam(required = false) String lastName,
+                        @RequestParam(required = false) String dateOfBirth,
+                        @RequestParam(required = false) String idNumber,
+                        @RequestParam(required = false) String companyName,
+                        @RequestParam(required = false) String contactPersonName,
+                        @RequestParam(required = false) String contactPersonTitle,
+                        @RequestParam(required = false) String taxId,
+                        @RequestParam(required = false) String businessType,
                         RedirectAttributes redirectAttributes, 
                         Model model) {
-        
-        if (result.hasErrors()) {
-            model.addAttribute("customerTypes", Customer.CustomerType.values());
-            return "customer/form";
-        }
 
-        Optional<Customer> existingCustomer = customerRepository.findById(id);
-        if (!existingCustomer.isPresent()) {
+        Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
+        if (!existingCustomerOpt.isPresent()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
             return "redirect:/customer/list";
         }
 
         try {
-            customer.setId(id);
-            customerRepository.save(customer);
+            Customer existingCustomer = existingCustomerOpt.get();
+            
+            // Update common fields
+            existingCustomer.setCustomerNumber(customerNumber);
+            existingCustomer.setEmail(email);
+            existingCustomer.setPhoneNumber(phoneNumber);
+            existingCustomer.setAddress(address);
+            existingCustomer.setCity(city);
+            
+            // Update type-specific fields
+            if (existingCustomer instanceof PersonalCustomer) {
+                PersonalCustomer personalCustomer = (PersonalCustomer) existingCustomer;
+                personalCustomer.setFirstName(firstName);
+                personalCustomer.setLastName(lastName);
+                if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
+                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
+                }
+                personalCustomer.setIdentityNumber(idNumber);
+            } else if (existingCustomer instanceof CorporateCustomer) {
+                CorporateCustomer corporateCustomer = (CorporateCustomer) existingCustomer;
+                corporateCustomer.setCompanyName(companyName);
+                corporateCustomer.setContactPersonName(contactPersonName);
+                corporateCustomer.setContactPersonTitle(contactPersonTitle);
+                corporateCustomer.setTaxIdentificationNumber(taxId);
+            }
+            
+            customerRepository.save(existingCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Customer updated successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
-            model.addAttribute("customerTypes", Customer.CustomerType.values());
-            return "customer/form";
+            
+            // Return to appropriate form based on customer type
+            Optional<Customer> customer = customerRepository.findById(id);
+            if (customer.isPresent()) {
+                model.addAttribute("customer", customer.get());
+                if (customer.get().getCustomerType() == Customer.CustomerType.PERSONAL) {
+                    return "customer/personal-form";
+                } else {
+                    return "customer/corporate-form";
+                }
+            }
+            return "redirect:/customer/list";
         }
     }
 

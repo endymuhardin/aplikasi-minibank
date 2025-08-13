@@ -2,5 +2,6 @@ testCase,permissionCode,permissionName,category,expectedError
 Empty Permission Code,,Valid Permission Name,User Management,Permission code is required
 Empty Permission Name,VALID_CODE,,User Management,Permission name is required
 Empty Category,VALID_CODE,Valid Permission Name,,Category is required
+Too Long Category,VALID_CODE,Valid Permission Name,User ManagementXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,Category too long
 Too Long Permission Code,VERY_LONG_PERMISSION_CODE_THAT_EXCEEDS_MAXIMUM_LENGTH_LIMIT_AND_SHOULD_TRIGGER_VALIDATION_ERRORXXXXXX,Valid Permission Name,User Management,Permission code too long
-Too Long Permission Name,VALID_CODE,Very Long Permission Name That Exceeds The Maximum Allowed Length For Permission Names And Should Trigger A Validation Error When CreatingX,User Management,Permission name too long
+Too Long Permission Name,VALID_CODE,Very Long Permission Name That Exceeds The Maximum Allowed Length For Permission Names And Should Trigger A Validation Error When CreatingXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,User Management,Permission name too long

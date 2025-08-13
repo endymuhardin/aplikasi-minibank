@@ -1,8 +1,11 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.*;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -11,11 +14,16 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import id.ac.tazkia.minibank.entity.Permission;
+import id.ac.tazkia.minibank.entity.Role;
+import id.ac.tazkia.minibank.entity.RolePermission;
+import id.ac.tazkia.minibank.entity.User;
+import id.ac.tazkia.minibank.entity.UserPassword;
+import id.ac.tazkia.minibank.entity.UserRole;
+import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.PermissionRepository;
+import id.ac.tazkia.minibank.repository.RoleRepository;
+import id.ac.tazkia.minibank.repository.UserRepository;
 
 class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
 
@@ -30,12 +38,6 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
     
     @Autowired
     private PermissionRepository permissionRepository;
-    
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-    
-    @Autowired
-    private RolePermissionRepository rolePermissionRepository;
     
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     

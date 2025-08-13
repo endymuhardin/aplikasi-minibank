@@ -3,7 +3,6 @@ package id.ac.tazkia.minibank.functional.web;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.functional.web.pageobject.*;
+import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerViewPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.CustomerListPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.PersonalCustomerFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.PersonalCustomerViewPage;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 
 @Sql(scripts = "/sql/setup-customer-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)

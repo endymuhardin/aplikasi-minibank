@@ -63,33 +63,29 @@ public class DashboardPage {
     
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         PageFactory.initElements(driver, this);
     }
     
     public boolean isOnDashboardPage() {
         try {
-            // First wait for successful login redirect, allowing for multiple possible success conditions
+            // Wait for successful login redirect to dashboard
             wait.until(ExpectedConditions.or(
                 ExpectedConditions.urlContains("/dashboard"),
-                ExpectedConditions.urlContains("/product/list"),
-                ExpectedConditions.titleContains("Dashboard"),
-                ExpectedConditions.titleContains("Product"),
-                ExpectedConditions.presenceOfElementLocated(By.id("sidebar-nav")),
                 ExpectedConditions.presenceOfElementLocated(By.id("userMenuButton"))
             ));
             
             String currentUrl = driver.getCurrentUrl();
-            // Accept both /dashboard and /product/list as valid dashboard-like pages
-            return currentUrl.contains("/dashboard") || currentUrl.contains("/product/list");
+            // Check if we're on the dashboard URL
+            boolean isOnDashboardUrl = currentUrl.contains("/dashboard");
+            
+            // Also verify that key dashboard elements are present
+            boolean hasSidebar = driver.findElements(By.id("sidebar-nav")).size() > 0;
+            boolean hasUserMenu = driver.findElements(By.id("userMenuButton")).size() > 0;
+            
+            return isOnDashboardUrl && (hasSidebar || hasUserMenu);
         } catch (Exception e) {
-            // Fallback: try to detect dashboard elements
-            try {
-                return driver.findElement(By.id("sidebar-nav")).isDisplayed() ||
-                       driver.findElement(By.id("userMenuButton")).isDisplayed();
-            } catch (Exception ex) {
-                return false;
-            }
+            return false;
         }
     }
     
