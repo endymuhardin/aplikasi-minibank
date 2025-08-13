@@ -3,6 +3,7 @@ package id.ac.tazkia.minibank.functional.web;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +20,7 @@ import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
 
 import org.junit.jupiter.api.BeforeEach;
 
+@Slf4j
 @SqlGroup({
     @Sql(scripts = "/fixtures/sql/dashboard-test-setup.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
     @Sql(scripts = "/fixtures/sql/dashboard-test-cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -47,6 +49,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayDashboardCorrectly() {
+        log.info("Starting test: shouldDisplayDashboardCorrectly");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -60,6 +63,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayStatisticsCards() {
+        log.info("Starting test: shouldDisplayStatisticsCards");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -78,6 +82,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateToProductManagement() {
+        log.info("Starting test: shouldNavigateToProductManagement");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -95,6 +100,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateToUserManagement() {
+        log.info("Starting test: shouldNavigateToUserManagement");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -113,6 +119,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @CsvFileSource(resources = "/fixtures/selenium/dashboard_navigation_data.csv", numLinesToSkip = 1)
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldNavigateBasedOnUserRole(String username, String role, String expectedMenuItems) {
+        log.info("Starting test: shouldNavigateBasedOnUserRole with username: {}, role: {}, expectedMenuItems: {}", username, role, expectedMenuItems);
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -152,6 +159,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayUserInformationInHeader() {
+        log.info("Starting test: shouldDisplayUserInformationInHeader");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -171,6 +179,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayRecentActivities() {
+        log.info("Starting test: shouldDisplayRecentActivities");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -187,6 +196,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayQuickActionsForManager() {
+        log.info("Starting test: shouldDisplayQuickActionsForManager");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -211,6 +221,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayLimitedFunctionalityForCS() {
+        log.info("Starting test: shouldDisplayLimitedFunctionalityForCS");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -231,6 +242,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayTransactionFunctionsForTeller() {
+        log.info("Starting test: shouldDisplayTransactionFunctionsForTeller");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -252,6 +264,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldHandlePageRefresh() {
+        log.info("Starting test: shouldHandlePageRefresh");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -269,6 +282,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplaySystemNotifications() {
+        log.info("Starting test: shouldDisplaySystemNotifications");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         

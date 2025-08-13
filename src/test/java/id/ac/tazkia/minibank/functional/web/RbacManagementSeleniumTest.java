@@ -25,6 +25,9 @@ import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SqlGroup({
     @Sql(scripts = "/sql/setup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
     @Sql(scripts = "/sql/cleanup-rbac-users-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -39,31 +42,32 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     
     @BeforeEach
     void authenticateUser() throws Exception {
-        System.out.println("RbacManagementSeleniumTest.authenticateUser() started");
+        log.info("RbacManagementSeleniumTest.authenticateUser() started");
         
         // Manually ensure WebDriver is set up
         if (loginHelper == null) {
-            System.out.println("LoginHelper is null, calling parent setup methods");
+            log.info("LoginHelper is null, calling parent setup methods");
             super.setupWebDriver(); // Call AbstractSeleniumTestBase method
             
             if (driver != null && baseUrl != null) {
                 this.loginHelper = new LoginHelper(driver, baseUrl);
-                System.out.println("LoginHelper manually initialized: " + loginHelper);
+                log.info("LoginHelper manually initialized: {}", loginHelper);
             } else {
-                System.out.println("Driver or baseUrl is still null after setup: driver=" + driver + ", baseUrl=" + baseUrl);
+                log.error("Driver or baseUrl is still null after setup: driver={}, baseUrl={}", driver, baseUrl);
                 throw new RuntimeException("Failed to initialize selenium - driver=" + driver + ", baseUrl=" + baseUrl);
             }
         }
         
-        System.out.println("About to call loginAsManager with loginHelper: " + loginHelper);
+        log.info("About to call loginAsManager with loginHelper: {}", loginHelper);
         // Login as Manager who has all permissions including USER_READ, USER_CREATE, USER_UPDATE
         loginHelper.loginAsManager();
-        System.out.println("loginAsManager completed successfully");
+        log.info("loginAsManager completed successfully");
     }
 
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadUserManagementPage() {
+        log.info("Starting test: shouldLoadUserManagementPage");
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
         
@@ -75,6 +79,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadRoleManagementPage() {
+        log.info("Starting test: shouldLoadRoleManagementPage");
         RoleListPage listPage = new RoleListPage(driver, baseUrl);
         listPage.open();
         
@@ -86,6 +91,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldLoadPermissionManagementPage() {
+        log.info("Starting test: shouldLoadPermissionManagementPage");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
@@ -97,6 +103,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldCreateNewUser() {
+        log.info("Starting test: shouldCreateNewUser");
         long timestamp = System.currentTimeMillis();
         String uniqueUsername = "sel_" + timestamp;
         String fullName = "Selenium Test User";
@@ -126,6 +133,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldCreateNewRole() {
+        log.info("Starting test: shouldCreateNewRole");
         String uniqueRoleCode = "SELENIUM_ROLE_" + System.currentTimeMillis();
         String roleName = "Selenium Test Role";
         String description = "A test role created by Selenium";
@@ -153,6 +161,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldValidateUserFormRequiredFields() {
+        log.info("Starting test: shouldValidateUserFormRequiredFields");
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
         
@@ -171,6 +180,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldValidateRoleFormRequiredFields() {
+        log.info("Starting test: shouldValidateRoleFormRequiredFields");
         RoleListPage listPage = new RoleListPage(driver, baseUrl);
         listPage.open();
         
@@ -189,6 +199,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldNavigateToUserFormAndBack() {
+        log.info("Starting test: shouldNavigateToUserFormAndBack");
         UserListPage listPage = new UserListPage(driver, baseUrl);
         listPage.open();
         
@@ -203,6 +214,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     public void shouldSearchUsers() {
+        log.info("Starting test: shouldSearchUsers");
         // Create a test user with shorter username to avoid 50-character limit
         long timestamp = System.currentTimeMillis();
         String searchUsername = "search_" + timestamp;
@@ -224,6 +236,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     public void shouldDisplayPermissionsList() {
+        log.info("Starting test: shouldDisplayPermissionsList");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         

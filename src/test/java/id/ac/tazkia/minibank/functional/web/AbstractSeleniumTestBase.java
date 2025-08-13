@@ -26,27 +26,29 @@ public abstract class AbstractSeleniumTestBase {
 
     @BeforeEach
     void setupWebDriver() throws Exception {
-        log.info("Setting up WebDriver with webapp port: {}", webappPort);
+        String testClass = this.getClass().getSimpleName();
+        log.info("🧪 TEST SETUP: {} requesting WebDriver setup with webapp port: {}", testClass, webappPort);
         Testcontainers.exposeHostPorts(webappPort);
         
         try {
-            log.info("About to initialize selenium container...");
+            log.info("📞 CONTAINER REQUEST: {} calling SeleniumTestContainerSingleton.initialize()", testClass);
             SeleniumTestContainerSingleton.initialize();
-            log.info("Selenium container initialization completed");
+            log.info("✅ CONTAINER RESPONSE: {} received container initialization response", testClass);
             
             driver = SeleniumTestContainerSingleton.driver;
-            log.info("Using singleton WebDriver: {}", driver != null ? "SUCCESS" : "NULL");
+            log.info("🔗 WEBDRIVER ASSIGNMENT: {} using singleton WebDriver: {}", 
+                    testClass, driver != null ? "SUCCESS" : "NULL");
             
             if (SeleniumTestContainerSingleton.getContainer() != null) {
-                log.info("VNC URL : {}", SeleniumTestContainerSingleton.getContainer().getVncAddress());
+                log.info("🖥️  VNC URL for {}: {}", testClass, SeleniumTestContainerSingleton.getContainer().getVncAddress());
             } else {
-                log.error("Container is null after initialization");
+                log.error("❌ CONTAINER ERROR: {} found null container after initialization", testClass);
             }
             
             baseUrl = getHostUrl();
-            log.info("Base URL set to: {}", baseUrl);
+            log.info("🌐 BASE URL: {} set to: {}", testClass, baseUrl);
         } catch (Exception e) {
-            log.error("Failed to setup WebDriver", e);
+            log.error("❌ SETUP FAILED: {} WebDriver setup failed", testClass, e);
             throw e;
         }
     }

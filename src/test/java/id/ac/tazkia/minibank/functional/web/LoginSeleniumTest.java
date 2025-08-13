@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.functional.web;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,13 +10,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
 
+@Slf4j
 public class LoginSeleniumTest extends BaseSeleniumTest {
 
     @BeforeEach
@@ -40,6 +40,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldDisplayLoginPageCorrectly() {
+        log.info("Starting test: shouldDisplayLoginPageCorrectly");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -55,10 +56,11 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldHandleLoginAttempts(String username, String fullName, String roleCode, 
                                   String password, boolean shouldSucceed, String expectedError) {
+        log.info("Starting test: shouldHandleLoginAttempts with username: {}, roleCode: {}, shouldSucceed: {}", username, roleCode, shouldSucceed);
         
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
-        System.out.println("Attempting login for user "+username);
+        log.info("Attempting login for user: {}", username);
         
         if (shouldSucceed) {
             // Use migration user password
@@ -76,6 +78,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldHandleSuccessfulLoginFlow() {
+        log.info("Starting test: shouldHandleSuccessfulLoginFlow");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", "minibank123");
@@ -88,6 +91,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldHandleInvalidLoginAttempts() {
+        log.info("Starting test: shouldHandleInvalidLoginAttempts");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
@@ -104,6 +108,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldHandleLogoutFlow() {
+        log.info("Starting test: shouldHandleLogoutFlow");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         DashboardPage dashboardPage = loginPage.loginSuccessfully("manager1", "minibank123");
@@ -117,6 +122,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldShowManagerRoleBasedSidebarMenu() {
+        log.info("Starting test: shouldShowManagerRoleBasedSidebarMenu");
         LoginPage loginPage = new LoginPage(driver);
         
         // Test Branch Manager - should see all menu items
@@ -131,6 +137,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldShowCSRoleBasedSidebarMenu() {
+        log.info("Starting test: shouldShowCSRoleBasedSidebarMenu");
         LoginPage loginPage = new LoginPage(driver);
         
         // Test CS - should see limited menu items
@@ -143,6 +150,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldShowTellerRoleBasedSidebarMenu() {
+        log.info("Starting test: shouldShowTellerRoleBasedSidebarMenu");
         LoginPage loginPage = new LoginPage(driver);
         
         // Test Teller - should see transaction-focused menu items
@@ -155,6 +163,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldDisplayUserInformationCorrectly() {
+        log.info("Starting test: shouldDisplayUserInformationCorrectly");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", "minibank123");
@@ -167,6 +176,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldDisplayDashboardStatisticsAndSections() {
+        log.info("Starting test: shouldDisplayDashboardStatisticsAndSections");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", "minibank123");

@@ -23,12 +23,22 @@ public class SeleniumTestContainerSingleton {
     private static BrowserWebDriverContainer<?> container;
     public static WebDriver driver;
     private static volatile boolean initialized = false;
+    private static volatile int initializationAttempts = 0;
+    private static volatile String firstInitializedBy = null;
     
     public static synchronized void initialize() {
+        initializationAttempts++;
+        String callerInfo = getCallerInfo();
+        
         if (initialized) {
+            log.info("🔄 SELENIUM CONTAINER REUSE: Container already initialized (attempt #{}) - called by {}. First initialized by: {}. ✅ EXPECTED BEHAVIOR", 
+                    initializationAttempts, callerInfo, firstInitializedBy);
             return;
         }
         
+        firstInitializedBy = callerInfo;
+        log.info("🚀 SELENIUM CONTAINER INITIALIZATION: Starting FIRST initialization (attempt #{}) - called by: {}. ✅ EXPECTED BEHAVIOR", 
+                initializationAttempts, callerInfo);
         
         try {
             String browser = System.getProperty("selenium.browser", "chrome").toLowerCase(); // Default to chrome for faster startup
@@ -125,20 +135,57 @@ public class SeleniumTestContainerSingleton {
             // Verify WebDriver is responsive
             verifyWebDriverReadiness();
             
-            log.info("Selenium TestContainer initialized successfully");
+            log.info("✅ SELENIUM CONTAINER READY: Container initialized successfully by {} (attempt #{}/{} total attempts)", 
+                    firstInitializedBy, 1, initializationAttempts);
             log.info("VNC URL: {}", container.getVncAddress());
             
             initialized = true;
             Runtime.getRuntime().addShutdownHook(new Thread(SeleniumTestContainerSingleton::cleanup));
                    
         } catch (Exception e) {
-            log.error("Failed to initialize Selenium TestContainer", e);
+            log.error("❌ SELENIUM CONTAINER FAILED: Initialization failed on attempt #{} called by {}", 
+                    initializationAttempts, callerInfo, e);
             throw new RuntimeException("Failed to initialize Selenium TestContainer", e);
         }
     }
     
+    private static String getCallerInfo() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        // Skip getStackTrace(), getCallerInfo(), and initialize() methods
+        for (int i = 3; i < stack.length; i++) {
+            StackTraceElement element = stack[i];
+            String className = element.getClassName();
+            // Return the first non-SeleniumTestContainerSingleton class
+            if (!className.contains("SeleniumTestContainerSingleton")) {
+                return String.format("%s.%s():%d", 
+                    className.substring(className.lastIndexOf('.') + 1), 
+                    element.getMethodName(), 
+                    element.getLineNumber());
+            }
+        }
+        return "Unknown";
+    }
+    
     public static BrowserWebDriverContainer<?> getContainer() {
         return container;
+    }
+    
+    /**
+     * Returns statistics about container initialization for debugging
+     */
+    public static String getInitializationStats() {
+        return String.format("Initialized: %s, Attempts: %d, First by: %s", 
+                initialized, initializationAttempts, firstInitializedBy);
+    }
+    
+    /**
+     * Logs current container status - useful for troubleshooting
+     */
+    public static void logCurrentStatus() {
+        log.info("📊 CONTAINER STATUS: {} | Container: {} | Driver: {}", 
+                getInitializationStats(),
+                container != null ? "ACTIVE" : "NULL",
+                driver != null ? "AVAILABLE" : "NULL");
     }
     
     private static void verifyWebDriverReadiness() {
@@ -153,21 +200,25 @@ public class SeleniumTestContainerSingleton {
     }
     
     private static void cleanup() {
+        log.info("🧹 SELENIUM CONTAINER CLEANUP: Starting cleanup process (was initialized by {}, {} total attempts)", 
+                firstInitializedBy != null ? firstInitializedBy : "Unknown", initializationAttempts);
+        
         if (driver != null) {
             try {
                 driver.quit();
-                log.info("WebDriver closed successfully");
+                log.info("✅ WebDriver closed successfully");
             } catch (Exception e) {
-                log.warn("Error closing WebDriver: {}", e.getMessage());
+                log.warn("⚠️ Error closing WebDriver: {}", e.getMessage());
             }
         }
         
         if (container != null) {
             try {
                 container.stop();
-                log.info("Selenium container stopped successfully");
+                log.info("✅ SELENIUM CONTAINER CLEANUP COMPLETE: Container stopped successfully after {} initialization attempts", 
+                        initializationAttempts);
             } catch (Exception e) {
-                log.warn("Error stopping container: {}", e.getMessage());
+                log.warn("⚠️ Error stopping container: {}", e.getMessage());
             }
         }
     }

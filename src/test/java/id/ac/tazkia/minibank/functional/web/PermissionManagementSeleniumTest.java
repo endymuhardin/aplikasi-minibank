@@ -3,6 +3,7 @@ package id.ac.tazkia.minibank.functional.web;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ import id.ac.tazkia.minibank.functional.web.pageobject.PermissionFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionListPage;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 
+@Slf4j
 @SqlGroup({
     @Sql(scripts = "/sql/setup-permission-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
     @Sql(scripts = "/sql/cleanup-permission-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -51,6 +53,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 30, unit = TimeUnit.SECONDS)
     void shouldLoadPermissionListPage() {
+        log.info("Starting test: shouldLoadPermissionListPage");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
@@ -63,6 +66,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldCreateNewPermission() {
+        log.info("Starting test: shouldCreateNewPermission");
         String uniqueCode = "TEST_PERM_" + System.currentTimeMillis();
         String permissionName = "Test Permission";
         String category = "Test Category";
@@ -97,6 +101,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     void shouldCreatePermissionsFromCSVData(String permissionCode, String permissionName, 
                                           String category, String description, 
                                           String resource, String action) {
+        log.info("Starting test: shouldCreatePermissionsFromCSVData with permissionCode: {}, action: {}", permissionCode, action);
         
         String uniqueCode = permissionCode + System.currentTimeMillis();
         
@@ -123,6 +128,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateRequiredFields() {
+        log.info("Starting test: shouldValidateRequiredFields");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
@@ -150,6 +156,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldEditExistingPermission() {
+        log.info("Starting test: shouldEditExistingPermission");
         String editCode = "TEST_EDIT_" + System.currentTimeMillis();
         String editName = "Test Edit Permission";
         String editCategory = "Test Category";
@@ -190,6 +197,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldFilterPermissionsByCategory() {
+        log.info("Starting test: shouldFilterPermissionsByCategory");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
@@ -205,6 +213,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldViewPermissionDetails() {
+        log.info("Starting test: shouldViewPermissionDetails");
         String viewCode = "VIEW_TEST_PERM";
         
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
@@ -222,6 +231,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Test
     @Timeout(value = 60, unit = TimeUnit.SECONDS)
     void shouldValidateDuplicatePermissionCode() {
+        log.info("Starting test: shouldValidateDuplicatePermissionCode");
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
         
@@ -249,6 +259,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     void shouldValidatePermissionInputErrors(String testCase, String permissionCode, 
                                            String permissionName, String category,
                                            String expectedError) {
+        log.info("Starting test: shouldValidatePermissionInputErrors with testCase: {}, permissionCode: {}", testCase, permissionCode);
         
         PermissionListPage listPage = new PermissionListPage(driver, baseUrl);
         listPage.open();
