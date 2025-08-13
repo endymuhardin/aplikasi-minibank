@@ -13,13 +13,11 @@ VALUES
     ('33333333-3333-3333-3333-333333333005', 'teller', 'Teller User', 'teller@example.com', true, 'system', NOW(), 'system', NOW());
 
 -- Insert passwords for test users  
-INSERT INTO user_passwords (id, id_users, password_hash, created_by, created_date)
-VALUES
-    ('44444444-4444-4444-4444-444444444001', '33333333-3333-3333-3333-333333333001', '$2a$10$CTxTvN8zAvmIKnfB8nlFcOEuAoitn8Iwh2aWQxccsTfR8dh0nq37O', 'system', NOW()),
-    ('44444444-4444-4444-4444-444444444002', '33333333-3333-3333-3333-333333333002', '$2a$10$RIWDsOKBBOxY08JIcTRfH.K2GyY10q/mxql2p/CgXcVWOy7EAw.A.', 'system', NOW()),
-    ('44444444-4444-4444-4444-444444444003', '33333333-3333-3333-3333-333333333003', '$2a$10$ZxrYBu/RziSN/oqS/2zToepmeIWcIRHTze.OD3jgH.w6.Y/MQJSYy', 'system', NOW()),
-    ('44444444-4444-4444-4444-444444444004', '33333333-3333-3333-3333-333333333004', '$2a$10$2R5aMlfaPfF5xo1koP5U1OpdFvXDQzHzk1oCf5iLyLT2Sb6LuV3S2', 'system', NOW()),
-    ('44444444-4444-4444-4444-444444444005', '33333333-3333-3333-3333-333333333005', '$2a$10$Q79S8NWF6kMbCdf78DyZvOHHjDBBqdkT0vwAw9znmCpLQWV6XAu6.', 'system', NOW());
+-- Insert passwords for test users (password: minibank123)
+-- Note: BCrypt hash for 'minibank123' is $2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da
+INSERT INTO user_passwords (id_users, password_hash, created_by)
+SELECT id, '$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da', 'system'
+FROM users WHERE username IN ('dashuser', 'statsuser', 'manager', 'cs', 'teller');
 
 -- Assign roles to test users (using existing role IDs from migration data)
 INSERT INTO user_roles (id, id_users, id_roles, assigned_by, assigned_date)
