@@ -90,12 +90,6 @@
                                     <p class="text-sm text-gray-500" th:text="${rolePermission.permission.permissionCode}"></p>
                                     <p class="text-sm text-blue-600" th:text="${rolePermission.permission.permissionCategory}"></p>
                                     <p class="text-sm text-gray-500 mt-2" th:text="${rolePermission.permission.description}"></p>
-                                    <div th:if="${rolePermission.permission.resource != null || rolePermission.permission.action != null}" class="mt-2">
-                                        <p class="text-xs text-gray-400">
-                                            Resource: <span th:text="${rolePermission.permission.resource ?: 'N/A'}"></span> | 
-                                            Action: <span th:text="${rolePermission.permission.action ?: 'N/A'}"></span>
-                                        </p>
-                                    </div>
                                     <p class="text-xs text-gray-400 mt-2">
                                         Granted: <span th:text="${#temporals.format(rolePermission.grantedDate, 'dd/MM/yyyy')}"></span>
                                     </p>

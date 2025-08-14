@@ -5,46 +5,46 @@ INSERT INTO roles (role_code, role_name, description, created_by) VALUES
 ('BRANCH_MANAGER', 'Branch Manager', 'Monitor operations and provide approvals', 'SYSTEM');
 
 -- Insert permissions for Customer Service
-INSERT INTO permissions (permission_code, permission_name, permission_category, description, resource, action, created_by) VALUES
+INSERT INTO permissions (permission_code, permission_name, permission_category, description, created_by) VALUES
 -- Customer management permissions
-('CUSTOMER_VIEW', 'View Customer', 'CUSTOMER', 'View customer information', 'customer', 'read', 'SYSTEM'),
-('CUSTOMER_CREATE', 'Create Customer', 'CUSTOMER', 'Register new customers', 'customer', 'create', 'SYSTEM'),
-('CUSTOMER_UPDATE', 'Update Customer', 'CUSTOMER', 'Update customer information', 'customer', 'update', 'SYSTEM'),
+('CUSTOMER_VIEW', 'View Customer', 'CUSTOMER', 'View customer information', 'SYSTEM'),
+('CUSTOMER_CREATE', 'Create Customer', 'CUSTOMER', 'Register new customers', 'SYSTEM'),
+('CUSTOMER_UPDATE', 'Update Customer', 'CUSTOMER', 'Update customer information', 'SYSTEM'),
 
 -- Account management permissions
-('ACCOUNT_VIEW', 'View Account', 'ACCOUNT', 'View account information', 'account', 'read', 'SYSTEM'),
-('ACCOUNT_CREATE', 'Create Account', 'ACCOUNT', 'Open new accounts for customers', 'account', 'create', 'SYSTEM'),
-('ACCOUNT_UPDATE', 'Update Account', 'ACCOUNT', 'Update account information', 'account', 'update', 'SYSTEM'),
+('ACCOUNT_VIEW', 'View Account', 'ACCOUNT', 'View account information', 'SYSTEM'),
+('ACCOUNT_CREATE', 'Create Account', 'ACCOUNT', 'Open new accounts for customers', 'SYSTEM'),
+('ACCOUNT_UPDATE', 'Update Account', 'ACCOUNT', 'Update account information', 'SYSTEM'),
 
 -- Product permissions
-('PRODUCT_VIEW', 'View Product', 'PRODUCT', 'View banking products', 'product', 'read', 'SYSTEM');
+('PRODUCT_VIEW', 'View Product', 'PRODUCT', 'View banking products', 'SYSTEM');
 
 -- Insert permissions for Teller
-INSERT INTO permissions (permission_code, permission_name, permission_category, description, resource, action, created_by) VALUES
+INSERT INTO permissions (permission_code, permission_name, permission_category, description, created_by) VALUES
 -- Transaction permissions
-('TRANSACTION_VIEW', 'View Transaction', 'TRANSACTION', 'View transaction history', 'transaction', 'read', 'SYSTEM'),
-('TRANSACTION_DEPOSIT', 'Process Deposit', 'TRANSACTION', 'Process deposit transactions', 'transaction', 'deposit', 'SYSTEM'),
-('TRANSACTION_WITHDRAWAL', 'Process Withdrawal', 'TRANSACTION', 'Process withdrawal transactions', 'transaction', 'withdrawal', 'SYSTEM'),
-('TRANSACTION_TRANSFER', 'Process Transfer', 'TRANSACTION', 'Process transfer transactions', 'transaction', 'transfer', 'SYSTEM'),
+('TRANSACTION_VIEW', 'View Transaction', 'TRANSACTION', 'View transaction history', 'SYSTEM'),
+('TRANSACTION_DEPOSIT', 'Process Deposit', 'TRANSACTION', 'Process deposit transactions', 'SYSTEM'),
+('TRANSACTION_WITHDRAWAL', 'Process Withdrawal', 'TRANSACTION', 'Process withdrawal transactions', 'SYSTEM'),
+('TRANSACTION_TRANSFER', 'Process Transfer', 'TRANSACTION', 'Process transfer transactions', 'SYSTEM'),
 
 -- Balance inquiry
-('BALANCE_VIEW', 'View Balance', 'ACCOUNT', 'View account balance', 'account', 'balance', 'SYSTEM');
+('BALANCE_VIEW', 'View Balance', 'ACCOUNT', 'View account balance', 'SYSTEM');
 
 -- Insert permissions for Branch Manager
-INSERT INTO permissions (permission_code, permission_name, permission_category, description, resource, action, created_by) VALUES
+INSERT INTO permissions (permission_code, permission_name, permission_category, description, created_by) VALUES
 -- Monitoring and reporting permissions
-('REPORT_VIEW', 'View Reports', 'REPORT', 'View business reports and analytics', 'report', 'read', 'SYSTEM'),
-('AUDIT_VIEW', 'View Audit Log', 'AUDIT', 'View system audit logs', 'audit', 'read', 'SYSTEM'),
+('REPORT_VIEW', 'View Reports', 'REPORT', 'View business reports and analytics', 'SYSTEM'),
+('AUDIT_VIEW', 'View Audit Log', 'AUDIT', 'View system audit logs', 'SYSTEM'),
 
 -- Approval permissions
-('TRANSACTION_APPROVE', 'Approve Transaction', 'TRANSACTION', 'Approve high-value transactions', 'transaction', 'approve', 'SYSTEM'),
-('ACCOUNT_APPROVE', 'Approve Account', 'ACCOUNT', 'Approve account opening/closing', 'account', 'approve', 'SYSTEM'),
+('TRANSACTION_APPROVE', 'Approve Transaction', 'TRANSACTION', 'Approve high-value transactions', 'SYSTEM'),
+('ACCOUNT_APPROVE', 'Approve Account', 'ACCOUNT', 'Approve account opening/closing', 'SYSTEM'),
 
 -- User management permissions
-('USER_VIEW', 'View Users', 'USER', 'View system users', 'user', 'read', 'SYSTEM'),
-('USER_CREATE', 'Create User', 'USER', 'Create new system users', 'user', 'create', 'SYSTEM'),
-('USER_UPDATE', 'Update User', 'USER', 'Update user information', 'user', 'update', 'SYSTEM'),
-('USER_DEACTIVATE', 'Deactivate User', 'USER', 'Deactivate system users', 'user', 'deactivate', 'SYSTEM');
+('USER_VIEW', 'View Users', 'USER', 'View system users', 'SYSTEM'),
+('USER_CREATE', 'Create User', 'USER', 'Create new system users', 'SYSTEM'),
+('USER_UPDATE', 'Update User', 'USER', 'Update user information', 'SYSTEM'),
+('USER_DEACTIVATE', 'Deactivate User', 'USER', 'Deactivate system users', 'SYSTEM');
 
 -- Grant permissions to Customer Service role
 INSERT INTO role_permissions (id_roles, id_permissions, granted_by)

@@ -65,8 +65,6 @@ class PermissionControllerTest extends BaseIntegrationTest {
         testPermission.setPermissionName("Test Permission");
         testPermission.setPermissionCategory("TEST_CATEGORY");
         testPermission.setDescription("Test permission description");
-        testPermission.setResource("test_resource");
-        testPermission.setAction("read");
         testPermission.setCreatedBy("system");
         testPermission = permissionRepository.save(testPermission);
         

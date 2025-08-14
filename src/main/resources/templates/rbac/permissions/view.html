@@ -42,14 +42,6 @@
                         </dd>
                     </div>
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">Resource</dt>
-                        <dd class="mt-1 text-sm text-gray-900" th:text="${permission.resource ?: 'Not specified'}"></dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Action</dt>
-                        <dd class="mt-1 text-sm text-gray-900" th:text="${permission.action ?: 'Not specified'}"></dd>
-                    </div>
-                    <div>
                         <dt class="text-sm font-medium text-gray-500">Created Date</dt>
                         <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(permission.createdDate, 'dd/MM/yyyy HH:mm')}"></dd>
                     </div>

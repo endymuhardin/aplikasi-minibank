@@ -333,13 +333,13 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
 
         // Create permissions
         customerViewPermission = createPermission("CUSTOMER_VIEW", "View Customer", "CUSTOMER", 
-            "View customer information", "customer", "read");
+            "View customer information");
         customerCreatePermission = createPermission("CUSTOMER_CREATE", "Create Customer", "CUSTOMER", 
-            "Create new customers", "customer", "create");
+            "Create new customers");
         transactionDepositPermission = createPermission("TRANSACTION_DEPOSIT", "Process Deposit", "TRANSACTION", 
-            "Process deposit transactions", "transaction", "deposit");
+            "Process deposit transactions");
         transactionWithdrawalPermission = createPermission("TRANSACTION_WITHDRAWAL", "Process Withdrawal", "TRANSACTION", 
-            "Process withdrawal transactions", "transaction", "withdrawal");
+            "Process withdrawal transactions");
 
         permissionRepository.save(customerViewPermission);
         permissionRepository.save(customerCreatePermission);
@@ -361,14 +361,12 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
     }
 
     private Permission createPermission(String permissionCode, String permissionName, String category,
-                                       String description, String resource, String action) {
+                                       String description) {
         Permission permission = new Permission();
         permission.setPermissionCode(permissionCode);
         permission.setPermissionName(permissionName);
         permission.setPermissionCategory(category);
         permission.setDescription(description);
-        permission.setResource(resource);
-        permission.setAction(action);
         permission.setCreatedBy("TEST");
         return permission;
     }

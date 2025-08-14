@@ -55,8 +55,6 @@ CREATE TABLE permissions (
     permission_name VARCHAR(100) NOT NULL,
     permission_category VARCHAR(50) NOT NULL,
     description TEXT,
-    resource VARCHAR(100),
-    action VARCHAR(50),
     
     -- Audit fields
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -115,7 +113,6 @@ CREATE INDEX idx_roles_is_active ON roles(is_active);
 -- Permissions table indexes
 CREATE INDEX idx_permissions_permission_code ON permissions(permission_code);
 CREATE INDEX idx_permissions_category ON permissions(permission_category);
-CREATE INDEX idx_permissions_resource_action ON permissions(resource, action);
 
 -- Junction table indexes
 CREATE INDEX idx_user_roles_user ON user_roles(id_users);

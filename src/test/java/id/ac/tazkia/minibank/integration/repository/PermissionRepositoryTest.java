@@ -42,8 +42,6 @@ class PermissionRepositoryTest extends BaseRepositoryTest {
         assertThat(customerView).isPresent();
         assertThat(customerView.get().getPermissionName()).isEqualTo("View Customer");
         assertThat(customerView.get().getPermissionCategory()).isEqualTo("CUSTOMER");
-        assertThat(customerView.get().getResource()).isEqualTo("customer");
-        assertThat(customerView.get().getAction()).isEqualTo("read");
         
         assertThat(transactionDeposit).isPresent();
         assertThat(transactionDeposit.get().getPermissionCategory()).isEqualTo("TRANSACTION");
@@ -77,29 +75,6 @@ class PermissionRepositoryTest extends BaseRepositoryTest {
         assertThat(nonExistentCategory).isEmpty();
     }
 
-    @Test
-    void shouldFindPermissionsByResourceAndAction() {
-        // Given
-        saveTestPermissions();
-
-        // When
-        List<Permission> customerReadPermissions = permissionRepository.findByResourceAndAction("customer", "read");
-        List<Permission> accountCreatePermissions = permissionRepository.findByResourceAndAction("account", "create");
-        List<Permission> transactionDepositPermissions = permissionRepository.findByResourceAndAction("transaction", "deposit");
-        List<Permission> nonExistentCombination = permissionRepository.findByResourceAndAction("nonexistent", "action");
-
-        // Then
-        assertThat(customerReadPermissions).hasSize(1);
-        assertThat(customerReadPermissions.get(0).getPermissionCode()).isEqualTo("CUSTOMER_VIEW");
-        
-        assertThat(accountCreatePermissions).hasSize(1);
-        assertThat(accountCreatePermissions.get(0).getPermissionCode()).isEqualTo("ACCOUNT_CREATE");
-        
-        assertThat(transactionDepositPermissions).hasSize(1);
-        assertThat(transactionDepositPermissions.get(0).getPermissionCode()).isEqualTo("TRANSACTION_DEPOSIT");
-        
-        assertThat(nonExistentCombination).isEmpty();
-    }
 
     @Test
     void shouldCheckExistenceByPermissionCode() {
@@ -118,7 +93,7 @@ class PermissionRepositoryTest extends BaseRepositoryTest {
         // Given
         Permission permission = createPermission(
             "TEST_PERMISSION", "Test Permission", "TEST", 
-            "Test permission description", "test_resource", "test_action");
+            "Test permission description");
         permission.setCreatedBy("ADMIN");
 
         // When
@@ -168,81 +143,67 @@ class PermissionRepositoryTest extends BaseRepositoryTest {
     }
 
     @Test
-    void shouldHandlePermissionsWithoutResourceOrAction() {
+    void shouldHandlePermissionsWithMinimalFields() {
         // Given
-        Permission permissionWithoutResource = new Permission();
-        permissionWithoutResource.setPermissionCode("NO_RESOURCE");
-        permissionWithoutResource.setPermissionName("Permission Without Resource");
-        permissionWithoutResource.setPermissionCategory("GENERAL");
-        permissionWithoutResource.setDescription("Test permission without resource");
-        permissionWithoutResource.setAction("general");
-        permissionWithoutResource.setCreatedBy("TEST");
-
-        Permission permissionWithoutAction = new Permission();
-        permissionWithoutAction.setPermissionCode("NO_ACTION");
-        permissionWithoutAction.setPermissionName("Permission Without Action");
-        permissionWithoutAction.setPermissionCategory("GENERAL");
-        permissionWithoutAction.setDescription("Test permission without action");
-        permissionWithoutAction.setResource("general");
-        permissionWithoutAction.setCreatedBy("TEST");
+        Permission minimalPermission = new Permission();
+        minimalPermission.setPermissionCode("MINIMAL_PERMISSION");
+        minimalPermission.setPermissionName("Minimal Permission");
+        minimalPermission.setPermissionCategory("GENERAL");
+        minimalPermission.setDescription("Test permission with minimal fields");
+        minimalPermission.setCreatedBy("TEST");
 
         // When
-        permissionRepository.save(permissionWithoutResource);
-        permissionRepository.save(permissionWithoutAction);
+        permissionRepository.save(minimalPermission);
         entityManager.flush();
 
         // Then
-        Optional<Permission> noResource = permissionRepository.findByPermissionCode("NO_RESOURCE");
-        Optional<Permission> noAction = permissionRepository.findByPermissionCode("NO_ACTION");
+        Optional<Permission> saved = permissionRepository.findByPermissionCode("MINIMAL_PERMISSION");
         
-        assertThat(noResource).isPresent();
-        assertThat(noResource.get().getResource()).isNull();
-        
-        assertThat(noAction).isPresent();
-        assertThat(noAction.get().getAction()).isNull();
+        assertThat(saved).isPresent();
+        assertThat(saved.get().getPermissionName()).isEqualTo("Minimal Permission");
+        assertThat(saved.get().getPermissionCategory()).isEqualTo("GENERAL");
+        assertThat(saved.get().getDescription()).isEqualTo("Test permission with minimal fields");
     }
 
     private void saveTestPermissions() {
         // Customer permissions
         permissionRepository.save(createPermission("CUSTOMER_VIEW", "View Customer", "CUSTOMER", 
-            "View customer information", "customer", "read"));
+            "View customer information"));
         permissionRepository.save(createPermission("CUSTOMER_CREATE", "Create Customer", "CUSTOMER", 
-            "Register new customers", "customer", "create"));
+            "Register new customers"));
         permissionRepository.save(createPermission("CUSTOMER_UPDATE", "Update Customer", "CUSTOMER", 
-            "Update customer information", "customer", "update"));
+            "Update customer information"));
 
         // Account permissions
         permissionRepository.save(createPermission("ACCOUNT_VIEW", "View Account", "ACCOUNT", 
-            "View account information", "account", "read"));
+            "View account information"));
         permissionRepository.save(createPermission("ACCOUNT_CREATE", "Create Account", "ACCOUNT", 
-            "Open new accounts for customers", "account", "create"));
+            "Open new accounts for customers"));
         permissionRepository.save(createPermission("ACCOUNT_UPDATE", "Update Account", "ACCOUNT", 
-            "Update account information", "account", "update"));
+            "Update account information"));
         permissionRepository.save(createPermission("BALANCE_VIEW", "View Balance", "ACCOUNT", 
-            "View account balance", "account", "balance"));
+            "View account balance"));
 
         // Transaction permissions
         permissionRepository.save(createPermission("TRANSACTION_VIEW", "View Transaction", "TRANSACTION", 
-            "View transaction history", "transaction", "read"));
+            "View transaction history"));
         permissionRepository.save(createPermission("TRANSACTION_DEPOSIT", "Process Deposit", "TRANSACTION", 
-            "Process deposit transactions", "transaction", "deposit"));
+            "Process deposit transactions"));
         permissionRepository.save(createPermission("TRANSACTION_WITHDRAWAL", "Process Withdrawal", "TRANSACTION", 
-            "Process withdrawal transactions", "transaction", "withdrawal"));
+            "Process withdrawal transactions"));
         permissionRepository.save(createPermission("TRANSACTION_TRANSFER", "Process Transfer", "TRANSACTION", 
-            "Process transfer transactions", "transaction", "transfer"));
+            "Process transfer transactions"));
 
         entityManager.flush();
     }
 
     private Permission createPermission(String permissionCode, String permissionName, String category,
-                                       String description, String resource, String action) {
+                                       String description) {
         Permission permission = new Permission();
         permission.setPermissionCode(permissionCode);
         permission.setPermissionName(permissionName);
         permission.setPermissionCategory(category);
         permission.setDescription(description);
-        permission.setResource(resource);
-        permission.setAction(action);
         permission.setCreatedBy("TEST");
         return permission;
     }
