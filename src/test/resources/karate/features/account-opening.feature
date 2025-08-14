@@ -4,7 +4,10 @@ Background:
   * url baseUrl
   
   # Authenticate as Customer Service (has CUSTOMER_READ, ACCOUNT_CREATE permissions)
-  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  * def authString = 'cs1:minibank123'
+  * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
   
   * def customerLookup = {}
   * def productLookup = {}

@@ -5,7 +5,10 @@ Background:
   * configure cookies = true
   
   # Authenticate as Teller (has TRANSACTION_DEPOSIT permissions)
-  * call read('classpath:karate/features/auth-helper.feature@Login as Teller')
+  * def authString = 'teller1:minibank123'
+  * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
   
   * def accountLookup = {}
   

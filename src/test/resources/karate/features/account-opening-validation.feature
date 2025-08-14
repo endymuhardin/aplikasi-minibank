@@ -4,7 +4,10 @@ Background:
   * url baseUrl
   
   # Authenticate as Customer Service (has CUSTOMER_READ, ACCOUNT_CREATE permissions)
-  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  * def authString = 'cs1:minibank123'
+  * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
   
   * def customerLookup = {}
   * def productLookup = {}
@@ -12,13 +15,14 @@ Background:
   # Lookup customers dynamically from API - get both personal and corporate
   * path '/api/customers/personal'
   * method GET
+  * print 'Headers being sent:', karate.get('request.headers')
   * print 'Personal customers API response status:', responseStatus
   * print 'Personal customers API response:', response
   * status 200
   * def personalCustomers = response
   * print 'personalCustomers type:', karate.typeOf(personalCustomers)
   * print 'personalCustomers:', personalCustomers
-  * match karate.typeOf(personalCustomers) == 'object'
+  * match karate.typeOf(personalCustomers) == 'list'
   * personalCustomers.forEach(function(customer) { customerLookup[customer.customerNumber] = customer.id })
   
   * path '/api/customers/corporate'
