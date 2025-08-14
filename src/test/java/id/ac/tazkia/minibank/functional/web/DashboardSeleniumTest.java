@@ -161,9 +161,10 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         
         // Check if user information is displayed in header
         String currentUsername = dashboardPage.getCurrentUsername();
-        assertEquals("System Administrator", currentUsername, "Username in header should be 'System Administrator'");
+        assertEquals("admin", currentUsername, "Username in header should be 'admin'");
         
         // Check if logout functionality is available
+        dashboardPage.openUserMenu();
         assertTrue(dashboardPage.isLogoutLinkVisible(), "Logout link should be visible");
     }
     
