@@ -87,7 +87,7 @@
                         <span class="text-white text-sm font-semibold" sec:authentication="name" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</span>
                     </div>
                     <div class="text-left hidden md:block">
-                        <p id="header-username" class="text-gray-700 font-medium text-sm" sec:authentication="name" data-testid="current-username">Username</p>
+                        <p id="header-username" class="text-gray-700 font-medium text-sm" sec:authentication="principal.username" data-testid="current-username">Username</p>
                         <p id="header-role" class="text-gray-500 text-xs">
                             <span sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE', 'AUDIT_READ')">Branch Manager</span>
                             <span sec:authorize="hasAnyAuthority('CUSTOMER_READ', 'ACCOUNT_READ') and !hasAnyAuthority('USER_READ')">Customer Service</span>
@@ -98,7 +98,7 @@
                 </button>
                 <div id="userMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 hidden z-50">
                     <div class="block px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
-                        <p id="user-menu-username" class="font-semibold" sec:authentication="name" data-testid="user-menu-username">Username</p>
+                        <p id="user-menu-username" class="font-semibold" sec:authentication="principal.username" data-testid="user-menu-username">Username</p>
                         <p id="user-menu-role" class="text-gray-500 text-xs mt-1">
                             <span sec:authorize="hasAnyAuthority('USER_READ', 'USER_CREATE', 'AUDIT_READ')">Branch Manager</span>
                             <span sec:authorize="hasAnyAuthority('CUSTOMER_READ', 'ACCOUNT_READ') and !hasAnyAuthority('USER_READ')">Customer Service</span>
