@@ -8,7 +8,8 @@ Scenario: Login with credentials
   # Use HTTP Basic Authentication for API testing
   * def authString = username + ':' + password
   * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
-  * configure headers = { Authorization: 'Basic ' + encodedAuth }
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
   * print 'Using HTTP Basic Auth for user:', username
   * print 'Auth string:', authString
   * print 'Encoded auth:', encodedAuth
@@ -18,6 +19,7 @@ Scenario: Login as Customer Service
   * def username = 'cs1'
   * def password = 'minibank123'
   * call read('classpath:karate/features/auth-helper.feature@Login with credentials') { username: '#(username)', password: '#(password)' }
+  * print 'Customer Service authentication completed'
 
 @ignore
 Scenario: Login as Teller

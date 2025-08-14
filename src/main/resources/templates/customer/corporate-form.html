@@ -20,6 +20,14 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
+            <!-- Validation errors -->
+            <div th:if="${validationErrors}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div class="font-medium mb-2">Please correct the following errors:</div>
+                <ul class="list-disc list-inside space-y-1">
+                    <li th:each="error : ${validationErrors}" th:text="${error}"></li>
+                </ul>
+            </div>
+
             <form th:action="${customer != null ? '/customer/update/' + customer.id : '/customer/create/corporate'}" method="post" class="space-y-6">
                 <input type="hidden" name="customerType" value="CORPORATE">
                 

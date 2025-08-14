@@ -51,14 +51,14 @@ public class SecurityConfig {
         // Custom query to get user authorities (permissions)
         // Note: Spring Security only provides one parameter (username) to this query
         manager.setAuthoritiesByUsernameQuery(
-            "SELECT u.username, UPPER(p.resource || '_' || p.action) as authority " +
+            "SELECT u.username, p.permission_code as authority " +
             "FROM users u " +
             "JOIN user_roles ur ON u.id = ur.id_users " +
             "JOIN roles r ON ur.id_roles = r.id " +
             "JOIN role_permissions rp ON r.id = rp.id_roles " +
             "JOIN permissions p ON rp.id_permissions = p.id " +
             "WHERE u.username = ? AND u.is_active = true AND r.is_active = true " +
-            "AND p.resource IS NOT NULL AND p.action IS NOT NULL"
+            "AND p.permission_code IS NOT NULL"
         );
         
         return manager;
@@ -88,9 +88,9 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(LOGIN_PATH, "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/api/**").hasAnyAuthority("TRANSACTION_READ", "CUSTOMER_READ", "ACCOUNT_READ", "USER_READ")
-                .requestMatchers("/rbac/**").hasAnyAuthority("USER_READ", "USER_CREATE", "USER_UPDATE")
-                .requestMatchers("/product/**").hasAnyAuthority("PRODUCT_READ", "CUSTOMER_READ", "ACCOUNT_READ")
+                .requestMatchers("/api/**").hasAnyAuthority("TRANSACTION_VIEW", "CUSTOMER_VIEW", "ACCOUNT_VIEW", "USER_VIEW")
+                .requestMatchers("/rbac/**").hasAnyAuthority("USER_VIEW", "USER_CREATE", "USER_UPDATE")
+                .requestMatchers("/product/**").hasAnyAuthority("PRODUCT_VIEW", "CUSTOMER_VIEW", "ACCOUNT_VIEW")
                 .requestMatchers("/dashboard").authenticated()
                 .anyRequest().authenticated()
             )

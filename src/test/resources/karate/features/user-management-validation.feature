@@ -5,7 +5,10 @@ Background:
   * configure cookies = true
   
   # Authenticate as Branch Manager (has USER_CREATE permissions)
-  * call read('classpath:karate/features/auth-helper.feature@Login as Branch Manager')
+  * def authString = 'admin:minibank123'
+  * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
 
 Scenario Outline: Create user validation - <testDescription>
   * def userData = {}

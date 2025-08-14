@@ -7,7 +7,10 @@ Background:
   * configure cookies = true
   
   # Authenticate as Customer Service (has CUSTOMER_CREATE permissions)
-  * call read('classpath:karate/features/auth-helper.feature@Login as Customer Service')
+  * def authString = 'cs1:minibank123'
+  * def encodedAuth = java.util.Base64.getEncoder().encodeToString(authString.getBytes())
+  * def authHeader = 'Basic ' + encodedAuth
+  * configure headers = { Authorization: '#(authHeader)' }
   
   * def testData = read('classpath:fixtures/customer/personal/personal-customer-registration-validation.csv')
 
