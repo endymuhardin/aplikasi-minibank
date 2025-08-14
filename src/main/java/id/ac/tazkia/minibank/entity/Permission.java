@@ -44,14 +44,6 @@ public class Permission {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     
-    @Size(max = 100, message = "Resource must not exceed 100 characters")
-    @Column(name = "resource", length = 100)
-    private String resource;
-    
-    @Size(max = 50, message = "Action must not exceed 50 characters")
-    @Column(name = "action", length = 50)
-    private String action;
-    
     // Audit fields
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)

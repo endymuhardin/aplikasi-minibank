@@ -80,8 +80,6 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
         assertNotNull(savedPermission);
         assertEquals(permissionName, savedPermission.getPermissionName());
         assertEquals(category, savedPermission.getPermissionCategory());
-        assertEquals(resource, savedPermission.getResource());
-        assertEquals(action, savedPermission.getAction());
     }
     
     @ParameterizedTest

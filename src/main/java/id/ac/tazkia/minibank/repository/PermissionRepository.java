@@ -20,8 +20,6 @@ public interface PermissionRepository extends JpaRepository<Permission, UUID> {
     @Query("SELECT p FROM Permission p WHERE p.permissionCategory = :category")
     List<Permission> findByCategory(@Param("category") String category);
     
-    @Query("SELECT p FROM Permission p WHERE p.resource = :resource AND p.action = :action")
-    List<Permission> findByResourceAndAction(@Param("resource") String resource, @Param("action") String action);
     
     @Query("SELECT p FROM Permission p WHERE p.permissionCategory = :category")
     Page<Permission> findByCategoryPage(@Param("category") String category, Pageable pageable);

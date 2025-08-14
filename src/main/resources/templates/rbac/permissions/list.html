@@ -64,15 +64,13 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Permission Code</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Permission Name</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Category</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Resource</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Action</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Created Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-bsi-gray uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr th:if="${permissions.empty}">
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500" id="no-permissions-message">No permissions found</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500" id="no-permissions-message">No permissions found</td>
                     </tr>
                     <tr th:each="permission : ${permissions.content}" class="permission-row" th:data-permission-id="${permission.id}">
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -83,12 +81,6 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-bsi-info bg-opacity-20 text-bsi-info" th:text="${permission.permissionCategory}"></span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900" th:text="${permission.resource ?: 'N/A'}"></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900" th:text="${permission.action ?: 'N/A'}"></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" 
                             th:text="${#temporals.format(permission.createdDate, 'dd/MM/yyyy')}"></td>

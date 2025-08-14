@@ -157,7 +157,7 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
                                     String resource, String action, boolean hasPermission) {
         // Given
         Role role = findOrCreateRole(roleCode, roleName);
-        Permission permission = findOrCreatePermission(permissionCode, resource, action);
+        Permission permission = findOrCreatePermission(permissionCode);
         
         if (hasPermission) {
             RolePermission rolePermission = new RolePermission();
@@ -230,7 +230,7 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         return entityManager.persistAndFlush(role);
     }
     
-    private Permission findOrCreatePermission(String permissionCode, String resource, String action) {
+    private Permission findOrCreatePermission(String permissionCode) {
         Optional<Permission> existingPermission = permissionRepository.findByPermissionCode(permissionCode);
         if (existingPermission.isPresent()) {
             return existingPermission.get();
@@ -240,8 +240,6 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         permission.setPermissionCode(permissionCode);
         permission.setPermissionName(permissionCode.replace("_", " "));
         permission.setPermissionCategory("TEST");
-        permission.setResource(resource);
-        permission.setAction(action);
         permission.setCreatedDate(LocalDateTime.now());
         permission.setCreatedBy("test");
         return entityManager.persistAndFlush(permission);
@@ -254,11 +252,11 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
         findOrCreateRole("TELLER", "Teller");
         
         // Create standard permissions if they don't exist
-        findOrCreatePermission("USER_READ", "USER", "READ");
-        findOrCreatePermission("USER_WRITE", "USER", "WRITE");
-        findOrCreatePermission("PRODUCT_READ", "PRODUCT", "READ");
-        findOrCreatePermission("PRODUCT_WRITE", "PRODUCT", "WRITE");
-        findOrCreatePermission("TRANSACTION_READ", "TRANSACTION", "READ");
-        findOrCreatePermission("TRANSACTION_WRITE", "TRANSACTION", "WRITE");
+        findOrCreatePermission("USER_READ");
+        findOrCreatePermission("USER_WRITE");
+        findOrCreatePermission("PRODUCT_READ");
+        findOrCreatePermission("PRODUCT_WRITE");
+        findOrCreatePermission("TRANSACTION_READ");
+        findOrCreatePermission("TRANSACTION_WRITE");
     }
 }

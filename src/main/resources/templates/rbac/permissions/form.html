@@ -46,7 +46,7 @@
                                th:field="*{permissionCode}"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-bsi-primary focus:border-bsi-primary"
                                th:classappend="${#fields.hasErrors('permissionCode')} ? 'border-bsi-secondary' : ''"
-                               placeholder="e.g., USER_READ, ACCOUNT_WRITE"
+                               placeholder="e.g., USER_VIEW, ACCOUNT_CREATE"
                                required>
                         <p th:if="${#fields.hasErrors('permissionCode')}" 
                            th:errors="*{permissionCode}" 

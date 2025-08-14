@@ -156,8 +156,6 @@ public class PermissionController {
             existing.setPermissionName(permission.getPermissionName());
             existing.setPermissionCategory(permission.getPermissionCategory());
             existing.setDescription(permission.getDescription());
-            existing.setResource(permission.getResource());
-            existing.setAction(permission.getAction());
             
             permissionRepository.save(existing);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Permission updated successfully");

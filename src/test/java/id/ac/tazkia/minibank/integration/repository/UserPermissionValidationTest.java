@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -198,24 +199,24 @@ class UserPermissionValidationTest extends BaseRepositoryTest {
     }
 
     @Test
-    void shouldValidatePermissionsByResourceAndAction() {
+    void shouldValidatePermissionsByCode() {
         // When
-        List<Permission> customerReadPermissions = permissionRepository
-            .findByResourceAndAction("customer", "read");
-        List<Permission> customerCreatePermissions = permissionRepository
-            .findByResourceAndAction("customer", "create");
-        List<Permission> userCreatePermissions = permissionRepository
-            .findByResourceAndAction("user", "create");
+        Optional<Permission> customerViewPermission = permissionRepository
+            .findByPermissionCode("CUSTOMER_VIEW");
+        Optional<Permission> customerCreatePermission = permissionRepository
+            .findByPermissionCode("CUSTOMER_CREATE");
+        Optional<Permission> userCreatePermission = permissionRepository
+            .findByPermissionCode("USER_CREATE");
 
         // Then
-        assertThat(customerReadPermissions).hasSize(1);
-        assertThat(customerReadPermissions.get(0).getPermissionCode()).isEqualTo("CUSTOMER_VIEW");
+        assertThat(customerViewPermission).isPresent();
+        assertThat(customerViewPermission.get().getPermissionCode()).isEqualTo("CUSTOMER_VIEW");
         
-        assertThat(customerCreatePermissions).hasSize(1);
-        assertThat(customerCreatePermissions.get(0).getPermissionCode()).isEqualTo("CUSTOMER_CREATE");
+        assertThat(customerCreatePermission).isPresent();
+        assertThat(customerCreatePermission.get().getPermissionCode()).isEqualTo("CUSTOMER_CREATE");
         
-        assertThat(userCreatePermissions).hasSize(1);
-        assertThat(userCreatePermissions.get(0).getPermissionCode()).isEqualTo("USER_CREATE");
+        assertThat(userCreatePermission).isPresent();
+        assertThat(userCreatePermission.get().getPermissionCode()).isEqualTo("USER_CREATE");
     }
 
     @Test
@@ -359,17 +360,17 @@ class UserPermissionValidationTest extends BaseRepositoryTest {
 
     private void createPermissions() {
         customerViewPermission = createPermission("CUSTOMER_VIEW", "View Customer", "CUSTOMER", 
-            "View customer information", "customer", "read");
+            "View customer information");
         customerCreatePermission = createPermission("CUSTOMER_CREATE", "Create Customer", "CUSTOMER", 
-            "Create new customers", "customer", "create");
+            "Create new customers");
         accountViewPermission = createPermission("ACCOUNT_VIEW", "View Account", "ACCOUNT", 
-            "View account information", "account", "read");
+            "View account information");
         transactionDepositPermission = createPermission("TRANSACTION_DEPOSIT", "Process Deposit", "TRANSACTION", 
-            "Process deposit transactions", "transaction", "deposit");
+            "Process deposit transactions");
         userCreatePermission = createPermission("USER_CREATE", "Create User", "USER", 
-            "Create new system users", "user", "create");
+            "Create new system users");
         reportViewPermission = createPermission("REPORT_VIEW", "View Reports", "REPORT", 
-            "View business reports", "report", "read");
+            "View business reports");
 
         permissionRepository.save(customerViewPermission);
         permissionRepository.save(customerCreatePermission);
@@ -441,14 +442,12 @@ class UserPermissionValidationTest extends BaseRepositoryTest {
     }
 
     private Permission createPermission(String permissionCode, String permissionName, String category,
-                                       String description, String resource, String action) {
+                                       String description) {
         Permission permission = new Permission();
         permission.setPermissionCode(permissionCode);
         permission.setPermissionName(permissionName);
         permission.setPermissionCategory(category);
         permission.setDescription(description);
-        permission.setResource(resource);
-        permission.setAction(action);
         permission.setCreatedBy("TEST");
         return permission;
     }
