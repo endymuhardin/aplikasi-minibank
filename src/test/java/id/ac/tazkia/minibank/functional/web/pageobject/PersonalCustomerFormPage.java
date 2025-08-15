@@ -119,8 +119,7 @@ public class PersonalCustomerFormPage extends BasePage {
             ExpectedConditions.presenceOfElementLocated(ERROR_MESSAGE),
             ExpectedConditions.presenceOfElementLocated(VALIDATION_ERRORS),
             ExpectedConditions.urlContains("/customer/create/personal"), // Stay on form page
-            ExpectedConditions.urlContains("/customer/personal-form"), // Alternative form URL pattern
-            ExpectedConditions.urlContains("/customer/list") // Or redirect (but this shouldn't happen for invalid data)
+            ExpectedConditions.urlContains("/customer/personal-form") // Alternative form URL pattern
         ));
         
         return this;
