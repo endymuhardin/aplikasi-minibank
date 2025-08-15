@@ -324,7 +324,39 @@ erDiagram
 - **Admin User**: Default admin account with Branch Manager role
   - Username: `admin`
   - Email: `admin@yopmail.com`
-  - Password: `YTZvdyAUya` (10-character random password using non-ambiguous characters)
+  - Password: `minibank123` (BCrypt hashed: `$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da`)
+
+### Sample Data Loaded by Migrations
+
+#### Initial Sequence Numbers (V002)
+- Customer Number: Starting from C1000001 (prefix: C, last_number: 1000000)
+- Account Number: Starting from A2000001 (prefix: A, last_number: 2000000)
+- Transaction Number: Starting from T3000001 (prefix: T, last_number: 3000000)
+
+#### Pre-configured Products (V002)
+| Code | Name | Type | Nisbah | Min Opening | Customer Types |
+|------|------|------|--------|-------------|----------------|
+| TAB001 | Tabungan Wadiah Basic | TABUNGAN_WADIAH | - | 50,000 | PERSONAL |
+| TAB002 | Tabungan Mudharabah Premium | TABUNGAN_MUDHARABAH | 70:30 | 1,000,000 | PERSONAL |
+| DEP001 | Deposito Mudharabah | DEPOSITO_MUDHARABAH | 70:30 | 100,000 | PERSONAL |
+| PEM001 | Pembiayaan Murabahah | PEMBIAYAAN_MURABAHAH | - | 5,000,000 | CORPORATE |
+| PEM002 | Pembiayaan Musharakah | PEMBIAYAAN_MUSHARAKAH | 60:40 | 2,000,000 | PERSONAL |
+
+#### Sample Customers (V002)
+**Personal Customers:**
+- C1000001: Ahmad Suharto (KTP: 3271081503850001)
+- C1000002: Siti Nurhaliza (KTP: 3271082207900002)
+- C1000004: Budi Santoso (KTP: 3271081011880003)
+- C1000006: Dewi Lestari (KTP: 3271081805920004)
+
+**Corporate Customers:**
+- C1000003: PT. Teknologi Maju (Reg: 1234567890123456)
+
+#### System Users (V004)
+All users have password `minibank123`:
+- **Branch Managers**: admin, manager1, manager2
+- **Tellers**: teller1, teller2, teller3
+- **Customer Service**: cs1, cs2, cs3
 
 ### Security Features
 - **Failed Login Tracking**: Automatic account locking after multiple failed attempts
