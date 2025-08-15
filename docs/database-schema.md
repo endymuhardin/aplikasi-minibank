@@ -323,26 +323,101 @@ Role-permission grants (many-to-many).
 
 ## Default Data
 
-### Roles
+### Sequence Numbers (V002)
+Initial sequence number configurations:
+| Sequence Name | Last Number | Prefix | Purpose |
+|---------------|-------------|--------|---------|
+| CUSTOMER_NUMBER | 1000000 | C | Customer number generation (C1000001, C1000002, ...) |
+| ACCOUNT_NUMBER | 2000000 | A | Account number generation (A2000001, A2000002, ...) |
+| TRANSACTION_NUMBER | 3000000 | T | Transaction number generation (T3000001, T3000002, ...) |
+
+### Islamic Banking Products (V002)
+Pre-configured Islamic banking products:
+
+| Product Code | Product Name | Type | Category | Min Opening | Min Balance | Nisbah Customer:Bank | Customer Types | Monthly Fee |
+|--------------|--------------|------|----------|-------------|-------------|---------------------|----------------|-------------|
+| **TAB001** | Tabungan Wadiah Basic | TABUNGAN_WADIAH | Tabungan Syariah | 50,000 | 10,000 | - | PERSONAL | 2,500 |
+| **TAB002** | Tabungan Mudharabah Premium | TABUNGAN_MUDHARABAH | Tabungan Syariah | 1,000,000 | 500,000 | 70:30 | PERSONAL | 0 |
+| **DEP001** | Deposito Mudharabah | DEPOSITO_MUDHARABAH | Deposito Syariah | 100,000 | 50,000 | 70:30 | PERSONAL | 5,000 |
+| **PEM001** | Pembiayaan Murabahah | PEMBIAYAAN_MURABAHAH | Pembiayaan Syariah | 5,000,000 | 1,000,000 | - | CORPORATE | 15,000 |
+| **PEM002** | Pembiayaan Musharakah | PEMBIAYAAN_MUSHARAKAH | Pembiayaan Syariah | 2,000,000 | 1,000,000 | 60:40 | PERSONAL | 0 |
+
+### Sample Customers (V002)
+Pre-loaded customer data for testing:
+
+#### Personal Customers
+| Customer Number | Name | Email | Identity Number | Phone | Address |
+|-----------------|------|-------|-----------------|-------|---------|
+| C1000001 | Ahmad Suharto | ahmad.suharto@email.com | 3271081503850001 (KTP) | 081234567890 | Jl. Sudirman No. 123, Jakarta 10220 |
+| C1000002 | Siti Nurhaliza | siti.nurhaliza@email.com | 3271082207900002 (KTP) | 081234567891 | Jl. Thamrin No. 456, Jakarta 10230 |
+| C1000004 | Budi Santoso | budi.santoso@email.com | 3271081011880003 (KTP) | 081234567892 | Jl. Gatot Subroto No. 321, Jakarta 12930 |
+| C1000006 | Dewi Lestari | dewi.lestari@email.com | 3271081805920004 (KTP) | 081234567893 | Jl. MH Thamrin No. 654, Jakarta 10350 |
+
+#### Corporate Customers
+| Customer Number | Company Name | Email | Registration Number | Tax ID | Contact Person | Phone | Address |
+|-----------------|--------------|-------|-------------------|--------|----------------|-------|---------|
+| C1000003 | PT. Teknologi Maju | info@teknologimaju.com | 1234567890123456 | 01.234.567.8-901.000 | - | 02123456789 | Jl. HR Rasuna Said No. 789, Jakarta 12950 |
+
+### Roles (V004)
+Three main system roles with hierarchical permissions:
 - **CUSTOMER_SERVICE**: Customer registration and account opening
 - **TELLER**: Financial transaction processing  
 - **BRANCH_MANAGER**: Full system access with monitoring and approvals
 
-### Sample Users
-All sample users have the password: `minibank123` (BCrypt hashed)
+### Sample Users (V004)
+All sample users have the password: `minibank123` (BCrypt hashed: `$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da`)
 
-- **Branch Managers**: admin, manager1, manager2
-- **Tellers**: teller1, teller2, teller3  
-- **Customer Service**: cs1, cs2, cs3
+| Username | Full Name | Email | Role | Purpose |
+|----------|-----------|--------|------|---------|
+| **admin** | System Administrator | admin@yopmail.com | BRANCH_MANAGER | System administration |
+| **manager1** | Branch Manager Jakarta | manager1@yopmail.com | BRANCH_MANAGER | Jakarta branch management |
+| **manager2** | Branch Manager Surabaya | manager2@yopmail.com | BRANCH_MANAGER | Surabaya branch management |
+| **teller1** | Teller Counter 1 | teller1@yopmail.com | TELLER | Transaction processing |
+| **teller2** | Teller Counter 2 | teller2@yopmail.com | TELLER | Transaction processing |
+| **teller3** | Teller Counter 3 | teller3@yopmail.com | TELLER | Transaction processing |
+| **cs1** | Customer Service Staff 1 | cs1@yopmail.com | CUSTOMER_SERVICE | Customer service |
+| **cs2** | Customer Service Staff 2 | cs2@yopmail.com | CUSTOMER_SERVICE | Customer service |
+| **cs3** | Customer Service Staff 3 | cs3@yopmail.com | CUSTOMER_SERVICE | Customer service |
 
-### Permission Categories
-- **CUSTOMER**: Customer management operations
-- **ACCOUNT**: Account management operations
-- **TRANSACTION**: Transaction processing operations  
-- **PRODUCT**: Product information access
-- **USER**: User management operations
-- **REPORT**: Business reporting access
-- **AUDIT**: System audit log access
+### Permission System (V004)
+Detailed permission breakdown by role:
+
+#### Customer Service Permissions
+| Permission Code | Permission Name | Category | Description |
+|-----------------|-----------------|----------|-------------|
+| CUSTOMER_VIEW | View Customer | CUSTOMER | View customer information |
+| CUSTOMER_CREATE | Create Customer | CUSTOMER | Register new customers |
+| CUSTOMER_UPDATE | Update Customer | CUSTOMER | Update customer information |
+| ACCOUNT_VIEW | View Account | ACCOUNT | View account information |
+| ACCOUNT_CREATE | Create Account | ACCOUNT | Open new accounts for customers |
+| ACCOUNT_UPDATE | Update Account | ACCOUNT | Update account information |
+| PRODUCT_VIEW | View Product | PRODUCT | View banking products |
+
+#### Teller Permissions
+| Permission Code | Permission Name | Category | Description |
+|-----------------|-----------------|----------|-------------|
+| CUSTOMER_VIEW | View Customer | CUSTOMER | View customer information |
+| ACCOUNT_VIEW | View Account | ACCOUNT | View account information |
+| BALANCE_VIEW | View Balance | ACCOUNT | View account balance |
+| TRANSACTION_VIEW | View Transaction | TRANSACTION | View transaction history |
+| TRANSACTION_DEPOSIT | Process Deposit | TRANSACTION | Process deposit transactions |
+| TRANSACTION_WITHDRAWAL | Process Withdrawal | TRANSACTION | Process withdrawal transactions |
+| TRANSACTION_TRANSFER | Process Transfer | TRANSACTION | Process transfer transactions |
+| PRODUCT_VIEW | View Product | PRODUCT | View banking products |
+
+#### Branch Manager Permissions (All permissions including)
+| Permission Code | Permission Name | Category | Description |
+|-----------------|-----------------|----------|-------------|
+| REPORT_VIEW | View Reports | REPORT | View business reports and analytics |
+| AUDIT_VIEW | View Audit Log | AUDIT | View system audit logs |
+| TRANSACTION_APPROVE | Approve Transaction | TRANSACTION | Approve high-value transactions |
+| ACCOUNT_APPROVE | Approve Account | ACCOUNT | Approve account opening/closing |
+| USER_VIEW | View Users | USER | View system users |
+| USER_CREATE | Create User | USER | Create new system users |
+| USER_UPDATE | Update User | USER | Update user information |
+| USER_DEACTIVATE | Deactivate User | USER | Deactivate system users |
+
+**Note**: Branch Manager role inherits ALL permissions from Customer Service and Teller roles plus additional management permissions.
 
 ## Security Considerations
 

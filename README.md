@@ -543,26 +543,32 @@ Aplikasi memiliki sample users untuk setiap role dengan credentials berikut:
 Aplikasi telah memiliki data sample nasabah yang dapat digunakan untuk testing:
 
 **Nasabah Perorangan:**
-- Ahmad Suharto (C1000001) - KTP: 3271081503850001
-- Siti Nurhaliza (C1000002) - KTP: 3271082207900002
-- Budi Santoso (C1000004) - KTP: 3271081011880003
-- Dewi Lestari (C1000006) - KTP: 3271081805920004
+| Customer Number | Name | Email | KTP | Phone | Address |
+|-----------------|------|-------|-----|-------|---------|
+| C1000001 | Ahmad Suharto | ahmad.suharto@email.com | 3271081503850001 | 081234567890 | Jl. Sudirman No. 123, Jakarta 10220 |
+| C1000002 | Siti Nurhaliza | siti.nurhaliza@email.com | 3271082207900002 | 081234567891 | Jl. Thamrin No. 456, Jakarta 10230 |
+| C1000004 | Budi Santoso | budi.santoso@email.com | 3271081011880003 | 081234567892 | Jl. Gatot Subroto No. 321, Jakarta 12930 |
+| C1000006 | Dewi Lestari | dewi.lestari@email.com | 3271081805920004 | 081234567893 | Jl. MH Thamrin No. 654, Jakarta 10350 |
 
 **Nasabah Korporasi:**
-- PT. Teknologi Maju (C1000003) - NPWP: 01.234.567.8-901.000
+| Customer Number | Company Name | Email | Registration Number | Tax ID | Phone | Address |
+|-----------------|--------------|-------|-------------------|--------|-------|---------|
+| C1000003 | PT. Teknologi Maju | info@teknologimaju.com | 1234567890123456 | 01.234.567.8-901.000 | 02123456789 | Jl. HR Rasuna Said No. 789, Jakarta 12950 |
 
 ### Produk Perbankan Tersedia ###
 
-**Tabungan Syariah:**
-- **Tabungan Wadiah Basic (TAB001)**: Setoran awal Rp 50.000, saldo minimum Rp 10.000
-- **Tabungan Mudharabah Premium (TAB002)**: Setoran awal Rp 1.000.000, nisbah 70:30
+| Product Code | Product Name | Type | Category | Min Opening | Min Balance | Nisbah Customer | Nisbah Bank | Customer Types | Features |
+|--------------|--------------|------|----------|-------------|-------------|-----------------|-------------|----------------|----------|
+| **TAB001** | Tabungan Wadiah Basic | TABUNGAN_WADIAH | Tabungan Syariah | Rp 50.000 | Rp 10.000 | - | - | PERSONAL | 10 transaksi gratis/bulan, biaya admin Rp 2.500 |
+| **TAB002** | Tabungan Mudharabah Premium | TABUNGAN_MUDHARABAH | Tabungan Syariah | Rp 1.000.000 | Rp 500.000 | 70% | 30% | PERSONAL | 25 transaksi gratis/bulan, tanpa biaya admin |
+| **DEP001** | Deposito Mudharabah | DEPOSITO_MUDHARABAH | Deposito Syariah | Rp 100.000 | Rp 50.000 | 70% | 30% | PERSONAL | Bagi hasil on maturity, 20 transaksi gratis/bulan |
+| **PEM001** | Pembiayaan Murabahah | PEMBIAYAAN_MURABAHAH | Pembiayaan Syariah | Rp 5.000.000 | Rp 1.000.000 | - | - | CORPORATE | Untuk kebutuhan konsumtif, akad murabahah |
+| **PEM002** | Pembiayaan Musharakah | PEMBIAYAAN_MUSHARAKAH | Pembiayaan Syariah | Rp 2.000.000 | Rp 1.000.000 | 60% | 40% | PERSONAL | Untuk modal usaha, akad musharakah |
 
-**Deposito Syariah:**
-- **Deposito Mudharabah (DEP001)**: Setoran awal Rp 100.000, nisbah 70:30
-
-**Pembiayaan Syariah:**
-- **Pembiayaan Murabahah (PEM001)**: Untuk nasabah korporasi, minimal Rp 5.000.000
-- **Pembiayaan Musharakah (PEM002)**: Untuk nasabah perorangan, minimal Rp 2.000.000
+**Initial Sequence Numbers:**
+- Customer Number: Starting from C1000001
+- Account Number: Starting from A2000001  
+- Transaction Number: Starting from T3000001
 
 ### Cara Menggunakan Fitur ###
 
