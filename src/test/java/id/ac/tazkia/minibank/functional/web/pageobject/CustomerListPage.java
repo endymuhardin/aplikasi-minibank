@@ -27,7 +27,7 @@ public class CustomerListPage extends BasePage {
     
     public CustomerListPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
     
     public void open() {

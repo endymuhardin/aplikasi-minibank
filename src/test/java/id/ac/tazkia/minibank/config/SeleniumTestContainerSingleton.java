@@ -127,6 +127,9 @@ public class SeleniumTestContainerSingleton {
                     break;
             }
             
+            // Maximize browser window for better compatibility with responsive designs
+            driver.manage().window().maximize();
+
             // Configure WebDriver timeouts
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));

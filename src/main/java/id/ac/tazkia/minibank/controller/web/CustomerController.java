@@ -30,11 +30,14 @@ import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
 @RequestMapping("/customer")
+@Validated
 public class CustomerController {
 
     @Autowired
@@ -240,9 +243,8 @@ public class CustomerController {
     }
 
     @PostMapping("/update/{id}")
-    public String update(@PathVariable UUID id, 
-                         @ModelAttribute PersonalCustomerCreateRequest personalRequest,
-                         @ModelAttribute CorporateCustomerCreateRequest corporateRequest,
+    public String update(@PathVariable UUID id,
+                         HttpServletRequest request,
                          RedirectAttributes redirectAttributes,
                          Model model) {
 
@@ -257,32 +259,42 @@ public class CustomerController {
 
         try {
             if (existingCustomer instanceof PersonalCustomer personalCustomer) {
-                // Manual validation for personal customer
-                if (personalRequest.getFirstName() == null || personalRequest.getFirstName().isEmpty() ||
-                    personalRequest.getLastName() == null || personalRequest.getLastName().isEmpty() ||
-                    personalRequest.getEmail() == null || personalRequest.getEmail().isEmpty()) {
+                PersonalCustomerCreateRequest req = new PersonalCustomerCreateRequest();
+                req.setFirstName(request.getParameter("firstName"));
+                req.setLastName(request.getParameter("lastName"));
+                req.setEmail(request.getParameter("email"));
+                req.setPhoneNumber(request.getParameter("phoneNumber"));
+                req.setDateOfBirth(request.getParameter("dateOfBirth"));
+                req.setIdNumber(request.getParameter("idNumber"));
+
+                if (req.getFirstName() == null || req.getFirstName().isEmpty() ||
+                    req.getLastName() == null || req.getLastName().isEmpty() ||
+                    req.getEmail() == null || req.getEmail().isEmpty()) {
                     model.addAttribute("errorMessage", "First name, last name, and email are required.");
-                    model.addAttribute("formData", personalRequest);
+                    model.addAttribute("formData", req);
                     return "customer/personal-form";
                 }
 
-                BeanUtils.copyProperties(personalRequest, personalCustomer, "id", "dateOfBirth", "idNumber");
-                if (personalRequest.getDateOfBirth() != null && !personalRequest.getDateOfBirth().isEmpty()) {
-                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(personalRequest.getDateOfBirth()));
+                BeanUtils.copyProperties(req, personalCustomer, "id");
+                if (req.getDateOfBirth() != null && !req.getDateOfBirth().isEmpty()) {
+                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(req.getDateOfBirth()));
                 }
-                personalCustomer.setIdentityNumber(personalRequest.getIdNumber());
 
             } else if (existingCustomer instanceof CorporateCustomer corporateCustomer) {
-                // Manual validation for corporate customer
-                if (corporateRequest.getCompanyName() == null || corporateRequest.getCompanyName().isEmpty() ||
-                    corporateRequest.getEmail() == null || corporateRequest.getEmail().isEmpty()) {
+                 CorporateCustomerCreateRequest req = new CorporateCustomerCreateRequest();
+                 req.setCompanyName(request.getParameter("companyName"));
+                 req.setEmail(request.getParameter("email"));
+                 req.setPhoneNumber(request.getParameter("phoneNumber"));
+                 req.setTaxId(request.getParameter("taxId"));
+
+                if (req.getCompanyName() == null || req.getCompanyName().isEmpty() ||
+                    req.getEmail() == null || req.getEmail().isEmpty()) {
                     model.addAttribute("errorMessage", "Company name and email are required.");
-                    model.addAttribute("formData", corporateRequest);
+                    model.addAttribute("formData", req);
                     return "customer/corporate-form";
                 }
 
-                BeanUtils.copyProperties(corporateRequest, corporateCustomer, "id", "taxId");
-                corporateCustomer.setTaxIdentificationNumber(corporateRequest.getTaxId());
+                BeanUtils.copyProperties(req, corporateCustomer, "id");
             }
             
             customerRepository.save(existingCustomer);
@@ -292,12 +304,11 @@ public class CustomerController {
         } catch (Exception e) {
             log.error("Failed to update customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
+            model.addAttribute("formData", new PersonalCustomerCreateRequest()); // Provide a default form data object
             
             if (existingCustomer instanceof PersonalCustomer) {
-                model.addAttribute("formData", personalRequest);
                 return "customer/personal-form";
             } else {
-                model.addAttribute("formData", corporateRequest);
                 return "customer/corporate-form";
             }
         }
