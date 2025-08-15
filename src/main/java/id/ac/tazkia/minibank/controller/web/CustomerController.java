@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import id.ac.tazkia.minibank.dto.CorporateCustomerCreateRequest;
-import id.ac.tazkia.minibank.dto.PersonalCustomerCreateRequest;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,19 +76,18 @@ public class CustomerController {
     
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
-        model.addAttribute("formData", new PersonalCustomerCreateRequest());
         model.addAttribute("customer", new PersonalCustomer());
         return "customer/personal-form";
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
-        model.addAttribute("formData", new CorporateCustomerCreateRequest());
+        model.addAttribute("customer", new CorporateCustomer());
         return "customer/corporate-form";
     }
 
     @PostMapping("/create/personal")
-    public String createPersonal(@Valid @ModelAttribute PersonalCustomerCreateRequest request,
+    public String createPersonal(@Valid @ModelAttribute PersonalCustomer personalCustomer,
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes, 
                                 Model model) {
@@ -103,47 +99,32 @@ public class CustomerController {
                 validationErrors.add(error.getDefaultMessage());
             }
             model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("formData", request);
-            model.addAttribute("customer", new PersonalCustomer());
+            model.addAttribute("customer", personalCustomer);
             return "customer/personal-form";
         }
 
         // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(request.getCustomerNumber());
+        Optional<Customer> existing = customerRepository.findByCustomerNumber(personalCustomer.getCustomerNumber());
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
-            model.addAttribute("formData", request);
-            model.addAttribute("customer", new PersonalCustomer());
+            model.addAttribute("customer", personalCustomer);
             return "customer/personal-form";
         }
 
         try {
-            PersonalCustomer personalCustomer = new PersonalCustomer();
-            
-            // Copy common properties from DTO to entity
-            BeanUtils.copyProperties(request, personalCustomer, "dateOfBirth", "idNumber");
-            
-            // Handle specific field mappings
-            if (request.getDateOfBirth() != null && !request.getDateOfBirth().isEmpty()) {
-                personalCustomer.setDateOfBirth(java.time.LocalDate.parse(request.getDateOfBirth()));
-            }
-            personalCustomer.setIdentityNumber(request.getIdNumber());
-            personalCustomer.setIdentityType(Customer.IdentityType.KTP);
-
             customerRepository.save(personalCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Personal customer created successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
             log.error("Failed to create personal customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
-            model.addAttribute("formData", request);
-            model.addAttribute("customer", new PersonalCustomer());
+            model.addAttribute("customer", personalCustomer);
             return "customer/personal-form";
         }
     }
     
     @PostMapping("/create/corporate")
-    public String createCorporate(@Valid @ModelAttribute CorporateCustomerCreateRequest request,
+    public String createCorporate(@Valid @ModelAttribute CorporateCustomer corporateCustomer,
                                  BindingResult bindingResult,
                                  RedirectAttributes redirectAttributes, 
                                  Model model) {
@@ -155,36 +136,26 @@ public class CustomerController {
                 validationErrors.add(error.getDefaultMessage());
             }
             model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("formData", request);
+            model.addAttribute("customer", corporateCustomer);
             return "customer/corporate-form";
         }
 
         // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(request.getCustomerNumber());
+        Optional<Customer> existing = customerRepository.findByCustomerNumber(corporateCustomer.getCustomerNumber());
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
-            model.addAttribute("formData", request);
-            model.addAttribute("customer", new CorporateCustomer());
+            model.addAttribute("customer", corporateCustomer);
             return "customer/corporate-form";
         }
 
         try {
-            CorporateCustomer corporateCustomer = new CorporateCustomer();
-            
-            // Copy common properties from DTO to entity
-            BeanUtils.copyProperties(request, corporateCustomer, "taxId");
-            
-            // Handle specific field mappings
-            corporateCustomer.setTaxIdentificationNumber(request.getTaxId());
-            corporateCustomer.setCompanyRegistrationNumber("REG-" + System.currentTimeMillis());
-
             customerRepository.save(corporateCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Corporate customer created successfully");
             return "redirect:/customer/list";
         } catch (Exception e) {
             log.error("Failed to create corporate customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
-            model.addAttribute("formData", request);
+            model.addAttribute("customer", corporateCustomer);
             return "customer/corporate-form";
         }
     }
@@ -224,13 +195,11 @@ public class CustomerController {
                 // Ensure we pass the PersonalCustomer object for proper field access
                 PersonalCustomer personalCustomer = (PersonalCustomer) c;
                 model.addAttribute("customer", personalCustomer);
-                model.addAttribute("formData", personalCustomer);
                 return "customer/personal-form";
             } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
                 // Ensure we pass the CorporateCustomer object for proper field access
                 CorporateCustomer corporateCustomer = (CorporateCustomer) c;
                 model.addAttribute("customer", corporateCustomer);
-                model.addAttribute("formData", corporateCustomer);
                 return "customer/corporate-form";
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Unknown customer type");
@@ -242,11 +211,12 @@ public class CustomerController {
         }
     }
 
-    @PostMapping("/update/{id}")
-    public String update(@PathVariable UUID id,
-                         HttpServletRequest request,
-                         RedirectAttributes redirectAttributes,
-                         Model model) {
+    @PostMapping("/update/personal/{id}")
+    public String updatePersonal(@PathVariable UUID id,
+                                @Valid @ModelAttribute PersonalCustomer updatedCustomer,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
 
         Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
         if (existingCustomerOpt.isEmpty()) {
@@ -255,62 +225,85 @@ public class CustomerController {
         }
 
         Customer existingCustomer = existingCustomerOpt.get();
-        model.addAttribute("customer", existingCustomer);
+        if (!(existingCustomer instanceof PersonalCustomer)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Customer is not a personal customer");
+            return "redirect:/customer/list";
+        }
+
+        PersonalCustomer personalCustomer = (PersonalCustomer) existingCustomer;
+
+        // Check for validation errors
+        if (bindingResult.hasErrors()) {
+            List<String> validationErrors = new ArrayList<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                validationErrors.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationErrors", validationErrors);
+            model.addAttribute("customer", updatedCustomer);
+            return "customer/personal-form";
+        }
 
         try {
-            if (existingCustomer instanceof PersonalCustomer personalCustomer) {
-                PersonalCustomerCreateRequest req = new PersonalCustomerCreateRequest();
-                req.setFirstName(request.getParameter("firstName"));
-                req.setLastName(request.getParameter("lastName"));
-                req.setEmail(request.getParameter("email"));
-                req.setPhoneNumber(request.getParameter("phoneNumber"));
-                req.setDateOfBirth(request.getParameter("dateOfBirth"));
-                req.setIdNumber(request.getParameter("idNumber"));
-
-                if (req.getFirstName() == null || req.getFirstName().isEmpty() ||
-                    req.getLastName() == null || req.getLastName().isEmpty() ||
-                    req.getEmail() == null || req.getEmail().isEmpty()) {
-                    model.addAttribute("errorMessage", "First name, last name, and email are required.");
-                    model.addAttribute("formData", req);
-                    return "customer/personal-form";
-                }
-
-                BeanUtils.copyProperties(req, personalCustomer, "id");
-                if (req.getDateOfBirth() != null && !req.getDateOfBirth().isEmpty()) {
-                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(req.getDateOfBirth()));
-                }
-
-            } else if (existingCustomer instanceof CorporateCustomer corporateCustomer) {
-                 CorporateCustomerCreateRequest req = new CorporateCustomerCreateRequest();
-                 req.setCompanyName(request.getParameter("companyName"));
-                 req.setEmail(request.getParameter("email"));
-                 req.setPhoneNumber(request.getParameter("phoneNumber"));
-                 req.setTaxId(request.getParameter("taxId"));
-
-                if (req.getCompanyName() == null || req.getCompanyName().isEmpty() ||
-                    req.getEmail() == null || req.getEmail().isEmpty()) {
-                    model.addAttribute("errorMessage", "Company name and email are required.");
-                    model.addAttribute("formData", req);
-                    return "customer/corporate-form";
-                }
-
-                BeanUtils.copyProperties(req, corporateCustomer, "id");
-            }
+            // Copy properties from form data to existing entity, preserving ID and audit fields
+            BeanUtils.copyProperties(updatedCustomer, personalCustomer, "id", "createdDate", "createdBy", "accounts");
             
-            customerRepository.save(existingCustomer);
-            redirectAttributes.addFlashAttribute("successMessage", "Customer updated successfully");
+            customerRepository.save(personalCustomer);
+            redirectAttributes.addFlashAttribute("successMessage", "Personal customer updated successfully");
             return "redirect:/customer/list";
 
         } catch (Exception e) {
-            log.error("Failed to update customer", e);
+            log.error("Failed to update personal customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
-            model.addAttribute("formData", new PersonalCustomerCreateRequest()); // Provide a default form data object
-            
-            if (existingCustomer instanceof PersonalCustomer) {
-                return "customer/personal-form";
-            } else {
-                return "customer/corporate-form";
+            model.addAttribute("customer", personalCustomer);
+            return "customer/personal-form";
+        }
+    }
+
+    @PostMapping("/update/corporate/{id}")
+    public String updateCorporate(@PathVariable UUID id,
+                                 @Valid @ModelAttribute CorporateCustomer updatedCustomer,
+                                 BindingResult bindingResult,
+                                 RedirectAttributes redirectAttributes,
+                                 Model model) {
+
+        Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
+        if (existingCustomerOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
+            return "redirect:/customer/list";
+        }
+
+        Customer existingCustomer = existingCustomerOpt.get();
+        if (!(existingCustomer instanceof CorporateCustomer)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Customer is not a corporate customer");
+            return "redirect:/customer/list";
+        }
+
+        CorporateCustomer corporateCustomer = (CorporateCustomer) existingCustomer;
+
+        // Check for validation errors
+        if (bindingResult.hasErrors()) {
+            List<String> validationErrors = new ArrayList<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                validationErrors.add(error.getDefaultMessage());
             }
+            model.addAttribute("validationErrors", validationErrors);
+            model.addAttribute("customer", updatedCustomer);
+            return "customer/corporate-form";
+        }
+
+        try {
+            // Copy properties from form data to existing entity, preserving ID and audit fields
+            BeanUtils.copyProperties(updatedCustomer, corporateCustomer, "id", "createdDate", "createdBy", "accounts");
+            
+            customerRepository.save(corporateCustomer);
+            redirectAttributes.addFlashAttribute("successMessage", "Corporate customer updated successfully");
+            return "redirect:/customer/list";
+
+        } catch (Exception e) {
+            log.error("Failed to update corporate customer", e);
+            model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
+            model.addAttribute("customer", corporateCustomer);
+            return "customer/corporate-form";
         }
     }
 
