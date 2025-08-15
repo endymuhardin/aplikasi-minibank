@@ -397,6 +397,7 @@ public class CustomerListPage extends BasePage {
         try {
             WebElement deactivateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("deactivate-" + customerNumber)));
             scrollToElementAndClick(deactivateButton);
+            wait.until(ExpectedConditions.alertIsPresent()).accept();
             waitForPageLoad();
         } catch (TimeoutException e) {
             throw new RuntimeException("Deactivate button for customer " + customerNumber + " not found or not clickable", e);
