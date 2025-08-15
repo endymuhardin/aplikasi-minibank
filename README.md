@@ -2,45 +2,100 @@
 
 ## Fitur Aplikasi ##
 
-Aplikasi Mini Bank akan mencakup modul-modul utama sebagai berikut:
+Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai berikut:
 
-* **Modul Pembukaan Rekening:**
-    * **Pembukaan Rekening Tabungan:**
-        * Input data nasabah (perorangan/badan usaha).
-        * Pilihan jenis tabungan.
-        * Otomatisasi nomor rekening.
-        * Verifikasi data nasabah.
-        * Pencetakan formulir pembukaan rekening.
-    * **Pembukaan Rekening Deposito:**
-        * Input data nasabah.
-        * Pilihan jangka waktu deposito.
-        * Penentuan suku bunga deposito.
-        * Pencetakan bilyet deposito.
-* **Modul Transaksi Tunai:**
-    * **Setoran Tunai:**
-        * Input nomor rekening tujuan.
-        * Input nominal setoran.
-        * Pencatatan detail transaksi.
-        * Otomatisasi *update* saldo rekening.
-        * Pencetakan bukti setoran.
-* **Modul Cetak Buku Tabungan:**
-    * Pencarian rekening nasabah.
-    * Tampilan riwayat transaksi.
-    * Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik.
-    * Sinkronisasi dengan data transaksi terbaru.
-* **Modul Pembiayaan Syariah:**
-    * **Pembiayaan Murabahah:**
-        * Input data nasabah dan objek pembiayaan (barang/jasa).
-        * Perhitungan harga pokok, margin keuntungan, dan harga jual.
-        * Penentuan jangka waktu dan angsuran.
-        * Pencatatan akad pembiayaan.
-        * Pencetakan dokumen pembiayaan murabahah.
-    * **Pembiayaan Mudharabah:**
-        * Input data nasabah dan tujuan pembiayaan (proyek/usaha).
-        * Penentuan nisbah bagi hasil (proporsi pembagian keuntungan).
-        * Penentuan jangka waktu pembiayaan.
-        * Pencatatan akad pembiayaan.
-        * Pencetakan dokumen pembiayaan mudharabah.
+### ✅ **MODUL YANG SUDAH SELESAI** ###
+
+* **✅ Modul Manajemen Nasabah:**
+    * ✅ **Registrasi Nasabah Perorangan:** Input data lengkap, validasi KTP, verifikasi data
+    * ✅ **Registrasi Nasabah Badan Usaha:** Input data perusahaan, validasi dokumen, verifikasi legalitas
+    * ✅ **Pencarian & Filtering Nasabah:** Pencarian berdasarkan nama, nomor nasabah, jenis nasabah
+    * ✅ **Edit & Update Data Nasabah:** Perubahan data nasabah dengan audit trail
+    * ✅ **Aktivasi/Deaktivasi Nasabah:** Pengelolaan status nasabah
+    * ✅ **View Detail Nasabah:** Tampilan lengkap informasi nasabah
+    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi nasabah
+    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test, Karate BDD test
+
+* **✅ Modul Manajemen Produk Perbankan:**
+    * ✅ **Konfigurasi Produk Tabungan Syariah:** Tabungan Wadiah, Tabungan Mudharabah
+    * ✅ **Konfigurasi Produk Deposito:** Deposito Mudharabah dengan nisbah bagi hasil
+    * ✅ **Konfigurasi Produk Pembiayaan:** Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna
+    * ✅ **Pengaturan Fee & Limit:** Konfigurasi biaya administrasi, limit transaksi
+    * ✅ **Pengaturan Nisbah Bagi Hasil:** Sistem profit sharing untuk produk syariah
+    * ✅ **CRUD Produk Lengkap:** Create, Read, Update, Delete, Search, Filter
+    * ✅ **Aktivasi/Deaktivasi Produk:** Pengelolaan status produk
+    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi produk
+    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test
+
+* **✅ Modul Pembukaan Rekening:**
+    * ✅ **REST API Pembukaan Rekening:** Endpoint untuk membuka rekening baru
+    * ✅ **Validasi Nasabah & Produk:** Verifikasi kelayakan pembukaan rekening
+    * ✅ **Otomatisasi Nomor Rekening:** Generate nomor rekening otomatis dengan prefix
+    * ✅ **Pengaturan Saldo Awal:** Set saldo minimum sesuai produk
+    * ✅ **Karate BDD Testing:** Test cases lengkap untuk pembukaan rekening
+    * ❓ *Web Interface:** Belum ada UI web untuk pembukaan rekening*
+
+* **✅ Modul Transaksi Perbankan:**
+    * ✅ **Setoran Tunai (Deposit):**
+        * ✅ REST API untuk deposit dengan validasi lengkap
+        * ✅ Update saldo otomatis dengan audit trail
+        * ✅ Pencatatan riwayat transaksi lengkap
+        * ✅ Validasi limit dan aturan bisnis
+        * ✅ Karate BDD testing dengan berbagai skenario
+    * ✅ **Penarikan Tunai (Withdrawal):**
+        * ✅ REST API untuk withdrawal dengan validasi saldo
+        * ✅ Pengecekan limit penarikan harian
+        * ✅ Update saldo otomatis dengan validasi
+        * ✅ Pencatatan audit trail transaksi
+        * ✅ Karate BDD testing komprehensif
+    * ❓ *Web Interface:** Belum ada UI web untuk transaksi*
+    * ❓ *Transfer:** Belum diimplementasi*
+
+* **✅ Modul User Management & RBAC:**
+    * ✅ **Manajemen User:** Create, edit, view, activate/deactivate user
+    * ✅ **Manajemen Role:** Customer Service, Teller, Branch Manager dengan permissions
+    * ✅ **Manajemen Permission:** Fine-grained permissions per fitur
+    * ✅ **Assignment Role ke User:** Assign/remove multiple roles per user
+    * ✅ **Assignment Permission ke Role:** Configure permissions per role
+    * ✅ **Password Management:** Change password dengan BCrypt hashing
+    * ✅ **Authentication & Security:** Login/logout, session management
+    * ✅ **Web Interface Lengkap:** Form, list, search, pagination
+    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi RBAC
+    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test
+
+### ❌ **MODUL YANG BELUM DIIMPLEMENTASI** ###
+
+* **❌ Modul Cetak Buku Tabungan:**
+    * ❌ Pencarian rekening nasabah
+    * ❌ Tampilan riwayat transaksi
+    * ❌ Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik
+    * ❌ Sinkronisasi dengan data transaksi terbaru
+
+* **❌ Modul Pembiayaan Syariah (Web Interface):**
+    * ❌ **Pembiayaan Murabahah:**
+        * ❌ Input data nasabah dan objek pembiayaan (barang/jasa)
+        * ❌ Perhitungan harga pokok, margin keuntungan, dan harga jual
+        * ❌ Penentuan jangka waktu dan angsuran
+        * ❌ Pencatatan akad pembiayaan
+        * ❌ Pencetakan dokumen pembiayaan murabahah
+    * ❌ **Pembiayaan Mudharabah:**
+        * ❌ Input data nasabah dan tujuan pembiayaan (proyek/usaha)
+        * ❌ Penentuan nisbah bagi hasil (proporsi pembagian keuntungan)
+        * ❌ Penentuan jangka waktu pembiayaan
+        * ❌ Pencatatan akad pembiayaan
+        * ❌ Pencetakan dokumen pembiayaan mudharabah
+
+* **❌ Modul Deposito (Web Interface):**
+    * ❌ Input data nasabah untuk deposito
+    * ❌ Pilihan jangka waktu deposito
+    * ❌ Penentuan nisbah bagi hasil deposito
+    * ❌ Pencetakan bilyet deposito
+
+### 📊 **PROGRESS SUMMARY** ###
+- **✅ Completed Modules:** 5/8 (Customer Management, Product Management, Account Opening API, Transaction API, RBAC)
+- **🔄 Partially Implemented:** 0/8 
+- **❌ Not Started:** 3/8 (Passbook Printing, Islamic Financing UI, Deposito UI)
+- **Overall Progress:** ~62% Complete
 
 ## Pengguna Aplikasi ##
 
