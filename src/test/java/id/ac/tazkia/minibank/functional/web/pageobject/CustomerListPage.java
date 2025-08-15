@@ -189,13 +189,43 @@ public class CustomerListPage extends BasePage {
     
     public boolean isSuccessMessageDisplayed() {
         try {
+            // Log current URL and page source for debugging
+            String currentUrl = driver.getCurrentUrl();
+            log.info("Checking for success message on URL: {}", currentUrl);
+            
+            // Wait for page to stabilize first
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+            
+            // Check if we're on the right page (customer list)
+            if (!currentUrl.contains("/customer/list")) {
+                log.warn("Not on customer list page, current URL: {}", currentUrl);
+                // Try to navigate to customer list page
+                driver.get(baseUrl + "/customer/list");
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.id("customer-table")));
+            }
+            
             WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(20));
             WebElement message = longWait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_MESSAGE));
             log.info("Success message element found: {}", message.getText());
             return message.isDisplayed();
         } catch (TimeoutException e) {
-            log.warn("Success message not visible within 20 seconds.");
-            return false;
+            log.warn("Success message not visible within 20 seconds. Current URL: {}", driver.getCurrentUrl());
+            // Log page source for debugging (first 500 chars)
+            String pageSource = driver.getPageSource();
+            if (pageSource.length() > 500) {
+                pageSource = pageSource.substring(0, 500) + "...";
+            }
+            log.warn("Page source sample: {}", pageSource);
+            
+            // Check if success message exists but is not visible
+            try {
+                WebElement successElement = driver.findElement(SUCCESS_MESSAGE);
+                log.warn("Success message element exists but not visible. Text: {}", successElement.getText());
+                return false;
+            } catch (Exception ex) {
+                log.warn("Success message element not found at all");
+                return false;
+            }
         } catch (Exception e) {
             log.error("An error occurred while checking for the success message.", e);
             return false;

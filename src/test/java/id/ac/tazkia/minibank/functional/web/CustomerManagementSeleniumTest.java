@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +16,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerViewPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CustomerListPage;
@@ -105,6 +103,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         String phone = "081234567891";
         String address = "456 Corporate Blvd";
         String city = "Surabaya";
+        String companyRegNum = "1234567890123";
         String taxId = "12.345.678.9-012.000";
         
         CustomerListPage listPage = new CustomerListPage(driver, baseUrl);
@@ -112,7 +111,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         
         CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
         
-        formPage.fillForm(uniqueId, companyName, taxId, 
+        formPage.fillForm(uniqueId, companyName, companyRegNum, taxId, 
                          contactPerson, "Manager", email, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
@@ -166,8 +165,8 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/customer/corporate-customer-creation-data.csv", numLinesToSkip = 1)
     @Timeout(value = 90, unit = TimeUnit.SECONDS)
-    void shouldCreateCorporateCustomersFromCSVData(String customerNumber, String companyName, String contactPersonName,
-                                                 String email, String phone, String address, String city,
+    void shouldCreateCorporateCustomersFromCSVData(String customerNumber, String companyName, String companyRegistrationNumber,
+                                                 String contactPersonName, String email, String phone, String address, String city,
                                                  String taxIdentificationNumber) {
         log.info("Starting test: shouldCreateCorporateCustomersFromCSVData with customerNumber: {}", customerNumber);
         Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
@@ -179,7 +178,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         listPage.open();
         
         CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
-        formPage.fillForm(uniqueNumber, companyName, taxIdentificationNumber,
+        formPage.fillForm(uniqueNumber, companyName, companyRegistrationNumber + System.currentTimeMillis(), taxIdentificationNumber,
                          contactPersonName, "Manager", uniqueEmail, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
@@ -235,13 +234,26 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         // Verify form is populated with existing data
         assertEquals(editNumber, editPage.getCustomerNumber());
         
-        // Update customer information
-        editPage.updateEmail("updated" + System.currentTimeMillis() + "@example.com");
-        editPage.updatePhone("087654321098");
-        editPage.updateAddress("Updated Address 123");
+        // Update customer information - must provide ALL required fields for validation
+        String updatedEmail = "updated" + System.currentTimeMillis() + "@example.com";
+        editPage.fillForm(editNumber, "John", "Doe", "1990-01-01", "KTP", 
+                         "1234567890123456", updatedEmail, "087654321098", 
+                         "Updated Address 123", "Jakarta");
         
         CustomerListPage resultPage = editPage.submitForm();
         
+        // Debug: Check if the database was actually updated
+        Customer updatedCustomerCheck = customerRepository.findByCustomerNumber(editNumber).orElse(null);
+        if (updatedCustomerCheck != null) {
+            boolean emailUpdated = updatedCustomerCheck.getEmail().contains("updated");
+            boolean phoneUpdated = "087654321098".equals(updatedCustomerCheck.getPhoneNumber());
+            log.info("Database check - Email updated: {}, Phone updated: {}", emailUpdated, phoneUpdated);
+            log.info("Current email: {}, Current phone: {}", updatedCustomerCheck.getEmail(), updatedCustomerCheck.getPhoneNumber());
+        } else {
+            log.error("Customer {} not found in database after edit", editNumber);
+        }
+        
+        // This is a UI test - verify the success message is displayed
         assertTrue(resultPage.isSuccessMessageDisplayed());
         
         // Verify changes in database
@@ -249,6 +261,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         assertNotNull(updatedCustomer);
         assertTrue(updatedCustomer.getEmail().contains("updated"));
         assertEquals("087654321098", updatedCustomer.getPhoneNumber());
+        assertEquals("Updated Address 123", updatedCustomer.getAddress());
         assertEquals(Customer.CustomerType.PERSONAL, updatedCustomer.getCustomerType());
     }
     
@@ -533,7 +546,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
             testPhone = (phone != null && !phone.isEmpty()) ? phone : "081234567890";
         }
         
-        formPage.fillForm(testNumber, testCompanyName, "12.345.678.9-012.000",
+        formPage.fillForm(testNumber, testCompanyName, "REG123456", "12.345.678.9-012.000",
                          testContactPerson, "Manager", testEmail, testPhone, "Test Address", "Jakarta");
         
         CorporateCustomerFormPage resultPage = formPage.submitFormExpectingError();
