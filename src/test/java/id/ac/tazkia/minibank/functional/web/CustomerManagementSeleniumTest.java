@@ -74,7 +74,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         
         PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
-        formPage.fillForm(uniqueId, firstName, lastName, "1990-01-01", "Male", 
+        formPage.fillForm(uniqueId, firstName, lastName, "1990-01-01", "KTP", 
                          idNumber, email, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
@@ -136,7 +136,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Timeout(value = 90, unit = TimeUnit.SECONDS)
     void shouldCreatePersonalCustomersFromCSVData(String customerNumber, String firstName, String lastName,
                                                 String email, String phone, String address, String city,
-                                                String idNumber, String dateOfBirth, String gender) {
+                                                String identityNumber, String dateOfBirth, String identityType) {
         log.info("Starting test: shouldCreatePersonalCustomersFromCSVData with customerNumber: {}", customerNumber);
         Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
@@ -147,8 +147,8 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         listPage.open();
         
         PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
-        formPage.fillForm(uniqueNumber, firstName, lastName, dateOfBirth, gender, 
-                         idNumber, uniqueEmail, phone, address, city);
+        formPage.fillForm(uniqueNumber, firstName, lastName, dateOfBirth, identityType, 
+                         identityNumber, uniqueEmail, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
         
@@ -168,7 +168,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Timeout(value = 90, unit = TimeUnit.SECONDS)
     void shouldCreateCorporateCustomersFromCSVData(String customerNumber, String companyName, String contactPersonName,
                                                  String email, String phone, String address, String city,
-                                                 String taxId) {
+                                                 String taxIdentificationNumber) {
         log.info("Starting test: shouldCreateCorporateCustomersFromCSVData with customerNumber: {}", customerNumber);
         Assumptions.assumeTrue(driver != null, "Selenium tests are disabled");
         
@@ -179,7 +179,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         listPage.open();
         
         CorporateCustomerFormPage formPage = listPage.clickCreateCorporateCustomer();
-        formPage.fillForm(uniqueNumber, companyName, taxId,
+        formPage.fillForm(uniqueNumber, companyName, taxIdentificationNumber,
                          contactPersonName, "Manager", uniqueEmail, phone, address, city);
         
         CustomerListPage resultPage = formPage.submitForm();
@@ -411,7 +411,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
         PersonalCustomerFormPage formPage = listPage.clickCreatePersonalCustomer();
         
         // Try to create customer with existing number
-        formPage.fillForm("DUPLICATE001", "John", "Doe", "1990-01-01", "Male",
+        formPage.fillForm("DUPLICATE001", "John", "Doe", "1990-01-01", "KTP",
                          "1234567890123456", "test@example.com", "081234567890", 
                          "Test Address", "Jakarta");
         
@@ -474,7 +474,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
             testPhone = (phone != null && !phone.isEmpty()) ? phone : "081234567890";
         }
         
-        formPage.fillForm(testNumber, testFirstName, testLastName, "1990-01-01", "Male",
+        formPage.fillForm(testNumber, testFirstName, testLastName, "1990-01-01", "KTP",
                          "1234567890123456", testEmail, testPhone, "Test Address", "Jakarta");
         
         PersonalCustomerFormPage resultPage = formPage.submitFormExpectingError();

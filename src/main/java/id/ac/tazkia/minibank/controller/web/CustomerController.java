@@ -28,13 +28,11 @@ import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import jakarta.validation.Valid;
-import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
 @RequestMapping("/customer")
-@Validated
 public class CustomerController {
 
     @Autowired

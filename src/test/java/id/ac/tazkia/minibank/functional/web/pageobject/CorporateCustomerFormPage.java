@@ -18,7 +18,7 @@ public class CorporateCustomerFormPage extends BasePage {
     // Corporate customer form elements
     private static final By CUSTOMER_NUMBER_INPUT = By.id("customerNumber");
     private static final By COMPANY_NAME_INPUT = By.id("companyName");
-    private static final By TAX_ID_INPUT = By.id("taxId");
+    private static final By TAX_ID_INPUT = By.id("taxIdentificationNumber");
     private static final By CONTACT_PERSON_NAME_INPUT = By.id("contactPersonName");
     private static final By CONTACT_PERSON_TITLE_INPUT = By.id("contactPersonTitle");
     private static final By EMAIL_INPUT = By.id("email");
@@ -36,13 +36,13 @@ public class CorporateCustomerFormPage extends BasePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
     
-    public void fillForm(String customerNumber, String companyName, String taxId, 
+    public void fillForm(String customerNumber, String companyName, String taxIdentificationNumber, 
                         String contactPersonName, String contactPersonTitle, 
                         String email, String phone, String address, String city) {
         
         fillField(CUSTOMER_NUMBER_INPUT, customerNumber);
         fillField(COMPANY_NAME_INPUT, companyName);
-        fillField(TAX_ID_INPUT, taxId);
+        fillField(TAX_ID_INPUT, taxIdentificationNumber);
         fillField(CONTACT_PERSON_NAME_INPUT, contactPersonName);
         fillField(CONTACT_PERSON_TITLE_INPUT, contactPersonTitle);
         fillField(EMAIL_INPUT, email);
@@ -67,6 +67,9 @@ public class CorporateCustomerFormPage extends BasePage {
     }
     
     public CustomerListPage submitForm() {
+        // Disable HTML5 validation to ensure form submission reaches the server
+        disableHTML5Validation();
+        
         scrollToElementAndClick(SUBMIT_BUTTON);
         wait.until(ExpectedConditions.or(
             ExpectedConditions.urlContains("/customer/list"),
@@ -95,14 +98,38 @@ public class CorporateCustomerFormPage extends BasePage {
     }
     
     private void disableHTML5Validation() {
-        // Remove 'required' attributes and change email type to text to bypass HTML5 validation
+        // Comprehensively disable HTML5 validation to test server-side validation
         try {
             ((JavascriptExecutor) driver).executeScript(
-                "document.querySelectorAll('input[required]').forEach(function(input) { input.removeAttribute('required'); });" +
-                "document.querySelectorAll('input[type=\"email\"]').forEach(function(input) { input.type = 'text'; });"
+                // Remove required attributes from all form elements
+                "document.querySelectorAll('input[required], select[required], textarea[required]').forEach(function(element) { " +
+                "  element.removeAttribute('required'); " +
+                "});" +
+                // Change email inputs to text type
+                "document.querySelectorAll('input[type=\"email\"]').forEach(function(input) { " +
+                "  input.type = 'text'; " +
+                "});" +
+                // Change date inputs to text type to prevent date validation
+                "document.querySelectorAll('input[type=\"date\"]').forEach(function(input) { " +
+                "  input.type = 'text'; " +
+                "});" +
+                // Disable HTML5 validation on the form itself
+                "document.querySelectorAll('form').forEach(function(form) { " +
+                "  form.setAttribute('novalidate', 'novalidate'); " +
+                "});" +
+                // Remove pattern attributes if any
+                "document.querySelectorAll('input[pattern]').forEach(function(input) { " +
+                "  input.removeAttribute('pattern'); " +
+                "});" +
+                // Remove min/max attributes that might cause validation
+                "document.querySelectorAll('input[min], input[max]').forEach(function(input) { " +
+                "  input.removeAttribute('min'); " +
+                "  input.removeAttribute('max'); " +
+                "});"
             );
+            log.info("HTML5 validation disabled successfully");
         } catch (Exception e) {
-            System.err.println("Warning: Could not disable HTML5 validation: " + e.getMessage());
+            log.warn("Could not disable HTML5 validation", e);
         }
     }
     

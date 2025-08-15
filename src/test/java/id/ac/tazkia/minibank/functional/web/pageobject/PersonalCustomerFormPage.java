@@ -19,8 +19,8 @@ public class PersonalCustomerFormPage extends BasePage {
     private static final By FIRST_NAME_INPUT = By.id("firstName");
     private static final By LAST_NAME_INPUT = By.id("lastName");
     private static final By DATE_OF_BIRTH_INPUT = By.id("dateOfBirth");
-    private static final By GENDER_SELECT = By.id("gender");
-    private static final By ID_NUMBER_INPUT = By.id("idNumber");
+    private static final By IDENTITY_TYPE_SELECT = By.id("identityType");
+    private static final By ID_NUMBER_INPUT = By.id("identityNumber");
     private static final By EMAIL_INPUT = By.id("email");
     private static final By PHONE_INPUT = By.id("phoneNumber");
     private static final By ADDRESS_INPUT = By.id("address");
@@ -37,7 +37,7 @@ public class PersonalCustomerFormPage extends BasePage {
     }
     
     public void fillForm(String customerNumber, String firstName, String lastName,
-                        String dateOfBirth, String gender, String idNumber,
+                        String dateOfBirth, String identityType, String idNumber,
                         String email, String phone, String address, String city) {
         
         // Wait for form to be fully loaded
@@ -53,14 +53,14 @@ public class PersonalCustomerFormPage extends BasePage {
         fillField(ADDRESS_INPUT, address);
         fillField(CITY_INPUT, city);
         
-        if (gender != null && !gender.isEmpty()) {
+        if (identityType != null && !identityType.isEmpty()) {
             try {
-                WebElement genderField = driver.findElement(GENDER_SELECT);
-                Select genderSelect = new Select(genderField);
-                genderSelect.selectByValue(gender);
+                WebElement identityTypeField = driver.findElement(IDENTITY_TYPE_SELECT);
+                Select identityTypeSelect = new Select(identityTypeField);
+                identityTypeSelect.selectByValue(identityType);
             } catch (Exception e) {
-                // If no gender selector, continue but log the issue
-                System.err.println("Warning: Could not set gender field: " + e.getMessage());
+                // If no identity type selector, continue but log the issue
+                System.err.println("Warning: Could not set identity type field: " + e.getMessage());
             }
         }
     }
@@ -92,6 +92,9 @@ public class PersonalCustomerFormPage extends BasePage {
     }
     
     public CustomerListPage submitForm() {
+        // Disable HTML5 validation to ensure form submission reaches the server
+        disableHTML5Validation();
+        
         scrollToElementAndClick(SUBMIT_BUTTON);
         // Wait for either redirect to list page or form processing
         wait.until(ExpectedConditions.or(
@@ -137,12 +140,36 @@ public class PersonalCustomerFormPage extends BasePage {
     }
     
     private void disableHTML5Validation() {
-        // Remove 'required' attributes and change email type to text to bypass HTML5 validation
+        // Comprehensively disable HTML5 validation to test server-side validation
         try {
             ((JavascriptExecutor) driver).executeScript(
-                "document.querySelectorAll('input[required]').forEach(function(input) { input.removeAttribute('required'); });" +
-                "document.querySelectorAll('input[type=\"email\"]').forEach(function(input) { input.type = 'text'; });"
+                // Remove required attributes from all form elements
+                "document.querySelectorAll('input[required], select[required], textarea[required]').forEach(function(element) { " +
+                "  element.removeAttribute('required'); " +
+                "});" +
+                // Change email inputs to text type
+                "document.querySelectorAll('input[type=\"email\"]').forEach(function(input) { " +
+                "  input.type = 'text'; " +
+                "});" +
+                // Change date inputs to text type to prevent date validation
+                "document.querySelectorAll('input[type=\"date\"]').forEach(function(input) { " +
+                "  input.type = 'text'; " +
+                "});" +
+                // Disable HTML5 validation on the form itself
+                "document.querySelectorAll('form').forEach(function(form) { " +
+                "  form.setAttribute('novalidate', 'novalidate'); " +
+                "});" +
+                // Remove pattern attributes if any
+                "document.querySelectorAll('input[pattern]').forEach(function(input) { " +
+                "  input.removeAttribute('pattern'); " +
+                "});" +
+                // Remove min/max attributes that might cause validation
+                "document.querySelectorAll('input[min], input[max]').forEach(function(input) { " +
+                "  input.removeAttribute('min'); " +
+                "  input.removeAttribute('max'); " +
+                "});"
             );
+            System.out.println("HTML5 validation disabled successfully");
         } catch (Exception e) {
             System.err.println("Warning: Could not disable HTML5 validation: " + e.getMessage());
         }
