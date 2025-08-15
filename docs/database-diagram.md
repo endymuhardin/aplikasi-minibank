@@ -8,24 +8,35 @@ erDiagram
         UUID id PK
         VARCHAR customer_type
         VARCHAR customer_number UK
-        VARCHAR first_name
-        VARCHAR last_name
-        DATE date_of_birth
-        VARCHAR identity_number
-        VARCHAR identity_type
-        VARCHAR company_name
-        VARCHAR company_registration_number
-        VARCHAR tax_identification_number
         VARCHAR email
         VARCHAR phone_number
         TEXT address
         VARCHAR city
         VARCHAR postal_code
         VARCHAR country
+        VARCHAR status
         TIMESTAMP created_date
         VARCHAR created_by
         TIMESTAMP updated_date
         VARCHAR updated_by
+    }
+
+    personal_customers {
+        UUID id PK
+        VARCHAR first_name
+        VARCHAR last_name
+        DATE date_of_birth
+        VARCHAR identity_number
+        VARCHAR identity_type
+    }
+
+    corporate_customers {
+        UUID id PK
+        VARCHAR company_name
+        VARCHAR company_registration_number
+        VARCHAR tax_identification_number
+        VARCHAR contact_person_name
+        VARCHAR contact_person_title
     }
 
     products {
@@ -33,6 +44,14 @@ erDiagram
         VARCHAR product_code UK
         VARCHAR product_name
         VARCHAR product_type
+        DECIMAL profit_sharing_ratio
+        VARCHAR profit_sharing_type
+        VARCHAR profit_distribution_frequency
+        DECIMAL nisbah_customer
+        DECIMAL nisbah_bank
+        BOOLEAN is_shariah_compliant
+        VARCHAR shariah_board_approval_number
+        DATE shariah_board_approval_date
         VARCHAR product_category
         TEXT description
         BOOLEAN is_active
@@ -177,6 +196,8 @@ erDiagram
         VARCHAR granted_by
     }
 
+    customers ||--|| personal_customers : "extends"
+    customers ||--|| corporate_customers : "extends"
     customers ||--o{ accounts : "has"
     products ||--o{ accounts : "defines"
     accounts ||--o{ transactions : "records"
