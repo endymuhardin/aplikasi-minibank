@@ -30,11 +30,14 @@ import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.validation.annotation.Validated;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
 @RequestMapping("/customer")
+@Validated
 public class CustomerController {
 
     @Autowired
@@ -161,6 +164,7 @@ public class CustomerController {
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
             model.addAttribute("formData", request);
+            model.addAttribute("customer", new CorporateCustomer());
             return "customer/corporate-form";
         }
 
@@ -239,80 +243,74 @@ public class CustomerController {
     }
 
     @PostMapping("/update/{id}")
-    public String update(@PathVariable UUID id, 
-                        @RequestParam String customerNumber,
-                        @RequestParam String email,
-                        @RequestParam String phoneNumber,
-                        @RequestParam(required = false) String address,
-                        @RequestParam(required = false) String city,
-                        @RequestParam(required = false) String firstName,
-                        @RequestParam(required = false) String lastName,
-                        @RequestParam(required = false) String dateOfBirth,
-                        @RequestParam(required = false) String idNumber,
-                        @RequestParam(required = false) String companyName,
-                        @RequestParam(required = false) String contactPersonName,
-                        @RequestParam(required = false) String contactPersonTitle,
-                        @RequestParam(required = false) String taxId,
-                        RedirectAttributes redirectAttributes, 
-                        Model model) {
+    public String update(@PathVariable UUID id,
+                         HttpServletRequest request,
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
 
         Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
-        if (!existingCustomerOpt.isPresent()) {
+        if (existingCustomerOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
             return "redirect:/customer/list";
         }
 
+        Customer existingCustomer = existingCustomerOpt.get();
+        model.addAttribute("customer", existingCustomer);
+
         try {
-            Customer existingCustomer = existingCustomerOpt.get();
-            
-            // Update common fields
-            existingCustomer.setCustomerNumber(customerNumber);
-            existingCustomer.setEmail(email);
-            existingCustomer.setPhoneNumber(phoneNumber);
-            existingCustomer.setAddress(address);
-            existingCustomer.setCity(city);
-            
-            // Update type-specific fields
-            if (existingCustomer instanceof PersonalCustomer) {
-                PersonalCustomer personalCustomer = (PersonalCustomer) existingCustomer;
-                personalCustomer.setFirstName(firstName);
-                personalCustomer.setLastName(lastName);
-                if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
-                    try {
-                        personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
-                    } catch (java.time.format.DateTimeParseException e) {
-                        model.addAttribute("errorMessage", "Invalid date format. Please use YYYY-MM-DD format");
-                        model.addAttribute("customer", existingCustomer);
-                        return "customer/personal-form";
-                    }
+            if (existingCustomer instanceof PersonalCustomer personalCustomer) {
+                PersonalCustomerCreateRequest req = new PersonalCustomerCreateRequest();
+                req.setFirstName(request.getParameter("firstName"));
+                req.setLastName(request.getParameter("lastName"));
+                req.setEmail(request.getParameter("email"));
+                req.setPhoneNumber(request.getParameter("phoneNumber"));
+                req.setDateOfBirth(request.getParameter("dateOfBirth"));
+                req.setIdNumber(request.getParameter("idNumber"));
+
+                if (req.getFirstName() == null || req.getFirstName().isEmpty() ||
+                    req.getLastName() == null || req.getLastName().isEmpty() ||
+                    req.getEmail() == null || req.getEmail().isEmpty()) {
+                    model.addAttribute("errorMessage", "First name, last name, and email are required.");
+                    model.addAttribute("formData", req);
+                    return "customer/personal-form";
                 }
-                personalCustomer.setIdentityNumber(idNumber);
-            } else if (existingCustomer instanceof CorporateCustomer) {
-                CorporateCustomer corporateCustomer = (CorporateCustomer) existingCustomer;
-                corporateCustomer.setCompanyName(companyName);
-                corporateCustomer.setContactPersonName(contactPersonName);
-                corporateCustomer.setContactPersonTitle(contactPersonTitle);
-                corporateCustomer.setTaxIdentificationNumber(taxId);
+
+                BeanUtils.copyProperties(req, personalCustomer, "id");
+                if (req.getDateOfBirth() != null && !req.getDateOfBirth().isEmpty()) {
+                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(req.getDateOfBirth()));
+                }
+
+            } else if (existingCustomer instanceof CorporateCustomer corporateCustomer) {
+                 CorporateCustomerCreateRequest req = new CorporateCustomerCreateRequest();
+                 req.setCompanyName(request.getParameter("companyName"));
+                 req.setEmail(request.getParameter("email"));
+                 req.setPhoneNumber(request.getParameter("phoneNumber"));
+                 req.setTaxId(request.getParameter("taxId"));
+
+                if (req.getCompanyName() == null || req.getCompanyName().isEmpty() ||
+                    req.getEmail() == null || req.getEmail().isEmpty()) {
+                    model.addAttribute("errorMessage", "Company name and email are required.");
+                    model.addAttribute("formData", req);
+                    return "customer/corporate-form";
+                }
+
+                BeanUtils.copyProperties(req, corporateCustomer, "id");
             }
             
             customerRepository.save(existingCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Customer updated successfully");
             return "redirect:/customer/list";
+
         } catch (Exception e) {
             log.error("Failed to update customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
+            model.addAttribute("formData", new PersonalCustomerCreateRequest()); // Provide a default form data object
             
-            // Return to appropriate form based on customer type
-            Optional<Customer> customer = customerRepository.findById(id);
-            if (customer.isPresent()) {
-                model.addAttribute("customer", customer.get());
-                if (customer.get().getCustomerType() == Customer.CustomerType.PERSONAL) {
-                    return "customer/personal-form";
-                } else {
-                    return "customer/corporate-form";
-                }
+            if (existingCustomer instanceof PersonalCustomer) {
+                return "customer/personal-form";
+            } else {
+                return "customer/corporate-form";
             }
-            return "redirect:/customer/list";
         }
     }
 
