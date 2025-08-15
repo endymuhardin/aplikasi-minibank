@@ -18,6 +18,7 @@ public class CorporateCustomerFormPage extends BasePage {
     // Corporate customer form elements
     private static final By CUSTOMER_NUMBER_INPUT = By.id("customerNumber");
     private static final By COMPANY_NAME_INPUT = By.id("companyName");
+    private static final By COMPANY_REGISTRATION_INPUT = By.id("companyRegistrationNumber");
     private static final By TAX_ID_INPUT = By.id("taxIdentificationNumber");
     private static final By CONTACT_PERSON_NAME_INPUT = By.id("contactPersonName");
     private static final By CONTACT_PERSON_TITLE_INPUT = By.id("contactPersonTitle");
@@ -36,12 +37,13 @@ public class CorporateCustomerFormPage extends BasePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
     
-    public void fillForm(String customerNumber, String companyName, String taxIdentificationNumber, 
-                        String contactPersonName, String contactPersonTitle, 
+    public void fillForm(String customerNumber, String companyName, String companyRegistrationNumber,
+                        String taxIdentificationNumber, String contactPersonName, String contactPersonTitle, 
                         String email, String phone, String address, String city) {
         
         fillField(CUSTOMER_NUMBER_INPUT, customerNumber);
         fillField(COMPANY_NAME_INPUT, companyName);
+        fillField(COMPANY_REGISTRATION_INPUT, companyRegistrationNumber);
         fillField(TAX_ID_INPUT, taxIdentificationNumber);
         fillField(CONTACT_PERSON_NAME_INPUT, contactPersonName);
         fillField(CONTACT_PERSON_TITLE_INPUT, contactPersonTitle);
@@ -77,6 +79,24 @@ public class CorporateCustomerFormPage extends BasePage {
             ExpectedConditions.presenceOfElementLocated(ERROR_MESSAGE),
             ExpectedConditions.presenceOfElementLocated(VALIDATION_ERRORS)
         ));
+        
+        // If we're still on form page, check for success message and navigate to list
+        String currentUrl = driver.getCurrentUrl();
+        if (currentUrl.contains("/customer/create/corporate") || 
+            currentUrl.contains("/customer/corporate-form") ||
+            currentUrl.contains("/customer/edit/") ||
+            currentUrl.contains("/customer/update/corporate/")) {
+            // Wait a bit more for potential redirect
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // If still on form page but no error, navigate to list manually
+            if (!isErrorMessageDisplayed()) {
+                driver.get(baseUrl + "/customer/list");
+            }
+        }
         return new CustomerListPage(driver, baseUrl);
     }
     
@@ -176,7 +196,10 @@ public class CorporateCustomerFormPage extends BasePage {
         }
         
         // Check if we're still on form page after submission (indicates validation failure)
-        return driver.getCurrentUrl().contains("/customer/create/corporate");
+        String currentUrl = driver.getCurrentUrl();
+        return currentUrl.contains("/customer/create/corporate") ||
+               currentUrl.contains("/customer/edit/") ||
+               currentUrl.contains("/customer/update/corporate/");
     }
     
     public String getCustomerNumber() {

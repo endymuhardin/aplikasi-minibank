@@ -7,9 +7,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 
+@Slf4j
 public class PersonalCustomerFormPage extends BasePage {
     
     private final WebDriverWait wait;
@@ -95,8 +97,12 @@ public class PersonalCustomerFormPage extends BasePage {
         // Disable HTML5 validation to ensure form submission reaches the server
         disableHTML5Validation();
         
+        String initialUrl = driver.getCurrentUrl();
+        log.info("Submitting form from URL: {}", initialUrl);
+        
         scrollToElementAndClick(SUBMIT_BUTTON);
-        // Wait for either redirect to list page or form processing
+        
+        // Wait for form submission to complete (URL change or message display)
         wait.until(ExpectedConditions.or(
             ExpectedConditions.urlContains("/customer/list"),
             ExpectedConditions.presenceOfElementLocated(SUCCESS_MESSAGE),
@@ -104,18 +110,28 @@ public class PersonalCustomerFormPage extends BasePage {
             ExpectedConditions.presenceOfElementLocated(VALIDATION_ERRORS)
         ));
         
-        // If we're still on form page, check for success message and navigate to list
-        if (driver.getCurrentUrl().contains("/customer/create/personal") || 
-            driver.getCurrentUrl().contains("/customer/personal-form")) {
-            // Wait a bit more for potential redirect
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            // If still on form page but no error, navigate to list manually
-            if (!isErrorMessageDisplayed()) {
-                driver.get(baseUrl + "/customer/list");
+        String currentUrl = driver.getCurrentUrl();
+        log.info("After form submission, current URL: {}", currentUrl);
+        
+        // The form should redirect to /customer/list - if it doesn't, something is wrong
+        if (!currentUrl.contains("/customer/list")) {
+            log.error("Form did not redirect to customer list. Current URL: {}", currentUrl);
+            if (isErrorMessageDisplayed()) {
+                // Get the actual error message text for debugging
+                try {
+                    WebElement errorElement = driver.findElement(ERROR_MESSAGE);
+                    log.error("Error message displayed: {}", errorElement.getText());
+                } catch (Exception e) {
+                    // Try validation errors element
+                    try {
+                        WebElement validationElement = driver.findElement(VALIDATION_ERRORS);
+                        log.error("Validation errors displayed: {}", validationElement.getText());
+                    } catch (Exception ex) {
+                        log.error("Error message element found but could not read text");
+                    }
+                }
+            } else {
+                log.error("No error message displayed, but redirect failed");
             }
         }
         
@@ -218,7 +234,10 @@ public class PersonalCustomerFormPage extends BasePage {
         }
         
         // Check if we're still on form page after submission (indicates validation failure)
-        return driver.getCurrentUrl().contains("/customer/create/personal");
+        String currentUrl = driver.getCurrentUrl();
+        return currentUrl.contains("/customer/create/personal") || 
+               currentUrl.contains("/customer/edit/") ||
+               currentUrl.contains("/customer/update/personal/");
     }
     
     public String getCustomerNumber() {

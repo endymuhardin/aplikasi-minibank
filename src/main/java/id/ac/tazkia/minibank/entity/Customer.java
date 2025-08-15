@@ -29,11 +29,13 @@ public abstract class Customer {
     private String customerNumber;
     
     // Common fields
+    @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     @Size(max = 100, message = "Email must not exceed 100 characters")
     @Column(name = "email", length = 100)
     private String email;
     
+    @NotBlank(message = "Phone number is required")
     @Size(max = 20, message = "Phone number must not exceed 20 characters")
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
