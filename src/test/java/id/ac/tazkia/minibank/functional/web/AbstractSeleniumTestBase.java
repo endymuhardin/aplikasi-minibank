@@ -20,6 +20,7 @@ public abstract class AbstractSeleniumTestBase {
 
     protected static WebDriver driver;
     protected static String baseUrl;
+    protected static String currentTestClassName;
 
     @LocalServerPort 
     protected Integer webappPort;
@@ -28,6 +29,7 @@ public abstract class AbstractSeleniumTestBase {
         // Only initialize WebDriver once per test class
         if (driver == null) {
             String testClass = this.getClass().getSimpleName();
+            currentTestClassName = testClass; // Store for later use in cleanup
             log.info("🧪 TEST SETUP: {} requesting WebDriver setup with webapp port: {}", testClass, webappPort);
             Testcontainers.exposeHostPorts(webappPort);
             
@@ -58,16 +60,17 @@ public abstract class AbstractSeleniumTestBase {
     @AfterAll
     static void stopWebDriver(){
         if (SeleniumTestContainerSingleton.getContainer() != null) {
+            String testClassName = currentTestClassName != null ? currentTestClassName : "AbstractSeleniumTestBase";
             SeleniumTestContainerSingleton.getContainer().afterTest(
                     new TestDescription() {
                         @Override
                         public String getTestId() {
-                            return "AbstractSeleniumTestBase";
+                            return testClassName;
                         }
 
                         @Override
                         public String getFilesystemFriendlyName() {
-                            return "AbstractSeleniumTestBase";
+                            return testClassName;
                         }
                     },
                     Optional.empty()
@@ -79,6 +82,7 @@ public abstract class AbstractSeleniumTestBase {
         // Clear static variables
         driver = null;
         baseUrl = null;
+        currentTestClassName = null;
     }
 
     protected String getHostUrl(){

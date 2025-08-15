@@ -18,11 +18,6 @@ public class PermissionFormPage extends BasePage {
     @FindBy(id = "permissionCategory")
     private WebElement permissionCategoryField;
     
-    @FindBy(id = "resource")
-    private WebElement resourceField;
-    
-    @FindBy(id = "action")
-    private WebElement actionField;
     
     @FindBy(id = "description")
     private WebElement descriptionField;
@@ -48,13 +43,11 @@ public class PermissionFormPage extends BasePage {
         return isElementVisible(permissionForm);
     }
     
-    public void fillPermissionForm(String permissionCode, String permissionName, String category, String description, String resource, String action) {
+    public void fillPermissionForm(String permissionCode, String permissionName, String category, String description) {
         if (permissionCode != null) clearAndType(permissionCodeField, permissionCode);
         if (permissionName != null) clearAndType(permissionNameField, permissionName);
         if (category != null) clearAndType(permissionCategoryField, category);
         if (description != null) clearAndType(descriptionField, description);
-        if (resource != null) clearAndType(resourceField, resource);
-        if (action != null) clearAndType(actionField, action);
     }
     
     public String getPermissionCode() {
@@ -93,14 +86,17 @@ public class PermissionFormPage extends BasePage {
         // Wait for page to reload with validation errors
         waitForPageToLoad();
         
-        // Wait for validation errors to appear
+        // Wait for validation errors to appear or confirm we stayed on form page
         wait.until(webDriver -> 
             hasValidationError("permissionCode") || 
             hasValidationError("permissionName") || 
             hasValidationError("permissionCategory") || 
             isErrorMessageDisplayed() ||
-            // Ensure we stayed on create page (validation failed)
-            driver.getCurrentUrl().contains("/rbac/permissions/create")
+            // Ensure we stayed on form page (validation failed)
+            driver.getCurrentUrl().contains("/rbac/permissions/create") ||
+            driver.getCurrentUrl().contains("/rbac/permissions/edit") ||
+            // Check for presence of the form itself
+            isElementPresent(org.openqa.selenium.By.id("permission-form"))
         );
         
         return this;

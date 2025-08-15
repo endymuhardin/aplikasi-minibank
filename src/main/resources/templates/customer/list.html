@@ -91,8 +91,8 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm status">
                                 <span th:id="'status-' + ${customer.customerNumber}"
-                                      th:class="${customer.status.name() == 'ACTIVE' ? 'text-green-600' : 'text-red-600'}"
-                                      th:text="${customer.status.name() == 'ACTIVE' ? 'Active' : 'Inactive'}"></span>
+                                      th:class="${customer.status == T(id.ac.tazkia.minibank.entity.Customer$CustomerStatus).ACTIVE ? 'text-green-600' : 'text-red-600'}"
+                                      th:text="${customer.status == T(id.ac.tazkia.minibank.entity.Customer$CustomerStatus).ACTIVE ? 'Active' : 'Inactive'}"></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <div class="flex space-x-2">
