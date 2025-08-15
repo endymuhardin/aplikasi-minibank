@@ -24,6 +24,7 @@ Base table for all customer types using joined table inheritance.
 | city | VARCHAR(100) | | City |
 | postal_code | VARCHAR(10) | | Postal/ZIP code |
 | country | VARCHAR(50) | DEFAULT 'Indonesia' | Country |
+| status | VARCHAR(20) | DEFAULT 'ACTIVE', CHECK IN ('ACTIVE', 'INACTIVE', 'CLOSED', 'FROZEN') | Customer account status |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
@@ -75,7 +76,7 @@ Banking product configurations and rules.
 | id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
 | product_code | VARCHAR(20) | UNIQUE NOT NULL | Business product code |
 | product_name | VARCHAR(100) | NOT NULL | Product display name |
-| product_type | VARCHAR(20) | NOT NULL, CHECK IN ('SAVINGS', 'CHECKING', 'LOAN', 'CREDIT_CARD', 'DEPOSIT') | Product category |
+| product_type | VARCHAR(50) | NOT NULL, CHECK IN ('SAVINGS', 'CHECKING', 'DEPOSIT', 'TABUNGAN_WADIAH', 'TABUNGAN_MUDHARABAH', 'DEPOSITO_MUDHARABAH', 'PEMBIAYAAN_MURABAHAH', 'PEMBIAYAAN_MUDHARABAH', 'PEMBIAYAAN_MUSHARAKAH', 'PEMBIAYAAN_IJARAH', 'PEMBIAYAAN_SALAM', 'PEMBIAYAAN_ISTISNA') | Product category |
 | product_category | VARCHAR(50) | NOT NULL | Product subcategory |
 | description | TEXT | | Product description |
 | is_active | BOOLEAN | DEFAULT true | Active status |
@@ -87,9 +88,14 @@ Banking product configurations and rules.
 | daily_withdrawal_limit | DECIMAL(20,2) | | Daily withdrawal limit |
 | monthly_transaction_limit | INTEGER | | Monthly transaction limit |
 | overdraft_limit | DECIMAL(20,2) | DEFAULT 0.00 | Overdraft limit |
-| interest_rate | DECIMAL(5,4) | DEFAULT 0.0000 | Interest rate (0-1) |
-| interest_calculation_type | VARCHAR(20) | DEFAULT 'DAILY', CHECK IN ('DAILY', 'MONTHLY', 'ANNUAL') | Interest calculation frequency |
-| interest_payment_frequency | VARCHAR(20) | DEFAULT 'MONTHLY', CHECK IN ('DAILY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY') | Interest payment frequency |
+| profit_sharing_ratio | DECIMAL(5,4) | DEFAULT 0.0000 | Profit sharing ratio (0-1) |
+| profit_sharing_type | VARCHAR(20) | DEFAULT 'MUDHARABAH', CHECK IN ('MUDHARABAH', 'MUSHARAKAH', 'WADIAH', 'MURABAHAH', 'IJARAH', 'SALAM', 'ISTISNA') | Islamic banking profit sharing type |
+| profit_distribution_frequency | VARCHAR(20) | DEFAULT 'MONTHLY', CHECK IN ('DAILY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY', 'ON_MATURITY') | Profit distribution frequency |
+| nisbah_customer | DECIMAL(5,4) | | Customer profit sharing percentage |
+| nisbah_bank | DECIMAL(5,4) | | Bank profit sharing percentage |
+| is_shariah_compliant | BOOLEAN | DEFAULT true | Shariah compliance flag |
+| shariah_board_approval_number | VARCHAR(100) | | Shariah board approval reference |
+| shariah_board_approval_date | DATE | | Date of shariah board approval |
 | monthly_maintenance_fee | DECIMAL(15,2) | DEFAULT 0.00 | Monthly maintenance fee |
 | atm_withdrawal_fee | DECIMAL(15,2) | DEFAULT 0.00 | ATM withdrawal fee |
 | inter_bank_transfer_fee | DECIMAL(15,2) | DEFAULT 0.00 | Inter-bank transfer fee |
@@ -322,11 +328,12 @@ Role-permission grants (many-to-many).
 - **TELLER**: Financial transaction processing  
 - **BRANCH_MANAGER**: Full system access with monitoring and approvals
 
-### Admin User
-- Username: `admin`
-- Email: `admin@yopmail.com`
-- Password: `YTZvdyAUya` (10-character random password, BCrypt hashed)
-- Role: BRANCH_MANAGER
+### Sample Users
+All sample users have the password: `minibank123` (BCrypt hashed)
+
+- **Branch Managers**: admin, manager1, manager2
+- **Tellers**: teller1, teller2, teller3  
+- **Customer Service**: cs1, cs2, cs3
 
 ### Permission Categories
 - **CUSTOMER**: Customer management operations

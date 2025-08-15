@@ -89,17 +89,20 @@ This is a **Spring Boot minibank application** using layered architecture with:
 ### Entity Relationships
 ```
 Customer (1) ←→ (N) Account (N) ←→ (1) Product
+Customer ||--|| PersonalCustomer/CorporateCustomer (joined table inheritance)
 Account (1) ←→ (N) Transaction
 User (N) ←→ (N) Role (N) ←→ (N) Permission
+User (1) ←→ (1) UserPassword
 ```
 
 ### Key Entities
-- **Customer**: Supports PERSONAL/CORPORATE types with polymorphic inheritance (PersonalCustomer/CorporateCustomer)
-- **Product**: Banking products (SAVINGS, CHECKING, LOAN, etc.) with rich configuration and interest calculation
+- **Customer**: Base table with PERSONAL/CORPORATE types using joined table inheritance (PersonalCustomer/CorporateCustomer)
+- **Product**: Islamic banking products (TABUNGAN_WADIAH, TABUNGAN_MUDHARABAH, DEPOSITO_MUDHARABAH, PEMBIAYAAN_*) with rich configuration and profit sharing
 - **Account**: Links customers to products, contains business methods for deposit/withdrawal operations
-- **Transaction**: Complete transaction recording with audit trail, supports multiple channels (TELLER, ATM, etc.)
+- **Transaction**: Complete transaction recording with audit trail, supports multiple channels (TELLER, ATM, ONLINE, MOBILE, TRANSFER)
 - **User**: System users with role-based access control (RBAC)
-- **Role/Permission**: Fine-grained permission system for different user types (CS, Teller, Branch Manager)
+- **UserPassword**: Separate table for password storage with BCrypt hashing
+- **Role/Permission**: Fine-grained permission system for different user types (CUSTOMER_SERVICE, TELLER, BRANCH_MANAGER)
 - **SequenceNumber**: Thread-safe sequence generation for business keys (account numbers, transaction numbers)
 
 ### Business Logic Location
@@ -185,26 +188,33 @@ src/test/java/id/ac/tazkia/minibank/
 
 ### Business Rules
 - Always use entity business methods (e.g., `account.deposit(amount)`) rather than direct field access
-- Customer entity has conditional validation based on `customerType` (PERSONAL vs CORPORATE)
-- Account operations must validate account status (ACTIVE/INACTIVE) before processing
-- Interest rates in Product entity are stored as decimals (0.015 = 1.5%) and must be between 0-1
+- Customer entity uses joined table inheritance: base customers table + personal_customers/corporate_customers
+- Account operations must validate account status (ACTIVE/INACTIVE/CLOSED/FROZEN) before processing
+- Islamic banking products use profit sharing ratios and nisbah (customer/bank split) instead of interest rates
+- Product constraints: nisbah_customer + nisbah_bank = 1.0 for MUDHARABAH/MUSHARAKAH products
+- All amounts use DECIMAL(20,2) for precise financial calculations
 
 ### Technical Patterns
 - All entities use UUID primary keys for security and distributed system compatibility
 - Sequence numbers are generated through `SequenceNumberService` for consistent formatting (e.g., TXN0000001)
 - Audit fields (created_date, updated_date, etc.) are automatically managed via JPA annotations
-- Polymorphic inheritance used for Customer types (PersonalCustomer/CorporateCustomer)
+- Joined table inheritance used for Customer types (PersonalCustomer/CorporateCustomer)
+- Password storage uses separate user_passwords table with BCrypt hashing
 
 ### Validation & Security
 - REST controllers use Bean Validation with comprehensive error handling and field-level error mapping
 - Security is currently configured as permitAll for development - production requires proper authentication
-- RBAC system exists but requires integration with authentication mechanism
+- Full RBAC system implemented with users, roles, permissions, and role_permissions tables
+- Password security with BCrypt hashing, account locking, and failed login attempt tracking
+- Sample users with password 'minibank123': admin, manager1-2, teller1-3, cs1-3
 - Transaction amounts use BigDecimal for precise financial calculations
 
 ### Application Features (from README)
-The application supports Indonesian banking operations including:
-- Account opening for savings and deposits (tabungan dan deposito)
-- Cash transactions (setoran tunai) 
+The application supports Indonesian Islamic banking operations including:
+- Account opening for Islamic savings (Tabungan Wadiah, Tabungan Mudharabah)
+- Islamic deposits (Deposito Mudharabah)
+- Cash transactions (setoran tunai) with multiple channels
 - Passbook printing (cetak buku tabungan)
-- Islamic financing (pembiayaan syariah) - Murabahah and Mudharabah
-- Role-based access: Customer Service, Teller, Branch Manager (Kepala Cabang)
+- Islamic financing (pembiayaan syariah): Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna
+- Role-based access: Customer Service (CS), Teller, Branch Manager (Kepala Cabang)
+- Comprehensive RBAC with granular permissions
