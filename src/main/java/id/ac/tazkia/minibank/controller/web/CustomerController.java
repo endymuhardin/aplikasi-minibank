@@ -1,5 +1,11 @@
 package id.ac.tazkia.minibank.controller.web;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,18 +14,23 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import id.ac.tazkia.minibank.dto.CorporateCustomerCreateRequest;
+import id.ac.tazkia.minibank.dto.PersonalCustomerCreateRequest;
+import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -65,51 +76,56 @@ public class CustomerController {
     
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
+        model.addAttribute("formData", new PersonalCustomerCreateRequest());
+        model.addAttribute("customer", new PersonalCustomer());
         return "customer/personal-form";
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
+        model.addAttribute("formData", new CorporateCustomerCreateRequest());
         return "customer/corporate-form";
     }
 
     @PostMapping("/create/personal")
-    public String createPersonal(@RequestParam String customerNumber,
-                                @RequestParam String firstName,
-                                @RequestParam String lastName,
-                                @RequestParam String email,
-                                @RequestParam String phoneNumber,
-                                @RequestParam(required = false) String address,
-                                @RequestParam(required = false) String city,
-                                @RequestParam(required = false) String dateOfBirth,
-                                @RequestParam(required = false) String gender,
-                                @RequestParam(required = false) String idNumber,
+    public String createPersonal(@Valid @ModelAttribute PersonalCustomerCreateRequest request,
+                                BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes, 
                                 Model model) {
 
+        // Check for validation errors
+        if (bindingResult.hasErrors()) {
+            List<String> validationErrors = new ArrayList<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                validationErrors.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationErrors", validationErrors);
+            model.addAttribute("formData", request);
+            model.addAttribute("customer", new PersonalCustomer());
+            return "customer/personal-form";
+        }
+
         // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(customerNumber);
+        Optional<Customer> existing = customerRepository.findByCustomerNumber(request.getCustomerNumber());
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
+            model.addAttribute("formData", request);
+            model.addAttribute("customer", new PersonalCustomer());
             return "customer/personal-form";
         }
 
         try {
             PersonalCustomer personalCustomer = new PersonalCustomer();
-            personalCustomer.setFirstName(firstName);
-            personalCustomer.setLastName(lastName);
-            if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
-                personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
-            }
-            personalCustomer.setIdentityNumber(idNumber);
-            personalCustomer.setIdentityType(Customer.IdentityType.KTP);
             
-            // Set common fields
-            personalCustomer.setCustomerNumber(customerNumber);
-            personalCustomer.setEmail(email);
-            personalCustomer.setPhoneNumber(phoneNumber);
-            personalCustomer.setAddress(address);
-            personalCustomer.setCity(city);
+            // Copy common properties from DTO to entity
+            BeanUtils.copyProperties(request, personalCustomer, "dateOfBirth", "idNumber");
+            
+            // Handle specific field mappings
+            if (request.getDateOfBirth() != null && !request.getDateOfBirth().isEmpty()) {
+                personalCustomer.setDateOfBirth(java.time.LocalDate.parse(request.getDateOfBirth()));
+            }
+            personalCustomer.setIdentityNumber(request.getIdNumber());
+            personalCustomer.setIdentityType(Customer.IdentityType.KTP);
 
             customerRepository.save(personalCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Personal customer created successfully");
@@ -117,46 +133,46 @@ public class CustomerController {
         } catch (Exception e) {
             log.error("Failed to create personal customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
+            model.addAttribute("formData", request);
+            model.addAttribute("customer", new PersonalCustomer());
             return "customer/personal-form";
         }
     }
     
     @PostMapping("/create/corporate")
-    public String createCorporate(@RequestParam String customerNumber,
-                                 @RequestParam String companyName,
-                                 @RequestParam String email,
-                                 @RequestParam String phoneNumber,
-                                 @RequestParam(required = false) String address,
-                                 @RequestParam(required = false) String city,
-                                 @RequestParam(required = false) String contactPersonName,
-                                 @RequestParam(required = false) String contactPersonTitle,
-                                 @RequestParam(required = false) String taxId,
-                                 @RequestParam(required = false) String companyType,
-                                 @RequestParam(required = false) String businessType,
+    public String createCorporate(@Valid @ModelAttribute CorporateCustomerCreateRequest request,
+                                 BindingResult bindingResult,
                                  RedirectAttributes redirectAttributes, 
                                  Model model) {
 
+        // Check for validation errors
+        if (bindingResult.hasErrors()) {
+            List<String> validationErrors = new ArrayList<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                validationErrors.add(error.getDefaultMessage());
+            }
+            model.addAttribute("validationErrors", validationErrors);
+            model.addAttribute("formData", request);
+            return "customer/corporate-form";
+        }
+
         // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(customerNumber);
+        Optional<Customer> existing = customerRepository.findByCustomerNumber(request.getCustomerNumber());
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
+            model.addAttribute("formData", request);
             return "customer/corporate-form";
         }
 
         try {
             CorporateCustomer corporateCustomer = new CorporateCustomer();
-            corporateCustomer.setCompanyName(companyName);
-            corporateCustomer.setContactPersonName(contactPersonName);
-            corporateCustomer.setContactPersonTitle(contactPersonTitle);
-            corporateCustomer.setTaxIdentificationNumber(taxId);
-            corporateCustomer.setCompanyRegistrationNumber("REG-" + System.currentTimeMillis());
             
-            // Set common fields
-            corporateCustomer.setCustomerNumber(customerNumber);
-            corporateCustomer.setEmail(email);
-            corporateCustomer.setPhoneNumber(phoneNumber);
-            corporateCustomer.setAddress(address);
-            corporateCustomer.setCity(city);
+            // Copy common properties from DTO to entity
+            BeanUtils.copyProperties(request, corporateCustomer, "taxId");
+            
+            // Handle specific field mappings
+            corporateCustomer.setTaxIdentificationNumber(request.getTaxId());
+            corporateCustomer.setCompanyRegistrationNumber("REG-" + System.currentTimeMillis());
 
             customerRepository.save(corporateCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Corporate customer created successfully");
@@ -164,6 +180,7 @@ public class CustomerController {
         } catch (Exception e) {
             log.error("Failed to create corporate customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
+            model.addAttribute("formData", request);
             return "customer/corporate-form";
         }
     }
@@ -200,8 +217,16 @@ public class CustomerController {
             
             // Route to appropriate edit form based on customer type
             if (c.getCustomerType() == Customer.CustomerType.PERSONAL) {
+                // Ensure we pass the PersonalCustomer object for proper field access
+                PersonalCustomer personalCustomer = (PersonalCustomer) c;
+                model.addAttribute("customer", personalCustomer);
+                model.addAttribute("formData", personalCustomer);
                 return "customer/personal-form";
             } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
+                // Ensure we pass the CorporateCustomer object for proper field access
+                CorporateCustomer corporateCustomer = (CorporateCustomer) c;
+                model.addAttribute("customer", corporateCustomer);
+                model.addAttribute("formData", corporateCustomer);
                 return "customer/corporate-form";
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Unknown customer type");
@@ -228,7 +253,6 @@ public class CustomerController {
                         @RequestParam(required = false) String contactPersonName,
                         @RequestParam(required = false) String contactPersonTitle,
                         @RequestParam(required = false) String taxId,
-                        @RequestParam(required = false) String businessType,
                         RedirectAttributes redirectAttributes, 
                         Model model) {
 
@@ -254,7 +278,13 @@ public class CustomerController {
                 personalCustomer.setFirstName(firstName);
                 personalCustomer.setLastName(lastName);
                 if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
-                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
+                    try {
+                        personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
+                    } catch (java.time.format.DateTimeParseException e) {
+                        model.addAttribute("errorMessage", "Invalid date format. Please use YYYY-MM-DD format");
+                        model.addAttribute("customer", existingCustomer);
+                        return "customer/personal-form";
+                    }
                 }
                 personalCustomer.setIdentityNumber(idNumber);
             } else if (existingCustomer instanceof CorporateCustomer) {

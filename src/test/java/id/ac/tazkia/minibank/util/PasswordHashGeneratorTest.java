@@ -44,6 +44,11 @@ public class PasswordHashGeneratorTest {
         String existingHash = "$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da";
         boolean existingMatches = passwordEncoder.matches(password, existingHash);
         System.out.println("Existing hash matches password: " + existingMatches);
+        
+        // Test the actual hash from production database
+        String actualDatabaseHash = "$2a$10$qj8.4l5y5Yb8gYF4H6N2M8A7t9X6V5W4SmKHGLVjFHGHfPGKw5P8/e";
+        boolean actualMatches = passwordEncoder.matches(password, actualDatabaseHash);
+        System.out.println("Actual database hash matches password: " + actualMatches);
     }
 
     @Test

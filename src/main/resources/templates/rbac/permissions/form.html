@@ -90,33 +90,6 @@
                            id="permissionCategory-error"></p>
                     </div>
 
-                    <!-- Resource -->
-                    <div>
-                        <label for="resource" class="block text-sm font-medium text-bsi-dark">Resource</label>
-                        <input type="text" 
-                               id="resource" 
-                               th:field="*{resource}"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-bsi-primary focus:border-bsi-primary"
-                               th:classappend="${#fields.hasErrors('resource')} ? 'border-bsi-secondary' : ''"
-                               placeholder="e.g., user, account, transaction">
-                        <p th:if="${#fields.hasErrors('resource')}" 
-                           th:errors="*{resource}" 
-                           class="mt-1 text-sm text-bsi-secondary resource-error"></p>
-                    </div>
-
-                    <!-- Action -->
-                    <div>
-                        <label for="action" class="block text-sm font-medium text-bsi-dark">Action</label>
-                        <input type="text" 
-                               id="action" 
-                               th:field="*{action}"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-bsi-primary focus:border-bsi-primary"
-                               th:classappend="${#fields.hasErrors('action')} ? 'border-bsi-secondary' : ''"
-                               placeholder="e.g., read, write, delete, create">
-                        <p th:if="${#fields.hasErrors('action')}" 
-                           th:errors="*{action}" 
-                           class="mt-1 text-sm text-bsi-secondary action-error"></p>
-                    </div>
 
                     <!-- Description -->
                     <div class="sm:col-span-2">

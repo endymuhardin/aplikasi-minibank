@@ -1,11 +1,11 @@
-permissionCode,permissionName,category,description,resource,action
-PERM_USER_CREATE,Create User Permission,User Management,Permission to create new users,user,CREATE
-PERM_USER_READ,Read User Permission,User Management,Permission to view user details,user,READ
-PERM_USER_UPDATE,Update User Permission,User Management,Permission to modify user information,user,UPDATE
-PERM_USER_DELETE,Delete User Permission,User Management,Permission to delete users,user,DELETE
-PERM_PROD_CREATE,Create Product Permission,Product Management,Permission to create new products,product,CREATE
-PERM_PROD_READ,Read Product Permission,Product Management,Permission to view product details,product,READ
-PERM_CUST_CREATE,Create Customer Permission,Customer Management,Permission to register new customers,customer,CREATE
-PERM_CUST_READ,Read Customer Permission,Customer Management,Permission to view customer details,customer,READ
-PERM_TXN_CREATE,Create Transaction Permission,Transaction Management,Permission to process transactions,transaction,CREATE
-PERM_TXN_READ,Read Transaction Permission,Transaction Management,Permission to view transaction history,transaction,READ
+permissionCode,permissionName,category,description
+PERM_USER_CREATE,Create User Permission,User Management,Permission to create new users
+PERM_USER_READ,Read User Permission,User Management,Permission to view user details
+PERM_USER_UPDATE,Update User Permission,User Management,Permission to modify user information
+PERM_USER_DELETE,Delete User Permission,User Management,Permission to delete users
+PERM_PROD_CREATE,Create Product Permission,Product Management,Permission to create new products
+PERM_PROD_READ,Read Product Permission,Product Management,Permission to view product details
+PERM_CUST_CREATE,Create Customer Permission,Customer Management,Permission to register new customers
+PERM_CUST_READ,Read Customer Permission,Customer Management,Permission to view customer details
+PERM_TXN_CREATE,Create Transaction Permission,Transaction Management,Permission to process transactions
+PERM_TXN_READ,Read Transaction Permission,Transaction Management,Permission to view transaction history

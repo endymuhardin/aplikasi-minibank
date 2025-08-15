@@ -129,23 +129,14 @@ public abstract class BasePage {
             "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element
         );
         
-        // Wait a moment for scrolling to complete
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        // Wait for element to be both visible and clickable after scrolling
+        wait.until(ExpectedConditions.and(
+            ExpectedConditions.visibilityOf(element),
+            ExpectedConditions.elementToBeClickable(element)
+        ));
         
-        // Wait for element to be clickable
-        wait.until(ExpectedConditions.elementToBeClickable(element));
-        
-        // Try clicking normally first, fallback to JavaScript click if needed
-        try {
-            element.click();
-        } catch (Exception e) {
-            // If regular click fails, use JavaScript click
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-        }
+        // Click the element - fail fast if it doesn't work
+        element.click();
     }
     
     protected void scrollToElementAndClick(By locator) {
