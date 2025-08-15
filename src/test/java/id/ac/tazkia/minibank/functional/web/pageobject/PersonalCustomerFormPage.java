@@ -46,7 +46,7 @@ public class PersonalCustomerFormPage extends BasePage {
         fillField(CUSTOMER_NUMBER_INPUT, customerNumber);
         fillField(FIRST_NAME_INPUT, firstName);
         fillField(LAST_NAME_INPUT, lastName);
-        fillField(DATE_OF_BIRTH_INPUT, dateOfBirth);
+        fillDateField(DATE_OF_BIRTH_INPUT, dateOfBirth);
         fillField(ID_NUMBER_INPUT, idNumber);
         fillField(EMAIL_INPUT, email);
         fillField(PHONE_INPUT, phone);
@@ -61,6 +61,17 @@ public class PersonalCustomerFormPage extends BasePage {
             } catch (Exception e) {
                 // If no gender selector, continue but log the issue
                 System.err.println("Warning: Could not set gender field: " + e.getMessage());
+            }
+        }
+    }
+
+    private void fillDateField(By locator, String value) {
+        if (value != null && !value.isEmpty()) {
+            try {
+                WebElement field = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+                ((JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1];", field, value);
+            } catch (Exception e) {
+                System.err.println("Warning: Could not fill date field " + locator + " with value '" + value + "': " + e.getMessage());
             }
         }
     }
