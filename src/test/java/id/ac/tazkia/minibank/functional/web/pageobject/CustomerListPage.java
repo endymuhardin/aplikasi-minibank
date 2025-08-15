@@ -189,12 +189,15 @@ public class CustomerListPage extends BasePage {
     
     public boolean isSuccessMessageDisplayed() {
         try {
-            // Wait for the success message element with ID
-            WebElement message = wait.until(ExpectedConditions.presenceOfElementLocated(SUCCESS_MESSAGE));
+            WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(20));
+            WebElement message = longWait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_MESSAGE));
             log.info("Success message element found: {}", message.getText());
             return message.isDisplayed();
+        } catch (TimeoutException e) {
+            log.warn("Success message not visible within 20 seconds.");
+            return false;
         } catch (Exception e) {
-            log.error("Success message element with ID 'success-message' not found", e);
+            log.error("An error occurred while checking for the success message.", e);
             return false;
         }
     }
@@ -254,81 +257,35 @@ public class CustomerListPage extends BasePage {
     }
     
     public PersonalCustomerFormPage editPersonalCustomer(String customerNumber) {
-        // First ensure customer is visible and navigate to its page
         WebElement customerElement = findCustomerAcrossPages(customerNumber);
         if (customerElement == null) {
             throw new RuntimeException("Customer " + customerNumber + " not found on any page");
         }
-        
-        // Now look for edit button with multiple strategies
-        WebElement editButton = findEditButton(customerNumber);
-        if (editButton == null) {
-            throw new RuntimeException("Edit button for customer " + customerNumber + " not found");
-        }
-        
-        scrollToElementAndClick(editButton);
-        
-        // Enhanced wait for personal customer edit form to load
-        WebDriverWait enhancedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        enhancedWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstName")));
-        
-        return new PersonalCustomerFormPage(driver, baseUrl);
-    }
-    
-    private WebElement findEditButton(String customerNumber) {
+
         try {
-            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement button = shortWait.until(ExpectedConditions.elementToBeClickable(
-                By.id("edit-" + customerNumber)
-            ));
-            log.info("Found edit button for customer: {}", customerNumber);
-            return button;
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("edit-" + customerNumber)));
+            scrollToElementAndClick(editButton);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstName")));
+            return new PersonalCustomerFormPage(driver, baseUrl);
         } catch (TimeoutException e) {
-            log.error("Edit button not found for customer: {}", customerNumber);
-            return null;
+            throw new RuntimeException("Edit button for customer " + customerNumber + " not found or not clickable", e);
         }
     }
-    
+
     public CorporateCustomerFormPage editCorporateCustomer(String customerNumber) {
-        // First ensure customer is visible and navigate to its page
         WebElement customerElement = findCustomerAcrossPages(customerNumber);
         if (customerElement == null) {
             throw new RuntimeException("Customer " + customerNumber + " not found on any page");
         }
-        
-        // Now look for edit button with multiple strategies
-        WebElement editButton = findEditButton(customerNumber);
-        if (editButton == null) {
-            throw new RuntimeException("Edit button for customer " + customerNumber + " not found");
-        }
-        
-        scrollToElementAndClick(editButton);
-        
-        // Wait for page navigation and form to load
-        WebDriverWait enhancedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
-        enhancedWait.until(ExpectedConditions.or(
-            ExpectedConditions.urlContains("/customer/edit/"),
-            ExpectedConditions.urlContains("/customer/corporate-form")
-        ));
-        
-        // Enhanced wait for corporate customer edit form to load
+
         try {
-            enhancedWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("companyName")));
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("edit-" + customerNumber)));
+            scrollToElementAndClick(editButton);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("companyName")));
+            return new CorporateCustomerFormPage(driver, baseUrl);
         } catch (TimeoutException e) {
-            log.error("Could not find companyName element on page: {}", driver.getCurrentUrl());
-            log.error("Page title: {}", driver.getTitle());
-            
-            // Check if we have personal customer fields instead (wrong customer type)
-            try {
-                driver.findElement(By.id("firstName"));
-                log.error("Found firstName field - this appears to be a personal customer form, not corporate");
-            } catch (Exception firstNameEx) {
-                log.info("No firstName field found - not a personal customer form");
-            }
-            
-            throw e;
+            throw new RuntimeException("Edit button for customer " + customerNumber + " not found or not clickable", e);
         }
-        return new CorporateCustomerFormPage(driver, baseUrl);
     }
     
     /**
@@ -369,134 +326,80 @@ public class CustomerListPage extends BasePage {
     }
     
     public PersonalCustomerViewPage viewPersonalCustomer(String customerNumber) {
-        WebElement viewButton = findViewButton(customerNumber);
-        if (viewButton != null) {
-            scrollToElementAndClick(viewButton);
-            // Wait for personal customer view page to load
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("firstName")));
-            return new PersonalCustomerViewPage(driver, baseUrl);
-        } else {
-            throw new RuntimeException("View button not found for customer: " + customerNumber);
+        WebElement customerElement = findCustomerAcrossPages(customerNumber);
+        if (customerElement == null) {
+            throw new RuntimeException("Customer " + customerNumber + " not found on any page");
         }
-    }
-    
-    public CorporateCustomerViewPage viewCorporateCustomer(String customerNumber) {
-        WebElement viewButton = findViewButton(customerNumber);
-        if (viewButton != null) {
-            scrollToElementAndClick(viewButton);
-            // Wait for corporate customer view page to load
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("companyName")));
-            return new CorporateCustomerViewPage(driver, baseUrl);
-        } else {
-            throw new RuntimeException("View button not found for customer: " + customerNumber);
-        }
-    }
-    
-    private WebElement findViewButton(String customerNumber) {
         try {
-            WebElement button = driver.findElement(By.id("view-" + customerNumber));
-            if (button.isDisplayed() && button.isEnabled()) {
-                log.info("Found view button for customer: {}", customerNumber);
-                return button;
-            }
-        } catch (Exception e) {
-            log.debug("View button not found for customer: {}", customerNumber);
+            WebElement viewButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("view-" + customerNumber)));
+            scrollToElementAndClick(viewButton);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstName")));
+            return new PersonalCustomerViewPage(driver, baseUrl);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("View button for customer " + customerNumber + " not found or not clickable", e);
         }
-        
-        log.error("Could not find view button for customer: {}", customerNumber);
-        return null;
+    }
+
+    public CorporateCustomerViewPage viewCorporateCustomer(String customerNumber) {
+        WebElement customerElement = findCustomerAcrossPages(customerNumber);
+        if (customerElement == null) {
+            throw new RuntimeException("Customer " + customerNumber + " not found on any page");
+        }
+        try {
+            WebElement viewButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("view-" + customerNumber)));
+            scrollToElementAndClick(viewButton);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("companyName")));
+            return new CorporateCustomerViewPage(driver, baseUrl);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("View button for customer " + customerNumber + " not found or not clickable", e);
+        }
     }
     
     public String getCustomerStatus(String customerNumber) {
-        // First ensure customer is visible
         WebElement customerElement = findCustomerAcrossPages(customerNumber);
         if (customerElement == null) {
             log.error("Customer {} not found for status check", customerNumber);
             return "Not Found";
         }
-        
-        // Use the exact ID from template
+
         try {
-            WebElement statusCell = driver.findElement(By.id("status-" + customerNumber));
-            String statusText = statusCell.getText().trim();
-            log.info("Status text for customer {}: '{}'", customerNumber, statusText);
-            if (!statusText.isEmpty()) {
-                return statusText;
-            }
-        } catch (Exception e) {
-            log.debug("Status not found with ID: status-{}", customerNumber);
-        }
-        
-        // Try nested ID-based approach as fallback
-        try {
-            WebElement customerRow = driver.findElement(By.id("customer-" + customerNumber));
-            // Try finding status elements by class name within the row
-            try {
-                WebElement statusElement = customerRow.findElement(By.className("status-badge"));
-                String statusText = statusElement.getText().trim();
-                if (!statusText.isEmpty()) {
-                    log.info("Found status using class name: '{}'", statusText);
-                    return statusText;
-                }
-            } catch (Exception ex) {
-                log.debug("No status found with class 'status-badge'");
+            WebElement statusCell = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("status-" + customerNumber)));
+            String statusText = statusCell.getText();
+            if (statusText != null && !statusText.trim().isEmpty()) {
+                return statusText.trim();
             }
             
-            // Try other common status class names
-            String[] statusClasses = {"badge", "status", "customer-status", "status-label"};
-            for (String statusClass : statusClasses) {
-                try {
-                    WebElement statusElement = customerRow.findElement(By.className(statusClass));
-                    String statusText = statusElement.getText().trim();
-                    if (!statusText.isEmpty()) {
-                        log.info("Found status using class '{}': '{}'", statusClass, statusText);
-                        return statusText;
-                    }
-                } catch (Exception ex) {
-                    log.debug("No status found with class '{}'", statusClass);
-                }
+            // Fallback to using JavaScript to get text content
+            Object jsResult = ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("return arguments[0].textContent;", statusCell);
+            if (jsResult != null) {
+                return jsResult.toString().trim();
             }
         } catch (Exception e) {
-            log.error("ID-based status lookup failed for customer: " + customerNumber, e);
+            log.warn("Could not find status for customer {} using primary method", customerNumber, e);
         }
         
-        log.warn("Could not determine status for customer: {}", customerNumber);
-        return "";
+        return ""; // Return empty if not found after all attempts
     }
     
     public void activateCustomer(String customerNumber) {
-        WebElement activateButton = findActionButton(customerNumber, "activate");
-        if (activateButton != null) {
+        findCustomerAcrossPages(customerNumber);
+        try {
+            WebElement activateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("activate-" + customerNumber)));
             scrollToElementAndClick(activateButton);
             waitForPageLoad();
-        } else {
-            throw new RuntimeException("Activate button not found for customer: " + customerNumber);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Activate button for customer " + customerNumber + " not found or not clickable", e);
         }
     }
-    
+
     public void deactivateCustomer(String customerNumber) {
-        WebElement deactivateButton = findActionButton(customerNumber, "deactivate");
-        if (deactivateButton != null) {
+        findCustomerAcrossPages(customerNumber);
+        try {
+            WebElement deactivateButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("deactivate-" + customerNumber)));
             scrollToElementAndClick(deactivateButton);
             waitForPageLoad();
-        } else {
-            throw new RuntimeException("Deactivate button not found for customer: " + customerNumber);
+        } catch (TimeoutException e) {
+            throw new RuntimeException("Deactivate button for customer " + customerNumber + " not found or not clickable", e);
         }
-    }
-    
-    private WebElement findActionButton(String customerNumber, String action) {
-        try {
-            String buttonId = action + "-" + customerNumber;
-            WebElement button = driver.findElement(By.id(buttonId));
-            if (button.isDisplayed() && button.isEnabled()) {
-                log.info("Found {} button for customer: {}", action, customerNumber);
-                return button;
-            }
-        } catch (Exception e) {
-            log.debug("{} button not found for customer: {}", action, customerNumber);
-        }
-        
-        log.error("Could not find {} button for customer: {}", action, customerNumber);
-        return null;
     }
 }

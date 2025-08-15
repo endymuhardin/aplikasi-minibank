@@ -161,32 +161,12 @@ public class PermissionListPage extends BasePage {
     
     
     public void viewPermission(String permissionCode) {
-        // First ensure permission is visible and navigate to its page
-        WebElement permissionElement = findPermissionAcrossPages(permissionCode);
-        if (permissionElement == null) {
-            throw new RuntimeException("Permission " + permissionCode + " not found on any page");
-        }
-        
-        // Now look for view button with multiple strategies
-        WebElement viewButton = findViewButton(permissionCode);
-        if (viewButton == null) {
-            throw new RuntimeException("View button for permission " + permissionCode + " not found");
-        }
-        
-        scrollToElementAndClick(viewButton);
-    }
-    
-    private WebElement findViewButton(String permissionCode) {
+        findPermissionAcrossPages(permissionCode);
         try {
-            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement button = shortWait.until(ExpectedConditions.elementToBeClickable(
-                By.id("view-permission-" + permissionCode)
-            ));
-            log.info("Found view button for permission: {}", permissionCode);
-            return button;
+            WebElement viewButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("view-permission-" + permissionCode)));
+            scrollToElementAndClick(viewButton);
         } catch (TimeoutException e) {
-            log.error("View button not found for permission: {}", permissionCode);
-            return null;
+            throw new RuntimeException("View button for permission " + permissionCode + " not found or not clickable", e);
         }
     }
     
@@ -197,33 +177,13 @@ public class PermissionListPage extends BasePage {
     }
     
     public PermissionFormPage editPermission(String permissionCode) {
-        // First ensure permission is visible and navigate to its page
-        WebElement permissionElement = findPermissionAcrossPages(permissionCode);
-        if (permissionElement == null) {
-            throw new RuntimeException("Permission " + permissionCode + " not found on any page");
-        }
-        
-        // Now look for edit button with multiple strategies
-        WebElement editButton = findEditButton(permissionCode);
-        if (editButton == null) {
-            throw new RuntimeException("Edit button for permission " + permissionCode + " not found");
-        }
-        
-        scrollToElementAndClick(editButton);
-        return new PermissionFormPage(driver, baseUrl);
-    }
-    
-    private WebElement findEditButton(String permissionCode) {
+        findPermissionAcrossPages(permissionCode);
         try {
-            WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-            WebElement button = shortWait.until(ExpectedConditions.elementToBeClickable(
-                By.id("edit-permission-" + permissionCode)
-            ));
-            log.info("Found edit button for permission: {}", permissionCode);
-            return button;
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("edit-permission-" + permissionCode)));
+            scrollToElementAndClick(editButton);
+            return new PermissionFormPage(driver, baseUrl);
         } catch (TimeoutException e) {
-            log.error("Edit button not found for permission: {}", permissionCode);
-            return null;
+            throw new RuntimeException("Edit button for permission " + permissionCode + " not found or not clickable", e);
         }
     }
     

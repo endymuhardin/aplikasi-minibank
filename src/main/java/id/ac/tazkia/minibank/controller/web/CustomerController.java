@@ -161,6 +161,7 @@ public class CustomerController {
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
             model.addAttribute("formData", request);
+            model.addAttribute("customer", new CorporateCustomer());
             return "customer/corporate-form";
         }
 
@@ -240,79 +241,65 @@ public class CustomerController {
 
     @PostMapping("/update/{id}")
     public String update(@PathVariable UUID id, 
-                        @RequestParam String customerNumber,
-                        @RequestParam String email,
-                        @RequestParam String phoneNumber,
-                        @RequestParam(required = false) String address,
-                        @RequestParam(required = false) String city,
-                        @RequestParam(required = false) String firstName,
-                        @RequestParam(required = false) String lastName,
-                        @RequestParam(required = false) String dateOfBirth,
-                        @RequestParam(required = false) String idNumber,
-                        @RequestParam(required = false) String companyName,
-                        @RequestParam(required = false) String contactPersonName,
-                        @RequestParam(required = false) String contactPersonTitle,
-                        @RequestParam(required = false) String taxId,
-                        RedirectAttributes redirectAttributes, 
-                        Model model) {
+                         @ModelAttribute PersonalCustomerCreateRequest personalRequest,
+                         @ModelAttribute CorporateCustomerCreateRequest corporateRequest,
+                         RedirectAttributes redirectAttributes,
+                         Model model) {
 
         Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
-        if (!existingCustomerOpt.isPresent()) {
+        if (existingCustomerOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
             return "redirect:/customer/list";
         }
 
+        Customer existingCustomer = existingCustomerOpt.get();
+        model.addAttribute("customer", existingCustomer);
+
         try {
-            Customer existingCustomer = existingCustomerOpt.get();
-            
-            // Update common fields
-            existingCustomer.setCustomerNumber(customerNumber);
-            existingCustomer.setEmail(email);
-            existingCustomer.setPhoneNumber(phoneNumber);
-            existingCustomer.setAddress(address);
-            existingCustomer.setCity(city);
-            
-            // Update type-specific fields
-            if (existingCustomer instanceof PersonalCustomer) {
-                PersonalCustomer personalCustomer = (PersonalCustomer) existingCustomer;
-                personalCustomer.setFirstName(firstName);
-                personalCustomer.setLastName(lastName);
-                if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
-                    try {
-                        personalCustomer.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
-                    } catch (java.time.format.DateTimeParseException e) {
-                        model.addAttribute("errorMessage", "Invalid date format. Please use YYYY-MM-DD format");
-                        model.addAttribute("customer", existingCustomer);
-                        return "customer/personal-form";
-                    }
+            if (existingCustomer instanceof PersonalCustomer personalCustomer) {
+                // Manual validation for personal customer
+                if (personalRequest.getFirstName() == null || personalRequest.getFirstName().isEmpty() ||
+                    personalRequest.getLastName() == null || personalRequest.getLastName().isEmpty() ||
+                    personalRequest.getEmail() == null || personalRequest.getEmail().isEmpty()) {
+                    model.addAttribute("errorMessage", "First name, last name, and email are required.");
+                    model.addAttribute("formData", personalRequest);
+                    return "customer/personal-form";
                 }
-                personalCustomer.setIdentityNumber(idNumber);
-            } else if (existingCustomer instanceof CorporateCustomer) {
-                CorporateCustomer corporateCustomer = (CorporateCustomer) existingCustomer;
-                corporateCustomer.setCompanyName(companyName);
-                corporateCustomer.setContactPersonName(contactPersonName);
-                corporateCustomer.setContactPersonTitle(contactPersonTitle);
-                corporateCustomer.setTaxIdentificationNumber(taxId);
+
+                BeanUtils.copyProperties(personalRequest, personalCustomer, "id", "dateOfBirth", "idNumber");
+                if (personalRequest.getDateOfBirth() != null && !personalRequest.getDateOfBirth().isEmpty()) {
+                    personalCustomer.setDateOfBirth(java.time.LocalDate.parse(personalRequest.getDateOfBirth()));
+                }
+                personalCustomer.setIdentityNumber(personalRequest.getIdNumber());
+
+            } else if (existingCustomer instanceof CorporateCustomer corporateCustomer) {
+                // Manual validation for corporate customer
+                if (corporateRequest.getCompanyName() == null || corporateRequest.getCompanyName().isEmpty() ||
+                    corporateRequest.getEmail() == null || corporateRequest.getEmail().isEmpty()) {
+                    model.addAttribute("errorMessage", "Company name and email are required.");
+                    model.addAttribute("formData", corporateRequest);
+                    return "customer/corporate-form";
+                }
+
+                BeanUtils.copyProperties(corporateRequest, corporateCustomer, "id", "taxId");
+                corporateCustomer.setTaxIdentificationNumber(corporateRequest.getTaxId());
             }
             
             customerRepository.save(existingCustomer);
             redirectAttributes.addFlashAttribute("successMessage", "Customer updated successfully");
             return "redirect:/customer/list";
+
         } catch (Exception e) {
             log.error("Failed to update customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
             
-            // Return to appropriate form based on customer type
-            Optional<Customer> customer = customerRepository.findById(id);
-            if (customer.isPresent()) {
-                model.addAttribute("customer", customer.get());
-                if (customer.get().getCustomerType() == Customer.CustomerType.PERSONAL) {
-                    return "customer/personal-form";
-                } else {
-                    return "customer/corporate-form";
-                }
+            if (existingCustomer instanceof PersonalCustomer) {
+                model.addAttribute("formData", personalRequest);
+                return "customer/personal-form";
+            } else {
+                model.addAttribute("formData", corporateRequest);
+                return "customer/corporate-form";
             }
-            return "redirect:/customer/list";
         }
     }
 
