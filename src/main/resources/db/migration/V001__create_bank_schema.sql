@@ -194,7 +194,7 @@ CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     id_accounts UUID NOT NULL,
     transaction_number VARCHAR(50) UNIQUE NOT NULL,
-    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'INTEREST', 'FEE')),
+    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'FEE')),
     amount DECIMAL(20,2) NOT NULL,
     currency VARCHAR(3) DEFAULT 'IDR',
     balance_before DECIMAL(20,2) NOT NULL,
@@ -220,7 +220,7 @@ CREATE TABLE transactions (
     -- Business rules
     CONSTRAINT chk_amount_positive CHECK (amount > 0),
     CONSTRAINT chk_balance_calculation CHECK (
-        (transaction_type IN ('DEPOSIT', 'TRANSFER_IN', 'INTEREST') AND balance_after = balance_before + amount)
+        (transaction_type IN ('DEPOSIT', 'TRANSFER_IN') AND balance_after = balance_before + amount)
         OR (transaction_type IN ('WITHDRAWAL', 'TRANSFER_OUT', 'FEE') AND balance_after = balance_before - amount)
     )
 );

@@ -76,13 +76,12 @@ public class Transaction {
     
     public boolean isCreditTransaction() {
         return TransactionType.DEPOSIT.equals(this.transactionType) || 
-               TransactionType.TRANSFER_IN.equals(this.transactionType) ||
-               TransactionType.INTEREST.equals(this.transactionType);
+               TransactionType.TRANSFER_IN.equals(this.transactionType);
     }
     
     // Enums
     public enum TransactionType {
-        DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT, INTEREST, FEE
+        DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT, FEE
     }
     
     public enum TransactionChannel {
