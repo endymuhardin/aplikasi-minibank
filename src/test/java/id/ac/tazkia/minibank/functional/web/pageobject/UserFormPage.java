@@ -21,6 +21,9 @@ public class UserFormPage extends BasePage {
     @FindBy(id = "password")
     private WebElement passwordField;
     
+    @FindBy(id = "branch")
+    private WebElement branchField;
+    
     @FindBy(id = "save-user-btn")
     private WebElement saveButton;
     
@@ -43,10 +46,24 @@ public class UserFormPage extends BasePage {
     }
     
     public void fillUserForm(String username, String fullName, String email, String password) {
+        fillUserForm(username, fullName, email, password, null);
+    }
+    
+    public void fillUserForm(String username, String fullName, String email, String password, String branchId) {
         if (username != null) clearAndType(usernameField, username);
         if (fullName != null) clearAndType(fullNameField, fullName);
         if (email != null) clearAndType(emailField, email);
         if (password != null) clearAndType(passwordField, password);
+        
+        // Select branch if provided, otherwise select first available branch
+        if (branchField != null) {
+            if (branchId != null) {
+                selectDropdownByValue(branchField, branchId);
+            } else {
+                // Select first available branch (not the empty option)
+                selectFirstNonEmptyOption(branchField);
+            }
+        }
     }
     
     public UserListPage submitForm() {

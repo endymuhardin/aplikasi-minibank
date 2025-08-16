@@ -15,6 +15,7 @@ erDiagram
         VARCHAR postal_code
         VARCHAR country
         VARCHAR status
+        UUID id_branches FK
         TIMESTAMP created_date
         VARCHAR created_by
         TIMESTAMP updated_date
@@ -130,6 +131,25 @@ erDiagram
         TIMESTAMP updated_date
     }
 
+    branches {
+        UUID id PK
+        VARCHAR branch_code UK
+        VARCHAR branch_name
+        TEXT address
+        VARCHAR city
+        VARCHAR postal_code
+        VARCHAR country
+        VARCHAR phone_number
+        VARCHAR email
+        VARCHAR manager_name
+        BOOLEAN is_active
+        BOOLEAN is_main_branch
+        TIMESTAMP created_date
+        VARCHAR created_by
+        TIMESTAMP updated_date
+        VARCHAR updated_by
+    }
+
     users {
         UUID id PK
         VARCHAR username UK
@@ -140,6 +160,7 @@ erDiagram
         TIMESTAMP last_login
         INTEGER failed_login_attempts
         TIMESTAMP locked_until
+        UUID id_branches FK
         TIMESTAMP created_date
         VARCHAR created_by
         TIMESTAMP updated_date
@@ -202,6 +223,8 @@ erDiagram
     products ||--o{ accounts : "defines"
     accounts ||--o{ transactions : "records"
     accounts ||--o{ transactions : "destination"
+    branches ||--o{ customers : "manages"
+    branches ||--o{ users : "employs"
     users ||--|| user_passwords : "has"
     users ||--o{ user_roles : "assigned"
     roles ||--o{ user_roles : "contains"
@@ -232,6 +255,18 @@ erDiagram
 - One account can be the destination for multiple transfer transactions
 - Each transfer transaction can have one destination account (optional)
 - Foreign key: `transactions.id_accounts_destination` → `accounts.id`
+
+### Multi-Branch Organizational Relationships
+
+#### branches → customers (One-to-Many)
+- One branch can manage multiple customers
+- Each customer is assigned to exactly one branch
+- Foreign key: `customers.id_branches` → `branches.id`
+
+#### branches → users (One-to-Many)
+- One branch can employ multiple users
+- Each user is assigned to exactly one branch
+- Foreign key: `users.id_branches` → `branches.id`
 
 ### User Authentication & Authorization Relationships
 
@@ -320,11 +355,23 @@ erDiagram
   - **REPORT**: Business reporting access
   - **AUDIT**: System audit log access
 
+### Multi-Branch Management
+- **Branch Organizational Structure**: Hierarchical branch management system
+- **Branch-Based Access Control**: Users and customers segmented by branch
+- **Main Branch Support**: Special designation for headquarters/main office
+- **Branch Isolation**: Data and operations isolated per branch for security
+- **Cross-Branch Admin Access**: System administrators can access all branches
+
 ### Default Setup
 - **Admin User**: Default admin account with Branch Manager role
   - Username: `admin`
   - Email: `admin@yopmail.com`
   - Password: `minibank123` (BCrypt hashed: `$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da`)
+- **Main Branch**: Default branch for initial setup
+  - Branch Code: `MAIN`
+  - Branch Name: `Main Branch (Kantor Pusat)`
+  - Location: Jakarta
+  - Status: Active
 
 ### Sample Data Loaded by Migrations
 
@@ -342,18 +389,21 @@ erDiagram
 | PEM001 | Pembiayaan Murabahah | PEMBIAYAAN_MURABAHAH | - | 5,000,000 | CORPORATE |
 | PEM002 | Pembiayaan Musharakah | PEMBIAYAAN_MUSHARAKAH | 60:40 | 2,000,000 | PERSONAL |
 
-#### Sample Customers (V002)
+#### Sample Customers (V002, V007)
 **Personal Customers:**
-- C1000001: Ahmad Suharto (KTP: 3271081503850001)
-- C1000002: Siti Nurhaliza (KTP: 3271082207900002)
-- C1000004: Budi Santoso (KTP: 3271081011880003)
-- C1000006: Dewi Lestari (KTP: 3271081805920004)
+- C1000001: Ahmad Suharto (KTP: 3271081503850001) - Main Branch
+- C1000002: Siti Nurhaliza (KTP: 3271082207900002) - Main Branch
+- C1000004: Budi Santoso (KTP: 3271081011880003) - Main Branch
+- C1000006: Dewi Lestari (KTP: 3271081805920004) - Main Branch
 
 **Corporate Customers:**
-- C1000003: PT. Teknologi Maju (Reg: 1234567890123456)
+- C1000003: PT. Teknologi Maju (Reg: 1234567890123456) - Main Branch
 
-#### System Users (V004)
-All users have password `minibank123`:
+#### Branch Structure (V005, V007)
+- **MAIN**: Main Branch (Kantor Pusat) - Jakarta - Active
+
+#### System Users (V004, V007)
+All users have password `minibank123` and are assigned to Main Branch:
 - **Branch Managers**: admin, manager1, manager2
 - **Tellers**: teller1, teller2, teller3
 - **Customer Service**: cs1, cs2, cs3

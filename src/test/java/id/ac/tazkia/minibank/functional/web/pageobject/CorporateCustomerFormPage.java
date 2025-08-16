@@ -5,6 +5,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
@@ -17,6 +18,7 @@ public class CorporateCustomerFormPage extends BasePage {
     
     // Corporate customer form elements
     private static final By CUSTOMER_NUMBER_INPUT = By.id("customerNumber");
+    private static final By BRANCH_SELECT = By.id("branch");
     private static final By COMPANY_NAME_INPUT = By.id("companyName");
     private static final By COMPANY_REGISTRATION_INPUT = By.id("companyRegistrationNumber");
     private static final By TAX_ID_INPUT = By.id("taxIdentificationNumber");
@@ -42,6 +44,10 @@ public class CorporateCustomerFormPage extends BasePage {
                         String email, String phone, String address, String city) {
         
         fillField(CUSTOMER_NUMBER_INPUT, customerNumber);
+        
+        // Select first available branch (required field)
+        selectFirstAvailableBranch();
+        
         fillField(COMPANY_NAME_INPUT, companyName);
         fillField(COMPANY_REGISTRATION_INPUT, companyRegistrationNumber);
         fillField(TAX_ID_INPUT, taxIdentificationNumber);
@@ -65,6 +71,22 @@ public class CorporateCustomerFormPage extends BasePage {
             } catch (Exception e) {
                 log.warn("Field not found, continuing", e);
             }
+        }
+    }
+    
+    private void selectFirstAvailableBranch() {
+        try {
+            WebElement branchField = wait.until(ExpectedConditions.presenceOfElementLocated(BRANCH_SELECT));
+            Select branchSelect = new Select(branchField);
+            // Select the first non-empty option (skip the "Select Branch" placeholder)
+            if (branchSelect.getOptions().size() > 1) {
+                branchSelect.selectByIndex(1); // First actual branch option
+                log.info("Selected first available branch");
+            } else {
+                log.warn("No branches available in dropdown");
+            }
+        } catch (Exception e) {
+            log.error("Could not select branch: " + e.getMessage());
         }
     }
     

@@ -85,6 +85,23 @@ public abstract class BasePage {
         select.selectByValue(value);
     }
     
+    protected void selectFirstNonEmptyOption(WebElement dropdown) {
+        // Scroll dropdown into view first
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", dropdown
+        );
+        
+        // Wait for dropdown to be interactable
+        wait.until(ExpectedConditions.elementToBeClickable(dropdown));
+        
+        Select select = new Select(dropdown);
+        // Get all options and select the first one that has a non-empty value
+        select.getOptions().stream()
+            .filter(option -> !option.getAttribute("value").isEmpty())
+            .findFirst()
+            .ifPresent(option -> select.selectByValue(option.getAttribute("value")));
+    }
+    
     protected boolean isElementPresent(By locator) {
         try {
             driver.findElement(locator);

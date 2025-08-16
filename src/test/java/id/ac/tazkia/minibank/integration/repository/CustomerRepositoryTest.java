@@ -3,10 +3,12 @@ package id.ac.tazkia.minibank.integration.repository;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +33,32 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
     
     @Autowired
     private CorporateCustomerRepository corporateCustomerRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
+    
+    private Branch testBranch;
 
     @BeforeEach
     void setUp() {
         customerRepository.deleteAll();
         personalCustomerRepository.deleteAll();
         corporateCustomerRepository.deleteAll();
+        branchRepository.deleteAll();
         entityManager.flush();
         entityManager.clear();
+        
+        // Create test branch
+        testBranch = new Branch();
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setAddress("Test Address");
+        testBranch.setCity("Test City");
+        testBranch.setCountry("Indonesia");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        testBranch.setCreatedBy("TEST");
+        testBranch = branchRepository.save(testBranch);
+        entityManager.flush();
     }
 
     @Test
@@ -159,6 +179,7 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
         personalCustomer.setPostalCode("12345");
         personalCustomer.setCountry("Indonesia");
         personalCustomer.setCreatedBy("TEST");
+        personalCustomer.setBranch(testBranch);
 
         CorporateCustomer corporateCustomer = new CorporateCustomer();
         corporateCustomer.setCustomerNumber("C001");
@@ -172,6 +193,7 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
         corporateCustomer.setPostalCode("54321");
         corporateCustomer.setCountry("Indonesia");
         corporateCustomer.setCreatedBy("TEST");
+        corporateCustomer.setBranch(testBranch);
 
         // When
         Customer savedPersonal = customerRepository.save(personalCustomer);
@@ -216,6 +238,7 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
         personal1.setPostalCode("10220");
         personal1.setCountry("Indonesia");
         personal1.setCreatedBy("TEST");
+        personal1.setBranch(testBranch);
 
         // Corporate Customer for polymorphic testing
         CorporateCustomer corporate1 = new CorporateCustomer();
@@ -230,6 +253,7 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
         corporate1.setPostalCode("12950");
         corporate1.setCountry("Indonesia");
         corporate1.setCreatedBy("TEST");
+        corporate1.setBranch(testBranch);
 
         // Save using the base repository to test polymorphic behavior
         customerRepository.save(personal1);

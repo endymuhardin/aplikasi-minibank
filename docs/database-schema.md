@@ -4,9 +4,10 @@ This document provides comprehensive documentation for the Mini Bank application
 
 ## Schema Overview
 
-The database consists of two main modules:
+The database consists of three main modules:
 1. **Banking Core Module**: Customer, product, account, and transaction management
 2. **User Authentication Module**: User management, roles, and permissions
+3. **Multi-Branch Module**: Branch management and organizational structure
 
 ## Banking Core Tables
 
@@ -25,6 +26,7 @@ Base table for all customer types using joined table inheritance.
 | postal_code | VARCHAR(10) | | Postal/ZIP code |
 | country | VARCHAR(50) | DEFAULT 'Indonesia' | Country |
 | status | VARCHAR(20) | DEFAULT 'ACTIVE', CHECK IN ('ACTIVE', 'INACTIVE', 'CLOSED', 'FROZEN') | Customer account status |
+| id_branches | UUID | NOT NULL, FK to branches(id) | Branch assignment |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
@@ -34,6 +36,7 @@ Base table for all customer types using joined table inheritance.
 - `idx_customers_customer_number` ON customer_number
 - `idx_customers_customer_type` ON customer_type  
 - `idx_customers_email` ON email (WHERE email IS NOT NULL)
+- `idx_customers_branch` ON id_branches
 
 ### personal_customers
 Extension table for personal customer specific fields.
@@ -191,6 +194,36 @@ Sequence number management for business keys.
 **Indexes:**
 - `idx_sequence_numbers_name` ON sequence_name
 
+## Multi-Branch Tables
+
+### branches
+Branch office management and organizational structure.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
+| branch_code | VARCHAR(20) | UNIQUE NOT NULL | Business branch code |
+| branch_name | VARCHAR(100) | NOT NULL | Branch display name |
+| address | TEXT | | Branch address |
+| city | VARCHAR(100) | | City location |
+| postal_code | VARCHAR(10) | | Postal/ZIP code |
+| country | VARCHAR(50) | DEFAULT 'Indonesia' | Country |
+| phone_number | VARCHAR(20) | | Branch phone number |
+| email | VARCHAR(100) | | Branch email address |
+| manager_name | VARCHAR(100) | | Branch manager name |
+| is_active | BOOLEAN | DEFAULT true | Active status |
+| is_main_branch | BOOLEAN | DEFAULT false | Main branch flag |
+| created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
+| created_by | VARCHAR(100) | | User who created the record |
+| updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
+| updated_by | VARCHAR(100) | | User who last updated the record |
+
+**Indexes:**
+- `idx_branches_branch_code` ON branch_code
+- `idx_branches_is_active` ON is_active
+- `idx_branches_is_main_branch` ON is_main_branch
+- `idx_branches_city` ON city
+
 ## User Authentication Tables
 
 ### users
@@ -207,6 +240,7 @@ System user accounts.
 | last_login | TIMESTAMP | | Last login timestamp |
 | failed_login_attempts | INTEGER | DEFAULT 0 | Failed login counter |
 | locked_until | TIMESTAMP | | Lock expiration timestamp |
+| id_branches | UUID | NOT NULL, FK to branches(id) | Branch assignment |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
@@ -218,6 +252,7 @@ System user accounts.
 - `idx_users_is_active` ON is_active
 - `idx_users_is_locked` ON is_locked
 - `idx_users_last_login` ON last_login
+- `idx_users_branch` ON id_branches
 
 ### user_passwords
 User password storage (separate table for CRUD operations).
@@ -320,6 +355,9 @@ Role-permission grants (many-to-many).
 | V002 | V002__insert_initial_data.sql | Initial banking data (products, sequences) |
 | V003 | V003__create_user_permission_schema.sql | User authentication and authorization schema |
 | V004 | V004__insert_roles_permissions_data.sql | Initial roles, permissions, and admin user |
+| V005 | V005__create_branch_schema.sql | Multi-branch organizational structure |
+| V006 | V006__add_branch_relationships.sql | Add branch foreign keys to users and customers |
+| V007 | V007__insert_initial_branch_data.sql | Initial branch data and assignments |
 
 ## Default Data
 
@@ -364,20 +402,27 @@ Three main system roles with hierarchical permissions:
 - **TELLER**: Financial transaction processing  
 - **BRANCH_MANAGER**: Full system access with monitoring and approvals
 
-### Sample Users (V004)
+### Branch Data (V005-V007)
+Multi-branch organizational structure with initial data:
+
+| Branch Code | Branch Name | Address | City | Manager | Status | 
+|-------------|-------------|---------|------|---------|--------|
+| **MAIN** | Main Branch (Kantor Pusat) | Jl. Gatot Subroto No. 1, Jakarta 12190 | Jakarta | System Admin | ACTIVE |
+
+### Sample Users (V004, V007)
 All sample users have the password: `minibank123` (BCrypt hashed: `$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da`)
 
-| Username | Full Name | Email | Role | Purpose |
-|----------|-----------|--------|------|---------|
-| **admin** | System Administrator | admin@yopmail.com | BRANCH_MANAGER | System administration |
-| **manager1** | Branch Manager Jakarta | manager1@yopmail.com | BRANCH_MANAGER | Jakarta branch management |
-| **manager2** | Branch Manager Surabaya | manager2@yopmail.com | BRANCH_MANAGER | Surabaya branch management |
-| **teller1** | Teller Counter 1 | teller1@yopmail.com | TELLER | Transaction processing |
-| **teller2** | Teller Counter 2 | teller2@yopmail.com | TELLER | Transaction processing |
-| **teller3** | Teller Counter 3 | teller3@yopmail.com | TELLER | Transaction processing |
-| **cs1** | Customer Service Staff 1 | cs1@yopmail.com | CUSTOMER_SERVICE | Customer service |
-| **cs2** | Customer Service Staff 2 | cs2@yopmail.com | CUSTOMER_SERVICE | Customer service |
-| **cs3** | Customer Service Staff 3 | cs3@yopmail.com | CUSTOMER_SERVICE | Customer service |
+| Username | Full Name | Email | Role | Branch Assignment | Purpose |
+|----------|-----------|--------|------|------------------|---------|
+| **admin** | System Administrator | admin@yopmail.com | BRANCH_MANAGER | Main Branch | System administration |
+| **manager1** | Branch Manager Jakarta | manager1@yopmail.com | BRANCH_MANAGER | Main Branch | Jakarta branch management |
+| **manager2** | Branch Manager Surabaya | manager2@yopmail.com | BRANCH_MANAGER | Main Branch | Surabaya branch management |
+| **teller1** | Teller Counter 1 | teller1@yopmail.com | TELLER | Main Branch | Transaction processing |
+| **teller2** | Teller Counter 2 | teller2@yopmail.com | TELLER | Main Branch | Transaction processing |
+| **teller3** | Teller Counter 3 | teller3@yopmail.com | TELLER | Main Branch | Transaction processing |
+| **cs1** | Customer Service Staff 1 | cs1@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
+| **cs2** | Customer Service Staff 2 | cs2@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
+| **cs3** | Customer Service Staff 3 | cs3@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
 
 ### Permission System (V004)
 Detailed permission breakdown by role:
@@ -438,3 +483,10 @@ Detailed permission breakdown by role:
 - Timestamp tracking for all operations
 - User action attribution for compliance
 - Role and permission assignment tracking
+
+### Multi-Branch Security
+- **Branch Isolation**: Users can only access data within their assigned branch
+- **Branch-Based Filtering**: All queries automatically filter by user's branch assignment
+- **Cross-Branch Admin Access**: System administrators have multi-branch access
+- **Data Segregation**: Customer and user data segregated by branch for compliance
+- **Branch Assignment Validation**: All operations validate branch assignment constraints

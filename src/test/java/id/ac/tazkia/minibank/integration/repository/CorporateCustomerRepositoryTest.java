@@ -9,22 +9,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.jdbc.Sql;
 
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 
 @Sql("/sql/corporate-customer-test-data.sql")
 class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     private CorporateCustomerRepository corporateCustomerRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
 
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/customer/corporate/corporate_customers.csv", numLinesToSkip = 1)
@@ -42,39 +43,48 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
             String postalCode,
             String country) {
 
-        // Given - Create corporate customer from CSV data
+        // Given - Create corporate customer from CSV data with unique identifiers
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String uniqueCustomerNumber = customerNumber + "_" + timestamp;
+        String uniqueEmail = timestamp + "_" + email;
+        String uniqueCompanyRegNumber = companyRegistrationNumber + "_" + timestamp;
+        String uniqueTaxId = taxIdentificationNumber + "_" + timestamp;
+        
         CorporateCustomer customer = new CorporateCustomer();
-        customer.setCustomerNumber(customerNumber);
+        customer.setCustomerNumber(uniqueCustomerNumber);
         customer.setCompanyName(companyName);
-        customer.setCompanyRegistrationNumber(companyRegistrationNumber);
-        customer.setTaxIdentificationNumber(taxIdentificationNumber);
+        customer.setCompanyRegistrationNumber(uniqueCompanyRegNumber);
+        customer.setTaxIdentificationNumber(uniqueTaxId);
         customer.setContactPersonName(contactPersonName);
         customer.setContactPersonTitle(contactPersonTitle);
-        customer.setEmail(email);
+        customer.setEmail(uniqueEmail);
         customer.setPhoneNumber(phoneNumber);
         customer.setAddress(address);
         customer.setCity(city);
         customer.setPostalCode(postalCode);
         customer.setCountry(country);
         customer.setCreatedBy("TEST");
+        // Get test branch from SQL data
+        Branch testBranch = branchRepository.findByBranchCode("HO001")
+            .orElseThrow(() -> new IllegalStateException("Test branch HO001 should be available from SQL script"));
+        customer.setBranch(testBranch);
 
         // When - Save customer
-        CorporateCustomer savedCustomer = corporateCustomerRepository.save(customer);
-        entityManager.flush();
+        CorporateCustomer savedCustomer = corporateCustomerRepository.saveAndFlush(customer);
 
         // Then - Verify customer was saved correctly
         assertThat(savedCustomer.getId()).isNotNull();
-        assertThat(savedCustomer.getCustomerNumber()).isEqualTo(customerNumber);
+        assertThat(savedCustomer.getCustomerNumber()).isEqualTo(uniqueCustomerNumber);
         assertThat(savedCustomer.getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
         assertThat(savedCustomer.getCompanyName()).isEqualTo(companyName);
         assertThat(savedCustomer.getDisplayName()).isEqualTo(companyName);
-        assertThat(savedCustomer.getEmail()).isEqualTo(email);
+        assertThat(savedCustomer.getEmail()).isEqualTo(uniqueEmail);
         assertThat(savedCustomer.getCreatedDate()).isNotNull();
 
         // Verify we can find by customer number
-        Optional<CorporateCustomer> foundCustomer = corporateCustomerRepository.findByCustomerNumber(customerNumber);
+        Optional<CorporateCustomer> foundCustomer = corporateCustomerRepository.findByCustomerNumber(uniqueCustomerNumber);
         assertThat(foundCustomer).isPresent();
-        assertThat(foundCustomer.get().getCustomerNumber()).isEqualTo(customerNumber);
+        assertThat(foundCustomer.get().getCustomerNumber()).isEqualTo(uniqueCustomerNumber);
     }
 
     @Test
@@ -159,6 +169,10 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
         CorporateCustomer customer = new CorporateCustomer();
         customer.setContactPersonName("John Doe");
         customer.setContactPersonTitle("Director");
+        // Get test branch from SQL data
+        Branch testBranch = branchRepository.findByBranchCode("HO001")
+            .orElseThrow(() -> new IllegalStateException("Test branch HO001 should be available from SQL script"));
+        customer.setBranch(testBranch);
 
         // When
         String fullName = customer.getContactPersonFullName();
@@ -172,6 +186,10 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
         // Given
         CorporateCustomer customer = new CorporateCustomer();
         customer.setContactPersonName("John Doe");
+        // Get test branch from SQL data
+        Branch testBranch = branchRepository.findByBranchCode("HO001")
+            .orElseThrow(() -> new IllegalStateException("Test branch HO001 should be available from SQL script"));
+        customer.setBranch(testBranch);
 
         // When
         String fullName = customer.getContactPersonFullName();

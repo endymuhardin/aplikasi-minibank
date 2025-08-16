@@ -4,6 +4,7 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE,
     full_name VARCHAR(100) NOT NULL,
+    id_branches UUID,
     is_active BOOLEAN DEFAULT true,
     is_locked BOOLEAN DEFAULT false,
     last_login TIMESTAMP,
@@ -14,7 +15,10 @@ CREATE TABLE users (
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100),
     updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_by VARCHAR(100)
+    updated_by VARCHAR(100),
+    
+    -- Foreign key constraints
+    CONSTRAINT fk_users_branches FOREIGN KEY (id_branches) REFERENCES branches(id)
 );
 
 -- Create user_passwords table for authentication credentials
@@ -100,6 +104,7 @@ CREATE INDEX idx_users_email ON users(email) WHERE email IS NOT NULL;
 CREATE INDEX idx_users_is_active ON users(is_active);
 CREATE INDEX idx_users_is_locked ON users(is_locked);
 CREATE INDEX idx_users_last_login ON users(last_login);
+CREATE INDEX idx_users_branch ON users(id_branches) WHERE id_branches IS NOT NULL;
 
 -- User passwords table indexes
 CREATE INDEX idx_user_passwords_user ON user_passwords(id_users);

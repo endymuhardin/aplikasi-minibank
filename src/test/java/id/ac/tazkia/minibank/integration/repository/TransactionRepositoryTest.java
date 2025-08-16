@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.Account;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
@@ -8,6 +9,7 @@ import id.ac.tazkia.minibank.entity.Transaction;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
 import id.ac.tazkia.minibank.repository.AccountRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,8 +48,12 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private ProductRepository productRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
 
     private Map<String, Account> accountMap = new HashMap<>();
+    private Branch testBranch;
 
     @BeforeEach
     void setUp() {
@@ -55,8 +61,21 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         accountRepository.deleteAll();
         customerRepository.deleteAll();
         productRepository.deleteAll();
+        branchRepository.deleteAll();
         entityManager.flush();
         entityManager.clear();
+        
+        // Create test branch
+        testBranch = new Branch();
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setAddress("Test Address");
+        testBranch.setCity("Test City");
+        testBranch.setCountry("Indonesia");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        testBranch.setCreatedBy("TEST");
+        testBranch = branchRepository.save(testBranch);
+        entityManager.flush();
         
         setupTestData();
     }
@@ -364,6 +383,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         customer1.setPostalCode("10220");
         customer1.setCountry("Indonesia");
         customer1.setCreatedBy("TEST");
+        customer1.setBranch(testBranch);
         customerRepository.save(customer1);
 
         PersonalCustomer customer2 = new PersonalCustomer();
@@ -380,6 +400,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         customer2.setPostalCode("10230");
         customer2.setCountry("Indonesia");
         customer2.setCreatedBy("TEST");
+        customer2.setBranch(testBranch);
         customerRepository.save(customer2);
 
         PersonalCustomer customer3 = new PersonalCustomer();
@@ -396,6 +417,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         customer3.setPostalCode("12950");
         customer3.setCountry("Indonesia");
         customer3.setCreatedBy("TEST");
+        customer3.setBranch(testBranch);
         customerRepository.save(customer3);
 
         // Create test products
@@ -440,6 +462,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         Account account1 = new Account();
         account1.setCustomer(customer1);
         account1.setProduct(savingsProduct);
+        account1.setBranch(testBranch);
         account1.setAccountNumber("A2000001");
         account1.setAccountName("Ahmad Suharto - Savings");
         account1.setBalance(new BigDecimal("500000"));
@@ -451,6 +474,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         Account account2 = new Account();
         account2.setCustomer(customer2);
         account2.setProduct(savingsProduct);
+        account2.setBranch(testBranch);
         account2.setAccountNumber("A2000002");
         account2.setAccountName("Siti Nurhaliza - Savings");
         account2.setBalance(new BigDecimal("750000"));
@@ -462,6 +486,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         Account account3 = new Account();
         account3.setCustomer(customer3);
         account3.setProduct(checkingProduct);
+        account3.setBranch(testBranch);
         account3.setAccountNumber("A2000003");
         account3.setAccountName("Budi Santoso - Checking");
         account3.setBalance(new BigDecimal("1200000"));
@@ -473,6 +498,7 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         Account account4 = new Account();
         account4.setCustomer(customer1);
         account4.setProduct(checkingProduct);
+        account4.setBranch(testBranch);
         account4.setAccountNumber("A2000004");
         account4.setAccountName("Ahmad Suharto - Checking");
         account4.setBalance(new BigDecimal("300000"));

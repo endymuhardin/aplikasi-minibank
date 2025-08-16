@@ -2,8 +2,10 @@ package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,12 +26,30 @@ class PersonalCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private PersonalCustomerRepository personalCustomerRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
+    
+    private Branch testBranch;
 
     @BeforeEach
     void setUp() {
         personalCustomerRepository.deleteAll();
+        branchRepository.deleteAll();
         entityManager.flush();
         entityManager.clear();
+        
+        // Create test branch
+        testBranch = new Branch();
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setAddress("Test Address");
+        testBranch.setCity("Test City");
+        testBranch.setCountry("Indonesia");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        testBranch.setCreatedBy("TEST");
+        testBranch = branchRepository.save(testBranch);
+        entityManager.flush();
     }
 
     @ParameterizedTest
@@ -63,6 +83,7 @@ class PersonalCustomerRepositoryTest extends BaseRepositoryTest {
         customer.setPostalCode(postalCode);
         customer.setCountry(country);
         customer.setCreatedBy("TEST");
+        customer.setBranch(testBranch);
 
         // When - Save customer
         PersonalCustomer savedCustomer = personalCustomerRepository.save(customer);
@@ -197,6 +218,7 @@ class PersonalCustomerRepositoryTest extends BaseRepositoryTest {
         personal1.setPostalCode("10220");
         personal1.setCountry("Indonesia");
         personal1.setCreatedBy("TEST");
+        personal1.setBranch(testBranch);
 
         PersonalCustomer personal2 = new PersonalCustomer();
         personal2.setCustomerNumber("C1000002");
@@ -212,6 +234,7 @@ class PersonalCustomerRepositoryTest extends BaseRepositoryTest {
         personal2.setPostalCode("10230");
         personal2.setCountry("Indonesia");
         personal2.setCreatedBy("TEST");
+        personal2.setBranch(testBranch);
 
         personalCustomerRepository.save(personal1);
         personalCustomerRepository.save(personal2);

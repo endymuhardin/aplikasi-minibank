@@ -1,0 +1,253 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${branch.id != null ? 'Edit Branch' : 'Create Branch'}">Branch Form</title>
+    <style>
+        .required-asterisk {
+            color: #dc2626;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900" th:text="${branch.id != null ? 'Edit Branch' : 'Create Branch'}">Branch Form</h1>
+                    <a th:href="@{/branch/list}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md" id="error-message">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800" th:text="${errorMessage}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white shadow rounded-lg">
+            <form th:action="${branch.id != null ? '/branch/edit/' + branch.id : '/branch/create'}" 
+                  th:object="${branch}" 
+                  method="post" 
+                  class="px-6 py-8 space-y-6">
+                
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Basic Information</h3>
+                        <p class="mt-1 text-sm text-gray-600">Enter the basic details for the branch.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Branch Code -->
+                        <div>
+                            <label for="branchCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                Branch Code <span class="required-asterisk">*</span>
+                            </label>
+                            <input type="text" 
+                                   th:field="*{branchCode}" 
+                                   id="branchCode"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                   placeholder="e.g., HO001, JKT01"
+                                   maxlength="20"
+                                   required>
+                            <div th:if="${#fields.hasErrors('branchCode')}" class="mt-1 text-sm text-red-600" th:errors="*{branchCode}"></div>
+                        </div>
+
+                        <!-- Branch Name -->
+                        <div>
+                            <label for="branchName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Branch Name <span class="required-asterisk">*</span>
+                            </label>
+                            <input type="text" 
+                                   th:field="*{branchName}" 
+                                   id="branchName"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                   placeholder="e.g., Kantor Pusat Jakarta"
+                                   maxlength="100"
+                                   required>
+                            <div th:if="${#fields.hasErrors('branchName')}" class="mt-1 text-sm text-red-600" th:errors="*{branchName}"></div>
+                        </div>
+
+                        <!-- Manager Name -->
+                        <div>
+                            <label for="managerName" class="block text-sm font-medium text-gray-700 mb-1">Manager Name</label>
+                            <input type="text" 
+                                   th:field="*{managerName}" 
+                                   id="managerName"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                   placeholder="e.g., H. Ahmad Surya"
+                                   maxlength="100">
+                            <div th:if="${#fields.hasErrors('managerName')}" class="mt-1 text-sm text-red-600" th:errors="*{managerName}"></div>
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+                                Status <span class="required-asterisk">*</span>
+                            </label>
+                            <select th:field="*{status}" 
+                                    id="status"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                    required>
+                                <option th:each="stat : ${branchStatuses}" 
+                                        th:value="${stat}" 
+                                        th:text="${stat}">
+                                </option>
+                            </select>
+                            <div th:if="${#fields.hasErrors('status')}" class="mt-1 text-sm text-red-600" th:errors="*{status}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Information Section -->
+                <div class="form-section border-t border-gray-200 pt-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Location Information</h3>
+                        <p class="mt-1 text-sm text-gray-600">Enter the address details for the branch.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Address -->
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <textarea th:field="*{address}" 
+                                      id="address"
+                                      rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                      placeholder="e.g., Jl. Sudirman Kav. 10-11"></textarea>
+                            <div th:if="${#fields.hasErrors('address')}" class="mt-1 text-sm text-red-600" th:errors="*{address}"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- City -->
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <input type="text" 
+                                       th:field="*{city}" 
+                                       id="city"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                       placeholder="e.g., Jakarta Pusat"
+                                       maxlength="100">
+                                <div th:if="${#fields.hasErrors('city')}" class="mt-1 text-sm text-red-600" th:errors="*{city}"></div>
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div>
+                                <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <input type="text" 
+                                       th:field="*{postalCode}" 
+                                       id="postalCode"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                       placeholder="e.g., 10220"
+                                       maxlength="10">
+                                <div th:if="${#fields.hasErrors('postalCode')}" class="mt-1 text-sm text-red-600" th:errors="*{postalCode}"></div>
+                            </div>
+
+                            <!-- Country -->
+                            <div>
+                                <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                <input type="text" 
+                                       th:field="*{country}" 
+                                       id="country"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                       placeholder="e.g., Indonesia"
+                                       maxlength="50">
+                                <div th:if="${#fields.hasErrors('country')}" class="mt-1 text-sm text-red-600" th:errors="*{country}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="form-section border-t border-gray-200 pt-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Contact Information</h3>
+                        <p class="mt-1 text-sm text-gray-600">Enter the contact details for the branch.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Phone Number -->
+                        <div>
+                            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" 
+                                   th:field="*{phoneNumber}" 
+                                   id="phoneNumber"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                   placeholder="e.g., 021-29345678"
+                                   maxlength="20">
+                            <div th:if="${#fields.hasErrors('phoneNumber')}" class="mt-1 text-sm text-red-600" th:errors="*{phoneNumber}"></div>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" 
+                                   th:field="*{email}" 
+                                   id="email"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-bsi-primary focus:border-bsi-primary"
+                                   placeholder="e.g., jakarta.pusat@bankbsi.co.id"
+                                   maxlength="100">
+                            <div th:if="${#fields.hasErrors('email')}" class="mt-1 text-sm text-red-600" th:errors="*{email}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branch Type Section -->
+                <div class="form-section border-t border-gray-200 pt-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">Branch Type</h3>
+                        <p class="mt-1 text-sm text-gray-600">Specify whether this is the main branch.</p>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" 
+                               th:field="*{isMainBranch}" 
+                               id="isMainBranch"
+                               class="h-4 w-4 text-bsi-primary focus:ring-bsi-primary border-gray-300 rounded">
+                        <label for="isMainBranch" class="ml-3 block text-sm font-medium text-gray-700">
+                            This is the main branch
+                        </label>
+                    </div>
+                    <div th:if="${#fields.hasErrors('isMainBranch')}" class="mt-1 text-sm text-red-600" th:errors="*{isMainBranch}"></div>
+                    <p class="mt-1 text-sm text-gray-500">Note: Only one main branch is allowed in the system.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a th:href="@{/branch/list}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            id="submit-branch-form"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-bsi-primary hover:bg-bsi-teal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span th:text="${branch.id != null ? 'Update Branch' : 'Create Branch'}">Save Branch</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

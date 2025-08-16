@@ -30,6 +30,10 @@ public class Account {
     @JoinColumn(name = "id_products", nullable = false)
     private Product product;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_branches", nullable = false)
+    private Branch branch;
+    
     @Column(name = "account_number", unique = true, nullable = false, length = 50)
     private String accountNumber;
     

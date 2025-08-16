@@ -1,12 +1,14 @@
 package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.Account;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.AccountRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,17 +40,34 @@ class AccountRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
     private ProductRepository productRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
 
     private Map<String, Customer> customerMap = new HashMap<>();
     private Map<String, Product> productMap = new HashMap<>();
+    private Branch testBranch;
 
     @BeforeEach
     void setUp() {
         accountRepository.deleteAll();
         customerRepository.deleteAll();
         productRepository.deleteAll();
+        branchRepository.deleteAll();
         entityManager.flush();
         entityManager.clear();
+        
+        // Create test branch
+        testBranch = new Branch();
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setAddress("Test Address");
+        testBranch.setCity("Test City");
+        testBranch.setCountry("Indonesia");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        testBranch.setCreatedBy("TEST");
+        testBranch = branchRepository.save(testBranch);
+        entityManager.flush();
         
         // Setup test customers and products
         setupTestCustomersAndProducts();
@@ -75,6 +94,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         Account account = new Account();
         account.setCustomer(customer);
         account.setProduct(product);
+        account.setBranch(testBranch);
         account.setAccountNumber(accountNumber);
         account.setAccountName(accountName);
         account.setBalance(new BigDecimal(balanceStr));
@@ -246,6 +266,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         Account zeroBalanceAccount = new Account();
         zeroBalanceAccount.setCustomer(customer);
         zeroBalanceAccount.setProduct(product);
+        zeroBalanceAccount.setBranch(testBranch);
         zeroBalanceAccount.setAccountNumber("A9999999");
         zeroBalanceAccount.setAccountName("Zero Balance Test");
         zeroBalanceAccount.setBalance(BigDecimal.ZERO);
@@ -305,6 +326,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         personal1.setPostalCode("10220");
         personal1.setCountry("Indonesia");
         personal1.setCreatedBy("TEST");
+        personal1.setBranch(testBranch);
 
         PersonalCustomer personal2 = new PersonalCustomer();
         personal2.setCustomerNumber("C1000002");
@@ -320,6 +342,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         personal2.setPostalCode("10230");
         personal2.setCountry("Indonesia");
         personal2.setCreatedBy("TEST");
+        personal2.setBranch(testBranch);
 
         PersonalCustomer personal3 = new PersonalCustomer();
         personal3.setCustomerNumber("C1000003");
@@ -335,6 +358,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         personal3.setPostalCode("12950");
         personal3.setCountry("Indonesia");
         personal3.setCreatedBy("TEST");
+        personal3.setBranch(testBranch);
 
         CorporateCustomer corporate1 = new CorporateCustomer();
         corporate1.setCustomerNumber("C1000004");
@@ -348,6 +372,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         corporate1.setPostalCode("12950");
         corporate1.setCountry("Indonesia");
         corporate1.setCreatedBy("TEST");
+        corporate1.setBranch(testBranch);
 
         CorporateCustomer corporate2 = new CorporateCustomer();
         corporate2.setCustomerNumber("C1000005");
@@ -361,6 +386,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         corporate2.setPostalCode("12940");
         corporate2.setCountry("Indonesia");
         corporate2.setCreatedBy("TEST");
+        corporate2.setBranch(testBranch);
 
         PersonalCustomer personal4 = new PersonalCustomer();
         personal4.setCustomerNumber("C1000006");
@@ -376,6 +402,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         personal4.setPostalCode("10270");
         personal4.setCountry("Indonesia");
         personal4.setCreatedBy("TEST");
+        personal4.setBranch(testBranch);
 
         customerRepository.save(personal1);
         customerRepository.save(personal2);
@@ -572,6 +599,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         Account account1 = new Account();
         account1.setCustomer(customer1);
         account1.setProduct(savingsProduct);
+        account1.setBranch(testBranch);
         account1.setAccountNumber("A2000001");
         account1.setAccountName("Ahmad Suharto - Savings");
         account1.setBalance(new BigDecimal("500000"));
@@ -582,6 +610,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         Account account2 = new Account();
         account2.setCustomer(customer2);
         account2.setProduct(savingsProduct);
+        account2.setBranch(testBranch);
         account2.setAccountNumber("A2000002");
         account2.setAccountName("Siti Nurhaliza - Savings");
         account2.setBalance(new BigDecimal("750000"));
@@ -592,6 +621,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
         Account account3 = new Account();
         account3.setCustomer(customer1);
         account3.setProduct(checkingProduct);
+        account3.setBranch(testBranch);
         account3.setAccountNumber("A2000003");
         account3.setAccountName("Ahmad Suharto - Checking");
         account3.setBalance(new BigDecimal("300000"));

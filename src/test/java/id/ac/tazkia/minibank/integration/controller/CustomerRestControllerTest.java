@@ -26,8 +26,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import id.ac.tazkia.minibank.controller.rest.CustomerRestController;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 
@@ -47,21 +49,42 @@ public class CustomerRestControllerTest {
     @MockitoBean
     private CorporateCustomerRepository corporateCustomerRepository;
 
+    @MockitoBean
+    private BranchRepository branchRepository;
+
     @Test
     public void testRegisterPersonalCustomerSuccess() throws Exception {
-        PersonalCustomer customer = new PersonalCustomer();
-        customer.setCustomerNumber("CUST001");
-        customer.setFirstName("John");
-        customer.setLastName("Doe");
-        customer.setDateOfBirth(java.time.LocalDate.of(1990, 1, 1));
-        customer.setIdentityNumber("1234567890123456");
-        customer.setIdentityType(id.ac.tazkia.minibank.entity.Customer.IdentityType.KTP);
-        customer.setEmail("john.doe@example.com");
-        customer.setPhoneNumber("081234567890");
-        customer.setAddress("123 Main St");
-        customer.setCity("Jakarta");
-        customer.setCountry("Indonesia");
-        customer.setPostalCode("12345");
+        // Create test branch
+        UUID branchId = UUID.randomUUID();
+        Branch testBranch = new Branch();
+        testBranch.setId(branchId);
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        
+        // Mock branch repository
+        when(branchRepository.findById(branchId)).thenReturn(Optional.of(testBranch));
+        
+        // Create DTO with branch reference
+        String requestJson = """
+        {
+            "customerNumber": "CUST001",
+            "firstName": "John",
+            "lastName": "Doe",
+            "dateOfBirth": "1990-01-01",
+            "identityNumber": "1234567890123456",
+            "identityType": "KTP",
+            "email": "john.doe@example.com",
+            "phoneNumber": "081234567890",
+            "address": "123 Main St",
+            "city": "Jakarta",
+            "country": "Indonesia",
+            "postalCode": "12345",
+            "branch": {
+                "id": "%s"
+            }
+        }
+        """.formatted(branchId.toString());
 
         PersonalCustomer savedCustomer = new PersonalCustomer();
         savedCustomer.setId(UUID.randomUUID());
@@ -69,12 +92,13 @@ public class CustomerRestControllerTest {
         savedCustomer.setLastName("Doe");
         savedCustomer.setEmail("john.doe@example.com");
         savedCustomer.setCustomerNumber("CUST001");
+        savedCustomer.setBranch(testBranch);
 
         when(personalCustomerRepository.save(any(PersonalCustomer.class))).thenReturn(savedCustomer);
 
         mockMvc.perform(post("/api/customers/personal/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer))
+                .content(requestJson)
                 .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value("John"))
@@ -96,30 +120,49 @@ public class CustomerRestControllerTest {
 
     @Test
     public void testRegisterCorporateCustomerSuccess() throws Exception {
-        CorporateCustomer customer = new CorporateCustomer();
-        customer.setCustomerNumber("CORP001");
-        customer.setCompanyName("PT. Test Company");
-        customer.setCompanyRegistrationNumber("12345678901234");
-        customer.setTaxIdentificationNumber("987654321");
-        customer.setContactPersonName("Jane Smith");
-        customer.setContactPersonTitle("Manager");
-        customer.setEmail("contact@testcompany.com");
-        customer.setPhoneNumber("021-12345678");
-        customer.setAddress("456 Business St");
-        customer.setCity("Jakarta");
-        customer.setCountry("Indonesia");
-        customer.setPostalCode("54321");
+        // Create test branch
+        UUID branchId = UUID.randomUUID();
+        Branch testBranch = new Branch();
+        testBranch.setId(branchId);
+        testBranch.setBranchCode("TEST");
+        testBranch.setBranchName("Test Branch");
+        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
+        
+        // Mock branch repository
+        when(branchRepository.findById(branchId)).thenReturn(Optional.of(testBranch));
+        
+        // Create DTO with branch reference
+        String requestJson = """
+        {
+            "customerNumber": "CORP001",
+            "companyName": "PT. Test Company",
+            "companyRegistrationNumber": "12345678901234",
+            "taxIdentificationNumber": "987654321",
+            "contactPersonName": "Jane Smith",
+            "contactPersonTitle": "Manager",
+            "email": "contact@testcompany.com",
+            "phoneNumber": "021-12345678",
+            "address": "456 Business St",
+            "city": "Jakarta",
+            "country": "Indonesia",
+            "postalCode": "54321",
+            "branch": {
+                "id": "%s"
+            }
+        }
+        """.formatted(branchId.toString());
 
         CorporateCustomer savedCustomer = new CorporateCustomer();
         savedCustomer.setId(UUID.randomUUID());
         savedCustomer.setCompanyName("PT. Test Company");
         savedCustomer.setCustomerNumber("CORP001");
+        savedCustomer.setBranch(testBranch);
 
         when(corporateCustomerRepository.save(any(CorporateCustomer.class))).thenReturn(savedCustomer);
 
         mockMvc.perform(post("/api/customers/corporate/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer))
+                .content(requestJson)
                 .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.companyName").value("PT. Test Company"));
