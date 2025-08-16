@@ -31,7 +31,7 @@ atm_withdrawal_fee, inter_bank_transfer_fee, below_minimum_balance_fee, account_
 10, 2500, false, true, 'PERSONAL', 'KTP', 5000, 7500, 10000, 0),
 ('22222222-2222-2222-2222-222222222222', 'CHK001', 'Business Checking', 'CHECKING', 'BUSINESS', 'Business checking account for companies', 1000.00, 100.00, 10000000.00, 0.005, 'WADIAH', 'MONTHLY', NULL, NULL, true, 5.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
 20, 3000, true, true, 'CORPORATE', 'Akta Pendirian, SIUP', 5000, 7500, 15000, 10000),
-('33333333-3333-3333-3333-333333333333', 'SAV002', 'Premium Savings', 'SAVINGS', 'RETAIL', 'Premium savings account with higher interest', 500.00, 50.00, 5000000.00, 0.020, 'MUDHARABAH', 'MONTHLY', 0.7000, 0.3000, true, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
+('33333333-3333-3333-3333-333333333333', 'SAV002', 'Premium Savings', 'SAVINGS', 'RETAIL', 'Premium savings account with higher profit sharing', 500.00, 50.00, 5000000.00, 0.020, 'MUDHARABAH', 'MONTHLY', 0.7000, 0.3000, true, 0.00, 'IDR', true, false, '2024-01-01', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP,
 25, 2500, false, true, 'PERSONAL', 'KTP, NPWP', 0, 5000, 25000, 0);
 
 -- Insert test accounts with sufficient balance for withdrawal tests
