@@ -75,6 +75,12 @@ public abstract class Customer {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
     
+    // Branch relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_branches", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Branch branch;
+    
     // Relationships
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnore

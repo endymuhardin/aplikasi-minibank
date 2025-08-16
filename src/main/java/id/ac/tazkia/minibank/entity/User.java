@@ -72,6 +72,12 @@ public class User {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
     
+    // Branch relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_branches")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Branch branch;
+    
     // Relationships
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnore

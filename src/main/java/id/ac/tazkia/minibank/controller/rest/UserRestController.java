@@ -2,8 +2,10 @@ package id.ac.tazkia.minibank.controller.rest;
 
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserPassword;
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import id.ac.tazkia.minibank.repository.UserPasswordRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +35,16 @@ public class UserRestController {
     
     private final UserRepository userRepository;
     private final UserPasswordRepository userPasswordRepository;
+    private final BranchRepository branchRepository;
     private final PasswordEncoder passwordEncoder;
     
     public UserRestController(UserRepository userRepository, 
-                             UserPasswordRepository userPasswordRepository, 
+                             UserPasswordRepository userPasswordRepository,
+                             BranchRepository branchRepository,
                              PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userPasswordRepository = userPasswordRepository;
+        this.branchRepository = branchRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -73,6 +78,18 @@ public class UserRestController {
         user.setFullName(request.getFullName());
         user.setCreatedBy(SYSTEM_USER);
         user.setUpdatedBy(SYSTEM_USER);
+        
+        // Handle branch assignment
+        if (request.getBranch() != null && request.getBranch().getId() != null) {
+            Branch branch = branchRepository.findById(request.getBranch().getId())
+                .orElse(null);
+            if (branch == null) {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("branch", "Branch not found with id: " + request.getBranch().getId());
+                return ResponseEntity.badRequest().body(errors);
+            }
+            user.setBranch(branch);
+        }
         
         User savedUser = userRepository.save(user);
 
@@ -266,6 +283,8 @@ public class UserRestController {
         
         @jakarta.validation.constraints.Size(min = 6, message = "Password must be at least 6 characters")
         private String password;
+        
+        private BranchRef branch;
 
         // Getters and setters
         public String getUsername() { return username; }
@@ -276,6 +295,8 @@ public class UserRestController {
         public void setFullName(String fullName) { this.fullName = fullName; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
+        public BranchRef getBranch() { return branch; }
+        public void setBranch(BranchRef branch) { this.branch = branch; }
     }
 
     public static class UpdateUserRequest {
@@ -361,5 +382,12 @@ public class UserRestController {
         public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
         public LocalDateTime getUpdatedDate() { return updatedDate; }
         public void setUpdatedDate(LocalDateTime updatedDate) { this.updatedDate = updatedDate; }
+    }
+    
+    public static class BranchRef {
+        private UUID id;
+        
+        public UUID getId() { return id; }
+        public void setId(UUID id) { this.id = id; }
     }
 }

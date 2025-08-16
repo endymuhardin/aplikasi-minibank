@@ -17,6 +17,8 @@ Scenario Outline: Create user - <testDescription>
   * userData.email = '<username>' + uniqueId + '@yopmail.com'
   * userData.fullName = '<fullName>' + ' ' + uniqueId
   * userData.password = 'Test123456'
+  # Add branch assignment - using main branch from initial data
+  * userData.branch = { id: '01234567-8901-2345-6789-012345678901' }
 
   Given path '/api/users'
   And request userData
@@ -35,7 +37,7 @@ Examples:
 
 Scenario: Get user by ID
   # First create a user
-  * def createUserData = { username: 'gettest', email: 'gettest@yopmail.com', fullName: 'Get Test User', password: 'Test123456' }
+  * def createUserData = { username: 'gettest', email: 'gettest@yopmail.com', fullName: 'Get Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST
@@ -52,7 +54,7 @@ Scenario: Get user by ID
 
 Scenario: Get user by username
   # First create a user
-  * def createUserData = { username: 'usernametest', email: 'usernametest@yopmail.com', fullName: 'Username Test User', password: 'Test123456' }
+  * def createUserData = { username: 'usernametest', email: 'usernametest@yopmail.com', fullName: 'Username Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST
@@ -67,8 +69,8 @@ Scenario: Get user by username
 
 Scenario: Get all users
   # Create multiple users first
-  * def user1 = { username: 'listuser1', email: 'listuser1@yopmail.com', fullName: 'List User 1', password: 'Test123456' }
-  * def user2 = { username: 'listuser2', email: 'listuser2@yopmail.com', fullName: 'List User 2', password: 'Test123456' }
+  * def user1 = { username: 'listuser1', email: 'listuser1@yopmail.com', fullName: 'List User 1', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
+  * def user2 = { username: 'listuser2', email: 'listuser2@yopmail.com', fullName: 'List User 2', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   
   Given path '/api/users'
   And request user1
@@ -90,7 +92,7 @@ Scenario: Get all users
 
 Scenario: Search users
   # Create a user with searchable name
-  * def searchUserData = { username: 'searchtest', email: 'searchtest@yopmail.com', fullName: 'Searchable Test User', password: 'Test123456' }
+  * def searchUserData = { username: 'searchtest', email: 'searchtest@yopmail.com', fullName: 'Searchable Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request searchUserData
   When method POST
@@ -106,7 +108,7 @@ Scenario: Search users
 
 Scenario: Update user
   # First create a user
-  * def createUserData = { username: 'updatetest', email: 'updatetest@yopmail.com', fullName: 'Update Test User', password: 'Test123456' }
+  * def createUserData = { username: 'updatetest', email: 'updatetest@yopmail.com', fullName: 'Update Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST
@@ -124,7 +126,7 @@ Scenario: Update user
 
 Scenario: Activate user
   # First create a user
-  * def createUserData = { username: 'activatetest', email: 'activatetest@yopmail.com', fullName: 'Activate Test User', password: 'Test123456' }
+  * def createUserData = { username: 'activatetest', email: 'activatetest@yopmail.com', fullName: 'Activate Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST
@@ -145,7 +147,7 @@ Scenario: Activate user
 
 Scenario: Change password
   # First create a user
-  * def createUserData = { username: 'passwordtest', email: 'passwordtest@yopmail.com', fullName: 'Password Test User', password: 'Test123456' }
+  * def createUserData = { username: 'passwordtest', email: 'passwordtest@yopmail.com', fullName: 'Password Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST
@@ -162,7 +164,7 @@ Scenario: Change password
 
 Scenario: Delete user
   # First create a user
-  * def createUserData = { username: 'deletetest', email: 'deletetest@yopmail.com', fullName: 'Delete Test User', password: 'Test123456' }
+  * def createUserData = { username: 'deletetest', email: 'deletetest@yopmail.com', fullName: 'Delete Test User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST

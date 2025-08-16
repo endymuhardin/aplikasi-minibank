@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,9 @@ public class CustomerController {
 
     @Autowired
     private CustomerRepository customerRepository;
+    
+    @Autowired
+    private BranchRepository branchRepository;
 
     @GetMapping("/list")
     public String list(
@@ -75,12 +80,14 @@ public class CustomerController {
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
         model.addAttribute("customer", new PersonalCustomer());
+        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
         return "customer/personal-form";
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
         model.addAttribute("customer", new CorporateCustomer());
+        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
         return "customer/corporate-form";
     }
 
@@ -98,6 +105,7 @@ public class CustomerController {
             }
             model.addAttribute("validationErrors", validationErrors);
             model.addAttribute("customer", personalCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/personal-form";
         }
 
@@ -106,6 +114,7 @@ public class CustomerController {
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
             model.addAttribute("customer", personalCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/personal-form";
         }
 
@@ -117,6 +126,7 @@ public class CustomerController {
             log.error("Failed to create personal customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
             model.addAttribute("customer", personalCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/personal-form";
         }
     }
@@ -135,6 +145,7 @@ public class CustomerController {
             }
             model.addAttribute("validationErrors", validationErrors);
             model.addAttribute("customer", corporateCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/corporate-form";
         }
 
@@ -143,6 +154,7 @@ public class CustomerController {
         if (existing.isPresent()) {
             model.addAttribute("errorMessage", "Customer number already exists");
             model.addAttribute("customer", corporateCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/corporate-form";
         }
 
@@ -154,6 +166,7 @@ public class CustomerController {
             log.error("Failed to create corporate customer", e);
             model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
             model.addAttribute("customer", corporateCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/corporate-form";
         }
     }
@@ -193,11 +206,13 @@ public class CustomerController {
                 // Ensure we pass the PersonalCustomer object for proper field access
                 PersonalCustomer personalCustomer = (PersonalCustomer) c;
                 model.addAttribute("customer", personalCustomer);
+                model.addAttribute("availableBranches", branchRepository.findActiveBranches());
                 return "customer/personal-form";
             } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
                 // Ensure we pass the CorporateCustomer object for proper field access
                 CorporateCustomer corporateCustomer = (CorporateCustomer) c;
                 model.addAttribute("customer", corporateCustomer);
+                model.addAttribute("availableBranches", branchRepository.findActiveBranches());
                 return "customer/corporate-form";
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Unknown customer type");
@@ -238,6 +253,7 @@ public class CustomerController {
             }
             model.addAttribute("validationErrors", validationErrors);
             model.addAttribute("customer", updatedCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/personal-form";
         }
 
@@ -253,6 +269,7 @@ public class CustomerController {
             log.error("Failed to update personal customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
             model.addAttribute("customer", personalCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/personal-form";
         }
     }
@@ -286,6 +303,7 @@ public class CustomerController {
             }
             model.addAttribute("validationErrors", validationErrors);
             model.addAttribute("customer", updatedCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/corporate-form";
         }
 
@@ -301,6 +319,7 @@ public class CustomerController {
             log.error("Failed to update corporate customer", e);
             model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
             model.addAttribute("customer", corporateCustomer);
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "customer/corporate-form";
         }
     }

@@ -9,10 +9,10 @@ DELETE FROM products;
 DELETE FROM sequence_numbers;
 
 -- Insert test customers
-INSERT INTO customers (id, customer_number, customer_type, address, city, country, email, phone_number, postal_code, created_by, created_date, updated_by, updated_date) VALUES
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'C1000001', 'PERSONAL', 'Jl. Sudirman No. 1', 'Jakarta', 'Indonesia', 'john.doe@email.com', '+62123456789', '12345', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'C1000002', 'CORPORATE', 'Jl. Thamrin No. 2', 'Jakarta', 'Indonesia', 'info@company.com', '+62123456790', '12346', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('cccccccc-cccc-cccc-cccc-cccccccccccc', 'C1000003', 'PERSONAL', 'Jl. Gatot Subroto No. 3', 'Jakarta', 'Indonesia', 'jane.smith@email.com', '+62123456791', '12347', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+INSERT INTO customers (id, customer_number, customer_type, address, city, country, email, phone_number, postal_code, id_branches, created_by, created_date, updated_by, updated_date) VALUES
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'C1000001', 'PERSONAL', 'Jl. Sudirman No. 1', 'Jakarta', 'Indonesia', 'john.doe@email.com', '+62123456789', '12345', '01234567-8901-2345-6789-012345678901', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'C1000002', 'CORPORATE', 'Jl. Thamrin No. 2', 'Jakarta', 'Indonesia', 'info@company.com', '+62123456790', '12346', '01234567-8901-2345-6789-012345678901', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('cccccccc-cccc-cccc-cccc-cccccccccccc', 'C1000003', 'PERSONAL', 'Jl. Gatot Subroto No. 3', 'Jakarta', 'Indonesia', 'jane.smith@email.com', '+62123456791', '12347', '01234567-8901-2345-6789-012345678901', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Insert personal customer details
 INSERT INTO personal_customers (id, first_name, last_name, identity_type, identity_number, date_of_birth) VALUES
@@ -35,12 +35,12 @@ atm_withdrawal_fee, inter_bank_transfer_fee, below_minimum_balance_fee, account_
 25, 2500, false, true, 'PERSONAL', 'KTP, NPWP', 0, 5000, 25000, 0);
 
 -- Insert test accounts with sufficient balance for withdrawal tests
-INSERT INTO accounts (id, id_customers, id_products, account_number, account_name, balance, status, opened_date, created_by, created_date, updated_by, updated_date) VALUES
-('11111111-1111-1111-aaaa-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'ACC0000001', 'John Doe Savings', 5000.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('22222222-2222-2222-bbbb-222222222222', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '22222222-2222-2222-2222-222222222222', 'ACC0000002', 'ABC Company Checking', 100000.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('33333333-3333-3333-cccc-333333333333', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '33333333-3333-3333-3333-333333333333', 'ACC0000003', 'Jane Smith Premium Savings', 1500.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('44444444-4444-4444-dddd-444444444444', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'ACC0000004', 'John Doe Second Account', 250.00, 'INACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-('55555555-5555-5555-eeee-555555555555', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '33333333-3333-3333-3333-333333333333', 'ACC0000005', 'Jane Low Balance Account', 10.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+INSERT INTO accounts (id, id_customers, id_products, id_branches, account_number, account_name, balance, status, opened_date, created_by, created_date, updated_by, updated_date) VALUES
+('11111111-1111-1111-aaaa-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', '01234567-8901-2345-6789-012345678901', 'ACC0000001', 'John Doe Savings', 5000.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('22222222-2222-2222-bbbb-222222222222', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', '22222222-2222-2222-2222-222222222222', '01234567-8901-2345-6789-012345678901', 'ACC0000002', 'ABC Company Checking', 100000.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('33333333-3333-3333-cccc-333333333333', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '33333333-3333-3333-3333-333333333333', '01234567-8901-2345-6789-012345678901', 'ACC0000003', 'Jane Smith Premium Savings', 1500.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('44444444-4444-4444-dddd-444444444444', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', '01234567-8901-2345-6789-012345678901', 'ACC0000004', 'John Doe Second Account', 250.00, 'INACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+('55555555-5555-5555-eeee-555555555555', 'cccccccc-cccc-cccc-cccc-cccccccccccc', '33333333-3333-3333-3333-333333333333', '01234567-8901-2345-6789-012345678901', 'ACC0000005', 'Jane Low Balance Account', 10.00, 'ACTIVE', CURRENT_DATE, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Insert sequence numbers for transaction numbering
 INSERT INTO sequence_numbers (sequence_name, prefix, last_number, created_date, updated_date) VALUES

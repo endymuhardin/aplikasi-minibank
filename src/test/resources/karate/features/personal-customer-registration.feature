@@ -26,6 +26,8 @@ Scenario Outline: Register personal customer - <testCase>
   * customerData.city = '<city>'
   * customerData.postalCode = '<postalCode>'
   * customerData.country = '<country>'
+  # Add branch assignment - using main branch from initial data
+  * customerData.branch = { id: '01234567-8901-2345-6789-012345678901' }
 
   Given path '/api/customers/personal/register'
   And request customerData

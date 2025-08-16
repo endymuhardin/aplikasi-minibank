@@ -20,6 +20,7 @@ import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.repository.AccountRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
@@ -38,17 +39,20 @@ public class AccountRestController {
     private final CorporateCustomerRepository corporateCustomerRepository;
     private final AccountRepository accountRepository;
     private final ProductRepository productRepository;
+    private final BranchRepository branchRepository;
     private final SequenceNumberService sequenceNumberService;
     
     public AccountRestController(PersonalCustomerRepository personalCustomerRepository,
                                CorporateCustomerRepository corporateCustomerRepository,
                                AccountRepository accountRepository,
                                ProductRepository productRepository,
+                               BranchRepository branchRepository,
                                SequenceNumberService sequenceNumberService) {
         this.personalCustomerRepository = personalCustomerRepository;
         this.corporateCustomerRepository = corporateCustomerRepository;
         this.accountRepository = accountRepository;
         this.productRepository = productRepository;
+        this.branchRepository = branchRepository;
         this.sequenceNumberService = sequenceNumberService;
     }
 
@@ -119,6 +123,7 @@ public class AccountRestController {
             Account account = new Account();
             account.setCustomer(customer);
             account.setProduct(product);
+            account.setBranch(customer.getBranch()); // Use customer's branch
             account.setAccountNumber(accountNumber);
             account.setAccountName(request.getAccountName());
             account.setBalance(request.getInitialDeposit());

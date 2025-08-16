@@ -1,3 +1,14 @@
+-- Initialize branches data
+INSERT INTO branches (
+    id, branch_code, branch_name, address, city, postal_code, 
+    phone_number, email, manager_name, is_main_branch, created_by
+) VALUES 
+('01234567-8901-2345-6789-012345678901', 'HO001', 'Kantor Pusat Jakarta', 'Jl. Sudirman Kav. 10-11', 'Jakarta Pusat', '10220', '021-29345678', 'kantor.pusat@bankbsi.co.id', 'H. Ahmad Surya', true, 'SYSTEM'),
+('01234567-8901-2345-6789-012345678902', 'JKT01', 'Cabang Jakarta Timur', 'Jl. Ahmad Yani No. 45', 'Jakarta Timur', '13230', '021-85761234', 'jakarta.timur@bankbsi.co.id', 'Drs. Budi Pratama', false, 'SYSTEM'),
+('01234567-8901-2345-6789-012345678903', 'BDG01', 'Cabang Bandung', 'Jl. Asia Afrika No. 88', 'Bandung', '40111', '022-42056789', 'bandung@bankbsi.co.id', 'H. Siti Nurhalimah', false, 'SYSTEM'),
+('01234567-8901-2345-6789-012345678904', 'SBY01', 'Cabang Surabaya', 'Jl. Pemuda No. 123', 'Surabaya', '60271', '031-53419876', 'surabaya@bankbsi.co.id', 'Ir. Wahyu Setiawan', false, 'SYSTEM'),
+('01234567-8901-2345-6789-012345678905', 'YGY01', 'Cabang Yogyakarta', 'Jl. Malioboro No. 56', 'Yogyakarta', '55213', '0274-562789', 'yogyakarta@bankbsi.co.id', 'Dr. Retno Wulandari', false, 'SYSTEM');
+
 -- Initialize sequence numbers
 INSERT INTO sequence_numbers (sequence_name, last_number, prefix) VALUES 
     ('CUSTOMER_NUMBER', 1000000, 'C'),
@@ -96,19 +107,19 @@ INSERT INTO products (
 
 -- Sample personal customers data - first insert into base customers table
 INSERT INTO customers (
-    id, customer_type, customer_number, email, phone_number, 
+    id, customer_type, customer_number, id_branches, email, phone_number, 
     address, city, postal_code, created_by
 ) VALUES 
-(gen_random_uuid(), 'PERSONAL', 'C1000001', 'ahmad.suharto@email.com', '081234567890', 
+(gen_random_uuid(), 'PERSONAL', 'C1000001', '01234567-8901-2345-6789-012345678901', 'ahmad.suharto@email.com', '081234567890', 
  'Jl. Sudirman No. 123', 'Jakarta', '10220', 'SYSTEM'),
 
-(gen_random_uuid(), 'PERSONAL', 'C1000002', 'siti.nurhaliza@email.com', '081234567891', 
+(gen_random_uuid(), 'PERSONAL', 'C1000002', '01234567-8901-2345-6789-012345678902', 'siti.nurhaliza@email.com', '081234567891', 
  'Jl. Thamrin No. 456', 'Jakarta', '10230', 'SYSTEM'),
 
-(gen_random_uuid(), 'PERSONAL', 'C1000004', 'budi.santoso@email.com', '081234567892', 
+(gen_random_uuid(), 'PERSONAL', 'C1000004', '01234567-8901-2345-6789-012345678903', 'budi.santoso@email.com', '081234567892', 
  'Jl. Gatot Subroto No. 321', 'Jakarta', '12930', 'SYSTEM'),
 
-(gen_random_uuid(), 'PERSONAL', 'C1000006', 'dewi.lestari@email.com', '081234567893', 
+(gen_random_uuid(), 'PERSONAL', 'C1000006', '01234567-8901-2345-6789-012345678904', 'dewi.lestari@email.com', '081234567893', 
  'Jl. MH Thamrin No. 654', 'Jakarta', '10350', 'SYSTEM');
 
 -- Insert personal customer specific data
@@ -122,10 +133,10 @@ INSERT INTO personal_customers (
 
 -- Sample corporate customers data - first insert into base customers table  
 INSERT INTO customers (
-    id, customer_type, customer_number, email, phone_number, 
+    id, customer_type, customer_number, id_branches, email, phone_number, 
     address, city, postal_code, created_by
 ) VALUES 
-(gen_random_uuid(), 'CORPORATE', 'C1000003', 'info@teknologimaju.com', '02123456789', 
+(gen_random_uuid(), 'CORPORATE', 'C1000003', '01234567-8901-2345-6789-012345678901', 'info@teknologimaju.com', '02123456789', 
  'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'SYSTEM');
 
 -- Insert corporate customer specific data

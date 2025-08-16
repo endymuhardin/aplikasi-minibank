@@ -16,12 +16,12 @@ VALUES
 ('55555555-5555-5555-5555-555555555555', 'CHK002', 'Premium Checking Account', 'CHECKING', 'Premium Checking', 'Premium checking with higher overdraft limit', true, false, 'IDR', 2000000.00, 1000000.00, null, 50000000.00, 200, 0.0150, 'MUSHARAKAH', 'MONTHLY', 0.6000, 0.4000, true, 0.00, 0.00, 5000.00, 25000.00, 15000.00, 50, 3000.00, true, true, 25, null, 'PERSONAL', 'KTP, NPWP, Slip Gaji, Rekening Koran', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'SYSTEM');
 
 -- Insert test customers (personal)
-INSERT INTO customers (id, customer_number, email, phone_number, address, city, postal_code, country, created_date, updated_date, customer_type)
+INSERT INTO customers (id, customer_number, email, phone_number, address, city, postal_code, country, id_branches, created_date, updated_date, customer_type)
 VALUES 
-('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'C1000001', 'ahmad.suharto@email.com', '081234567890', 'Jl. Sudirman No. 123', 'Jakarta', '10220', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'C1000002', 'siti.nurhaliza@email.com', '081234567891', 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
-('cccccccc-cccc-cccc-cccc-cccccccccccc', 'C1000003', 'budi.santoso@email.com', '081234567892', 'Jl. Gatot Subroto No. 789', 'Jakarta', '12950', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
-('ffffffff-ffff-ffff-ffff-ffffffffffff', 'C1000006', 'dewi.lestari@email.com', '081234567893', 'Jl. Senayan No. 321', 'Jakarta', '10270', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL');
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'C1000001', 'ahmad.suharto@email.com', '081234567890', 'Jl. Sudirman No. 123', 'Jakarta', '10220', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'C1000002', 'siti.nurhaliza@email.com', '081234567891', 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
+('cccccccc-cccc-cccc-cccc-cccccccccccc', 'C1000003', 'budi.santoso@email.com', '081234567892', 'Jl. Gatot Subroto No. 789', 'Jakarta', '12950', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL'),
+('ffffffff-ffff-ffff-ffff-ffffffffffff', 'C1000006', 'dewi.lestari@email.com', '081234567893', 'Jl. Senayan No. 321', 'Jakarta', '10270', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'PERSONAL');
 
 -- Insert personal customer details
 INSERT INTO personal_customers (id, first_name, last_name, date_of_birth, identity_number, identity_type)
@@ -32,10 +32,10 @@ VALUES
 ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'Dewi', 'Lestari', '1992-05-18', '3271051892920004', 'PASSPORT');
 
 -- Insert corporate customers
-INSERT INTO customers (id, customer_number, email, phone_number, address, city, postal_code, country, created_date, updated_date, customer_type)
+INSERT INTO customers (id, customer_number, email, phone_number, address, city, postal_code, country, id_branches, created_date, updated_date, customer_type)
 VALUES 
-('dddddddd-dddd-dddd-dddd-dddddddddddd', 'C1000004', 'info@teknologimaju.com', '02123456789', 'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'CORPORATE'),
-('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'C1000005', 'admin@berkahjaya.com', '02187654321', 'Jl. Kuningan Raya No. 456', 'Jakarta', '12940', 'Indonesia', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'CORPORATE');
+('dddddddd-dddd-dddd-dddd-dddddddddddd', 'C1000004', 'info@teknologimaju.com', '02123456789', 'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'CORPORATE'),
+('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'C1000005', 'admin@berkahjaya.com', '02187654321', 'Jl. Kuningan Raya No. 456', 'Jakarta', '12940', 'Indonesia', '01234567-8901-2345-6789-012345678901', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'CORPORATE');
 
 -- Insert corporate customer details
 INSERT INTO corporate_customers (id, company_name, company_registration_number, tax_identification_number)

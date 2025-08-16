@@ -75,21 +75,21 @@ FROM roles r, permissions p
 WHERE r.role_code = 'BRANCH_MANAGER';
 
 -- Create sample users for each role
-INSERT INTO users (username, email, full_name, created_by) VALUES
+INSERT INTO users (username, email, full_name, id_branches, created_by) VALUES
 -- Branch Manager users
-('admin', 'admin@yopmail.com', 'System Administrator', 'SYSTEM'),
-('manager1', 'manager1@yopmail.com', 'Branch Manager Jakarta', 'SYSTEM'),
-('manager2', 'manager2@yopmail.com', 'Branch Manager Surabaya', 'SYSTEM'),
+('admin', 'admin@yopmail.com', 'System Administrator', '01234567-8901-2345-6789-012345678901', 'SYSTEM'),
+('manager1', 'manager1@yopmail.com', 'Branch Manager Jakarta', '01234567-8901-2345-6789-012345678902', 'SYSTEM'),
+('manager2', 'manager2@yopmail.com', 'Branch Manager Surabaya', '01234567-8901-2345-6789-012345678904', 'SYSTEM'),
 
 -- Teller users
-('teller1', 'teller1@yopmail.com', 'Teller Counter 1', 'SYSTEM'),
-('teller2', 'teller2@yopmail.com', 'Teller Counter 2', 'SYSTEM'),
-('teller3', 'teller3@yopmail.com', 'Teller Counter 3', 'SYSTEM'),
+('teller1', 'teller1@yopmail.com', 'Teller Counter 1', '01234567-8901-2345-6789-012345678901', 'SYSTEM'),
+('teller2', 'teller2@yopmail.com', 'Teller Counter 2', '01234567-8901-2345-6789-012345678902', 'SYSTEM'),
+('teller3', 'teller3@yopmail.com', 'Teller Counter 3', '01234567-8901-2345-6789-012345678903', 'SYSTEM'),
 
 -- Customer Service users
-('cs1', 'cs1@yopmail.com', 'Customer Service Staff 1', 'SYSTEM'),
-('cs2', 'cs2@yopmail.com', 'Customer Service Staff 2', 'SYSTEM'),
-('cs3', 'cs3@yopmail.com', 'Customer Service Staff 3', 'SYSTEM');
+('cs1', 'cs1@yopmail.com', 'Customer Service Staff 1', '01234567-8901-2345-6789-012345678901', 'SYSTEM'),
+('cs2', 'cs2@yopmail.com', 'Customer Service Staff 2', '01234567-8901-2345-6789-012345678902', 'SYSTEM'),
+('cs3', 'cs3@yopmail.com', 'Customer Service Staff 3', '01234567-8901-2345-6789-012345678905', 'SYSTEM');
 
 -- Set passwords for all users (password: minibank123)
 -- Note: BCrypt hash for 'minibank123'

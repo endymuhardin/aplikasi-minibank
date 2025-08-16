@@ -18,6 +18,7 @@ public class PersonalCustomerFormPage extends BasePage {
     
     // Personal customer form elements
     private static final By CUSTOMER_NUMBER_INPUT = By.id("customerNumber");
+    private static final By BRANCH_SELECT = By.id("branch");
     private static final By FIRST_NAME_INPUT = By.id("firstName");
     private static final By LAST_NAME_INPUT = By.id("lastName");
     private static final By DATE_OF_BIRTH_INPUT = By.id("dateOfBirth");
@@ -46,6 +47,10 @@ public class PersonalCustomerFormPage extends BasePage {
         wait.until(ExpectedConditions.presenceOfElementLocated(CUSTOMER_NUMBER_INPUT));
         
         fillField(CUSTOMER_NUMBER_INPUT, customerNumber);
+        
+        // Select first available branch (required field)
+        selectFirstAvailableBranch();
+        
         fillField(FIRST_NAME_INPUT, firstName);
         fillField(LAST_NAME_INPUT, lastName);
         fillDateField(DATE_OF_BIRTH_INPUT, dateOfBirth);
@@ -90,6 +95,22 @@ public class PersonalCustomerFormPage extends BasePage {
             } catch (Exception e) {
                 System.err.println("Warning: Could not fill field " + locator + " with value '" + value + "': " + e.getMessage());
             }
+        }
+    }
+    
+    private void selectFirstAvailableBranch() {
+        try {
+            WebElement branchField = wait.until(ExpectedConditions.presenceOfElementLocated(BRANCH_SELECT));
+            Select branchSelect = new Select(branchField);
+            // Select the first non-empty option (skip the "Select Branch" placeholder)
+            if (branchSelect.getOptions().size() > 1) {
+                branchSelect.selectByIndex(1); // First actual branch option
+                log.info("Selected first available branch");
+            } else {
+                log.warn("No branches available in dropdown");
+            }
+        } catch (Exception e) {
+            log.error("Could not select branch: " + e.getMessage());
         }
     }
     

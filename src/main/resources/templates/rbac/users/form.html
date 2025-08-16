@@ -73,6 +73,27 @@
                            class="mt-1 text-sm text-bsi-secondary email-error"></p>
                     </div>
 
+                    <!-- Branch Selection -->
+                    <div class="sm:col-span-2">
+                        <label for="branch" class="block text-sm font-medium text-bsi-dark">Branch *</label>
+                        <select id="branch" 
+                                name="branch.id" 
+                                th:field="*{branch.id}"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-bsi-primary focus:border-bsi-primary"
+                                th:classappend="${#fields.hasErrors('branch')} ? 'border-bsi-secondary' : ''"
+                                required>
+                            <option value="">Select Branch</option>
+                            <option th:each="branch : ${availableBranches}" 
+                                    th:value="${branch.id}" 
+                                    th:text="${branch.getDisplayName()}">
+                            </option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('branch')}" 
+                           th:errors="*{branch}" 
+                           class="mt-1 text-sm text-bsi-secondary branch-error"></p>
+                        <p class="mt-1 text-sm text-gray-500">Select the branch where this user will be assigned</p>
+                    </div>
+
                     <!-- Password will be handled separately after user creation -->
 
                     <!-- Active Status (only for edit) -->

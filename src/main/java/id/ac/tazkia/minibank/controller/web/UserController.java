@@ -7,6 +7,7 @@ import id.ac.tazkia.minibank.repository.UserRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRoleRepository;
 import id.ac.tazkia.minibank.repository.UserPasswordRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,7 @@ public class UserController {
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final UserPasswordRepository userPasswordRepository;
+    private final BranchRepository branchRepository;
     private final PasswordEncoder passwordEncoder;
     
     @GetMapping("/list")
@@ -81,6 +83,7 @@ public class UserController {
     @GetMapping("/create")
     public String createForm(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
         return "rbac/users/form";
     }
     
@@ -91,6 +94,7 @@ public class UserController {
                         RedirectAttributes redirectAttributes) {
         
         if (result.hasErrors()) {
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "rbac/users/form";
         }
         
@@ -103,6 +107,7 @@ public class UserController {
         }
         
         if (result.hasErrors()) {
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "rbac/users/form";
         }
         
@@ -116,6 +121,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("Error creating user", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error creating user: " + e.getMessage());
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "rbac/users/form";
         }
     }
@@ -129,6 +135,7 @@ public class UserController {
         }
         
         model.addAttribute("user", user.get());
+        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
         return "rbac/users/form";
     }
     
@@ -158,6 +165,7 @@ public class UserController {
         }
         
         if (result.hasErrors()) {
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "rbac/users/form";
         }
         
@@ -174,6 +182,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("Error updating user", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Error updating user: " + e.getMessage());
+            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return "rbac/users/form";
         }
     }

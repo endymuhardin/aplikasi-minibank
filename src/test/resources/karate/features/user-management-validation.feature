@@ -28,14 +28,14 @@ Examples:
 
 Scenario: Create user with duplicate username
   # First create a user
-  * def userData1 = { username: 'duplicate', email: 'first@yopmail.com', fullName: 'First User', password: 'Test123456' }
+  * def userData1 = { username: 'duplicate', email: 'first@yopmail.com', fullName: 'First User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request userData1
   When method POST
   Then status 201
 
   # Try to create another user with same username
-  * def userData2 = { username: 'duplicate', email: 'second@yopmail.com', fullName: 'Second User', password: 'Test123456' }
+  * def userData2 = { username: 'duplicate', email: 'second@yopmail.com', fullName: 'Second User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request userData2
   When method POST
@@ -44,14 +44,14 @@ Scenario: Create user with duplicate username
 
 Scenario: Create user with duplicate email
   # First create a user
-  * def userData1 = { username: 'user1', email: 'duplicate@yopmail.com', fullName: 'First User', password: 'Test123456' }
+  * def userData1 = { username: 'user1', email: 'duplicate@yopmail.com', fullName: 'First User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request userData1
   When method POST
   Then status 201
 
   # Try to create another user with same email
-  * def userData2 = { username: 'user2', email: 'duplicate@yopmail.com', fullName: 'Second User', password: 'Test123456' }
+  * def userData2 = { username: 'user2', email: 'duplicate@yopmail.com', fullName: 'Second User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request userData2
   When method POST
@@ -60,8 +60,8 @@ Scenario: Create user with duplicate email
 
 Scenario: Update user with duplicate username
   # Create two users
-  * def userData1 = { username: 'original1', email: 'orig1@yopmail.com', fullName: 'Original User 1', password: 'Test123456' }
-  * def userData2 = { username: 'original2', email: 'orig2@yopmail.com', fullName: 'Original User 2', password: 'Test123456' }
+  * def userData1 = { username: 'original1', email: 'orig1@yopmail.com', fullName: 'Original User 1', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
+  * def userData2 = { username: 'original2', email: 'orig2@yopmail.com', fullName: 'Original User 2', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   
   Given path '/api/users'
   And request userData1
@@ -85,8 +85,8 @@ Scenario: Update user with duplicate username
 
 Scenario: Update user with duplicate email
   # Create two users
-  * def userData1 = { username: 'emailuser1', email: 'email1@yopmail.com', fullName: 'Email User 1', password: 'Test123456' }
-  * def userData2 = { username: 'emailuser2', email: 'email2@yopmail.com', fullName: 'Email User 2', password: 'Test123456' }
+  * def userData1 = { username: 'emailuser1', email: 'email1@yopmail.com', fullName: 'Email User 1', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
+  * def userData2 = { username: 'emailuser2', email: 'email2@yopmail.com', fullName: 'Email User 2', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   
   Given path '/api/users'
   And request userData1
@@ -137,7 +137,7 @@ Scenario: Change password for non-existent user
 
 Scenario: Change password with invalid data
   # First create a user
-  * def createUserData = { username: 'passinvalid', email: 'passinvalid@yopmail.com', fullName: 'Password Invalid User', password: 'Test123456' }
+  * def createUserData = { username: 'passinvalid', email: 'passinvalid@yopmail.com', fullName: 'Password Invalid User', password: 'Test123456', branch: { id: '01234567-8901-2345-6789-012345678901' } }
   Given path '/api/users'
   And request createUserData
   When method POST

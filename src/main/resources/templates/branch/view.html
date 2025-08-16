@@ -1,0 +1,228 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Branch Details</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <h1 class="text-2xl font-bold text-gray-900">Branch Details</h1>
+                        <span th:if="${branch.isMainBranch == true}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-bsi-primary bg-opacity-20 text-bsi-primary">Main Branch</span>
+                        <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).ACTIVE}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-bsi-success bg-opacity-20 text-bsi-success">Active</span>
+                        <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).INACTIVE}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                        <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).CLOSED}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Closed</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a th:href="@{/branch/edit/{id}(id=${branch.id})}" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-bsi-primary hover:bg-bsi-teal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Edit
+                        </a>
+                        <a th:href="@{/branch/list}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branch Information -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Branch Information</h3>
+            </div>
+            
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <!-- Branch Code -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Branch Code</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.branchCode}">HO001</dd>
+                    </div>
+
+                    <!-- Branch Name -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Branch Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.branchName}">Kantor Pusat Jakarta</dd>
+                    </div>
+
+                    <!-- Manager Name -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Manager Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.managerName ?: '-'}">H. Ahmad Surya</dd>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).ACTIVE}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-bsi-success bg-opacity-20 text-bsi-success">Active</span>
+                            <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).INACTIVE}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                            <span th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).CLOSED}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Closed</span>
+                        </dd>
+                    </div>
+
+                    <!-- Branch Type -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Branch Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span th:if="${branch.isMainBranch == true}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-bsi-primary bg-opacity-20 text-bsi-primary">Main Branch</span>
+                            <span th:if="${branch.isMainBranch == false}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Regular Branch</span>
+                        </dd>
+                    </div>
+
+                    <!-- Empty cell for grid alignment -->
+                    <div></div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Location Information -->
+        <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Location Information</h3>
+            </div>
+            
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <!-- Address -->
+                    <div class="sm:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Address</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.address ?: '-'}">Jl. Sudirman Kav. 10-11</dd>
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">City</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.city ?: '-'}">Jakarta Pusat</dd>
+                    </div>
+
+                    <!-- Postal Code -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Postal Code</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.postalCode ?: '-'}">10220</dd>
+                    </div>
+
+                    <!-- Country -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Country</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.country ?: '-'}">Indonesia</dd>
+                    </div>
+
+                    <!-- Full Address -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Complete Address</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.getFullAddress() ?: '-'}">Jl. Sudirman Kav. 10-11, Jakarta Pusat 10220</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Contact Information</h3>
+            </div>
+            
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <!-- Phone Number -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Phone Number</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span th:if="${branch.phoneNumber}" th:text="${branch.phoneNumber}">021-29345678</span>
+                            <span th:unless="${branch.phoneNumber}">-</span>
+                        </dd>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Email</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <span th:if="${branch.email}">
+                                <a th:href="'mailto:' + ${branch.email}" th:text="${branch.email}" class="text-bsi-primary hover:text-bsi-teal">kantor.pusat@bankbsi.co.id</a>
+                            </span>
+                            <span th:unless="${branch.email}">-</span>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Audit Information -->
+        <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Audit Information</h3>
+            </div>
+            
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    <!-- Created Date -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created Date</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(branch.createdDate, 'dd MMMM yyyy HH:mm')}">15 January 2024 10:30</dd>
+                    </div>
+
+                    <!-- Created By -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created By</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.createdBy ?: '-'}">SYSTEM</dd>
+                    </div>
+
+                    <!-- Updated Date -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.updatedDate != null ? #temporals.format(branch.updatedDate, 'dd MMMM yyyy HH:mm') : '-'}">16 January 2024 14:45</dd>
+                    </div>
+
+                    <!-- Updated By -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Updated By</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${branch.updatedBy ?: '-'}">admin</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-6 flex justify-end space-x-3">
+            <form th:if="${branch.status == T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).ACTIVE and branch.isMainBranch == false}" 
+                  th:action="@{/branch/deactivate/{id}(id=${branch.id})}" 
+                  method="post" 
+                  class="inline" 
+                  onsubmit="return confirm('Are you sure you want to deactivate this branch?')">
+                <button type="submit" id="deactivate-branch" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-bsi-secondary hover:bg-bsi-orange-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-secondary">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636"/>
+                    </svg>
+                    Deactivate Branch
+                </button>
+            </form>
+            
+            <form th:if="${branch.status != T(id.ac.tazkia.minibank.entity.Branch.BranchStatus).ACTIVE}" 
+                  th:action="@{/branch/activate/{id}(id=${branch.id})}" 
+                  method="post" 
+                  class="inline" 
+                  onsubmit="return confirm('Are you sure you want to activate this branch?')">
+                <button type="submit" id="activate-branch" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-bsi-success hover:bg-bsi-light-green focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-success">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Activate Branch
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
