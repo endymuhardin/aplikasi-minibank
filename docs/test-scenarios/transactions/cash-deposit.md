@@ -452,7 +452,7 @@ curl -X GET http://localhost:8080/api/accounts/ACC0000001 \
 
 ### Transaction Entity Fields:
 - `transaction_number` (VARCHAR 50, UNIQUE, NOT NULL)
-- `transaction_type` (ENUM: DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT, INTEREST, FEE)
+- `transaction_type` (ENUM: DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT, FEE)
 - `amount` (DECIMAL 20,2, NOT NULL, > 0)
 - `currency` (VARCHAR 3, default 'IDR')
 - `balance_before` (DECIMAL 20,2, NOT NULL)

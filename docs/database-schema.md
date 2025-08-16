@@ -158,7 +158,7 @@ All account transaction records.
 | id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
 | id_accounts | UUID | NOT NULL, FK to accounts(id) | Source account |
 | transaction_number | VARCHAR(50) | UNIQUE NOT NULL | Business transaction number |
-| transaction_type | VARCHAR(20) | NOT NULL, CHECK IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'INTEREST', 'FEE') | Transaction type |
+| transaction_type | VARCHAR(20) | NOT NULL, CHECK IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'FEE') | Transaction type |
 | amount | DECIMAL(20,2) | NOT NULL, CHECK > 0 | Transaction amount |
 | currency | VARCHAR(3) | DEFAULT 'IDR' | Currency code |
 | balance_before | DECIMAL(20,2) | NOT NULL | Balance before transaction |

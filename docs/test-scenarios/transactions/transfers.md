@@ -23,7 +23,7 @@ public enum TransactionType {
     DEPOSIT, WITHDRAWAL, 
     TRANSFER_IN,     // Credit to destination account
     TRANSFER_OUT,    // Debit from source account
-    INTEREST, FEE
+    FEE
 }
 
 // Transaction.java - Transfer reference
