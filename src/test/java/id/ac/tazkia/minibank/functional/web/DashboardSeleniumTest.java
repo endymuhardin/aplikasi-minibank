@@ -38,7 +38,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         }
     }
 
-    private String getPasswordFor(String username) {
+    private String getPasswordFor() {
         // All migration users have password: minibank123
         return "minibank123";
     }
@@ -50,7 +50,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         assertEquals("Dashboard - Minibank", driver.getTitle());
@@ -64,7 +64,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", getPasswordFor("cs1"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -83,7 +83,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -101,7 +101,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -120,7 +120,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully(username, getPasswordFor(username));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully(username, getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after login");
         
@@ -155,7 +155,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after login");
         
@@ -175,7 +175,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -192,7 +192,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -217,7 +217,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", getPasswordFor("cs1"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("cs1", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -238,7 +238,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("teller1", getPasswordFor("teller1"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("teller1", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -260,7 +260,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         
@@ -278,7 +278,7 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateToLogin(baseUrl);
         
-        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor("admin"));
+        DashboardPage dashboardPage = loginPage.loginSuccessfully("admin", getPasswordFor());
         
         assertTrue(dashboardPage.isOnDashboardPage());
         

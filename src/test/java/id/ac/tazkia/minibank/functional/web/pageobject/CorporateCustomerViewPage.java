@@ -26,8 +26,6 @@ public class CorporateCustomerViewPage extends BasePage {
     private static final By CITY_DISPLAY = By.id("city");
     private static final By STATUS_DISPLAY = By.id("status");
     private static final By CUSTOMER_TYPE_DISPLAY = By.id("customerType");
-    private static final By CREATED_DATE_DISPLAY = By.id("createdDate");
-    private static final By UPDATED_DATE_DISPLAY = By.id("updatedDate");
     
     private static final By EDIT_BUTTON = By.id("edit-button");
     private static final By BACK_BUTTON = By.id("back-button");

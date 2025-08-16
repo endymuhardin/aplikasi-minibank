@@ -35,6 +35,7 @@ public class PermissionFormPage extends BasePage {
         super(driver, baseUrl);
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }

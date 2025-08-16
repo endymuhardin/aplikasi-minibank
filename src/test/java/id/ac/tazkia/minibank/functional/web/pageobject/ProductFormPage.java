@@ -1,12 +1,17 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
+
+@Slf4j
 public class ProductFormPage extends BasePage {
     
     @FindBy(id = "productCode")
@@ -380,11 +385,13 @@ public class ProductFormPage extends BasePage {
             "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element
         );
         
-        // Wait a moment for scroll to complete
+        // Wait a moment for scroll to complete using WebDriverWait
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
         try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+        } catch (Exception e) {
+            // Continue if timeout occurs - scroll animation may still be in progress
+            log.debug("Scroll completion check timed out, continuing...", e);
         }
     }
 }

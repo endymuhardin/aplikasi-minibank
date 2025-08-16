@@ -29,6 +29,7 @@ public class RoleListPage extends BasePage {
         waitForElementToBePresent(By.id("roles-table"));
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }

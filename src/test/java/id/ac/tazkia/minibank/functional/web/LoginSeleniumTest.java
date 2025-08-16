@@ -34,7 +34,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
         // No initial login for LoginSeleniumTest - we test the login process itself
     }
 
-    private String getPasswordFor(String username) {
+    private String getPasswordFor() {
         // All migration users have password: minibank123
         return "minibank123";
     }
@@ -66,7 +66,7 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
         
         if (shouldSucceed) {
             // Use migration user password
-            String migrationPassword = getPasswordFor(username);
+            String migrationPassword = getPasswordFor();
             DashboardPage dashboardPage = loginPage.loginSuccessfully(username, migrationPassword);
             assertTrue(dashboardPage.isOnDashboardPage(), "Should be on dashboard page after successful login");
         } else {

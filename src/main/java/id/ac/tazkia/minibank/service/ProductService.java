@@ -64,6 +64,12 @@ public class ProductService {
     @Transactional
     public Product update(Product product) {
         validateProduct(product);
+        if (product.getId() == null) {
+            throw new IllegalArgumentException("Product ID is required for update operation");
+        }
+        if (!productRepository.existsById(product.getId())) {
+            throw new IllegalArgumentException("Product with ID " + product.getId() + " not found for update");
+        }
         return productRepository.save(product);
     }
     

@@ -2,6 +2,7 @@ package id.ac.tazkia.minibank.functional.web.helper;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.openqa.selenium.WebDriver;
 
@@ -75,7 +76,7 @@ public class LoginHelper {
         
         // Verify the correct user is logged in
         String actualUsername = dashboardPage.getCurrentUsername();
-        assertTrue(username.equals(actualUsername), 
+        assertEquals(username, actualUsername, 
             "Authentication succeeded but wrong user logged in. Expected: " + username + ", Actual: " + actualUsername);
         
         return dashboardPage;
@@ -89,7 +90,7 @@ public class LoginHelper {
         
         // Verify the correct role is assigned
         String actualRole = dashboardPage.getCurrentUserRole();
-        assertTrue(expectedRole.equals(actualRole), 
+        assertEquals(expectedRole, actualRole, 
             "Authentication succeeded but wrong role assigned. Expected: " + expectedRole + ", Actual: " + actualRole + " for user: " + username);
         
         return dashboardPage;
