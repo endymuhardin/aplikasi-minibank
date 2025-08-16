@@ -109,10 +109,11 @@ public class CorporateCustomerFormPage extends BasePage {
             currentUrl.contains("/customer/edit/") ||
             currentUrl.contains("/customer/update/corporate/")) {
             // Wait a bit more for potential redirect
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1));
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/customer/add/corporate")));
+            } catch (Exception e) {
+                log.debug("Redirect did not occur within timeout, continuing...", e);
             }
             // If still on form page but no error, navigate to list manually
             if (!isErrorMessageDisplayed()) {

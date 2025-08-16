@@ -39,16 +39,19 @@ public class PasswordHashGeneratorTest {
         // Test if the hash matches
         boolean matches = passwordEncoder.matches(password, hash);
         System.out.println("Hash matches password: " + matches);
+        assert matches : "Generated hash should match the original password";
         
         // Test the existing hash from database
         String existingHash = "$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da";
         boolean existingMatches = passwordEncoder.matches(password, existingHash);
         System.out.println("Existing hash matches password: " + existingMatches);
+        assert existingMatches : "Existing hash should match the password";
         
         // Test the actual hash from production database
         String actualDatabaseHash = "$2a$10$qj8.4l5y5Yb8gYF4H6N2M8A7t9X6V5W4SmKHGLVjFHGHfPGKw5P8/e";
         boolean actualMatches = passwordEncoder.matches(password, actualDatabaseHash);
         System.out.println("Actual database hash matches password: " + actualMatches);
+        assert actualMatches : "Actual database hash should match the password";
     }
 
     @Test
@@ -57,10 +60,10 @@ public class PasswordHashGeneratorTest {
             reader.readNext(); // Skip header
             List<String[]> records = reader.readAll();
             int hashGeneratedCount = 0;
-            for (String[] record : records) {
-                if (Boolean.parseBoolean(record[4])) {
-                    String username = record[0];
-                    String plainPassword = record[3];
+            for (String[] csvRecord : records) {
+                if (Boolean.parseBoolean(csvRecord[4])) {
+                    String username = csvRecord[0];
+                    String plainPassword = csvRecord[3];
                     String hashedPassword = passwordEncoder.encode(plainPassword);
                     System.out.println("Username: " + username + ", Plain Password: " + plainPassword + ", Hashed Password: " + hashedPassword);
                     hashGeneratedCount++;

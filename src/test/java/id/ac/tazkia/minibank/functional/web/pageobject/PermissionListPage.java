@@ -52,6 +52,7 @@ public class PermissionListPage extends BasePage {
         );
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }

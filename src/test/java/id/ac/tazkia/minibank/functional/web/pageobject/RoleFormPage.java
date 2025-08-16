@@ -1,9 +1,15 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.time.Duration;
+
+@Slf4j
 public class RoleFormPage extends BasePage {
     
     @FindBy(id = "role-form")
@@ -31,6 +37,7 @@ public class RoleFormPage extends BasePage {
         super(driver, baseUrl);
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }
@@ -67,7 +74,12 @@ public class RoleFormPage extends BasePage {
         waitForElementToBeClickable(saveButton);
         saveButton.click();
         // Wait briefly for any validation to occur
-        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
+        try {
+            wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+        } catch (Exception e) {
+            log.debug("Validation wait timed out, continuing...", e);
+        }
         return this;
     }
     

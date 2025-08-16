@@ -37,11 +37,28 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/customer")
 public class CustomerController {
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    // Template view constants
+    private static final String PERSONAL_FORM_VIEW = "customer/personal-form";
+    private static final String CORPORATE_FORM_VIEW = "customer/corporate-form";
+    private static final String CUSTOMER_LIST_REDIRECT = "redirect:/customer/list";
     
-    @Autowired
-    private BranchRepository branchRepository;
+    // Model attribute constants
+    private static final String CUSTOMER_ATTR = "customer";
+    private static final String VALIDATION_ERRORS_ATTR = "validationErrors";
+    private static final String ERROR_MESSAGE_ATTR = "errorMessage";
+    private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
+    private static final String CREATED_DATE_ATTR = "createdDate";
+    
+    // Error message constants
+    private static final String CUSTOMER_NOT_FOUND_MSG = "Customer not found";
+
+    private final CustomerRepository customerRepository;
+    private final BranchRepository branchRepository;
+
+    public CustomerController(CustomerRepository customerRepository, BranchRepository branchRepository) {
+        this.customerRepository = customerRepository;
+        this.branchRepository = branchRepository;
+    }
 
     @GetMapping("/list")
     public String list(
@@ -51,7 +68,7 @@ public class CustomerController {
             @RequestParam(required = false) String customerType,
             Model model) {
         
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(CREATED_DATE_ATTR).descending());
         Page<Customer> customers;
 
         if (search != null && !search.trim().isEmpty()) {
@@ -79,16 +96,16 @@ public class CustomerController {
     
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
-        model.addAttribute("customer", new PersonalCustomer());
+        model.addAttribute(CUSTOMER_ATTR, new PersonalCustomer());
         model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-        return "customer/personal-form";
+        return PERSONAL_FORM_VIEW;
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
-        model.addAttribute("customer", new CorporateCustomer());
+        model.addAttribute(CUSTOMER_ATTR, new CorporateCustomer());
         model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-        return "customer/corporate-form";
+        return CORPORATE_FORM_VIEW;
     }
 
     @PostMapping("/create/personal")
@@ -103,31 +120,31 @@ public class CustomerController {
             for (FieldError error : bindingResult.getFieldErrors()) {
                 validationErrors.add(error.getDefaultMessage());
             }
-            model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("customer", personalCustomer);
+            model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
+            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/personal-form";
+            return PERSONAL_FORM_VIEW;
         }
 
         // Check for duplicate customer number
         Optional<Customer> existing = customerRepository.findByCustomerNumber(personalCustomer.getCustomerNumber());
         if (existing.isPresent()) {
-            model.addAttribute("errorMessage", "Customer number already exists");
-            model.addAttribute("customer", personalCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Customer number already exists");
+            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/personal-form";
+            return PERSONAL_FORM_VIEW;
         }
 
         try {
             customerRepository.save(personalCustomer);
-            redirectAttributes.addFlashAttribute("successMessage", "Personal customer created successfully");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Personal customer created successfully");
+            return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
             log.error("Failed to create personal customer", e);
-            model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
-            model.addAttribute("customer", personalCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
+            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/personal-form";
+            return PERSONAL_FORM_VIEW;
         }
     }
     
@@ -143,31 +160,31 @@ public class CustomerController {
             for (FieldError error : bindingResult.getFieldErrors()) {
                 validationErrors.add(error.getDefaultMessage());
             }
-            model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("customer", corporateCustomer);
+            model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/corporate-form";
+            return CORPORATE_FORM_VIEW;
         }
 
         // Check for duplicate customer number
         Optional<Customer> existing = customerRepository.findByCustomerNumber(corporateCustomer.getCustomerNumber());
         if (existing.isPresent()) {
-            model.addAttribute("errorMessage", "Customer number already exists");
-            model.addAttribute("customer", corporateCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Customer number already exists");
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/corporate-form";
+            return CORPORATE_FORM_VIEW;
         }
 
         try {
             customerRepository.save(corporateCustomer);
-            redirectAttributes.addFlashAttribute("successMessage", "Corporate customer created successfully");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Corporate customer created successfully");
+            return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
             log.error("Failed to create corporate customer", e);
-            model.addAttribute("errorMessage", "Failed to create customer: " + e.getMessage());
-            model.addAttribute("customer", corporateCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/corporate-form";
+            return CORPORATE_FORM_VIEW;
         }
     }
 
@@ -176,7 +193,7 @@ public class CustomerController {
         Optional<Customer> customerOpt = customerRepository.findById(id);
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
-            model.addAttribute("customer", customer);
+            model.addAttribute(CUSTOMER_ATTR, customer);
             
             // Route to appropriate view template based on customer type
             if (customer.getCustomerType() == Customer.CustomerType.PERSONAL) {
@@ -188,8 +205,8 @@ public class CustomerController {
                 return "customer/view";
             }
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
+            return CUSTOMER_LIST_REDIRECT;
         }
     }
 
@@ -198,29 +215,29 @@ public class CustomerController {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) {
             Customer c = customer.get();
-            model.addAttribute("customer", c);
+            model.addAttribute(CUSTOMER_ATTR, c);
             model.addAttribute("customerTypes", Customer.CustomerType.values());
             
             // Route to appropriate edit form based on customer type
             if (c.getCustomerType() == Customer.CustomerType.PERSONAL) {
                 // Ensure we pass the PersonalCustomer object for proper field access
                 PersonalCustomer personalCustomer = (PersonalCustomer) c;
-                model.addAttribute("customer", personalCustomer);
+                model.addAttribute(CUSTOMER_ATTR, personalCustomer);
                 model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-                return "customer/personal-form";
+                return PERSONAL_FORM_VIEW;
             } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
                 // Ensure we pass the CorporateCustomer object for proper field access
                 CorporateCustomer corporateCustomer = (CorporateCustomer) c;
-                model.addAttribute("customer", corporateCustomer);
+                model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
                 model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-                return "customer/corporate-form";
+                return CORPORATE_FORM_VIEW;
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Unknown customer type");
-                return "redirect:/customer/list";
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Unknown customer type");
+                return CUSTOMER_LIST_REDIRECT;
             }
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
+            return CUSTOMER_LIST_REDIRECT;
         }
     }
 
@@ -233,14 +250,14 @@ public class CustomerController {
 
         Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
         if (existingCustomerOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
+            return CUSTOMER_LIST_REDIRECT;
         }
 
         Customer existingCustomer = existingCustomerOpt.get();
         if (!(existingCustomer instanceof PersonalCustomer)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer is not a personal customer");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Customer is not a personal customer");
+            return CUSTOMER_LIST_REDIRECT;
         }
 
         PersonalCustomer personalCustomer = (PersonalCustomer) existingCustomer;
@@ -251,26 +268,26 @@ public class CustomerController {
             for (FieldError error : bindingResult.getFieldErrors()) {
                 validationErrors.add(error.getDefaultMessage());
             }
-            model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("customer", updatedCustomer);
+            model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
+            model.addAttribute(CUSTOMER_ATTR, updatedCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/personal-form";
+            return PERSONAL_FORM_VIEW;
         }
 
         try {
             // Copy properties from form data to existing entity, preserving ID and audit fields
-            BeanUtils.copyProperties(updatedCustomer, personalCustomer, "id", "createdDate", "createdBy", "accounts");
+            BeanUtils.copyProperties(updatedCustomer, personalCustomer, "id", CREATED_DATE_ATTR, "createdBy", "accounts");
             
             customerRepository.save(personalCustomer);
-            redirectAttributes.addFlashAttribute("successMessage", "Personal customer updated successfully");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Personal customer updated successfully");
+            return CUSTOMER_LIST_REDIRECT;
 
         } catch (Exception e) {
             log.error("Failed to update personal customer", e);
-            model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
-            model.addAttribute("customer", personalCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to update customer: " + e.getMessage());
+            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/personal-form";
+            return PERSONAL_FORM_VIEW;
         }
     }
 
@@ -283,14 +300,14 @@ public class CustomerController {
 
         Optional<Customer> existingCustomerOpt = customerRepository.findById(id);
         if (existingCustomerOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
+            return CUSTOMER_LIST_REDIRECT;
         }
 
         Customer existingCustomer = existingCustomerOpt.get();
         if (!(existingCustomer instanceof CorporateCustomer)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer is not a corporate customer");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Customer is not a corporate customer");
+            return CUSTOMER_LIST_REDIRECT;
         }
 
         CorporateCustomer corporateCustomer = (CorporateCustomer) existingCustomer;
@@ -301,26 +318,26 @@ public class CustomerController {
             for (FieldError error : bindingResult.getFieldErrors()) {
                 validationErrors.add(error.getDefaultMessage());
             }
-            model.addAttribute("validationErrors", validationErrors);
-            model.addAttribute("customer", updatedCustomer);
+            model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
+            model.addAttribute(CUSTOMER_ATTR, updatedCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/corporate-form";
+            return CORPORATE_FORM_VIEW;
         }
 
         try {
             // Copy properties from form data to existing entity, preserving ID and audit fields
-            BeanUtils.copyProperties(updatedCustomer, corporateCustomer, "id", "createdDate", "createdBy", "accounts");
+            BeanUtils.copyProperties(updatedCustomer, corporateCustomer, "id", CREATED_DATE_ATTR, "createdBy", "accounts");
             
             customerRepository.save(corporateCustomer);
-            redirectAttributes.addFlashAttribute("successMessage", "Corporate customer updated successfully");
-            return "redirect:/customer/list";
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Corporate customer updated successfully");
+            return CUSTOMER_LIST_REDIRECT;
 
         } catch (Exception e) {
             log.error("Failed to update corporate customer", e);
-            model.addAttribute("errorMessage", "Failed to update customer: " + e.getMessage());
-            model.addAttribute("customer", corporateCustomer);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to update customer: " + e.getMessage());
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
             model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return "customer/corporate-form";
+            return CORPORATE_FORM_VIEW;
         }
     }
 
@@ -331,11 +348,11 @@ public class CustomerController {
             Customer c = customer.get();
             c.setStatus(Customer.CustomerStatus.ACTIVE);
             customerRepository.save(c);
-            redirectAttributes.addFlashAttribute("successMessage", "Customer activated successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Customer activated successfully");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
         }
-        return "redirect:/customer/list";
+        return CUSTOMER_LIST_REDIRECT;
     }
 
     @PostMapping("/deactivate/{id}")
@@ -345,10 +362,10 @@ public class CustomerController {
             Customer c = customer.get();
             c.setStatus(Customer.CustomerStatus.INACTIVE);
             customerRepository.save(c);
-            redirectAttributes.addFlashAttribute("successMessage", "Customer deactivated successfully");
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Customer deactivated successfully");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Customer not found");
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
         }
-        return "redirect:/customer/list";
+        return CUSTOMER_LIST_REDIRECT;
     }
 }

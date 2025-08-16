@@ -187,6 +187,7 @@ public class CustomerListPage extends BasePage {
         return 5; // Default reasonable limit
     }
     
+    @Override
     public boolean isSuccessMessageDisplayed() {
         try {
             // Log current URL and page source for debugging
@@ -232,6 +233,7 @@ public class CustomerListPage extends BasePage {
         }
     }
     
+    @Override
     public boolean isErrorMessageDisplayed() {
         try {
             WebElement message = driver.findElement(ERROR_MESSAGE);

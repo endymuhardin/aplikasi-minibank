@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionRestController {
     
     private static final String ACCOUNT_ID_FIELD = "accountId";
+    private static final String TRANSACTION_PROCESSING_FAILED = "Transaction processing failed";
     
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -132,9 +133,9 @@ public class TransactionRestController {
             error.put("amount", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         } catch (RuntimeException e) {
-            log.error("Transaction processing failed", e);
+            log.error(TRANSACTION_PROCESSING_FAILED, e);
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Transaction processing failed");
+            error.put("error", TRANSACTION_PROCESSING_FAILED);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
@@ -226,9 +227,9 @@ public class TransactionRestController {
             error.put("amount", e.getMessage());
             return ResponseEntity.badRequest().body(error);
         } catch (RuntimeException e) {
-            log.error("Transaction processing failed", e);
+            log.error(TRANSACTION_PROCESSING_FAILED, e);
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Transaction processing failed");
+            error.put("error", TRANSACTION_PROCESSING_FAILED);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }

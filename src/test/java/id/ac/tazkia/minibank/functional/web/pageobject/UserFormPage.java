@@ -1,9 +1,15 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.time.Duration;
+
+@Slf4j
 public class UserFormPage extends BasePage {
     
     @FindBy(id = "user-form")
@@ -37,6 +43,7 @@ public class UserFormPage extends BasePage {
         super(driver, baseUrl);
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }
@@ -74,7 +81,13 @@ public class UserFormPage extends BasePage {
         // Wait for either success (redirect to list) or remain on form with error
         try {
             // Wait up to 10 seconds for URL change or for form to be updated
-            Thread.sleep(1000); // Brief wait for initial processing
+            // Brief wait for initial processing using WebDriverWait
+            WebDriverWait initialWait = new WebDriverWait(driver, Duration.ofSeconds(1));
+            try {
+                initialWait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+            } catch (Exception e) {
+                log.debug("Initial processing wait timed out, continuing...", e);
+            }
             
             for (int i = 0; i < 10; i++) {
                 String currentUrl = getCurrentUrl();
@@ -102,16 +115,24 @@ public class UserFormPage extends BasePage {
                     }
                 }
                 
-                Thread.sleep(1000); // Wait 1 second before checking again
+                // Wait 1 second before checking again using WebDriverWait
+                WebDriverWait loopWait = new WebDriverWait(driver, Duration.ofSeconds(1));
+                try {
+                    loopWait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+                } catch (Exception e) {
+                    log.debug("Loop iteration wait timed out, continuing...", e);
+                }
             }
             
             // If we get here, something unexpected happened
             String currentUrl = getCurrentUrl();
             throw new RuntimeException("Timeout waiting for form submission. Final URL: " + currentUrl);
             
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Test interrupted", e);
+        } catch (RuntimeException e) {
+            // Re-throw runtime exceptions (like form validation errors)
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected error during form submission", e);
         }
     }
     
@@ -119,7 +140,12 @@ public class UserFormPage extends BasePage {
         waitForElementToBeClickable(saveButton);
         saveButton.click();
         // Wait briefly for any validation to occur
-        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
+        try {
+            wait.until(ExpectedConditions.jsReturnsValue("return document.readyState === 'complete'"));
+        } catch (Exception e) {
+            log.debug("Validation wait timed out, continuing...", e);
+        }
         return this;
     }
     

@@ -201,22 +201,22 @@ class UserPermissionValidationTest extends BaseRepositoryTest {
     @Test
     void shouldValidatePermissionsByCode() {
         // When
-        Optional<Permission> customerViewPermission = permissionRepository
+        Optional<Permission> foundCustomerViewPermission = permissionRepository
             .findByPermissionCode("CUSTOMER_VIEW");
-        Optional<Permission> customerCreatePermission = permissionRepository
+        Optional<Permission> foundCustomerCreatePermission = permissionRepository
             .findByPermissionCode("CUSTOMER_CREATE");
-        Optional<Permission> userCreatePermission = permissionRepository
+        Optional<Permission> foundUserCreatePermission = permissionRepository
             .findByPermissionCode("USER_CREATE");
 
         // Then
-        assertThat(customerViewPermission).isPresent();
-        assertThat(customerViewPermission.get().getPermissionCode()).isEqualTo("CUSTOMER_VIEW");
+        assertThat(foundCustomerViewPermission).isPresent();
+        assertThat(foundCustomerViewPermission.get().getPermissionCode()).isEqualTo("CUSTOMER_VIEW");
         
-        assertThat(customerCreatePermission).isPresent();
-        assertThat(customerCreatePermission.get().getPermissionCode()).isEqualTo("CUSTOMER_CREATE");
+        assertThat(foundCustomerCreatePermission).isPresent();
+        assertThat(foundCustomerCreatePermission.get().getPermissionCode()).isEqualTo("CUSTOMER_CREATE");
         
-        assertThat(userCreatePermission).isPresent();
-        assertThat(userCreatePermission.get().getPermissionCode()).isEqualTo("USER_CREATE");
+        assertThat(foundUserCreatePermission).isPresent();
+        assertThat(foundUserCreatePermission.get().getPermissionCode()).isEqualTo("USER_CREATE");
     }
 
     @Test

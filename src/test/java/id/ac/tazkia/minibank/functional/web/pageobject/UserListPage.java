@@ -36,6 +36,7 @@ public class UserListPage extends BasePage {
         waitForElementToBePresent(By.id("users-table"));
     }
     
+    @Override
     public String getPageTitle() {
         return pageTitle.getText();
     }
