@@ -337,7 +337,7 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         premiumSavings.setProductName("Premium Savings Account");
         premiumSavings.setProductType(Product.ProductType.SAVINGS);
         premiumSavings.setProductCategory("Premium Savings");
-        premiumSavings.setDescription("Premium savings account with higher interest");
+        premiumSavings.setDescription("Premium savings account with higher profit sharing");
         premiumSavings.setIsActive(true);
         premiumSavings.setIsDefault(false);
         premiumSavings.setCurrency("IDR");

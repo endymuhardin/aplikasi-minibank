@@ -306,7 +306,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
         formPage.fillBasicInformation(testProductCode, testProductName, testProductType, defaultCategory, "IDR");
         
         // For invalid profit sharing ratio test
-        if (testCase.contains("Interest Rate")) {
+        if (testCase.contains("Profit Sharing Ratio")) {
             formPage.fillFinancialConfiguration(null, null, null, "2.0", null, null); // Invalid ratio > 1
         }
         
