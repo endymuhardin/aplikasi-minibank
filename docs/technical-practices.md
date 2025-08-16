@@ -300,7 +300,7 @@ if (this.balance.compareTo(amount) < 0) {
 // Standard precision and scale for financial fields
 private BigDecimal amount;           // DECIMAL(20,2) - amounts
 private BigDecimal profitRatio;      // DECIMAL(5,4) - ratios/percentages
-private BigDecimal interestRate;     // DECIMAL(5,4) - rates
+private BigDecimal profitSharingRatio; // DECIMAL(5,4) - profit sharing ratios
 ```
 
 ## Architectural Patterns
@@ -1303,7 +1303,7 @@ inter_bank_transfer_fee DECIMAL(15,2) DEFAULT 0.00,
 
 #### 3. **Ratio and Percentage Fields**
 ```sql
--- Profit sharing ratios, interest rates, percentages
+-- Profit sharing ratios, nisbah ratios, percentages
 profit_sharing_ratio DECIMAL(5,4) DEFAULT 0.0000,
 nisbah_customer DECIMAL(5,4),
 nisbah_bank DECIMAL(5,4),
@@ -1313,7 +1313,7 @@ nisbah_bank DECIMAL(5,4),
 - Precision: 5 total digits
 - Scale: 4 decimal places
 - Range: 0.0000 to 1.0000 (0% to 100% with 4 decimal precision)
-- Suitable for: Ratios, percentages, profit sharing rates
+- Suitable for: Ratios, percentages, profit sharing ratios, nisbah values
 
 #### 4. **Currency Standards**
 ```sql
@@ -1418,7 +1418,7 @@ product_code VARCHAR(20) UNIQUE NOT NULL,
 CHECK (customer_type IN ('PERSONAL', 'CORPORATE')),
 CHECK (status IN ('ACTIVE', 'INACTIVE', 'CLOSED', 'FROZEN')),
 CHECK (identity_type IN ('KTP', 'PASSPORT', 'SIM')),
-CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'INTEREST', 'FEE')),
+CHECK (transaction_type IN ('DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN', 'TRANSFER_OUT', 'FEE')),
 ```
 
 ### Index Naming Conventions
@@ -1565,7 +1565,7 @@ CONSTRAINT chk_customer_age CHECK (min_customer_age IS NULL OR max_customer_age 
 ```sql
 -- Ensure transaction balance calculations are correct
 CONSTRAINT chk_balance_calculation CHECK (
-    (transaction_type IN ('DEPOSIT', 'TRANSFER_IN', 'INTEREST') AND balance_after = balance_before + amount)
+    (transaction_type IN ('DEPOSIT', 'TRANSFER_IN') AND balance_after = balance_before + amount)
     OR (transaction_type IN ('WITHDRAWAL', 'TRANSFER_OUT', 'FEE') AND balance_after = balance_before - amount)
 ),
 ```

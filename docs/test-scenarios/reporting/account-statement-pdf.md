@@ -380,7 +380,7 @@ Dokumen ini berisi skenario test untuk fitur cetak rekening koran dalam format P
 4. **Summary Section**:
    - Starting balance (saldo awal periode)
    - Total debit (sum of WITHDRAWAL, TRANSFER_OUT, FEE)
-   - Total credit (sum of DEPOSIT, TRANSFER_IN, INTEREST)
+   - Total credit (sum of DEPOSIT, TRANSFER_IN)
    - Ending balance (saldo akhir periode)
 
 5. **Footer Section**:
@@ -476,7 +476,7 @@ LIMIT 1;
 
 -- Summary calculations
 SELECT 
-  SUM(CASE WHEN transaction_type IN ('DEPOSIT', 'TRANSFER_IN', 'INTEREST') THEN amount ELSE 0 END) as total_credit,
+  SUM(CASE WHEN transaction_type IN ('DEPOSIT', 'TRANSFER_IN') THEN amount ELSE 0 END) as total_credit,
   SUM(CASE WHEN transaction_type IN ('WITHDRAWAL', 'TRANSFER_OUT', 'FEE') THEN amount ELSE 0 END) as total_debit,
   COUNT(*) as transaction_count
 FROM transactions 

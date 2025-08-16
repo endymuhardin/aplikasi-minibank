@@ -64,9 +64,6 @@ erDiagram
         DECIMAL daily_withdrawal_limit
         INTEGER monthly_transaction_limit
         DECIMAL overdraft_limit
-        DECIMAL interest_rate
-        VARCHAR interest_calculation_type
-        VARCHAR interest_payment_frequency
         DECIMAL monthly_maintenance_fee
         DECIMAL atm_withdrawal_fee
         DECIMAL inter_bank_transfer_fee
@@ -302,7 +299,7 @@ erDiagram
 - **CORPORATE**: Business customers with company information fields
 
 ### Product Types
-- **SAVINGS**: Savings accounts with interest earnings
+- **SAVINGS**: Savings accounts with profit sharing
 - **CHECKING**: Current accounts with overdraft facilities
 - **LOAN**: Loan products (structure prepared)
 - **CREDIT_CARD**: Credit card products (structure prepared)
@@ -313,7 +310,6 @@ erDiagram
 - **WITHDRAWAL**: Money withdrawn from account
 - **TRANSFER_IN**: Incoming transfer from another account
 - **TRANSFER_OUT**: Outgoing transfer to another account
-- **INTEREST**: Interest earned/charged
 - **FEE**: Various fees charged
 
 ### Transaction Channels
