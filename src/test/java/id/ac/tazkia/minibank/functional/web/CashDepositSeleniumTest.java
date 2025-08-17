@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.functional.web.pageobject.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,10 @@ import lombok.extern.slf4j.Slf4j;
  * Follows the Page Object Model pattern for maintainable and reusable UI automation.
  */
 @Slf4j
+@SqlGroup({
+    @Sql(scripts = "/sql/setup/setup-deposit-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+    @Sql(scripts = "/sql/cleanup/cleanup-deposit-test.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+})
 public class CashDepositSeleniumTest extends BaseSeleniumTest {
     
     @Override

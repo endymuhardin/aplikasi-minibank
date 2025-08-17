@@ -10,6 +10,7 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 id="page-title" class="text-2xl font-bold text-gray-800">Open New Account</h1>
                 <a href="/account/open" 
+                   id="back-to-customer-selection"
                    class="text-gray-600 hover:text-gray-800">
                     ← Back to Customer Selection
                 </a>
@@ -76,17 +77,17 @@
                         <option th:each="product : ${availableProducts}" 
                                 th:value="${product.id}" 
                                 th:text="${product.productName + ' (' + product.productCode + ')'}"
-                                th:data-min-balance="${product.minimumOpeningBalance}"
-                                th:data-description="${product.description}"
                                 th:data-type="${product.productType}"
-                                th:data-category="${product.productCategory}">
+                                th:data-category="${product.productCategory}"
+                                th:data-min-balance="${product.minimumOpeningBalance}"
+                                th:data-description="${product.description}">
                             Product Name
                         </option>
                     </select>
                     <p class="text-sm text-gray-500 mt-1">Choose an Islamic banking product for saving or checking</p>
                 </div>
 
-                <!-- Product Information Display -->
+                <!-- Product Information Display (Client-side managed) -->
                 <div id="product-info" class="hidden bg-blue-50 rounded-lg p-4">
                     <h3 class="text-md font-semibold text-blue-800 mb-2">Product Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -148,6 +149,7 @@
                 <!-- Submit Buttons -->
                 <div class="flex justify-end space-x-4 pt-6">
                     <a href="/account/open" 
+                       id="cancel-button"
                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                         Cancel
                     </a>
@@ -160,7 +162,7 @@
         </div>
     </div>
 
-    <!-- JavaScript for dynamic product information -->
+    <!-- JavaScript for product information display -->
     <script th:inline="javascript">
         function updateProductInfo() {
             const select = document.getElementById('productId');
@@ -171,7 +173,7 @@
                 // Show product information
                 productInfo.classList.remove('hidden');
                 
-                // Update product details
+                // Update product details from data attributes
                 document.getElementById('product-type').textContent = selectedOption.dataset.type || '-';
                 document.getElementById('product-category').textContent = selectedOption.dataset.category || '-';
                 document.getElementById('min-balance').textContent = 'IDR ' + (parseFloat(selectedOption.dataset.minBalance) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2});

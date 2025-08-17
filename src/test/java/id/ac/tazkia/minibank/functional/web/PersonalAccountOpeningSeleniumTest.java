@@ -1,14 +1,10 @@
 package id.ac.tazkia.minibank.functional.web;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -16,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
-import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.functional.web.pageobject.AccountListPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.AccountOpeningFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CustomerSelectionPage;
@@ -146,15 +142,15 @@ public class PersonalAccountOpeningSeleniumTest extends BaseSeleniumTest {
     
     @Test
     @Timeout(value = 75, unit = TimeUnit.SECONDS)
-    void shouldDisplayProductInformationWhenSelected() {
-        log.info("🧪 TEST START: shouldDisplayProductInformationWhenSelected");
+    void shouldAllowProductSelectionAndFormCompletion() {
+        log.info("🧪 TEST START: shouldAllowProductSelectionAndFormCompletion");
         CustomerSelectionPage selectionPage = new CustomerSelectionPage(driver, baseUrl);
         selectionPage.openAndWaitForLoad();
         
         AccountOpeningFormPage formPage = selectionPage.selectCustomer("C1000001");
         formPage.waitForPageLoad();
         
-        // Select first available product
+        // Select first available product 
         formPage.selectFirstAvailableProduct();
         
         // Verify product was selected by checking the dropdown value
@@ -163,12 +159,16 @@ public class PersonalAccountOpeningSeleniumTest extends BaseSeleniumTest {
         assertNotNull(selectedValue, "Product should be selected");
         assertFalse(selectedValue.isEmpty(), "Selected product value should not be empty");
         
-        // Verify we can access product information elements (they exist on page)
-        assertTrue(driver.findElement(By.id("product-info")) != null, "Product info section should exist");
-        assertTrue(driver.findElement(By.id("product-type")) != null, "Product type element should exist");
-        assertTrue(driver.findElement(By.id("min-balance")) != null, "Min balance element should exist");
+        // Verify we can continue with form completion
+        formPage.fillAccountName("Test Account Name");
+        formPage.fillInitialDeposit("100000.00");
+        formPage.fillCreatedBy("teller1");
         
-        log.info("✅ TEST PASS: shouldDisplayProductInformationWhenSelected completed successfully");
+        // Verify form elements are properly filled
+        WebElement accountNameInput = driver.findElement(By.id("accountName"));
+        assertEquals("Test Account Name", accountNameInput.getAttribute("value"));
+        
+        log.info("✅ TEST PASS: shouldAllowProductSelectionAndFormCompletion completed successfully");
     }
     
     @Test

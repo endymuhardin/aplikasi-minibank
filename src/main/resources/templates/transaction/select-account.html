@@ -10,6 +10,7 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 id="page-title" class="text-2xl font-bold text-gray-800">Setoran Tunai - Pilih Rekening</h1>
                 <a href="/transaction/list" 
+                   id="back-to-transaction-list"
                    class="text-gray-600 hover:text-gray-800">
                     ← Kembali ke Daftar Transaksi
                 </a>
@@ -29,6 +30,7 @@
                         Cari
                     </button>
                     <a th:href="@{/transaction/cash-deposit}" 
+                       id="reset-button"
                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                         Reset
                     </a>
@@ -80,6 +82,7 @@
                         </div>
                         <div class="ml-4">
                             <button type="button" 
+                                    th:id="'select-button-' + ${account.id}"
                                     class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                                     onclick="selectAccount([[${account.id}]])">
                                 Pilih Rekening

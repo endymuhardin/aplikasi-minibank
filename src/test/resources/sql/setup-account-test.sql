@@ -8,15 +8,50 @@ VALUES
     ('22222222-2222-2222-2222-222222222222', 'BRANCH2', 'Secondary Branch', false, 'ACTIVE', 'Jl. Thamrin No. 2', 'Jakarta', 'Indonesia', '10230', '021-7654321', 'branch2@minibank.com', 'Manager Two', CURRENT_TIMESTAMP, 'SYSTEM')
 ON CONFLICT (branch_code) DO NOTHING;
 
--- Note: We'll use existing customers from migration data to avoid conflicts
--- The migration already creates customers C1000001-C1000005
--- C1000001: Ahmad Suharto (PERSONAL)
--- C1000002: Budi Santoso (PERSONAL) 
--- C1000003: PT Maju Mundur (CORPORATE)
--- C1000004: PT Teknologi Nusantara (CORPORATE)
--- C1000005: Siti Nurhaliza (PERSONAL)
+-- Insert test customers that tests expect to exist
+-- Clear any existing test customers first
+DELETE FROM personal_customers WHERE id IN (
+    SELECT id FROM customers WHERE customer_number IN ('C1000001', 'C1000002', 'C1000004', 'C1000006')
+);
+DELETE FROM corporate_customers WHERE id IN (
+    SELECT id FROM customers WHERE customer_number = 'C1000003'
+);
+DELETE FROM customers WHERE customer_number IN ('C1000001', 'C1000002', 'C1000003', 'C1000004', 'C1000006');
 
--- Just ensure branches exist since tests might need them
+-- Insert test customers
+INSERT INTO customers (
+    id, customer_type, customer_number, id_branches, email, phone_number, 
+    address, city, postal_code, country, created_by, created_date, updated_by, updated_date
+) VALUES 
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'PERSONAL', 'C1000001', '11111111-1111-1111-1111-111111111111', 'ahmad.suharto@email.com', '081234567890', 
+ 'Jl. Sudirman No. 123', 'Jakarta', '10220', 'Indonesia', 'SYSTEM', CURRENT_TIMESTAMP, 'SYSTEM', CURRENT_TIMESTAMP),
+
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'PERSONAL', 'C1000002', '11111111-1111-1111-1111-111111111111', 'siti.nurhaliza@email.com', '081234567891', 
+ 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'Indonesia', 'SYSTEM', CURRENT_TIMESTAMP, 'SYSTEM', CURRENT_TIMESTAMP),
+
+('cccccccc-cccc-cccc-cccc-cccccccccccc', 'CORPORATE', 'C1000003', '11111111-1111-1111-1111-111111111111', 'info@teknologimaju.com', '02123456789', 
+ 'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'Indonesia', 'SYSTEM', CURRENT_TIMESTAMP, 'SYSTEM', CURRENT_TIMESTAMP),
+
+('dddddddd-dddd-dddd-dddd-dddddddddddd', 'PERSONAL', 'C1000004', '11111111-1111-1111-1111-111111111111', 'budi.santoso@email.com', '081234567892', 
+ 'Jl. Gatot Subroto No. 321', 'Jakarta', '12930', 'Indonesia', 'SYSTEM', CURRENT_TIMESTAMP, 'SYSTEM', CURRENT_TIMESTAMP),
+
+('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'PERSONAL', 'C1000006', '11111111-1111-1111-1111-111111111111', 'dewi.lestari@email.com', '081234567893', 
+ 'Jl. MH Thamrin No. 654', 'Jakarta', '10350', 'Indonesia', 'SYSTEM', CURRENT_TIMESTAMP, 'SYSTEM', CURRENT_TIMESTAMP);
+
+-- Insert personal customer specific data
+INSERT INTO personal_customers (
+    id, first_name, last_name, date_of_birth, identity_number, identity_type
+) VALUES 
+('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Ahmad', 'Suharto', '1985-03-15', '3271081503850001', 'KTP'),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Siti', 'Nurhaliza', '1990-07-22', '3271082207900002', 'KTP'),
+('dddddddd-dddd-dddd-dddd-dddddddddddd', 'Budi', 'Santoso', '1988-11-10', '3271081011880003', 'KTP'),
+('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Dewi', 'Lestari', '1992-05-18', '3271081805920004', 'KTP');
+
+-- Insert corporate customer specific data
+INSERT INTO corporate_customers (
+    id, company_name, company_registration_number, tax_identification_number, contact_person_name, contact_person_title
+) VALUES 
+('cccccccc-cccc-cccc-cccc-cccccccccccc', 'PT. Teknologi Maju', '1234567890123456', '01.234.567.8-901.000', 'John Doe', 'Director');
 
 -- Insert test products suitable for account opening (savings and checking accounts)
 INSERT INTO products (id, product_code, product_name, product_type, product_category, description, is_active, is_default, currency, minimum_opening_balance, minimum_balance, allowed_customer_types, profit_sharing_type, profit_distribution_frequency, is_shariah_compliant, nisbah_customer, nisbah_bank, created_date, created_by)
