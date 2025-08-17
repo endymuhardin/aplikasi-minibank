@@ -1,0 +1,91 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Select Customer - Account Opening - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Select Customer for Account Opening</h1>
+                <a href="/customer/list" 
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    Manage Customers
+                </a>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Search form -->
+            <div class="mb-6">
+                <form method="get" action="/account/open" class="flex gap-4">
+                    <div class="flex-1">
+                        <input type="text" name="search" 
+                               th:value="${param.search}" 
+                               placeholder="Search by customer number, name, or email..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <!-- Customer list -->
+            <div th:if="${customers}" class="space-y-4">
+                <div th:each="customer : ${customers}" 
+                     th:id="'customer-card-' + ${customer.customerNumber}"
+                     class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-2">
+                                <h3 class="text-lg font-semibold text-gray-800" th:text="${customer.displayName}">Customer Name</h3>
+                                <span class="px-2 py-1 text-xs rounded-full"
+                                      th:classappend="${customer.customerType.name() == 'PERSONAL'} ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
+                                      th:text="${customer.customerType.name()}">TYPE</span>
+                                <span class="px-2 py-1 text-xs rounded-full"
+                                      th:classappend="${customer.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                      th:text="${customer.status.name()}">STATUS</span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <p><strong>Customer Number:</strong> <span th:id="'customer-number-' + ${customer.customerNumber}" th:text="${customer.customerNumber}">C1000001</span></p>
+                                <p th:if="${customer.email}"><strong>Email:</strong> <span th:text="${customer.email}">email@example.com</span></p>
+                                <p th:if="${customer.phoneNumber}"><strong>Phone:</strong> <span th:text="${customer.phoneNumber}">081234567890</span></p>
+                                <p th:if="${customer.branch}"><strong>Branch:</strong> <span th:text="${customer.branch.branchName}">Main Branch</span></p>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <a th:id="'open-account-btn-' + ${customer.customerNumber}"
+                               th:href="@{/account/open/{customerId}(customerId=${customer.id})}" 
+                               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors">
+                                Open Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:if="${customers == null or customers.empty}" class="text-center py-8">
+                <div class="text-gray-500 mb-4">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No customers found</h3>
+                <p class="text-gray-500 mb-4">
+                    <span th:if="${param.search}">No customers match your search criteria.</span>
+                    <span th:unless="${param.search}">There are no active customers available for account opening.</span>
+                </p>
+                <a href="/customer/create" class="text-blue-600 hover:text-blue-800">
+                    Create a new customer →
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

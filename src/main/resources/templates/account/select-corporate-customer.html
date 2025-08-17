@@ -1,0 +1,155 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Select Corporate Customer - Account Opening - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-5xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Select Corporate Customer for Account Opening</h1>
+                <div class="flex gap-4">
+                    <a href="/account/open" 
+                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Personal Accounts
+                    </a>
+                    <a href="/customer/list" 
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                        Manage Customers
+                    </a>
+                </div>
+            </div>
+
+            <!-- Info banner -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">Corporate Account Opening</h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p>Corporate accounts require higher minimum deposits and additional documentation. Only active corporate customers are shown below.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Search form -->
+            <div class="mb-6">
+                <form method="get" action="/account/open/corporate" class="flex gap-4">
+                    <div class="flex-1">
+                        <input type="text" name="search" 
+                               th:value="${param.search}" 
+                               placeholder="Search by customer number, company name, or email..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                        Search
+                    </button>
+                </form>
+            </div>
+
+            <!-- Corporate customer list -->
+            <div th:if="${customers}" class="space-y-4">
+                <div th:each="customer : ${customers}" 
+                     class="border border-gray-200 rounded-lg p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-3">
+                                <h3 class="text-xl font-semibold text-gray-800" th:text="${customer.displayName}">Company Name</h3>
+                                <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-800">
+                                    <i class="fas fa-building mr-1"></i>CORPORATE
+                                </span>
+                                <span class="px-3 py-1 text-sm rounded-full"
+                                      th:classappend="${customer.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                      th:text="${customer.status.name()}">STATUS</span>
+                            </div>
+                            
+                            <!-- Corporate-specific information -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div class="space-y-2">
+                                    <p><strong>Customer Number:</strong> <span th:text="${customer.customerNumber}" class="font-mono">C1000001</span></p>
+                                    <p th:if="${customer.email}"><strong>Email:</strong> <span th:text="${customer.email}">email@company.com</span></p>
+                                    <p th:if="${customer.phoneNumber}"><strong>Phone:</strong> <span th:text="${customer.phoneNumber}">021-1234567</span></p>
+                                </div>
+                                
+                                <!-- Corporate customer specific fields -->
+                                <div class="space-y-2" th:if="${customer.customerType.name() == 'CORPORATE'}">
+                                    <div th:with="corp=${customer}">
+                                        <p th:if="${corp.companyRegistrationNumber}">
+                                            <strong>Registration Number:</strong> 
+                                            <span th:text="${corp.companyRegistrationNumber}" class="font-mono">12345678901234</span>
+                                        </p>
+                                        <p th:if="${corp.taxIdentificationNumber}">
+                                            <strong>Tax ID (NPWP):</strong> 
+                                            <span th:text="${corp.taxIdentificationNumber}" class="font-mono">01.234.567.8-901.000</span>
+                                        </p>
+                                        <p th:if="${corp.contactPersonName}">
+                                            <strong>Contact Person:</strong> 
+                                            <span th:text="${corp.contactPersonFullName}">John Doe (Finance Manager)</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Address information -->
+                            <div class="mt-3 text-sm text-gray-600" th:if="${customer.address}">
+                                <p><strong>Address:</strong></p>
+                                <p class="ml-4" th:text="${customer.address + ', ' + customer.city + ' ' + customer.postalCode}">
+                                    Jl. Example St. No. 123, Jakarta 12345
+                                </p>
+                            </div>
+                            
+                            <!-- Branch information -->
+                            <div class="mt-3 text-sm text-gray-600" th:if="${customer.branch}">
+                                <p><strong>Branch:</strong> <span th:text="${customer.branch.branchName}">Main Branch</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Action button -->
+                        <div class="ml-6">
+                            <a th:href="@{/account/open/corporate/{customerId}(customerId=${customer.id})}" 
+                               class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2">
+                                <i class="fas fa-plus-circle"></i>
+                                Open Corporate Account
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:if="${customers == null or customers.empty}" class="text-center py-12">
+                <div class="text-gray-500 mb-4">
+                    <i class="fas fa-building text-6xl text-gray-300 mb-4"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No corporate customers found</h3>
+                <p class="text-gray-500 mb-6">
+                    <span th:if="${param.search}">No corporate customers match your search criteria.</span>
+                    <span th:unless="${param.search}">There are no active corporate customers available for account opening.</span>
+                </p>
+                <div class="space-x-4">
+                    <a href="/customer/create" class="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2">
+                        <i class="fas fa-user-plus"></i>
+                        Create a new corporate customer →
+                    </a>
+                    <span class="text-gray-300">|</span>
+                    <a href="/account/open" class="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2">
+                        <i class="fas fa-user"></i>
+                        Open personal account instead →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

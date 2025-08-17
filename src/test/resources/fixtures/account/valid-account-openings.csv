@@ -1,0 +1,5 @@
+customerNumber,accountName,initialDeposit,createdBy
+C1000001,Ahmad Suharto Personal Savings,100000.00,teller1
+C1000001,Ahmad Suharto Checking Account,250000.00,teller1
+C1000002,Budi Santoso Tabungan Harian,75000.00,teller1
+C1000003,PT Maju Mundur Business Account,500000.00,teller1

@@ -2,6 +2,17 @@
 
 This document provides comprehensive documentation for the Mini Bank application database schema, including all tables, relationships, indexes, and migration information.
 
+## 🔄 Recent Updates
+**Last Updated**: 2024-12-19 - Updated to match current migration files V001-V004
+
+### Key Changes:
+- ✅ **Updated Migration History**: Corrected to reflect actual 4 migration files (V001-V004)
+- ✅ **Branch Integration**: Added missing `id_branches` foreign key to accounts table
+- ✅ **Constraint Documentation**: Added comprehensive business rules constraints for products, accounts, and transactions
+- ✅ **Sample Data Updates**: Updated branch data, user assignments, and sample customer information to match V002 migration
+- ✅ **Islamic Banking Constraints**: Highlighted critical `chk_nisbah_sum` constraint for Islamic banking compliance
+- ✅ **Index Updates**: Corrected indexes to match actual migration implementation
+
 ## Schema Overview
 
 The database consists of three main modules:
@@ -119,6 +130,16 @@ Banking product configurations and rules.
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
 | updated_by | VARCHAR(100) | | User who last updated the record |
 
+**Business Rules Constraints:**
+- **chk_minimum_balances**: Ensures minimum opening balance and minimum balance are non-negative
+- **chk_profit_sharing_ratio**: Validates profit sharing ratio is between 0 and 1
+- **chk_nisbah_customer**: Validates customer nisbah is between 0 and 1 when not null
+- **chk_nisbah_bank**: Validates bank nisbah is between 0 and 1 when not null
+- **chk_nisbah_sum**: **Critical Islamic banking constraint** - ensures customer + bank nisbah = 1.0 for MUDHARABAH/MUSHARAKAH products
+- **chk_fees_positive**: Ensures all fees are non-negative
+- **chk_customer_age**: Validates minimum age <= maximum age when both are specified
+- **chk_launch_retirement_date**: Ensures launch date <= retirement date when both are specified
+
 **Indexes:**
 - `idx_products_product_code` ON product_code
 - `idx_products_product_type` ON product_type
@@ -133,6 +154,7 @@ Customer accounts linked to products.
 | id | UUID | PRIMARY KEY, DEFAULT gen_random_uuid() | Unique identifier |
 | id_customers | UUID | NOT NULL, FK to customers(id) | Customer reference |
 | id_products | UUID | NOT NULL, FK to products(id) | Product reference |
+| id_branches | UUID | NOT NULL, FK to branches(id) | Branch assignment |
 | account_number | VARCHAR(50) | UNIQUE NOT NULL | Business account number |
 | account_name | VARCHAR(200) | NOT NULL | Account display name |
 | balance | DECIMAL(20,2) | DEFAULT 0.00, CHECK >= 0 | Current balance |
@@ -144,9 +166,14 @@ Customer accounts linked to products.
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
 | updated_by | VARCHAR(100) | | User who last updated the record |
 
+**Business Rules Constraints:**
+- **chk_balance_non_negative**: Ensures account balance is always >= 0
+- **chk_closed_date**: Ensures closure date >= opening date when specified
+
 **Indexes:**
 - `idx_accounts_customer` ON id_customers
 - `idx_accounts_product` ON id_products
+- `idx_accounts_branch` ON id_branches
 - `idx_accounts_account_number` ON account_number
 - `idx_accounts_status` ON status
 
@@ -170,6 +197,12 @@ All account transaction records.
 | transaction_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Transaction timestamp |
 | processed_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Processing timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
+
+**Business Rules Constraints:**
+- **chk_amount_positive**: Ensures transaction amount is always > 0
+- **chk_balance_calculation**: **Critical constraint** - validates balance before/after calculation matches transaction type:
+  - For DEPOSIT/TRANSFER_IN: balance_after = balance_before + amount
+  - For WITHDRAWAL/TRANSFER_OUT/FEE: balance_after = balance_before - amount
 
 **Indexes:**
 - `idx_transactions_account` ON id_accounts
@@ -211,7 +244,7 @@ Branch office management and organizational structure.
 | phone_number | VARCHAR(20) | | Branch phone number |
 | email | VARCHAR(100) | | Branch email address |
 | manager_name | VARCHAR(100) | | Branch manager name |
-| is_active | BOOLEAN | DEFAULT true | Active status |
+| status | VARCHAR(20) | DEFAULT 'ACTIVE', CHECK IN ('ACTIVE', 'INACTIVE', 'CLOSED') | Branch status |
 | is_main_branch | BOOLEAN | DEFAULT false | Main branch flag |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
@@ -220,9 +253,9 @@ Branch office management and organizational structure.
 
 **Indexes:**
 - `idx_branches_branch_code` ON branch_code
-- `idx_branches_is_active` ON is_active
+- `idx_branches_branch_name` ON branch_name
+- `idx_branches_status` ON status
 - `idx_branches_is_main_branch` ON is_main_branch
-- `idx_branches_city` ON city
 
 ## User Authentication Tables
 
@@ -240,7 +273,7 @@ System user accounts.
 | last_login | TIMESTAMP | | Last login timestamp |
 | failed_login_attempts | INTEGER | DEFAULT 0 | Failed login counter |
 | locked_until | TIMESTAMP | | Lock expiration timestamp |
-| id_branches | UUID | NOT NULL, FK to branches(id) | Branch assignment |
+| id_branches | UUID | FK to branches(id) | Branch assignment |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
 | updated_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Last update timestamp |
@@ -252,7 +285,7 @@ System user accounts.
 - `idx_users_is_active` ON is_active
 - `idx_users_is_locked` ON is_locked
 - `idx_users_last_login` ON last_login
-- `idx_users_branch` ON id_branches
+- `idx_users_branch` ON id_branches (WHERE id_branches IS NOT NULL)
 
 ### user_passwords
 User password storage (separate table for CRUD operations).
@@ -301,15 +334,12 @@ System permission definitions.
 | permission_name | VARCHAR(100) | NOT NULL | Permission display name |
 | permission_category | VARCHAR(50) | NOT NULL | Permission category |
 | description | TEXT | | Permission description |
-| resource | VARCHAR(100) | | Resource being protected |
-| action | VARCHAR(50) | | Action being performed |
 | created_date | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | Record creation timestamp |
 | created_by | VARCHAR(100) | | User who created the record |
 
 **Indexes:**
 - `idx_permissions_permission_code` ON permission_code
 - `idx_permissions_category` ON permission_category
-- `idx_permissions_resource_action` ON resource, action
 
 ### user_roles
 User-role assignments (many-to-many).
@@ -351,13 +381,10 @@ Role-permission grants (many-to-many).
 
 | Version | File | Description |
 |---------|------|-------------|
-| V001 | V001__create_bank_schema.sql | Initial banking core schema |
-| V002 | V002__insert_initial_data.sql | Initial banking data (products, sequences) |
-| V003 | V003__create_user_permission_schema.sql | User authentication and authorization schema |
-| V004 | V004__insert_roles_permissions_data.sql | Initial roles, permissions, and admin user |
-| V005 | V005__create_branch_schema.sql | Multi-branch organizational structure |
-| V006 | V006__add_branch_relationships.sql | Add branch foreign keys to users and customers |
-| V007 | V007__insert_initial_branch_data.sql | Initial branch data and assignments |
+| V001 | V001__create_bank_schema.sql | Initial banking core schema (branches, customers, products, accounts, transactions) |
+| V002 | V002__insert_initial_data.sql | Initial banking data (branches, sequences, products, sample customers) |
+| V003 | V003__create_user_permission_schema.sql | User authentication and authorization schema (users, roles, permissions) |
+| V004 | V004__insert_roles_permissions_data.sql | Initial roles, permissions, and sample users with BCrypt passwords |
 
 ## Default Data
 
@@ -402,27 +429,31 @@ Three main system roles with hierarchical permissions:
 - **TELLER**: Financial transaction processing  
 - **BRANCH_MANAGER**: Full system access with monitoring and approvals
 
-### Branch Data (V005-V007)
+### Branch Data (V002)
 Multi-branch organizational structure with initial data:
 
 | Branch Code | Branch Name | Address | City | Manager | Status | 
 |-------------|-------------|---------|------|---------|--------|
-| **MAIN** | Main Branch (Kantor Pusat) | Jl. Gatot Subroto No. 1, Jakarta 12190 | Jakarta | System Admin | ACTIVE |
+| **HO001** | Kantor Pusat Jakarta | Jl. Sudirman Kav. 10-11 | Jakarta Pusat | H. Ahmad Surya | ACTIVE |
+| **JKT01** | Cabang Jakarta Timur | Jl. Ahmad Yani No. 45 | Jakarta Timur | Drs. Budi Pratama | ACTIVE |
+| **BDG01** | Cabang Bandung | Jl. Asia Afrika No. 88 | Bandung | H. Siti Nurhalimah | ACTIVE |
+| **SBY01** | Cabang Surabaya | Jl. Pemuda No. 123 | Surabaya | Ir. Wahyu Setiawan | ACTIVE |
+| **YGY01** | Cabang Yogyakarta | Jl. Malioboro No. 56 | Yogyakarta | Dr. Retno Wulandari | ACTIVE |
 
-### Sample Users (V004, V007)
+### Sample Users (V004)
 All sample users have the password: `minibank123` (BCrypt hashed: `$2a$10$6tjICoD1DhK3r82bD4NiSuJ8A4xvf5osh96V7Q4BXFvIXZB3/s7da`)
 
 | Username | Full Name | Email | Role | Branch Assignment | Purpose |
 |----------|-----------|--------|------|------------------|---------|
-| **admin** | System Administrator | admin@yopmail.com | BRANCH_MANAGER | Main Branch | System administration |
-| **manager1** | Branch Manager Jakarta | manager1@yopmail.com | BRANCH_MANAGER | Main Branch | Jakarta branch management |
-| **manager2** | Branch Manager Surabaya | manager2@yopmail.com | BRANCH_MANAGER | Main Branch | Surabaya branch management |
-| **teller1** | Teller Counter 1 | teller1@yopmail.com | TELLER | Main Branch | Transaction processing |
-| **teller2** | Teller Counter 2 | teller2@yopmail.com | TELLER | Main Branch | Transaction processing |
-| **teller3** | Teller Counter 3 | teller3@yopmail.com | TELLER | Main Branch | Transaction processing |
-| **cs1** | Customer Service Staff 1 | cs1@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
-| **cs2** | Customer Service Staff 2 | cs2@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
-| **cs3** | Customer Service Staff 3 | cs3@yopmail.com | CUSTOMER_SERVICE | Main Branch | Customer service |
+| **admin** | System Administrator | admin@yopmail.com | BRANCH_MANAGER | Kantor Pusat Jakarta | System administration |
+| **manager1** | Branch Manager Jakarta | manager1@yopmail.com | BRANCH_MANAGER | Cabang Jakarta Timur | Jakarta branch management |
+| **manager2** | Branch Manager Surabaya | manager2@yopmail.com | BRANCH_MANAGER | Cabang Surabaya | Surabaya branch management |
+| **teller1** | Teller Counter 1 | teller1@yopmail.com | TELLER | Kantor Pusat Jakarta | Transaction processing |
+| **teller2** | Teller Counter 2 | teller2@yopmail.com | TELLER | Cabang Jakarta Timur | Transaction processing |
+| **teller3** | Teller Counter 3 | teller3@yopmail.com | TELLER | Cabang Bandung | Transaction processing |
+| **cs1** | Customer Service Staff 1 | cs1@yopmail.com | CUSTOMER_SERVICE | Kantor Pusat Jakarta | Customer service |
+| **cs2** | Customer Service Staff 2 | cs2@yopmail.com | CUSTOMER_SERVICE | Cabang Jakarta Timur | Customer service |
+| **cs3** | Customer Service Staff 3 | cs3@yopmail.com | CUSTOMER_SERVICE | Cabang Yogyakarta | Customer service |
 
 ### Permission System (V004)
 Detailed permission breakdown by role:

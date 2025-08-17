@@ -1,0 +1,175 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Account List - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Account Management</h1>
+                <a href="/account/open" 
+                   class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    Open New Account
+                </a>
+            </div>
+
+            <!-- Success/Error messages -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Search and filter form -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <form method="get" action="/account/list" class="flex flex-wrap gap-4">
+                    <div class="flex-1 min-w-64">
+                        <input type="text" name="search" 
+                               th:value="${search}" 
+                               placeholder="Search by account number or account name..."
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <select name="status" 
+                                class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Statuses</option>
+                            <option th:each="accountStatus : ${accountStatuses}" 
+                                    th:value="${accountStatus.name()}" 
+                                    th:text="${accountStatus.name()}"
+                                    th:selected="${status == accountStatus.name()}">Status</option>
+                        </select>
+                    </div>
+                    <button id="search-accounts-btn" type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                        Search
+                    </button>
+                    <a href="/account/list" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+                        Clear
+                    </a>
+                </form>
+            </div>
+
+            <!-- Accounts table -->
+            <div th:if="${accounts.content}" class="overflow-x-auto">
+                <table class="min-w-full table-auto border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Account Number</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Account Name</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Customer</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Product</th>
+                            <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Balance</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Status</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Opened Date</th>
+                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-table-body" class="divide-y divide-gray-200">
+                        <tr th:each="account : ${accounts.content}" 
+                            th:id="'account-row-' + ${account.accountNumber}" 
+                            class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm">
+                                <div class="font-medium text-gray-900" 
+                                     th:id="'account-number-' + ${account.accountNumber}"
+                                     th:text="${account.accountNumber}">ACC2000001</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <div class="text-gray-900" th:text="${account.accountName}">Account Name</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <div class="text-gray-900" th:text="${account.customer.displayName}">Customer Name</div>
+                                <div class="text-gray-500 text-xs" th:text="${account.customer.customerNumber}">C1000001</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <div class="text-gray-900" th:text="${account.product.productName}">Product Name</div>
+                                <div class="text-gray-500 text-xs" th:text="${account.product.productType}">TYPE</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-right">
+                                <div class="font-medium text-gray-900">
+                                    IDR <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center">
+                                <span class="px-2 py-1 text-xs rounded-full"
+                                      th:classappend="${account.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 
+                                                     (${account.status.name() == 'INACTIVE'} ? 'bg-yellow-100 text-yellow-800' : 
+                                                     (${account.status.name() == 'CLOSED'} ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))"
+                                      th:text="${account.status.name()}">STATUS</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center text-gray-900">
+                                <span th:text="${#temporals.format(account.openedDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <a th:id="'view-account-' + ${account.accountNumber}"
+                                       th:href="@{/account/view/{id}(id=${account.id})}" 
+                                       class="text-blue-600 hover:text-blue-800 text-xs">View</a>
+                                    <span class="text-gray-300">|</span>
+                                    <a th:id="'transactions-account-' + ${account.accountNumber}"
+                                       th:href="@{/transaction/account/{id}(id=${account.id})}" 
+                                       class="text-green-600 hover:text-green-800 text-xs">Transactions</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty state -->
+            <div th:if="${accounts.content.empty}" class="text-center py-8">
+                <div class="text-gray-500 mb-4">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+                <h3 id="no-accounts-message" class="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
+                <p class="text-gray-500 mb-4">
+                    <span th:if="${search or status}">No accounts match your search criteria.</span>
+                    <span th:unless="${search or status}">There are no accounts in the system yet.</span>
+                </p>
+                <a href="/account/open" class="text-blue-600 hover:text-blue-800">
+                    Open your first account →
+                </a>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${accounts.totalPages > 1}" class="flex justify-between items-center mt-6">
+                <div class="text-sm text-gray-700">
+                    Showing <span th:text="${accounts.numberOfElements}">10</span> of 
+                    <span th:text="${accounts.totalElements}">100</span> accounts
+                </div>
+                <div class="flex space-x-2">
+                    <!-- Previous button -->
+                    <a th:if="${accounts.hasPrevious()}" 
+                       th:href="@{/account/list(page=${accounts.number - 1}, size=${accounts.size}, search=${search}, status=${status})}"
+                       class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        Previous
+                    </a>
+                    
+                    <!-- Page numbers -->
+                    <span th:each="i : ${#numbers.sequence(0, accounts.totalPages - 1)}" th:if="${i >= T(java.lang.Math).max(0, accounts.number - 2) and i <= T(java.lang.Math).min(accounts.totalPages - 1, accounts.number + 2)}">
+                        <a th:if="${i != accounts.number}" 
+                           th:href="@{/account/list(page=${i}, size=${accounts.size}, search=${search}, status=${status})}"
+                           th:text="${i + 1}"
+                           class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        </a>
+                        <span th:if="${i == accounts.number}" 
+                              th:text="${i + 1}"
+                              class="px-3 py-2 text-sm bg-blue-500 text-white border border-blue-500 rounded-md">
+                        </span>
+                    </span>
+                    
+                    <!-- Next button -->
+                    <a th:if="${accounts.hasNext()}" 
+                       th:href="@{/account/list(page=${accounts.number + 1}, size=${accounts.size}, search=${search}, status=${status})}"
+                       class="px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        Next
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
