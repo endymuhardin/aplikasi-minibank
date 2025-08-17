@@ -8,7 +8,7 @@
     <div layout:fragment="content" class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Select Customer for Account Opening</h1>
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Select Customer for Account Opening</h1>
                 <a href="/customer/list" 
                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
                     Manage Customers
@@ -24,12 +24,12 @@
             <div class="mb-6">
                 <form method="get" action="/account/open" class="flex gap-4">
                     <div class="flex-1">
-                        <input type="text" name="search" 
+                        <input type="text" name="search" id="search-input"
                                th:value="${param.search}" 
                                placeholder="Search by customer number, name, or email..."
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                    <button id="search-button" type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
                         Search
                     </button>
                 </form>
@@ -39,7 +39,7 @@
             <div th:if="${customers}" class="space-y-4">
                 <div th:each="customer : ${customers}" 
                      th:id="'customer-card-' + ${customer.customerNumber}"
-                     class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                     class="customer-card border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <div class="flex items-center gap-4 mb-2">
@@ -76,7 +76,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No customers found</h3>
+                <h3 id="no-customers-message" class="text-lg font-medium text-gray-900 mb-2">No customers found</h3>
                 <p class="text-gray-500 mb-4">
                     <span th:if="${param.search}">No customers match your search criteria.</span>
                     <span th:unless="${param.search}">There are no active customers available for account opening.</span>

@@ -91,4 +91,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     
     @Query("SELECT t FROM Transaction t WHERE t.account.id = :accountId ORDER BY t.transactionDate DESC LIMIT 1")
     Optional<Transaction> findLastTransactionByAccountId(@Param("accountId") UUID accountId);
+    
+    // Search methods for transaction list
+    Page<Transaction> findByTransactionNumberContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+        String transactionNumber, String description, Pageable pageable);
+    
+    Page<Transaction> findByTransactionType(Transaction.TransactionType transactionType, Pageable pageable);
 }

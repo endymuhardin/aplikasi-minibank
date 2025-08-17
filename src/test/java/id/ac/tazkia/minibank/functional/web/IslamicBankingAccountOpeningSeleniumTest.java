@@ -67,6 +67,9 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
     void shouldOpenTabunganWadiahAccountSuccessfully() {
         log.info("🧪 TEST START: shouldOpenTabunganWadiahAccountSuccessfully");
         
+        // Debug: Check if customer data exists in database
+        debugCustomerData();
+        
         // Find TABUNGAN_WADIAH product
         Optional<Product> wadiahProduct = productRepository.findAll().stream()
             .filter(p -> p.getProductType() == Product.ProductType.TABUNGAN_WADIAH)
@@ -104,7 +107,8 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.getSuccessMessage().contains("Account opened successfully"));
         
         // Verify Islamic banking compliance
-        List<Account> accounts = accountRepository.findAll();
+        // Use eager loading to avoid LazyInitializationException
+        List<Account> accounts = accountRepository.findAllWithProduct();
         Account wadiahAccount = accounts.stream()
             .filter(a -> a.getProduct().getProductType() == Product.ProductType.TABUNGAN_WADIAH)
             .max((a1, a2) -> a1.getCreatedDate().compareTo(a2.getCreatedDate()))
@@ -165,7 +169,7 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isSuccessMessageDisplayed());
         
         // Verify profit sharing compliance
-        List<Account> accounts = accountRepository.findAll();
+        List<Account> accounts = accountRepository.findAllWithProduct();
         Account mudharabahAccount = accounts.stream()
             .filter(a -> a.getProduct().getProductType() == Product.ProductType.TABUNGAN_MUDHARABAH)
             .max((a1, a2) -> a1.getCreatedDate().compareTo(a2.getCreatedDate()))
@@ -198,10 +202,14 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
     void shouldOpenDepositoMudharabahWithTermDeposit() {
         log.info("🧪 TEST START: shouldOpenDepositoMudharabahWithTermDeposit");
         
-        // Find DEPOSITO_MUDHARABAH product
+        // Find DEPOSITO_MUDHARABAH product suitable for CORPORATE customers (C1000003)
         Optional<Product> depositoProduct = productRepository.findAll().stream()
             .filter(p -> p.getProductType() == Product.ProductType.DEPOSITO_MUDHARABAH)
             .filter(Product::getIsActive)
+            .filter(p -> {
+                String allowedTypes = p.getAllowedCustomerTypes();
+                return allowedTypes == null || allowedTypes.isEmpty() || allowedTypes.contains("CORPORATE");
+            })
             .findFirst();
         
         if (depositoProduct.isEmpty()) {
@@ -238,7 +246,7 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         assertTrue(listPage.isSuccessMessageDisplayed());
         
         // Verify deposito-specific characteristics
-        List<Account> accounts = accountRepository.findAll();
+        List<Account> accounts = accountRepository.findAllWithProduct();
         Account depositoAccount = accounts.stream()
             .filter(a -> a.getProduct().getProductType() == Product.ProductType.DEPOSITO_MUDHARABAH)
             .max((a1, a2) -> a1.getCreatedDate().compareTo(a2.getCreatedDate()))
@@ -264,6 +272,10 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         Transaction initialTransaction = transactions.get(0);
         assertEquals(Transaction.TransactionType.DEPOSIT, initialTransaction.getTransactionType());
         assertEquals(depositAmount, initialTransaction.getAmount());
+        assertEquals(0, initialTransaction.getBalanceBefore().compareTo(BigDecimal.ZERO), "Balance before should be zero");
+        assertEquals(depositAmount, initialTransaction.getBalanceAfter());
+        assertEquals("Initial deposit for account opening", initialTransaction.getDescription());
+        assertEquals(Transaction.TransactionChannel.TELLER, initialTransaction.getChannel());
         
         log.info("✅ TEST PASS: shouldOpenDepositoMudharabahWithTermDeposit completed successfully");
     }
@@ -283,8 +295,16 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         // Verify that only Islamic banking products are available
         // This test assumes the UI filters products appropriately
         
-        // Find all active Islamic banking products from database
+        // Find Islamic banking products available for PERSONAL customers (matching controller logic)
         List<Product> islamicProducts = productRepository.findByIsActiveTrue().stream()
+            .filter(p -> {
+                // Apply same customer type filtering as controller
+                String allowedTypes = p.getAllowedCustomerTypes();
+                if (allowedTypes == null || allowedTypes.isEmpty()) {
+                    return true;
+                }
+                return allowedTypes.contains("PERSONAL"); // C1000001 is PERSONAL customer
+            })
             .filter(p -> p.getProductType() == Product.ProductType.TABUNGAN_WADIAH ||
                         p.getProductType() == Product.ProductType.TABUNGAN_MUDHARABAH ||
                         p.getProductType() == Product.ProductType.DEPOSITO_MUDHARABAH ||
@@ -296,10 +316,19 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         
         // Test product selection and information display
         for (Product product : islamicProducts.subList(0, Math.min(3, islamicProducts.size()))) {
+            log.info("🧪 Testing product: {} (ID: {}, Type: {}, AllowedTypes: {})", 
+                    product.getProductName(), product.getId(), product.getProductType(), product.getAllowedCustomerTypes());
+            
             formPage.selectProductByValue(product.getId().toString());
             
+            // Wait for JavaScript to update the product information section
+            // The selectProductByValue method should already handle this via the page object
+            
             // Verify product information is displayed
-            assertTrue(formPage.isProductInfoDisplayed(), 
+            boolean infoDisplayed = formPage.isProductInfoDisplayed();
+            log.info("🔍 Product info displayed for {}: {}", product.getProductName(), infoDisplayed);
+            
+            assertTrue(infoDisplayed, 
                       "Product information should be displayed for " + product.getProductName());
             
             String displayedType = formPage.getProductType();
@@ -424,7 +453,7 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         Optional<Customer> customer = customerRepository.findByCustomerNumber("C1000001");
         assertTrue(customer.isPresent());
         
-        List<Account> customerAccounts = accountRepository.findByCustomer(customer.get());
+        List<Account> customerAccounts = accountRepository.findByCustomerWithProduct(customer.get());
         
         boolean hasWadiah = customerAccounts.stream()
             .anyMatch(a -> a.getProduct().getProductType() == Product.ProductType.TABUNGAN_WADIAH);
@@ -435,5 +464,26 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
         assertTrue(hasMudharabah, "Customer should have MUDHARABAH account");
         
         log.info("✅ TEST PASS: shouldAllowMultipleIslamicAccountsForSameCustomer completed successfully");
+    }
+    
+    private void debugCustomerData() {
+        List<Customer> allCustomers = customerRepository.findAll();
+        List<Customer> activeCustomers = customerRepository.findByStatus(Customer.CustomerStatus.ACTIVE);
+        
+        log.info("🔍 DATABASE DEBUG: Total customers in database: {}", allCustomers.size());
+        log.info("🔍 DATABASE DEBUG: Active customers in database: {}", activeCustomers.size());
+        
+        allCustomers.forEach(customer -> {
+            log.info("📋 CUSTOMER: {} - Status: {} - Type: {}", 
+                    customer.getCustomerNumber(), 
+                    customer.getStatus(),
+                    customer.getCustomerType());
+        });
+        
+        if (activeCustomers.isEmpty()) {
+            log.error("❌ CRITICAL: No active customers found in database!");
+        } else {
+            log.info("✅ CUSTOMER DATA: {} active customers available for selection", activeCustomers.size());
+        }
     }
 }

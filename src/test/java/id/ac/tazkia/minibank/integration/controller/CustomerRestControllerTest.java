@@ -17,7 +17,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.http.MediaType;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
 import id.ac.tazkia.minibank.controller.rest.CustomerRestController;
 import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
@@ -33,8 +36,10 @@ import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 
-@WebMvcTest(CustomerRestController.class)
-@WithMockUser
+@SpringBootTest
+@AutoConfigureMockMvc
+@WithMockUser(authorities = {"CUSTOMER_VIEW", "CUSTOMER_CREATE"})
+@Import(PostgresTestContainersConfiguration.class)
 public class CustomerRestControllerTest {
 
     @Autowired
@@ -108,12 +113,12 @@ public class CustomerRestControllerTest {
 
     @Test
     public void testRegisterPersonalCustomerWithValidationErrors() throws Exception {
-        PersonalCustomer customer = new PersonalCustomer();
-        // Missing required fields to trigger validation errors
+        // Create empty request DTO with missing required fields to trigger validation errors
+        String requestJson = "{}";
 
         mockMvc.perform(post("/api/customers/personal/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer))
+                .content(requestJson)
                 .with(csrf()))
                 .andExpect(status().isBadRequest());
     }
@@ -170,12 +175,12 @@ public class CustomerRestControllerTest {
 
     @Test
     public void testRegisterCorporateCustomerWithValidationErrors() throws Exception {
-        CorporateCustomer customer = new CorporateCustomer();
-        // Missing required fields to trigger validation errors
+        // Create empty request DTO with missing required fields to trigger validation errors
+        String requestJson = "{}";
 
         mockMvc.perform(post("/api/customers/corporate/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(customer))
+                .content(requestJson)
                 .with(csrf()))
                 .andExpect(status().isBadRequest());
     }

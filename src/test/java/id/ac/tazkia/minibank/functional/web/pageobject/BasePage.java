@@ -128,6 +128,11 @@ public abstract class BasePage {
     }
     
     protected void clearAndType(WebElement element, String text) {
+        // Handle null text values
+        if (text == null) {
+            throw new IllegalArgumentException("Keys to send should be a not null CharSequence");
+        }
+        
         // Scroll element into view first
         ((JavascriptExecutor) driver).executeScript(
             "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element

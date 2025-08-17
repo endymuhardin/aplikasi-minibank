@@ -29,6 +29,7 @@ import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
+import id.ac.tazkia.minibank.service.AccountService;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class AccountController {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final SequenceNumberService sequenceNumberService;
     
     @GetMapping("/list")
@@ -120,7 +122,7 @@ public class AccountController {
         AccountOpeningRequest accountRequest = new AccountOpeningRequest();
         accountRequest.setCustomerId(customerId);
         
-        List<Product> availableProducts = getAvailableProductsForCustomer(customer);
+        List<Product> availableProducts = accountService.getAvailableProductsForCustomer(customer);
         
         model.addAttribute(ACCOUNT_ATTR, accountRequest);
         model.addAttribute("customer", customer);
@@ -140,58 +142,11 @@ public class AccountController {
         }
         
         try {
-            Optional<Customer> customerOpt = customerRepository.findById(accountRequest.getCustomerId());
-            if (customerOpt.isEmpty()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
-                return prepareFormWithErrors(accountRequest, model, null);
-            }
-            
-            Customer customer = customerOpt.get();
-            
-            Optional<Product> productOpt = productRepository.findById(accountRequest.getProductId());
-            if (productOpt.isEmpty()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
-                return prepareFormWithErrors(accountRequest, model, null);
-            }
-            
-            Product product = productOpt.get();
-            
-            if (!product.getIsActive()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, "Selected product is not active");
-                return prepareFormWithErrors(accountRequest, model, null);
-            }
-            
-            String allowedTypes = product.getAllowedCustomerTypes();
-            if (allowedTypes != null && !allowedTypes.isEmpty()) {
-                String customerType = customer.getCustomerType().name();
-                if (!allowedTypes.contains(customerType)) {
-                    model.addAttribute(ERROR_MESSAGE_ATTR, "Product not available for " + customerType + " customers");
-                    return prepareFormWithErrors(accountRequest, model, null);
-                }
-            }
-            
-            if (accountRequest.getInitialDeposit().compareTo(product.getMinimumOpeningBalance()) < 0) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, 
-                    "Initial deposit must be at least " + product.getMinimumOpeningBalance());
-                return prepareFormWithErrors(accountRequest, model, null);
-            }
-            
-            String accountNumber = generateAccountNumber();
-            
-            Account account = new Account();
-            account.setCustomer(customer);
-            account.setProduct(product);
-            account.setBranch(customer.getBranch());
-            account.setAccountNumber(accountNumber);
-            account.setAccountName(accountRequest.getAccountName());
-            account.setBalance(accountRequest.getInitialDeposit());
-            account.setStatus(Account.AccountStatus.ACTIVE);
-            account.setCreatedBy(accountRequest.getCreatedBy() != null ? accountRequest.getCreatedBy() : "SYSTEM");
-            
-            accountRepository.save(account);
+            // Use service layer for account opening business logic
+            Account account = accountService.openAccount(accountRequest);
             
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, 
-                "Account opened successfully. Account Number: " + accountNumber);
+                "Account opened successfully. Account Number: " + account.getAccountNumber());
             return ACCOUNT_LIST_REDIRECT;
             
         } catch (Exception e) {
@@ -205,35 +160,24 @@ public class AccountController {
         Optional<Customer> customerOpt = customerRepository.findById(accountRequest.getCustomerId());
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
-            List<Product> availableProducts = getAvailableProductsForCustomer(customer);
+            List<Product> availableProducts = accountService.getAvailableProductsForCustomer(customer);
             
             model.addAttribute(ACCOUNT_ATTR, accountRequest);
             model.addAttribute("customer", customer);
             model.addAttribute("availableProducts", availableProducts);
+            
+            // Add validation errors if present
+            if (bindingResult != null && bindingResult.hasErrors()) {
+                List<String> validationErrors = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .toList();
+                model.addAttribute("validationErrors", validationErrors);
+            }
         }
         
         return ACCOUNT_FORM_VIEW;
     }
     
-    private List<Product> getAvailableProductsForCustomer(Customer customer) {
-        List<Product> activeProducts = productRepository.findByIsActiveTrue();
-        
-        return activeProducts.stream()
-                .filter(product -> {
-                    String allowedTypes = product.getAllowedCustomerTypes();
-                    if (allowedTypes == null || allowedTypes.isEmpty()) {
-                        return true;
-                    }
-                    return allowedTypes.contains(customer.getCustomerType().name());
-                })
-                .filter(product -> 
-                    product.getProductType() == Product.ProductType.TABUNGAN_WADIAH ||
-                    product.getProductType() == Product.ProductType.TABUNGAN_MUDHARABAH ||
-                    product.getProductType() == Product.ProductType.SAVINGS ||
-                    product.getProductType() == Product.ProductType.CHECKING
-                )
-                .toList();
-    }
     
     // Corporate Account Opening Endpoints
     
@@ -284,7 +228,7 @@ public class AccountController {
         AccountOpeningRequest accountRequest = new AccountOpeningRequest();
         accountRequest.setCustomerId(customerId);
         
-        List<Product> availableProducts = getAvailableProductsForCorporateCustomer(customer);
+        List<Product> availableProducts = accountService.getAvailableProductsForCustomer(customer);
         
         model.addAttribute(ACCOUNT_ATTR, accountRequest);
         model.addAttribute("customer", customer);
@@ -306,66 +250,11 @@ public class AccountController {
         }
         
         try {
-            Optional<Customer> customerOpt = customerRepository.findById(accountRequest.getCustomerId());
-            if (customerOpt.isEmpty()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
-                return prepareCorporateFormWithErrors(accountRequest, model, null);
-            }
-            
-            Customer customer = customerOpt.get();
-            if (customer.getCustomerType() != Customer.CustomerType.CORPORATE) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, "Selected customer is not a corporate customer");
-                return prepareCorporateFormWithErrors(accountRequest, model, null);
-            }
-            
-            Optional<Product> productOpt = productRepository.findById(accountRequest.getProductId());
-            if (productOpt.isEmpty()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, PRODUCT_NOT_FOUND_MSG);
-                return prepareCorporateFormWithErrors(accountRequest, model, null);
-            }
-            
-            Product product = productOpt.get();
-            
-            if (!product.getIsActive()) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, "Selected product is not active");
-                return prepareCorporateFormWithErrors(accountRequest, model, null);
-            }
-            
-            // Validate customer type eligibility
-            String allowedTypes = product.getAllowedCustomerTypes();
-            if (allowedTypes != null && !allowedTypes.isEmpty()) {
-                String customerType = customer.getCustomerType().name();
-                if (!allowedTypes.contains(customerType)) {
-                    model.addAttribute(ERROR_MESSAGE_ATTR, "Product not available for " + customerType + " customers");
-                    return prepareCorporateFormWithErrors(accountRequest, model, null);
-                }
-            }
-            
-            // Corporate-specific validation: higher minimum amounts
-            BigDecimal corporateMinimum = getCorporateMinimumDeposit(product);
-            if (accountRequest.getInitialDeposit().compareTo(corporateMinimum) < 0) {
-                model.addAttribute(ERROR_MESSAGE_ATTR, 
-                    "Initial deposit for corporate accounts must be at least " + corporateMinimum);
-                return prepareCorporateFormWithErrors(accountRequest, model, null);
-            }
-            
-            // Generate corporate account number with different prefix
-            String accountNumber = generateCorporateAccountNumber();
-            
-            Account account = new Account();
-            account.setCustomer(customer);
-            account.setProduct(product);
-            account.setBranch(customer.getBranch());
-            account.setAccountNumber(accountNumber);
-            account.setAccountName(accountRequest.getAccountName());
-            account.setBalance(accountRequest.getInitialDeposit());
-            account.setStatus(Account.AccountStatus.ACTIVE);
-            account.setCreatedBy(accountRequest.getCreatedBy() != null ? accountRequest.getCreatedBy() : "SYSTEM");
-            
-            accountRepository.save(account);
+            // Use service layer for corporate account opening business logic
+            Account account = accountService.openCorporateAccount(accountRequest);
             
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, 
-                "Corporate account opened successfully. Account Number: " + accountNumber);
+                "Corporate account opened successfully. Account Number: " + account.getAccountNumber());
             return ACCOUNT_LIST_REDIRECT;
             
         } catch (Exception e) {
@@ -379,7 +268,7 @@ public class AccountController {
         Optional<Customer> customerOpt = customerRepository.findById(accountRequest.getCustomerId());
         if (customerOpt.isPresent()) {
             Customer customer = customerOpt.get();
-            List<Product> availableProducts = getAvailableProductsForCorporateCustomer(customer);
+            List<Product> availableProducts = accountService.getAvailableProductsForCustomer(customer);
             
             model.addAttribute(ACCOUNT_ATTR, accountRequest);
             model.addAttribute("customer", customer);
@@ -391,38 +280,6 @@ public class AccountController {
         return "account/corporate-form";
     }
     
-    private List<Product> getAvailableProductsForCorporateCustomer(Customer customer) {
-        List<Product> activeProducts = productRepository.findByIsActiveTrue();
-        
-        return activeProducts.stream()
-                .filter(product -> {
-                    String allowedTypes = product.getAllowedCustomerTypes();
-                    if (allowedTypes == null || allowedTypes.isEmpty()) {
-                        return true;
-                    }
-                    return allowedTypes.contains("CORPORATE");
-                })
-                .filter(product -> 
-                    product.getProductType() == Product.ProductType.TABUNGAN_WADIAH ||
-                    product.getProductType() == Product.ProductType.TABUNGAN_MUDHARABAH ||
-                    product.getProductType() == Product.ProductType.SAVINGS ||
-                    product.getProductType() == Product.ProductType.CHECKING
-                )
-                .toList();
-    }
     
-    private BigDecimal getCorporateMinimumDeposit(Product product) {
-        // Corporate accounts typically require higher minimums
-        BigDecimal baseMinimum = product.getMinimumOpeningBalance();
-        BigDecimal corporateMultiplier = new BigDecimal("5.0"); // 5x minimum for corporate
-        return baseMinimum.multiply(corporateMultiplier);
-    }
     
-    private String generateCorporateAccountNumber() {
-        return sequenceNumberService.generateNextSequence("CORPORATE_ACCOUNT_NUMBER", "CORP");
-    }
-    
-    private String generateAccountNumber() {
-        return sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "ACC");
-    }
 }
