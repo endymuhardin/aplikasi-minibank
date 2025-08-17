@@ -12,13 +12,13 @@ public class AccountOpeningFormPage extends BasePage {
     
     // Page elements - using ID-based locators for reliability
     private static final By PAGE_TITLE = By.id("page-title");
-    private static final By BACK_TO_SELECTION_LINK = By.linkText("← Back to Customer Selection");
+    private static final By BACK_TO_SELECTION_LINK = By.id("back-to-customer-selection");
     private static final By PRODUCT_DROPDOWN = By.id("productId");
     private static final By ACCOUNT_NAME_INPUT = By.id("accountName");
     private static final By INITIAL_DEPOSIT_INPUT = By.id("initialDeposit");
     private static final By CREATED_BY_INPUT = By.id("createdBy");
     private static final By SUBMIT_BUTTON = By.id("open-account-submit-btn");
-    private static final By CANCEL_LINK = By.linkText("Cancel");
+    private static final By CANCEL_LINK = By.id("cancel-button");
     
     // Product information section
     private static final By PRODUCT_INFO_SECTION = By.id("product-info");
@@ -81,7 +81,7 @@ public class AccountOpeningFormPage extends BasePage {
         WebElement productDropdown = driver.findElement(PRODUCT_DROPDOWN);
         selectDropdownByText(productDropdown, productName);
         
-        // Optional: Try to trigger the onChange event, but don't wait for JavaScript
+        // Trigger onChange event to update product info display
         try {
             ((JavascriptExecutor) driver).executeScript(
                 "var event = new Event('change', { bubbles: true }); " +
@@ -99,25 +99,12 @@ public class AccountOpeningFormPage extends BasePage {
         WebElement productDropdown = driver.findElement(PRODUCT_DROPDOWN);
         selectDropdownByValue(productDropdown, productId);
         
-        // Trigger the onChange event and wait for product info to update
+        // Trigger the onChange event to update product info display
         try {
             ((JavascriptExecutor) driver).executeScript(
                 "var event = new Event('change', { bubbles: true }); " +
                 "arguments[0].dispatchEvent(event);", productDropdown);
             log.debug("Triggered onChange event for product selection");
-            
-            // Wait for product info to become visible (if it should)
-            try {
-                wait.until(org.openqa.selenium.support.ui.ExpectedConditions.or(
-                    org.openqa.selenium.support.ui.ExpectedConditions.attributeContains(PRODUCT_INFO_SECTION, "class", ""),
-                    org.openqa.selenium.support.ui.ExpectedConditions.not(
-                        org.openqa.selenium.support.ui.ExpectedConditions.attributeContains(PRODUCT_INFO_SECTION, "class", "hidden")
-                    )
-                ));
-                log.debug("Product information section updated after selection");
-            } catch (Exception waitException) {
-                log.debug("Product info section may not have updated or doesn't exist: {}", waitException.getMessage());
-            }
         } catch (Exception e) {
             log.debug("Could not trigger onChange event, but product is still selected: {}", e.getMessage());
         }
@@ -130,7 +117,11 @@ public class AccountOpeningFormPage extends BasePage {
         WebElement productDropdown = driver.findElement(PRODUCT_DROPDOWN);
         selectFirstNonEmptyOption(productDropdown);
         
-        // Optional: Try to trigger the onChange event, but don't wait for JavaScript
+        // Debug: Check what product was selected
+        String selectedValue = productDropdown.getAttribute("value");
+        log.debug("Selected product ID: {}", selectedValue);
+        
+        // Trigger onChange event to update product info display  
         try {
             ((JavascriptExecutor) driver).executeScript(
                 "var event = new Event('change', { bubbles: true }); " +
@@ -202,17 +193,13 @@ public class AccountOpeningFormPage extends BasePage {
     // Validation and information methods
     public boolean isProductInfoDisplayed() {
         try {
-            // First check if element exists
             WebElement productInfo = driver.findElement(PRODUCT_INFO_SECTION);
+            boolean isDisplayed = productInfo.isDisplayed();
             
-            // Check if the element does not have the 'hidden' class
-            String classAttribute = productInfo.getAttribute("class");
-            boolean isVisible = classAttribute == null || !classAttribute.contains("hidden");
-            
-            log.debug("Product info section classes: {}, isVisible: {}", classAttribute, isVisible);
-            return isVisible;
+            log.debug("Product info section - isDisplayed: {}", isDisplayed);
+            return isDisplayed;
         } catch (Exception e) {
-            log.debug("Product information section not found or not accessible: {}", e.getMessage());
+            log.debug("Product information section not found: {}", e.getMessage());
             return false;
         }
     }
