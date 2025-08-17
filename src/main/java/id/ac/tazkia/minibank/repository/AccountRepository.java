@@ -3,6 +3,8 @@ package id.ac.tazkia.minibank.repository;
 import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,4 +68,9 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     
     @Query("SELECT a FROM Account a JOIN FETCH a.customer JOIN FETCH a.product WHERE a.accountNumber = :accountNumber")
     Optional<Account> findByAccountNumberWithDetails(@Param("accountNumber") String accountNumber);
+    
+    Page<Account> findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
+        String accountNumber, String accountName, Pageable pageable);
+    
+    Page<Account> findByStatus(Account.AccountStatus status, Pageable pageable);
 }

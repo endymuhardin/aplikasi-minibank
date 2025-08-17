@@ -1,0 +1,278 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Open Corporate Account - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-5xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Open Corporate Account</h1>
+                <a href="/account/open/corporate" 
+                   class="text-gray-600 hover:text-gray-800">
+                    ← Back to Corporate Customer Selection
+                </a>
+            </div>
+
+            <!-- Success message -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Validation errors -->
+            <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div class="font-medium mb-2">Please correct the following errors:</div>
+                <ul class="list-disc list-inside space-y-1">
+                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                </ul>
+            </div>
+
+            <!-- Corporate Customer Information Section -->
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-building text-purple-600"></i>
+                    Corporate Customer Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 mb-3">
+                            <h3 class="text-xl font-bold text-gray-900" th:text="${customer.displayName}">Company Name</h3>
+                            <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-800">
+                                <i class="fas fa-building mr-1"></i>CORPORATE
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600"><strong>Customer Number:</strong> 
+                            <span th:text="${customer.customerNumber}" class="font-mono text-gray-900">C1000001</span>
+                        </p>
+                        <p class="text-sm text-gray-600" th:if="${customer.email}"><strong>Email:</strong> 
+                            <span th:text="${customer.email}" class="text-gray-900">email@company.com</span>
+                        </p>
+                        <p class="text-sm text-gray-600" th:if="${customer.phoneNumber}"><strong>Phone:</strong> 
+                            <span th:text="${customer.phoneNumber}" class="text-gray-900">021-1234567</span>
+                        </p>
+                    </div>
+                    <div class="space-y-3">
+                        <!-- Corporate-specific information -->
+                        <div th:if="${corporateCustomer}">
+                            <p class="text-sm text-gray-600" th:if="${corporateCustomer.companyRegistrationNumber}">
+                                <strong>Registration Number:</strong> 
+                                <span th:text="${corporateCustomer.companyRegistrationNumber}" class="font-mono text-gray-900">12345678901234</span>
+                            </p>
+                            <p class="text-sm text-gray-600" th:if="${corporateCustomer.taxIdentificationNumber}">
+                                <strong>Tax ID (NPWP):</strong> 
+                                <span th:text="${corporateCustomer.taxIdentificationNumber}" class="font-mono text-gray-900">01.234.567.8-901.000</span>
+                            </p>
+                            <p class="text-sm text-gray-600" th:if="${corporateCustomer.contactPersonName}">
+                                <strong>Contact Person:</strong> 
+                                <span th:text="${corporateCustomer.contactPersonFullName}" class="text-gray-900">John Doe (Finance Manager)</span>
+                            </p>
+                        </div>
+                        <p class="text-sm text-gray-600" th:if="${customer.branch}"><strong>Branch:</strong> 
+                            <span th:text="${customer.branch.branchName}" class="text-gray-900">Main Branch</span>
+                        </p>
+                        <p class="text-sm text-gray-600"><strong>Status:</strong> 
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  th:classappend="${customer.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  th:text="${customer.status.name()}">STATUS</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Corporate Account Opening Form -->
+            <form th:action="@{/account/open/corporate}" th:object="${accountRequest}" method="post" class="space-y-6">
+                <input type="hidden" th:field="*{customerId}">
+                
+                <!-- Corporate Account Type Selection -->
+                <div>
+                    <label for="productId" class="block text-sm font-medium text-gray-700 mb-1">
+                        Select Corporate Banking Product <span class="text-red-500">*</span>
+                    </label>
+                    <select id="productId" name="productId" th:field="*{productId}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            required onchange="updateCorporateProductInfo()">
+                        <option value="">-- Select a Corporate Banking Product --</option>
+                        <option th:each="product : ${availableProducts}" 
+                                th:value="${product.id}" 
+                                th:text="${product.productName + ' (' + product.productCode + ')'}"
+                                th:data-min-balance="${product.minimumOpeningBalance}"
+                                th:data-corporate-min="${product.minimumOpeningBalance * 5}"
+                                th:data-description="${product.description}"
+                                th:data-type="${product.productType}"
+                                th:data-category="${product.productCategory}">
+                            Product Name
+                        </option>
+                    </select>
+                    <p class="text-sm text-gray-500 mt-1">Choose an Islamic banking product suitable for corporate customers</p>
+                </div>
+
+                <!-- Corporate Product Information Display -->
+                <div id="corporate-product-info" class="hidden bg-purple-50 rounded-lg p-4">
+                    <h3 class="text-md font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i>
+                        Corporate Product Details
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p><strong>Product Type:</strong> <span id="corporate-product-type">-</span></p>
+                            <p><strong>Category:</strong> <span id="corporate-product-category">-</span></p>
+                        </div>
+                        <div>
+                            <p><strong>Standard Minimum:</strong> <span id="standard-min-balance">-</span></p>
+                            <p><strong class="text-purple-700">Corporate Minimum:</strong> <span id="corporate-min-balance" class="font-semibold text-purple-700">-</span></p>
+                        </div>
+                    </div>
+                    <p class="mt-3"><strong>Description:</strong> <span id="corporate-product-description">-</span></p>
+                    <div class="mt-3 p-3 bg-purple-100 rounded border-l-4 border-purple-500">
+                        <p class="text-sm text-purple-700">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            <strong>Corporate Account Requirements:</strong> Corporate accounts require higher minimum deposits (5x standard minimum) and additional documentation for compliance purposes.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Corporate Account Name -->
+                <div>
+                    <label for="accountName" class="block text-sm font-medium text-gray-700 mb-1">
+                        Corporate Account Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="accountName" name="accountName" 
+                           th:field="*{accountName}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="e.g., PT. Technology Maju - Business Operations Account"
+                           maxlength="200"
+                           required>
+                    <p class="text-sm text-gray-500 mt-1">Descriptive name for this corporate account (max 200 characters)</p>
+                </div>
+
+                <!-- Corporate Initial Deposit -->
+                <div>
+                    <label for="initialDeposit" class="block text-sm font-medium text-gray-700 mb-1">
+                        Initial Deposit <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2 text-gray-500 font-semibold">IDR</span>
+                        <input type="number" id="initialDeposit" name="initialDeposit" 
+                               th:field="*{initialDeposit}"
+                               class="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00"
+                               required>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Amount to deposit when opening the corporate account</p>
+                    <p id="corporate-min-deposit-warning" class="text-sm text-red-600 mt-1 hidden">
+                        Initial deposit must meet the corporate minimum opening balance requirement.
+                    </p>
+                    <div id="corporate-deposit-info" class="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded hidden">
+                        <p class="text-sm text-yellow-800">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <strong>Corporate Banking:</strong> Higher minimum deposits ensure better service levels and preferential rates for corporate customers.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Account Manager/Opened By -->
+                <div>
+                    <label for="createdBy" class="block text-sm font-medium text-gray-700 mb-1">
+                        Opened By (Account Manager)
+                    </label>
+                    <input type="text" id="createdBy" name="createdBy" 
+                           th:field="*{createdBy}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="Account manager or relationship manager name">
+                    <p class="text-sm text-gray-500 mt-1">Name of the account manager or staff member opening this corporate account</p>
+                </div>
+
+                <!-- Corporate Banking Notice -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                        <i class="fas fa-handshake"></i>
+                        Corporate Banking Benefits
+                    </h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Dedicated relationship manager</li>
+                        <li>• Priority banking services</li>
+                        <li>• Higher transaction limits</li>
+                        <li>• Preferential profit sharing rates</li>
+                        <li>• Customized financial solutions</li>
+                    </ul>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <a href="/account/open/corporate" 
+                       class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
+                        <i class="fas fa-building"></i>
+                        Open Corporate Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for dynamic corporate product information -->
+    <script th:inline="javascript">
+        function updateCorporateProductInfo() {
+            const select = document.getElementById('productId');
+            const selectedOption = select.options[select.selectedIndex];
+            const productInfo = document.getElementById('corporate-product-info');
+            const depositInfo = document.getElementById('corporate-deposit-info');
+            
+            if (selectedOption.value) {
+                // Show product information
+                productInfo.classList.remove('hidden');
+                depositInfo.classList.remove('hidden');
+                
+                // Update product details
+                document.getElementById('corporate-product-type').textContent = selectedOption.dataset.type || '-';
+                document.getElementById('corporate-product-category').textContent = selectedOption.dataset.category || '-';
+                
+                const standardMin = parseFloat(selectedOption.dataset.minBalance) || 0;
+                const corporateMin = parseFloat(selectedOption.dataset.corporateMin) || 0;
+                
+                document.getElementById('standard-min-balance').textContent = 'IDR ' + standardMin.toLocaleString('id-ID', {minimumFractionDigits: 2});
+                document.getElementById('corporate-min-balance').textContent = 'IDR ' + corporateMin.toLocaleString('id-ID', {minimumFractionDigits: 2});
+                document.getElementById('corporate-product-description').textContent = selectedOption.dataset.description || 'No description available';
+                
+                // Update minimum deposit validation for corporate
+                const initialDepositInput = document.getElementById('initialDeposit');
+                initialDepositInput.min = corporateMin;
+                
+                // Add event listener for corporate deposit validation
+                initialDepositInput.addEventListener('input', function() {
+                    const warning = document.getElementById('corporate-min-deposit-warning');
+                    const currentValue = parseFloat(this.value) || 0;
+                    
+                    if (currentValue < corporateMin) {
+                        warning.classList.remove('hidden');
+                        warning.textContent = `Corporate initial deposit must be at least IDR ${corporateMin.toLocaleString('id-ID', {minimumFractionDigits: 2})}`;
+                    } else {
+                        warning.classList.add('hidden');
+                    }
+                });
+            } else {
+                // Hide product information
+                productInfo.classList.add('hidden');
+                depositInfo.classList.add('hidden');
+                document.getElementById('corporate-min-deposit-warning').classList.add('hidden');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCorporateProductInfo();
+        });
+    </script>
+</body>
+</html>

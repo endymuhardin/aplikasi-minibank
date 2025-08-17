@@ -1,0 +1,213 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Open Account - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Open New Account</h1>
+                <a href="/account/open" 
+                   class="text-gray-600 hover:text-gray-800">
+                    ← Back to Customer Selection
+                </a>
+            </div>
+
+            <!-- Success message -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Validation errors -->
+            <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div class="font-medium mb-2">Please correct the following errors:</div>
+                <ul class="list-disc list-inside space-y-1">
+                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                </ul>
+            </div>
+
+            <!-- Customer Information Section -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h2 id="customer-info-title" class="text-lg font-semibold text-gray-800 mb-3">Customer Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <strong class="text-gray-700">Customer Name:</strong>
+                            <span id="customer-name-display" th:text="${customer.displayName}" class="text-gray-900">Customer Name</span>
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  th:classappend="${customer.customerType.name() == 'PERSONAL'} ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
+                                  th:text="${customer.customerType.name()}">TYPE</span>
+                        </div>
+                        <p class="text-sm text-gray-600"><strong>Customer Number:</strong> <span id="customer-number-display" th:text="${customer.customerNumber}">C1000001</span></p>
+                        <p class="text-sm text-gray-600" th:if="${customer.email}"><strong>Email:</strong> <span th:text="${customer.email}">email@example.com</span></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600" th:if="${customer.phoneNumber}"><strong>Phone:</strong> <span th:text="${customer.phoneNumber}">081234567890</span></p>
+                        <p class="text-sm text-gray-600" th:if="${customer.branch}"><strong>Branch:</strong> <span th:text="${customer.branch.branchName}">Main Branch</span></p>
+                        <p class="text-sm text-gray-600"><strong>Status:</strong> 
+                            <span class="px-2 py-1 text-xs rounded-full"
+                                  th:classappend="${customer.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  th:text="${customer.status.name()}">STATUS</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Opening Form -->
+            <form th:action="@{/account/open}" th:object="${accountRequest}" method="post" class="space-y-6">
+                <input type="hidden" th:field="*{customerId}">
+                
+                <!-- Product Selection -->
+                <div>
+                    <label for="productId" class="block text-sm font-medium text-gray-700 mb-1">
+                        Select Product <span class="text-red-500">*</span>
+                    </label>
+                    <select id="productId" name="productId" th:field="*{productId}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required onchange="updateProductInfo()">
+                        <option value="">-- Select a Product --</option>
+                        <option th:each="product : ${availableProducts}" 
+                                th:value="${product.id}" 
+                                th:text="${product.productName + ' (' + product.productCode + ')'}"
+                                th:data-min-balance="${product.minimumOpeningBalance}"
+                                th:data-description="${product.description}"
+                                th:data-type="${product.productType}"
+                                th:data-category="${product.productCategory}">
+                            Product Name
+                        </option>
+                    </select>
+                    <p class="text-sm text-gray-500 mt-1">Choose an Islamic banking product for saving or checking</p>
+                </div>
+
+                <!-- Product Information Display -->
+                <div id="product-info" class="hidden bg-blue-50 rounded-lg p-4">
+                    <h3 class="text-md font-semibold text-blue-800 mb-2">Product Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p><strong>Product Type:</strong> <span id="product-type">-</span></p>
+                            <p><strong>Category:</strong> <span id="product-category">-</span></p>
+                        </div>
+                        <div>
+                            <p><strong>Minimum Opening Balance:</strong> <span id="min-balance">-</span></p>
+                        </div>
+                    </div>
+                    <p class="mt-2"><strong>Description:</strong> <span id="product-description">-</span></p>
+                </div>
+
+                <!-- Account Name -->
+                <div>
+                    <label for="accountName" class="block text-sm font-medium text-gray-700 mb-1">
+                        Account Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="accountName" name="accountName" 
+                           th:field="*{accountName}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., John Doe - Personal Savings"
+                           maxlength="200"
+                           required>
+                    <p class="text-sm text-gray-500 mt-1">Descriptive name for this account (max 200 characters)</p>
+                </div>
+
+                <!-- Initial Deposit -->
+                <div>
+                    <label for="initialDeposit" class="block text-sm font-medium text-gray-700 mb-1">
+                        Initial Deposit <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2 text-gray-500">IDR</span>
+                        <input type="number" id="initialDeposit" name="initialDeposit" 
+                               th:field="*{initialDeposit}"
+                               class="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00"
+                               required>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Amount to deposit when opening the account</p>
+                    <p id="min-deposit-warning" class="text-sm text-red-600 mt-1 hidden">
+                        Initial deposit must meet the minimum opening balance requirement.
+                    </p>
+                </div>
+
+                <!-- Created By -->
+                <div>
+                    <label for="createdBy" class="block text-sm font-medium text-gray-700 mb-1">
+                        Opened By
+                    </label>
+                    <input type="text" id="createdBy" name="createdBy" 
+                           th:field="*{createdBy}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Teller name or staff ID">
+                    <p class="text-sm text-gray-500 mt-1">Name of the staff member opening this account</p>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <a href="/account/open" 
+                       class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <button id="open-account-submit-btn" type="submit" 
+                            class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        Open Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for dynamic product information -->
+    <script th:inline="javascript">
+        function updateProductInfo() {
+            const select = document.getElementById('productId');
+            const selectedOption = select.options[select.selectedIndex];
+            const productInfo = document.getElementById('product-info');
+            
+            if (selectedOption.value) {
+                // Show product information
+                productInfo.classList.remove('hidden');
+                
+                // Update product details
+                document.getElementById('product-type').textContent = selectedOption.dataset.type || '-';
+                document.getElementById('product-category').textContent = selectedOption.dataset.category || '-';
+                document.getElementById('min-balance').textContent = 'IDR ' + (parseFloat(selectedOption.dataset.minBalance) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2});
+                document.getElementById('product-description').textContent = selectedOption.dataset.description || 'No description available';
+                
+                // Update minimum deposit validation
+                const initialDepositInput = document.getElementById('initialDeposit');
+                const minBalance = parseFloat(selectedOption.dataset.minBalance) || 0;
+                initialDepositInput.min = minBalance;
+                
+                // Add event listener for deposit validation
+                initialDepositInput.addEventListener('input', function() {
+                    const warning = document.getElementById('min-deposit-warning');
+                    const currentValue = parseFloat(this.value) || 0;
+                    
+                    if (currentValue < minBalance) {
+                        warning.classList.remove('hidden');
+                        warning.textContent = `Initial deposit must be at least IDR ${minBalance.toLocaleString('id-ID', {minimumFractionDigits: 2})}`;
+                    } else {
+                        warning.classList.add('hidden');
+                    }
+                });
+            } else {
+                // Hide product information
+                productInfo.classList.add('hidden');
+                document.getElementById('min-deposit-warning').classList.add('hidden');
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProductInfo();
+        });
+    </script>
+</body>
+</html>

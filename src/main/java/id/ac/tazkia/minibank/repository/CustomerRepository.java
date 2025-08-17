@@ -31,6 +31,11 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     
     Page<Customer> findByCustomerType(Customer.CustomerType customerType, Pageable pageable);
     
+    List<Customer> findByStatus(Customer.CustomerStatus status);
+    
+    List<Customer> findByCustomerNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
+        String customerNumber, String email);
+    
     boolean existsByCustomerNumber(String customerNumber);
     
     boolean existsByEmail(String email);

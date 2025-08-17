@@ -372,10 +372,153 @@ src/test/java/
 ├── functional/                    # End-to-end functional tests
 │   ├── api/                      # Karate BDD API tests
 │   └── web/                      # Selenium UI tests
+│       ├── BaseSeleniumTest.java # Base class for all Selenium tests
+│       ├── PersonalAccountOpeningSeleniumTest.java # Personal customer tests
+│       ├── CorporateAccountOpeningSeleniumTest.java # Corporate customer tests
+│       ├── IslamicBankingAccountOpeningSeleniumTest.java # Islamic banking compliance
+│       ├── ComprehensiveAccountOpeningSeleniumTest.java # Edge cases & validation
+│       └── pageobject/           # Page Object Model classes
+│           ├── AccountOpeningFormPage.java
+│           ├── CustomerSelectionPage.java
+│           ├── CorporateAccountOpeningFormPage.java
+│           └── CorporateCustomerSelectionPage.java
 └── util/                         # Test utilities and helpers
 ```
 
-### 2. Repository Testing with TestContainers
+### 2. Account Opening Test Structure
+The account opening tests are organized into specialized classes for focused testing:
+
+#### **PersonalAccountOpeningSeleniumTest**
+- **Focus**: Personal customer account opening workflows
+- **User Role**: Teller (login helper: `loginAsTeller()`)
+- **URL Pattern**: `/account/open`
+- **Page Objects**: `CustomerSelectionPage`, `AccountOpeningFormPage`
+- **Test Count**: 10 test methods
+- **Key Scenarios**: 
+  - Personal customer selection and search
+  - Account opening form validation
+  - Successful account creation
+  - Navigation and error handling
+
+#### **CorporateAccountOpeningSeleniumTest**
+- **Focus**: Corporate customer account opening workflows
+- **User Role**: Manager (login helper: `loginAsManager()`)
+- **URL Pattern**: `/account/open/corporate`
+- **Page Objects**: `CorporateCustomerSelectionPage`, `CorporateAccountOpeningFormPage`
+- **Test Count**: 14 test methods
+- **Key Scenarios**:
+  - Corporate customer selection with company info display
+  - Corporate-specific validation (5x minimum deposits)
+  - Account number prefix validation (CORP)
+  - Corporate navigation flows
+
+#### **IslamicBankingAccountOpeningSeleniumTest**
+- **Focus**: Islamic banking product compliance
+- **User Role**: Customer Service (login helper: `loginAsCustomerServiceUser()`)
+- **Test Count**: 7 test methods
+- **Key Scenarios**:
+  - TABUNGAN_WADIAH (safekeeping without profit sharing)
+  - TABUNGAN_MUDHARABAH (profit-loss sharing)
+  - DEPOSITO_MUDHARABAH (Islamic term deposit)
+  - Nisbah profit sharing validation (customer + bank = 1.0)
+  - Multi-account support for Islamic products
+
+#### **ComprehensiveAccountOpeningSeleniumTest**
+- **Focus**: Cross-cutting concerns and edge cases
+- **User Role**: Manager (login helper: `loginAsManager()`)
+- **Test Count**: 9 test methods
+- **Key Scenarios**:
+  - Database integrity validation
+  - Field-level validation with CSV-driven tests
+  - Security and authentication testing
+  - Multi-account scenarios
+  - Islamic banking compliance verification
+
+### 3. Page Object Model Pattern
+The Selenium tests use the Page Object Model for maintainable and reusable UI automation:
+
+```java
+public class AccountOpeningFormPage extends BasePage {
+    
+    // Page elements
+    private static final By PAGE_TITLE = By.xpath("//h1[contains(text(), 'Open New Account')]");
+    private static final By PRODUCT_DROPDOWN = By.id("productId");
+    private static final By ACCOUNT_NAME_INPUT = By.id("accountName");
+    private static final By INITIAL_DEPOSIT_INPUT = By.id("initialDeposit");
+    private static final By SUBMIT_BUTTON = By.xpath("//button[text()='Open Account']");
+    
+    public AccountOpeningFormPage(WebDriver driver, String baseUrl) {
+        super(driver, baseUrl);
+    }
+    
+    public void waitForPageLoad() {
+        wait.until(ExpectedConditions.presenceOfElementLocated(PAGE_TITLE));
+        wait.until(ExpectedConditions.presenceOfElementLocated(PRODUCT_DROPDOWN));
+        waitForPageToLoad();
+    }
+    
+    public void fillCompleteForm(String productName, String accountName, 
+                                String initialDeposit, String createdBy) {
+        selectProduct(productName);
+        fillAccountName(accountName);
+        fillInitialDeposit(initialDeposit);
+        if (createdBy != null && !createdBy.isEmpty()) {
+            fillCreatedBy(createdBy);
+        }
+    }
+    
+    public AccountListPage submitForm() {
+        scrollToElementAndClick(SUBMIT_BUTTON);
+        wait.until(ExpectedConditions.or(
+            ExpectedConditions.urlContains("/account/list"),
+            ExpectedConditions.presenceOfElementLocated(ERROR_MESSAGE)
+        ));
+        return new AccountListPage(driver, baseUrl);
+    }
+}
+```
+
+**Page Object Benefits:**
+- ✅ **Encapsulation**: UI interactions are encapsulated in page classes
+- ✅ **Reusability**: Same page objects used across multiple test classes
+- ✅ **Maintainability**: UI changes only require updates in one place
+- ✅ **Readability**: Test methods focus on business logic, not UI details
+
+### 4. Test Execution Patterns
+
+#### **Running Specific Test Categories**
+```bash
+# Run all account opening tests
+mvn test -Dtest="*AccountOpening*"
+
+# Run by customer type
+mvn test -Dtest=PersonalAccountOpeningSeleniumTest          # Personal only
+mvn test -Dtest=CorporateAccountOpeningSeleniumTest         # Corporate only
+
+# Run by focus area
+mvn test -Dtest=IslamicBankingAccountOpeningSeleniumTest     # Islamic banking
+mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases
+
+# Run with different browser configurations
+mvn test -Dtest=PersonalAccountOpeningSeleniumTest -Dselenium.headless=false
+mvn test -Dtest=CorporateAccountOpeningSeleniumTest -Dselenium.recording.enabled=true
+```
+
+#### **Test Data Management**
+```bash
+# CSV-driven tests use fixture files
+src/test/resources/fixtures/
+├── account/
+│   ├── valid-account-openings.csv
+│   ├── valid-corporate-account-openings.csv
+│   └── invalid-field-validation.csv
+├── customer/
+│   └── customers.csv
+└── product/
+    └── products.csv
+```
+
+### 5. Repository Testing with TestContainers
 ```java
 @DataJpaTest
 @Import(PostgresTestContainersConfiguration.class)
@@ -404,7 +547,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
 }
 ```
 
-### 3. Parameterized Testing with CSV Data
+### 6. Parameterized Testing with CSV Data
 ```java
 @ParameterizedTest
 @CsvFileSource(resources = "/fixtures/account/accounts.csv", numLinesToSkip = 1)
@@ -421,7 +564,7 @@ void shouldSaveAndFindAccountFromCsv(
 }
 ```
 
-### 4. Selenium Testing with Page Objects
+### 7. Selenium Testing with Page Objects
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import({PostgresTestContainersConfiguration.class})
@@ -447,7 +590,7 @@ public abstract class BaseSeleniumTest extends AbstractSeleniumTestBase {
 }
 ```
 
-### 5. Karate BDD API Testing
+### 8. Karate BDD API Testing
 ```gherkin
 Feature: Customer Registration API
 
@@ -460,6 +603,94 @@ Feature: Customer Registration API
     When method post
     Then status 201
     And match response.firstName == 'John'
+```
+
+### 9. Islamic Banking Testing Patterns
+
+#### **Nisbah Validation Testing**
+```java
+// Critical Islamic banking constraint testing
+@Test
+void shouldValidateNisbahSumForMudharabahProducts() {
+    // Find MUDHARABAH products and validate their nisbah
+    List<Product> mudharabahProducts = productRepository.findAll().stream()
+        .filter(p -> p.getProfitSharingType() == Product.ProfitSharingType.MUDHARABAH || 
+                    p.getProfitSharingType() == Product.ProfitSharingType.MUSHARAKAH)
+        .filter(Product::getIsActive)
+        .toList();
+    
+    for (Product product : mudharabahProducts) {
+        BigDecimal nisbahSum = product.getNisbahCustomer().add(product.getNisbahBank());
+        assertEquals(new BigDecimal("1.0000"), nisbahSum, 
+            "Product " + product.getProductCode() + " nisbah must sum to 1.0 for Islamic compliance");
+    }
+}
+```
+
+#### **Islamic Banking Product Testing**
+```java
+// Test Islamic banking products separately
+@Test 
+void shouldOpenTabunganWadiahAccountSuccessfully() {
+    // Find TABUNGAN_WADIAH product (safekeeping without profit sharing)
+    Optional<Product> wadiahProduct = productRepository.findAll().stream()
+        .filter(p -> p.getProductType() == Product.ProductType.TABUNGAN_WADIAH)
+        .filter(Product::getIsActive)
+        .findFirst();
+    
+    // Verify WADIAH characteristics (no profit sharing expected)
+    Product savedProduct = wadiahAccount.getProduct();
+    assertEquals(Product.ProductType.TABUNGAN_WADIAH, savedProduct.getProductType());
+    // Wadiah products don't require nisbah validation
+}
+
+@Test
+void shouldOpenTabunganMudharabahWithProfitSharing() {
+    // MUDHARABAH products require profit sharing validation
+    Product savedProduct = mudharabahAccount.getProduct();
+    assertEquals(Product.ProductType.TABUNGAN_MUDHARABAH, savedProduct.getProductType());
+    assertEquals(Product.ProfitSharingType.MUDHARABAH, savedProduct.getProfitSharingType());
+    
+    // Critical: Verify nisbah sum equals 1.0 (Islamic banking requirement)
+    BigDecimal nisbahSum = savedProduct.getNisbahCustomer().add(savedProduct.getNisbahBank());
+    assertEquals(new BigDecimal("1.0000"), nisbahSum, 
+                "Nisbah customer + bank must equal 1.0 for Islamic compliance");
+}
+```
+
+#### **Islamic Banking Database Constraints**
+```sql
+-- Critical constraint for Islamic banking compliance
+CONSTRAINT chk_nisbah_sum CHECK (
+    (profit_sharing_type IN ('MUDHARABAH', 'MUSHARAKAH') 
+     AND nisbah_customer IS NOT NULL 
+     AND nisbah_bank IS NOT NULL 
+     AND nisbah_customer + nisbah_bank = 1.0)
+    OR (profit_sharing_type NOT IN ('MUDHARABAH', 'MUSHARAKAH'))
+),
+```
+
+### 10. Test Coverage Verification
+
+#### **Comprehensive Test Coverage**
+The account opening module achieves **100% automated test coverage** through:
+
+- **40+ test methods** across 4 specialized test classes
+- **100% scenario coverage** of all documented test cases (TC-AO-001 through TC-AO-010)
+- **Multi-role testing** (Teller, Customer Service, Manager permissions)
+- **Islamic banking compliance** testing with nisbah validation
+- **Cross-cutting concerns** (security, database integrity, validation)
+
+#### **Test Execution Verification**
+```bash
+# Verify all account opening scenarios are covered
+mvn test -Dtest="*AccountOpening*" -Dtest.output=verbose
+
+# Expected output: 40+ test methods across 4 test classes
+# PersonalAccountOpeningSeleniumTest: 10 methods
+# CorporateAccountOpeningSeleniumTest: 14 methods  
+# IslamicBankingAccountOpeningSeleniumTest: 7 methods
+# ComprehensiveAccountOpeningSeleniumTest: 9 methods
 ```
 
 ## Database Design Patterns
