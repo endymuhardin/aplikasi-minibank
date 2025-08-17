@@ -12,18 +12,18 @@ import java.util.List;
 public class CorporateCustomerSelectionPage extends BasePage {
     
     // Page elements
-    private static final By PAGE_TITLE = By.xpath("//h1[contains(text(), 'Select Corporate Customer for Account Opening')]");
+    private static final By PAGE_TITLE = By.id("page-title");
     private static final By PERSONAL_ACCOUNTS_BUTTON = By.linkText("Personal Accounts");
     private static final By MANAGE_CUSTOMERS_BUTTON = By.linkText("Manage Customers");
-    private static final By SEARCH_INPUT = By.name("search");
-    private static final By SEARCH_BUTTON = By.xpath("//button[text()='Search']");
-    private static final By CUSTOMER_CARDS = By.xpath("//div[contains(@class, 'border-gray-200')]");
-    private static final By NO_CUSTOMERS_MESSAGE = By.xpath("//h3[contains(text(), 'No corporate customers found')]");
+    private static final By SEARCH_INPUT = By.id("search-input");
+    private static final By SEARCH_BUTTON = By.id("search-button");
+    private static final By CUSTOMER_CARDS = By.className("corporate-customer-card");
+    private static final By NO_CUSTOMERS_MESSAGE = By.id("no-customers-message");
     private static final By SUCCESS_MESSAGE = By.id("success-message");
     private static final By ERROR_MESSAGE = By.id("error-message");
     
     // Corporate-specific elements
-    private static final By CORPORATE_BADGE = By.xpath("//span[contains(@class, 'bg-purple-100') and contains(text(), 'CORPORATE')]");
+    private static final By CORPORATE_BADGE = By.id("corporate-badge");
     private static final By COMPANY_NAME = By.xpath("//h3[contains(@class, 'text-xl')]");
     private static final By REGISTRATION_NUMBER = By.xpath("//p[contains(text(), 'Registration Number:')]");
     private static final By TAX_ID = By.xpath("//p[contains(text(), 'Tax ID')]");
@@ -64,9 +64,9 @@ public class CorporateCustomerSelectionPage extends BasePage {
     public CorporateAccountOpeningFormPage selectCorporateCustomer(String customerNumber) {
         log.info("Selecting corporate customer with number: {}", customerNumber);
         
-        // Find the customer card containing the customer number and click its "Open Corporate Account" button
-        By customerCard = By.xpath("//p[contains(text(), '" + customerNumber + "')]/ancestor::div[contains(@class, 'border-gray-200')]");
-        By openAccountButton = By.xpath("//p[contains(text(), '" + customerNumber + "')]/ancestor::div[contains(@class, 'border-gray-200')]//a[contains(text(), 'Open Corporate Account')]");
+        // Use ID-based selectors for more reliable element location
+        By customerCard = By.id("corporate-customer-card-" + customerNumber);
+        By openAccountButton = By.id("open-account-btn-" + customerNumber);
         
         // Wait for customer card to be present
         wait.until(ExpectedConditions.presenceOfElementLocated(customerCard));
@@ -102,7 +102,7 @@ public class CorporateCustomerSelectionPage extends BasePage {
     }
     
     public boolean isCorporateCustomerDisplayed(String customerNumber) {
-        return isElementPresent(By.xpath("//p[contains(text(), '" + customerNumber + "')]"));
+        return isElementPresent(By.id("corporate-customer-card-" + customerNumber));
     }
     
     public boolean isCorporateCustomerDisplayedByCompanyName(String companyName) {

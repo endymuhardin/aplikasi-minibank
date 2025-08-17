@@ -126,8 +126,8 @@
                 </div>
                 <h3 id="no-accounts-message" class="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
                 <p class="text-gray-500 mb-4">
-                    <span th:if="${search or status}">No accounts match your search criteria.</span>
-                    <span th:unless="${search or status}">There are no accounts in the system yet.</span>
+                    <span th:if="${not #strings.isEmpty(search) or not #strings.isEmpty(status)}">No accounts match your search criteria.</span>
+                    <span th:unless="${not #strings.isEmpty(search) or not #strings.isEmpty(status)}">There are no accounts in the system yet.</span>
                 </p>
                 <a href="/account/open" class="text-blue-600 hover:text-blue-800">
                     Open your first account →

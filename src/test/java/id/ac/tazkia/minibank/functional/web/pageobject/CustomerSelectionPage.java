@@ -12,12 +12,12 @@ import java.util.List;
 public class CustomerSelectionPage extends BasePage {
     
     // Page elements
-    private static final By PAGE_TITLE = By.xpath("//h1[contains(text(), 'Select Customer for Account Opening')]");
+    private static final By PAGE_TITLE = By.id("page-title");
     private static final By MANAGE_CUSTOMERS_BUTTON = By.linkText("Manage Customers");
-    private static final By SEARCH_INPUT = By.name("search");
-    private static final By SEARCH_BUTTON = By.xpath("//button[text()='Search']");
-    private static final By CUSTOMER_CARDS = By.xpath("//div[contains(@class, 'border-gray-200')]");
-    private static final By NO_CUSTOMERS_MESSAGE = By.xpath("//h3[contains(text(), 'No customers found')]");
+    private static final By SEARCH_INPUT = By.id("search-input");
+    private static final By SEARCH_BUTTON = By.id("search-button");
+    private static final By CUSTOMER_CARDS = By.className("customer-card");
+    private static final By NO_CUSTOMERS_MESSAGE = By.id("no-customers-message");
     private static final By SUCCESS_MESSAGE = By.id("success-message");
     private static final By ERROR_MESSAGE = By.id("error-message");
     
@@ -32,12 +32,31 @@ public class CustomerSelectionPage extends BasePage {
     
     public void openAndWaitForLoad() {
         open();
+        log.info("🔍 CUSTOMER SELECTION: Opened customer selection page");
+        log.info("📄 CURRENT URL: {}", driver.getCurrentUrl());
+        
         // Wait for page title and either customer cards or no customers message
         wait.until(ExpectedConditions.presenceOfElementLocated(PAGE_TITLE));
+        log.info("✅ FOUND: Page title element");
+        
         wait.until(ExpectedConditions.or(
             ExpectedConditions.presenceOfElementLocated(CUSTOMER_CARDS),
             ExpectedConditions.presenceOfElementLocated(NO_CUSTOMERS_MESSAGE)
         ));
+        
+        // Debug what we actually found
+        boolean hasCustomers = isElementPresent(CUSTOMER_CARDS);
+        boolean hasNoCustomersMessage = isElementPresent(NO_CUSTOMERS_MESSAGE);
+        
+        log.info("🔍 CUSTOMER PRESENCE: hasCustomers={}, hasNoCustomersMessage={}", hasCustomers, hasNoCustomersMessage);
+        
+        if (hasNoCustomersMessage) {
+            log.warn("⚠️ NO CUSTOMERS MESSAGE: The page shows 'No customers found'");
+            log.warn("🔍 PAGE SOURCE PREVIEW: {}", driver.getPageSource().substring(0, Math.min(1000, driver.getPageSource().length())));
+        } else if (hasCustomers) {
+            int customerCount = driver.findElements(CUSTOMER_CARDS).size();
+            log.info("✅ CUSTOMERS FOUND: {} customer cards present", customerCount);
+        }
     }
     
     public void searchCustomers(String searchTerm) {
@@ -55,20 +74,42 @@ public class CustomerSelectionPage extends BasePage {
     
     public AccountOpeningFormPage selectCustomer(String customerNumber) {
         log.info("🔍 CUSTOMER SELECTION: Looking for customer number: {}", customerNumber);
+        log.info("📄 CURRENT URL: {}", driver.getCurrentUrl());
+        log.info("📝 PAGE TITLE: {}", driver.getTitle());
         
         // Use ID-based locators for better reliability (following technical practices)
         By customerCard = By.id("customer-card-" + customerNumber);
         By openAccountButton = By.id("open-account-btn-" + customerNumber);
         
-        // Wait for customer card to be present
-        log.info("⏳ WAITING: For customer card with ID: customer-card-{}", customerNumber);
-        wait.until(ExpectedConditions.presenceOfElementLocated(customerCard));
-        log.info("✅ FOUND: Customer card for: {}", customerNumber);
-        
-        // Click the Open Account button
-        log.info("🖱️ CLICKING: Open Account button with ID: open-account-btn-{}", customerNumber);
-        scrollToElementAndClick(openAccountButton);
-        log.info("✅ CLICKED: Open Account button successfully");
+        try {
+            // Wait for customer card to be present
+            log.info("⏳ WAITING: For customer card with ID: customer-card-{}", customerNumber);
+            wait.until(ExpectedConditions.presenceOfElementLocated(customerCard));
+            log.info("✅ FOUND: Customer card for: {}", customerNumber);
+            
+            // Wait for Open Account button to be clickable
+            log.info("⏳ WAITING: For Open Account button to be clickable with ID: open-account-btn-{}", customerNumber);
+            wait.until(ExpectedConditions.elementToBeClickable(openAccountButton));
+            log.info("✅ READY: Open Account button is clickable");
+            
+            // Click the Open Account button
+            log.info("🖱️ CLICKING: Open Account button with ID: open-account-btn-{}", customerNumber);
+            scrollToElementAndClick(openAccountButton);
+            log.info("✅ CLICKED: Open Account button successfully");
+            
+            // Wait for navigation to complete
+            log.info("⏳ WAITING: For navigation to account opening form");
+            wait.until(ExpectedConditions.urlContains("/account/open/"));
+            log.info("✅ NAVIGATION: Successfully navigated to account opening form");
+            log.info("📄 NEW URL: {}", driver.getCurrentUrl());
+            
+        } catch (Exception e) {
+            log.error("❌ ERROR: Failed to select customer {}", customerNumber);
+            log.error("📄 CURRENT URL: {}", driver.getCurrentUrl());
+            log.error("📝 PAGE TITLE: {}", driver.getTitle());
+            log.error("🔍 PAGE SOURCE PREVIEW: {}", driver.getPageSource().substring(0, Math.min(500, driver.getPageSource().length())));
+            throw e;
+        }
         
         return new AccountOpeningFormPage(driver, baseUrl);
     }

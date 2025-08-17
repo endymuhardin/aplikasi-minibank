@@ -86,7 +86,7 @@
             </div>
 
             <!-- Corporate Account Opening Form -->
-            <form th:action="@{/account/open/corporate}" th:object="${accountRequest}" method="post" class="space-y-6">
+            <form th:action="@{/account/open/corporate}" th:object="${accountRequest}" method="post" class="space-y-6" novalidate>
                 <input type="hidden" th:field="*{customerId}">
                 
                 <!-- Corporate Account Type Selection -->
@@ -96,7 +96,7 @@
                     </label>
                     <select id="productId" name="productId" th:field="*{productId}"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            required onchange="updateCorporateProductInfo()">
+                            onchange="updateCorporateProductInfo()">
                         <option value="">-- Select a Corporate Banking Product --</option>
                         <option th:each="product : ${availableProducts}" 
                                 th:value="${product.id}" 
@@ -147,7 +147,7 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                            placeholder="e.g., PT. Technology Maju - Business Operations Account"
                            maxlength="200"
-                           required>
+                           >
                     <p class="text-sm text-gray-500 mt-1">Descriptive name for this corporate account (max 200 characters)</p>
                 </div>
 
@@ -164,7 +164,7 @@
                                step="0.01"
                                min="0"
                                placeholder="0.00"
-                               required>
+                               >
                     </div>
                     <p class="text-sm text-gray-500 mt-1">Amount to deposit when opening the corporate account</p>
                     <p id="corporate-min-deposit-warning" class="text-sm text-red-600 mt-1 hidden">

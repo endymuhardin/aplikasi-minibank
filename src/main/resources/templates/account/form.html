@@ -26,10 +26,10 @@
             </div>
 
             <!-- Validation errors -->
-            <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div th:if="${validationErrors}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                 <div class="font-medium mb-2">Please correct the following errors:</div>
                 <ul class="list-disc list-inside space-y-1">
-                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                    <li th:each="error : ${validationErrors}" th:text="${error}"></li>
                 </ul>
             </div>
 
@@ -61,7 +61,7 @@
             </div>
 
             <!-- Account Opening Form -->
-            <form th:action="@{/account/open}" th:object="${accountRequest}" method="post" class="space-y-6">
+            <form th:action="@{/account/open}" th:object="${accountRequest}" method="post" class="space-y-6" novalidate>
                 <input type="hidden" th:field="*{customerId}">
                 
                 <!-- Product Selection -->
@@ -71,7 +71,7 @@
                     </label>
                     <select id="productId" name="productId" th:field="*{productId}"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required onchange="updateProductInfo()">
+                            onchange="updateProductInfo()">
                         <option value="">-- Select a Product --</option>
                         <option th:each="product : ${availableProducts}" 
                                 th:value="${product.id}" 
@@ -110,8 +110,7 @@
                            th:field="*{accountName}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="e.g., John Doe - Personal Savings"
-                           maxlength="200"
-                           required>
+                           maxlength="200">
                     <p class="text-sm text-gray-500 mt-1">Descriptive name for this account (max 200 characters)</p>
                 </div>
 
@@ -126,9 +125,7 @@
                                th:field="*{initialDeposit}"
                                class="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                step="0.01"
-                               min="0"
-                               placeholder="0.00"
-                               required>
+                               placeholder="0.00">
                     </div>
                     <p class="text-sm text-gray-500 mt-1">Amount to deposit when opening the account</p>
                     <p id="min-deposit-warning" class="text-sm text-red-600 mt-1 hidden">

@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,7 +24,10 @@ public class AccountOpeningRequest {
     @Size(max = 200, message = "Account name must not exceed 200 characters")
     private String accountName;
     
+    @NotNull(message = "Initial deposit is required")
+    @DecimalMin(value = "0.01", message = "Initial deposit must be positive")
     private BigDecimal initialDeposit = BigDecimal.ZERO;
     
+    @Size(max = 100, message = "Created by field must not exceed 100 characters")
     private String createdBy;
 }

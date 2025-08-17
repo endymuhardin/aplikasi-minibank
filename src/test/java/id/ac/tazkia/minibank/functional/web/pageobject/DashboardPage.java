@@ -71,6 +71,12 @@ public class DashboardPage {
         PageFactory.initElements(driver, this);
     }
     
+    public DashboardPage(WebDriver driver, String baseUrl) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        PageFactory.initElements(driver, this);
+    }
+    
     public boolean isOnDashboardPage() {
         try {
             // Wait for successful login redirect to dashboard with longer timeout
@@ -253,11 +259,15 @@ public class DashboardPage {
         }
     }
     
-    public void clickTransactionLink() {
+    public TransactionListPage clickTransactionLink() {
         if (isTransactionLinkVisible()) {
             wait.until(ExpectedConditions.elementToBeClickable(transactionLink));
             transactionLink.click();
+            // Wait for navigation to transaction list page
+            wait.until(ExpectedConditions.urlContains("/transaction/list"));
+            return new TransactionListPage(driver, driver.getCurrentUrl().split("/transaction")[0]);
         }
+        throw new IllegalStateException("Transaction link is not visible for current user");
     }
     
     public void clickReportsLink() {

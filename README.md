@@ -41,11 +41,15 @@ Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai
     * ✅ **Comprehensive Selenium Testing:** 25+ test methods covering personal, corporate, and Islamic banking scenarios
 
 * **✅ Modul Transaksi Perbankan:**
-    * ✅ **Setoran Tunai (Deposit):**
+    * ✅ **Setoran Tunai (Cash Deposit):**
         * ✅ REST API untuk deposit dengan validasi lengkap
+        * ✅ **Web Interface Lengkap:** Form setoran tunai dengan account selection, validation, success notification
         * ✅ Update saldo otomatis dengan audit trail
         * ✅ Pencatatan riwayat transaksi lengkap
-        * ✅ Validasi limit dan aturan bisnis
+        * ✅ Validasi limit dan aturan bisnis (minimum IDR 10,000)
+        * ✅ Transaction list view dengan filter dan search
+        * ✅ Transaction detail view dengan balance calculations
+        * ✅ **Comprehensive Selenium Testing:** 10+ test methods covering full workflow, validation, multi-role access
         * ✅ Karate BDD testing dengan berbagai skenario
     * ✅ **Penarikan Tunai (Withdrawal):**
         * ✅ REST API untuk withdrawal dengan validasi saldo
@@ -53,8 +57,8 @@ Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai
         * ✅ Update saldo otomatis dengan validasi
         * ✅ Pencatatan audit trail transaksi
         * ✅ Karate BDD testing komprehensif
-    * ❓ *Web Interface:** Belum ada UI web untuk transaksi*
-    * ❓ *Transfer:** Belum diimplementasi*
+        * ❓ *Web Interface:** Belum diimplementasi untuk withdrawal*
+    * ❌ **Transfer:** Belum diimplementasi (REST API maupun Web UI)
 
 * **✅ Modul User Management & RBAC:**
     * ✅ **Manajemen User:** Create, edit, view, activate/deactivate user
@@ -77,31 +81,36 @@ Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai
     * ❌ Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik
     * ❌ Sinkronisasi dengan data transaksi terbaru
 
+* **🔄 Modul Transaksi (Sebagian):**
+    * ❌ **Web Interface Penarikan Tunai:** REST API sudah ada, tapi belum ada UI web
+    * ❌ **Transfer Antar Rekening:** Belum diimplementasi sama sekali (REST API & Web UI)
+    * ❌ **Transfer ke Bank Lain:** Belum diimplementasi
+
 * **❌ Modul Pembiayaan Syariah (Web Interface):**
-    * ❌ **Pembiayaan Murabahah:**
-        * ❌ Input data nasabah dan objek pembiayaan (barang/jasa)
+    * **✅ Note:** *Produk pembiayaan syariah sudah dikonfigurasi dalam Product Management (Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna)*
+    * ❌ **Web Interface Pembiayaan Murabahah:**
+        * ❌ Form pengajuan pembiayaan dengan data nasabah dan objek pembiayaan
         * ❌ Perhitungan harga pokok, margin keuntungan, dan harga jual
         * ❌ Penentuan jangka waktu dan angsuran
-        * ❌ Pencatatan akad pembiayaan
-        * ❌ Pencetakan dokumen pembiayaan murabahah
-    * ❌ **Pembiayaan Mudharabah:**
-        * ❌ Input data nasabah dan tujuan pembiayaan (proyek/usaha)
-        * ❌ Penentuan nisbah bagi hasil (proporsi pembagian keuntungan)
-        * ❌ Penentuan jangka waktu pembiayaan
-        * ❌ Pencatatan akad pembiayaan
-        * ❌ Pencetakan dokumen pembiayaan mudharabah
-
-* **❌ Modul Deposito (Web Interface):**
-    * ❌ Input data nasabah untuk deposito
-    * ❌ Pilihan jangka waktu deposito
-    * ❌ Penentuan nisbah bagi hasil deposito
-    * ❌ Pencetakan bilyet deposito
+        * ❌ Workflow approval dan pencatatan akad
+        * ❌ Pencetakan dokumen akad murabahah
+    * ❌ **Web Interface Pembiayaan Mudharabah:**
+        * ❌ Form pengajuan dengan data proyek/usaha
+        * ❌ Penentuan nisbah bagi hasil dan jangka waktu
+        * ❌ Workflow approval dan pencatatan akad
+        * ❌ Pencetakan dokumen akad mudharabah
 
 ### 📊 **PROGRESS SUMMARY** ###
-- **✅ Completed Modules:** 5/8 (Customer Management, Product Management, Account Opening, Transaction API, RBAC)
-- **🔄 Partially Implemented:** 0/8 
-- **❌ Not Started:** 3/8 (Passbook Printing, Islamic Financing UI, Deposito UI)
-- **Overall Progress:** ~75% Complete
+- **✅ Completed Modules:** 5/8 (Customer Management, Product Management, Account Opening, Cash Deposit, RBAC)
+- **🔄 Partially Implemented:** 1/8 (Transaction Module - Missing withdrawal UI & transfers)
+- **❌ Not Started:** 2/8 (Passbook Printing, Islamic Financing UI)
+- **Overall Progress:** ~80% Complete
+
+**Testing Coverage Summary:**
+- **Selenium UI Tests:** 13 test classes, 128+ test methods, 4,552+ lines of test code
+- **Repository Tests:** Comprehensive @DataJpaTest coverage for all repositories
+- **API Integration Tests:** Karate BDD tests for all REST endpoints
+- **Unit Tests:** Entity business logic and service layer testing
 
 **Account Opening Module Status:**
 - ✅ Personal Customer Account Opening: **100% Complete**
@@ -574,6 +583,8 @@ Aplikasi mendukung sistem multi-branch untuk mengorganisir operasional bank berd
 - **Account Opening (Personal)**: [http://localhost:8080/account/open](http://localhost:8080/account/open)
 - **Account Opening (Corporate)**: [http://localhost:8080/account/open/corporate](http://localhost:8080/account/open/corporate)
 - **Account List**: [http://localhost:8080/account/list](http://localhost:8080/account/list)
+- **Transaction List**: [http://localhost:8080/transaction/list](http://localhost:8080/transaction/list)
+- **Cash Deposit**: [http://localhost:8080/transaction/cash-deposit](http://localhost:8080/transaction/cash-deposit)
 - **User Management**: [http://localhost:8080/user/list](http://localhost:8080/user/list)
 - **Role Management**: [http://localhost:8080/role/list](http://localhost:8080/role/list)
 
@@ -647,12 +658,23 @@ Aplikasi telah memiliki data sample nasabah yang dapat digunakan untuk testing:
 
 #### 2. Teller - Transaksi Tunai ####
 - Login dengan user Teller (teller1/teller2/teller3)
-- Akses menu setoran tunai
-- Input nomor rekening tujuan
-- Input nominal setoran
-- Sistem otomatis update saldo
-- Cetak bukti setoran
-- Akses menu cetak buku tabungan untuk pencetakan transaksi
+- **Setoran Tunai (Cash Deposit):**
+  - Akses [Transaction List](http://localhost:8080/transaction/list)
+  - Klik "Cash Deposit" untuk mulai transaksi
+  - Search dan pilih rekening nasabah
+  - Input nominal setoran (minimum IDR 10,000)
+  - Input deskripsi dan nomor referensi (opsional)
+  - Input nama teller yang memproses
+  - Sistem otomatis update saldo dan generate transaction number
+  - View transaction details dan balance calculations
+  - Print transaction receipt (tersedia melalui transaction view)
+- **Riwayat Transaksi:**
+  - View semua transaksi dengan pagination
+  - Filter by transaction type (DEPOSIT, WITHDRAWAL)
+  - Search by transaction number atau deskripsi
+  - View detail transaksi dengan audit trail lengkap
+- ❌ **Penarikan Tunai:** REST API tersedia, Web UI belum diimplementasi
+- ❌ **Cetak Buku Tabungan:** Belum diimplementasi
 
 #### 3. Branch Manager - Monitoring dan Approval ####
 - Login dengan user Branch Manager (admin/manager1/manager2)

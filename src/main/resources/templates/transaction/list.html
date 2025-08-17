@@ -1,0 +1,170 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Daftar Transaksi - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Daftar Transaksi</h1>
+                <div class="flex space-x-2">
+                    <a href="/transaction/cash-deposit" 
+                       class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                        + Setoran Tunai
+                    </a>
+                    <a href="/dashboard" 
+                       class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search and Filter Form -->
+            <form method="get" class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Transaksi</label>
+                        <input type="text" id="search" name="search" 
+                               th:value="${search}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Nomor transaksi atau keterangan...">
+                    </div>
+                    <div>
+                        <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-1">Tipe Transaksi</label>
+                        <select id="transactionType" name="transactionType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Semua Tipe --</option>
+                            <option th:each="type : ${transactionTypes}" 
+                                    th:value="${type.name()}"
+                                    th:text="${type.name()}"
+                                    th:selected="${type.name() == transactionType}">
+                                Transaction Type
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-2">
+                        <button type="submit" id="search-button"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Cari
+                        </button>
+                        <a th:href="@{/transaction/list}" 
+                           class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Success message -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <!-- Error message -->
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full table-auto">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nomor Transaksi
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tanggal
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tipe
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rekening
+                            </th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Jumlah
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Keterangan
+                            </th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Aksi
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr th:if="${transactions.empty}" class="text-center">
+                            <td colspan="7" class="px-4 py-8 text-gray-500">
+                                Tidak ada transaksi ditemukan.
+                            </td>
+                        </tr>
+                        <tr th:each="transaction : ${transactions.content}" class="hover:bg-gray-50">
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900" th:text="${transaction.transactionNumber}">TXN0000001</div>
+                                <div class="text-xs text-gray-500" th:text="${transaction.referenceNumber}">REF123</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900" th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}">01/01/2024</div>
+                                <div class="text-xs text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'HH:mm:ss')}">10:30:00</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full"
+                                      th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                      th:text="${transaction.transactionType.name()}">DEPOSIT</span>
+                                <div class="text-xs text-gray-500 mt-1" th:text="${transaction.channel.name()}">TELLER</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900" th:text="${transaction.account.accountNumber}">A2000001</div>
+                                <div class="text-xs text-gray-500" th:text="${transaction.account.accountName}">Account Name</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right">
+                                <div class="text-sm font-medium"
+                                     th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'text-green-600' : 'text-red-600'"
+                                     th:text="${'IDR ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 2, 'POINT')}">IDR 100,000.00</div>
+                                <div class="text-xs text-gray-500" 
+                                     th:text="${'Saldo: IDR ' + #numbers.formatDecimal(transaction.balanceAfter, 0, 'COMMA', 2, 'POINT')}">Balance: IDR 1,100,000.00</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="text-sm text-gray-900" th:text="${transaction.description}">Cash deposit</div>
+                                <div class="text-xs text-gray-500" th:if="${transaction.createdBy}" th:text="${'Oleh: ' + transaction.createdBy}">By: teller1</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-center">
+                                <a th:href="@{/transaction/view/{id}(id=${transaction.id})}" 
+                                   class="text-blue-600 hover:text-blue-900 text-sm">
+                                    Lihat Detail
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${transactions.totalPages > 1}" class="flex justify-between items-center mt-6">
+                <div class="text-sm text-gray-500">
+                    Menampilkan <span th:text="${transactions.numberOfElements}">10</span> dari 
+                    <span th:text="${transactions.totalElements}">100</span> transaksi
+                </div>
+                <div class="flex space-x-2">
+                    <a th:if="${transactions.hasPrevious()}" 
+                       th:href="@{/transaction/list(page=${transactions.number - 1}, size=${transactions.size}, search=${search}, transactionType=${transactionType})}"
+                       class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                        ← Sebelumnya
+                    </a>
+                    <span class="px-3 py-2 bg-blue-600 text-white rounded-md">
+                        <span th:text="${transactions.number + 1}">1</span> / <span th:text="${transactions.totalPages}">10</span>
+                    </span>
+                    <a th:if="${transactions.hasNext()}" 
+                       th:href="@{/transaction/list(page=${transactions.number + 1}, size=${transactions.size}, search=${search}, transactionType=${transactionType})}"
+                       class="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                        Selanjutnya →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

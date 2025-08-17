@@ -69,8 +69,17 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     @Query("SELECT a FROM Account a JOIN FETCH a.customer JOIN FETCH a.product WHERE a.accountNumber = :accountNumber")
     Optional<Account> findByAccountNumberWithDetails(@Param("accountNumber") String accountNumber);
     
+    @Query("SELECT a FROM Account a JOIN FETCH a.product")
+    List<Account> findAllWithProduct();
+    
+    @Query("SELECT a FROM Account a JOIN FETCH a.product WHERE a.customer = :customer")
+    List<Account> findByCustomerWithProduct(@Param("customer") Customer customer);
+    
     Page<Account> findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
         String accountNumber, String accountName, Pageable pageable);
+    
+    List<Account> findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
+        String accountNumber, String accountName);
     
     Page<Account> findByStatus(Account.AccountStatus status, Pageable pageable);
 }
