@@ -367,6 +367,306 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         assertThat(withdrawalTransaction.isCreditTransaction()).isFalse();
     }
 
+    // ========== Passbook Printing Repository Methods Tests ==========
+
+    @Test
+    void shouldFindTransactionsByAccountWithPagination() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+        Pageable pageable = PageRequest.of(0, 2);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccount(account, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        assertThat(transactionPage.getContent()).hasSizeLessThanOrEqualTo(2);
+        assertThat(transactionPage.getTotalElements()).isGreaterThan(0);
+        
+        // Verify all transactions belong to the account
+        transactionPage.getContent().forEach(transaction -> 
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId()));
+    }
+
+    @Test
+    void shouldFindTransactionsByAccountOrderedByDateAscending() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+
+        // When
+        List<Transaction> transactions = transactionRepository.findByAccountOrderByTransactionDateAsc(account);
+
+        // Then
+        assertThat(transactions).isNotEmpty();
+        
+        // Verify ordering by transaction date ascending
+        for (int i = 0; i < transactions.size() - 1; i++) {
+            assertThat(transactions.get(i).getTransactionDate())
+                .isBeforeOrEqualTo(transactions.get(i + 1).getTransactionDate());
+        }
+        
+        // Verify all transactions belong to the account
+        transactions.forEach(transaction -> 
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId()));
+    }
+
+    @Test
+    void shouldFindTransactionsByAccountAndDateRangeWithPagination() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+        LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
+        LocalDateTime endDate = LocalDateTime.of(2024, 2, 28, 23, 59);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccountAndTransactionDateBetween(
+            account, startDate, endDate, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        assertThat(transactionPage.getContent()).isNotEmpty();
+        
+        // Verify date range filtering
+        transactionPage.getContent().forEach(transaction -> {
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId());
+            assertThat(transaction.getTransactionDate()).isBetween(startDate, endDate);
+        });
+    }
+
+    @Test
+    void shouldFindTransactionsByAccountAndStartDateWithPagination() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+        LocalDateTime startDate = LocalDateTime.of(2024, 2, 1, 0, 0);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccountAndTransactionDateGreaterThanEqual(
+            account, startDate, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        
+        // Verify start date filtering
+        transactionPage.getContent().forEach(transaction -> {
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId());
+            assertThat(transaction.getTransactionDate()).isAfterOrEqualTo(startDate);
+        });
+    }
+
+    @Test
+    void shouldFindTransactionsByAccountAndEndDateWithPagination() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+        LocalDateTime endDate = LocalDateTime.of(2024, 2, 1, 0, 0);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccountAndTransactionDateLessThan(
+            account, endDate, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        
+        // Verify end date filtering
+        transactionPage.getContent().forEach(transaction -> {
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId());
+            assertThat(transaction.getTransactionDate()).isBefore(endDate);
+        });
+    }
+
+    @Test
+    void shouldReturnEmptyResultForAccountWithNoTransactions() {
+        // Given
+        Account accountWithoutTransactions = accountMap.get("A2000002"); // This account has no test transactions
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccount(accountWithoutTransactions, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        assertThat(transactionPage.getContent()).isEmpty();
+        assertThat(transactionPage.getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldHandleDateRangeWithNoMatches() {
+        // Given
+        saveTestTransactions();
+        Account account = accountMap.get("A2000001");
+        LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0, 0); // Future date
+        LocalDateTime endDate = LocalDateTime.of(2025, 12, 31, 23, 59);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccountAndTransactionDateBetween(
+            account, startDate, endDate, pageable);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        assertThat(transactionPage.getContent()).isEmpty();
+        assertThat(transactionPage.getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldFindTransactionsForPassbookPrintingScenario() {
+        // Given - Create a realistic passbook printing scenario
+        saveExtendedTransactionHistory();
+        Account account = accountMap.get("A2000001");
+        
+        // Recent transactions (last 30 days)
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        Pageable recentTransactions = PageRequest.of(0, 20);
+
+        // When
+        Page<Transaction> recentPage = transactionRepository.findByAccountAndTransactionDateGreaterThanEqual(
+            account, thirtyDaysAgo, recentTransactions);
+        
+        List<Transaction> allTransactions = transactionRepository.findByAccountOrderByTransactionDateAsc(account);
+
+        // Then
+        assertThat(recentPage).isNotNull();
+        assertThat(allTransactions).isNotEmpty();
+        
+        // Verify chronological ordering for passbook display
+        for (int i = 0; i < allTransactions.size() - 1; i++) {
+            assertThat(allTransactions.get(i).getTransactionDate())
+                .isBeforeOrEqualTo(allTransactions.get(i + 1).getTransactionDate());
+        }
+        
+        // Verify balance progression (each transaction should have correct running balance)
+        BigDecimal runningBalance = BigDecimal.ZERO;
+        for (Transaction transaction : allTransactions) {
+            assertThat(transaction.getBalanceBefore()).isEqualByComparingTo(runningBalance);
+            
+            if (transaction.isCreditTransaction()) {
+                runningBalance = runningBalance.add(transaction.getAmount());
+            } else {
+                runningBalance = runningBalance.subtract(transaction.getAmount());
+            }
+            
+            assertThat(transaction.getBalanceAfter()).isEqualByComparingTo(runningBalance);
+        }
+    }
+
+    @Test
+    void shouldHandleLargePageSizeForPassbookPrinting() {
+        // Given
+        saveExtendedTransactionHistory();
+        Account account = accountMap.get("A2000001");
+        Pageable largePage = PageRequest.of(0, 1000); // Large page size for printing
+
+        // When
+        Page<Transaction> transactionPage = transactionRepository.findByAccount(account, largePage);
+
+        // Then
+        assertThat(transactionPage).isNotNull();
+        assertThat(transactionPage.getContent()).isNotEmpty();
+        assertThat(transactionPage.getContent().size()).isLessThanOrEqualTo(1000);
+        
+        // Performance check - should complete in reasonable time
+        long startTime = System.currentTimeMillis();
+        transactionRepository.findByAccount(account, largePage);
+        long endTime = System.currentTimeMillis();
+        assertThat(endTime - startTime).isLessThan(5000); // Should complete within 5 seconds
+    }
+
+    private void saveExtendedTransactionHistory() {
+        Account account = accountMap.get("A2000001");
+        BigDecimal runningBalance = BigDecimal.ZERO;
+        
+        // Create a realistic transaction history over several months
+        LocalDateTime baseDate = LocalDateTime.of(2024, 1, 1, 9, 0);
+        
+        for (int month = 1; month <= 6; month++) {
+            for (int day = 1; day <= 28; day += 7) { // Weekly transactions
+                
+                // Salary deposit (monthly on 1st)
+                if (day == 1) {
+                    Transaction salaryDeposit = createTransaction(
+                        account,
+                        "T300" + String.format("%04d", (month * 100) + day),
+                        Transaction.TransactionType.DEPOSIT,
+                        new BigDecimal("5000000"), // 5 million IDR salary
+                        runningBalance,
+                        "Salary deposit - Month " + month,
+                        "SAL" + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ONLINE,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(8)
+                    );
+                    runningBalance = runningBalance.add(salaryDeposit.getAmount());
+                    salaryDeposit.setBalanceAfter(runningBalance);
+                    transactionRepository.save(salaryDeposit);
+                }
+                
+                // Weekly ATM withdrawal
+                if (day > 1 && runningBalance.compareTo(new BigDecimal("500000")) > 0) {
+                    Transaction atmWithdrawal = createTransaction(
+                        account,
+                        "T300" + String.format("%04d", (month * 100) + day + 50),
+                        Transaction.TransactionType.WITHDRAWAL,
+                        new BigDecimal("500000"), // 500k IDR withdrawal
+                        runningBalance,
+                        "ATM withdrawal - Week " + (day / 7 + 1),
+                        "ATM" + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ATM,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(18)
+                    );
+                    runningBalance = runningBalance.subtract(atmWithdrawal.getAmount());
+                    atmWithdrawal.setBalanceAfter(runningBalance);
+                    transactionRepository.save(atmWithdrawal);
+                }
+                
+                // Bi-weekly bill payment
+                if (day % 14 == 0 && runningBalance.compareTo(new BigDecimal("200000")) > 0) {
+                    Transaction billPayment = createTransaction(
+                        account,
+                        "T300" + String.format("%04d", (month * 100) + day + 75),
+                        Transaction.TransactionType.WITHDRAWAL,
+                        new BigDecimal("150000"), // 150k IDR bill
+                        runningBalance,
+                        "Utility bill payment",
+                        "BILL" + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ONLINE,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(14)
+                    );
+                    runningBalance = runningBalance.subtract(billPayment.getAmount());
+                    billPayment.setBalanceAfter(runningBalance);
+                    transactionRepository.save(billPayment);
+                }
+            }
+        }
+        
+        entityManager.flush();
+    }
+
+    private Transaction createTransaction(Account account, String transactionNumber, 
+                                       Transaction.TransactionType type, BigDecimal amount,
+                                       BigDecimal balanceBefore, String description,
+                                       String referenceNumber, Transaction.TransactionChannel channel,
+                                       LocalDateTime transactionDate) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setTransactionNumber(transactionNumber);
+        transaction.setTransactionType(type);
+        transaction.setAmount(amount);
+        transaction.setCurrency("IDR");
+        transaction.setBalanceBefore(balanceBefore);
+        transaction.setDescription(description);
+        transaction.setReferenceNumber(referenceNumber);
+        transaction.setChannel(channel);
+        transaction.setTransactionDate(transactionDate);
+        transaction.setProcessedDate(transactionDate);
+        transaction.setCreatedBy("TEST");
+        return transaction;
+    }
+
     private void setupTestData() {
         // Create test customers to match CSV transaction data
         PersonalCustomer customer1 = new PersonalCustomer();

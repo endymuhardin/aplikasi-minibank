@@ -1,0 +1,7 @@
+scenario,accountNumber,transactionCount,startDate,endDate,description
+EMPTY_ACCOUNT,A2000999,0,2024-01-01,2024-12-31,"Account with no transactions"
+SINGLE_TRANSACTION,A2000998,1,2024-06-01,2024-06-30,"Account with only one transaction"
+LARGE_VOLUME,A2000997,100,2024-01-01,2024-12-31,"Account with high transaction volume"
+RECENT_ONLY,A2000996,5,2024-12-01,2024-12-31,"Account with only recent transactions"
+OLD_ONLY,A2000995,3,2023-01-01,2023-12-31,"Account with only old transactions"
+DATE_BOUNDARY,A2000994,6,2023-12-31,2024-01-01,"Transactions across year boundary"

@@ -3,10 +3,6 @@ package id.ac.tazkia.minibank.functional.web;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.openqa.selenium.WebDriver;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.Testcontainers;
