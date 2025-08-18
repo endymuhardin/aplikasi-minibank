@@ -44,4 +44,10 @@ INSERT INTO accounts (id, id_customers, id_products, id_branches, account_number
 
 -- Insert sequence numbers for transaction numbering
 INSERT INTO sequence_numbers (sequence_name, prefix, last_number, created_date, updated_date) VALUES
-('TRANSACTION_NUMBER', 'TXN', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('TRANSACTION_NUMBER', 'TXN', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Insert some test withdrawal transactions for filter testing
+INSERT INTO transactions (id, id_accounts, transaction_number, transaction_type, amount, description, balance_before, balance_after, transaction_date, channel, created_by) VALUES
+('aaa11111-1111-1111-1111-111111111111', '11111111-1111-1111-aaaa-111111111111', 'TXN0000001', 'WITHDRAWAL', 100.00, 'Cash withdrawal at ATM', 5100.00, 5000.00, CURRENT_TIMESTAMP - INTERVAL '1 day', 'ATM', 'system'),
+('bbb22222-2222-2222-2222-222222222222', '22222222-2222-2222-bbbb-222222222222', 'TXN0000002', 'WITHDRAWAL', 50000.00, 'Cash withdrawal at teller', 150000.00, 100000.00, CURRENT_TIMESTAMP - INTERVAL '2 hours', 'TELLER', 'teller1'),
+('ccc33333-3333-3333-3333-333333333333', '33333333-3333-3333-cccc-333333333333', 'TXN0000003', 'DEPOSIT', 500.00, 'Cash deposit at teller', 1000.00, 1500.00, CURRENT_TIMESTAMP - INTERVAL '3 hours', 'TELLER', 'teller2');

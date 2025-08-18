@@ -6,6 +6,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TransactionListPage extends BasePage {
     
     // Page elements
@@ -99,8 +102,10 @@ public class TransactionListPage extends BasePage {
     // Transaction verification methods
     public boolean hasTransactions() {
         try {
-            return isElementVisible(firstTransactionRow);
+            // Check for first transaction row using safer element detection
+            return isElementPresentSafely(By.id("transaction-row-0"));
         } catch (Exception e) {
+            log.debug("No transactions found or error checking transaction list: {}", e.getMessage());
             return false;
         }
     }

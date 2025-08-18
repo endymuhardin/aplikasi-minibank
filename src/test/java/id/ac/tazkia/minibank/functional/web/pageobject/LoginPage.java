@@ -100,22 +100,11 @@ public class LoginPage {
         loginButton.click();
         log.info("Login button clicked");
         
-        // Wait a moment for the form submission and redirect
-        try {
-            wait.until(ExpectedConditions.or(
-                ExpectedConditions.urlContains("/dashboard"),
-                ExpectedConditions.urlContains("/product/list"),
-                ExpectedConditions.urlContains("/login?error"),
-                ExpectedConditions.visibilityOf(errorMessage)
-            ));
-        } catch (Exception e) {
-            String errorDetails = String.format(
-                "❌ FAIL-FAST: Login wait condition failed. URL: '%s', Page title: '%s', Error: %s",
-                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
-            );
-            log.error(errorDetails, e);
-            throw new AssertionError(errorDetails, e);
-        }
+        // Wait for successful login redirect - fail fast if not successful
+        wait.until(ExpectedConditions.or(
+            ExpectedConditions.urlContains("/dashboard"),
+            ExpectedConditions.urlContains("/product/list")
+        ));
         return new DashboardPage(driver);
     }
     
