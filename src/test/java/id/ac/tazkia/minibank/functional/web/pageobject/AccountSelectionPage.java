@@ -55,14 +55,27 @@ public class AccountSelectionPage extends BasePage {
     // Page verification methods
     public void waitForPageLoad() {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
-        wait.until(ExpectedConditions.textToBePresentInElement(pageTitle, "Setoran Tunai - Pilih Rekening"));
+        wait.until(ExpectedConditions.or(
+            ExpectedConditions.textToBePresentInElement(pageTitle, "Setoran Tunai - Pilih Rekening"),
+            ExpectedConditions.textToBePresentInElement(pageTitle, "Penarikan Tunai - Pilih Rekening")
+        ));
         waitForPageToLoad();
     }
     
     public boolean isOnAccountSelectionPage() {
         try {
             waitForPageLoad();
-            return pageTitle.getText().contains("Setoran Tunai - Pilih Rekening");
+            String titleText = pageTitle.getText();
+            return titleText.contains("Setoran Tunai - Pilih Rekening") || 
+                   titleText.contains("Penarikan Tunai - Pilih Rekening");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean isWithdrawalType() {
+        try {
+            return pageTitle.getText().contains("Penarikan Tunai");
         } catch (Exception e) {
             return false;
         }
@@ -115,6 +128,21 @@ public class AccountSelectionPage extends BasePage {
         return new CashDepositFormPage(driver, baseUrl);
     }
     
+    public CashWithdrawalFormPage selectAccountForWithdrawal(String accountId) {
+        // Wait for the specific account card to be present
+        waitForElementToBePresent(By.id("account-card-" + accountId));
+        
+        // Find and click the account card
+        WebElement accountCard = driver.findElement(By.id("account-card-" + accountId));
+        scrollToElementAndClick(accountCard);
+        
+        // Wait for navigation to cash withdrawal form URL (expects /transaction/cash-withdrawal/{accountId})
+        waitForUrlToContain("/transaction/cash-withdrawal/" + accountId);
+        waitForPageToLoad();
+        
+        return new CashWithdrawalFormPage(driver, baseUrl);
+    }
+    
     // Convenience methods for the first account using known test data ID
     public String getFirstAccountNumber() {
         if (hasAccounts()) {
@@ -133,6 +161,13 @@ public class AccountSelectionPage extends BasePage {
     public CashDepositFormPage selectFirstAccount() {
         if (hasAccounts()) {
             return selectAccount("11111111-1111-1111-aaaa-111111111111");
+        }
+        throw new RuntimeException("No accounts available to select");
+    }
+    
+    public CashWithdrawalFormPage selectFirstAccountForWithdrawal() {
+        if (hasAccounts()) {
+            return selectAccountForWithdrawal("11111111-1111-1111-aaaa-111111111111");
         }
         throw new RuntimeException("No accounts available to select");
     }

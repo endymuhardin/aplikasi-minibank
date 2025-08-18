@@ -51,13 +51,17 @@ Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai
         * ✅ Transaction detail view dengan balance calculations
         * ✅ **Comprehensive Selenium Testing:** 10+ test methods covering full workflow, validation, multi-role access
         * ✅ Karate BDD testing dengan berbagai skenario
-    * ✅ **Penarikan Tunai (Withdrawal):**
+    * ✅ **Penarikan Tunai (Cash Withdrawal):**
         * ✅ REST API untuk withdrawal dengan validasi saldo
-        * ✅ Pengecekan limit penarikan harian
-        * ✅ Update saldo otomatis dengan validasi
-        * ✅ Pencatatan audit trail transaksi
+        * ✅ **Web Interface Lengkap:** Form penarikan tunai dengan account selection, real-time balance validation, warning system
+        * ✅ **JavaScript Real-time Validation:** Client-side balance checking, insufficient balance warnings, button state management
+        * ✅ Update saldo otomatis dengan validasi business logic
+        * ✅ Pencatatan audit trail transaksi lengkap
+        * ✅ Transaction list view dengan withdrawal display (negative amounts)
+        * ✅ Transaction detail view dengan withdrawal balance calculations
+        * ✅ **Comprehensive Selenium Testing:** 15+ test methods covering insufficient balance, edge cases, multi-role access
         * ✅ Karate BDD testing komprehensif
-        * ❓ *Web Interface:** Belum diimplementasi untuk withdrawal*
+        * ✅ **Islamic Banking Compliance:** Menggunakan business logic Account.withdraw() dengan validasi syariah
     * ❌ **Transfer:** Belum diimplementasi (REST API maupun Web UI)
 
 * **✅ Modul User Management & RBAC:**
@@ -73,16 +77,18 @@ Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai
     * ✅ **REST API Lengkap:** Endpoint untuk semua operasi RBAC
     * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test
 
+* **✅ Modul Cetak Buku Tabungan (Passbook Printing):**
+    * ✅ **Web Interface Lengkap:** Account selection, transaction history display, printing functionality
+    * ✅ Pencarian rekening nasabah dengan validasi status aktif
+    * ✅ Tampilan riwayat transaksi dengan pagination dan filtering
+    * ✅ Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik
+    * ✅ **Islamic Banking Compliance:** Support untuk semua jenis produk syariah
+    * ✅ **Comprehensive Selenium Testing:** Full passbook workflow testing
+    * ✅ Real-time sinkronisasi dengan data transaksi terbaru
+
 ### ❌ **MODUL YANG BELUM DIIMPLEMENTASI** ###
 
-* **❌ Modul Cetak Buku Tabungan:**
-    * ❌ Pencarian rekening nasabah
-    * ❌ Tampilan riwayat transaksi
-    * ❌ Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik
-    * ❌ Sinkronisasi dengan data transaksi terbaru
-
 * **🔄 Modul Transaksi (Sebagian):**
-    * ❌ **Web Interface Penarikan Tunai:** REST API sudah ada, tapi belum ada UI web
     * ❌ **Transfer Antar Rekening:** Belum diimplementasi sama sekali (REST API & Web UI)
     * ❌ **Transfer ke Bank Lain:** Belum diimplementasi
 
@@ -747,6 +753,10 @@ mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
 
 # Run semua Selenium tests
 mvn test -Dtest="*Selenium*"
+# Run Cash Deposit Selenium tests  
+mvn test -Dtest=CashDepositSeleniumTest
+# Run Cash Withdrawal Selenium tests
+mvn test -Dtest=CashWithdrawalSeleniumTest
 
 # Run dengan browser Chrome (default: Chrome)
 mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=chrome

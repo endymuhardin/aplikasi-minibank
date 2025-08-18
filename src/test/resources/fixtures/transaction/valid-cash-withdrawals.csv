@@ -1,0 +1,9 @@
+amountPercent,description,expectedResult
+10,Test withdrawal 10% balance,SUCCESS
+25,Test withdrawal 25% balance,SUCCESS
+50,Test withdrawal 50% balance,SUCCESS
+75,Test withdrawal 75% balance,SUCCESS
+90,Test withdrawal 90% balance,SUCCESS
+0.1,Test minimum withdrawal,SUCCESS
+120,Test withdrawal exceeding balance,ERROR
+150,Test excessive withdrawal amount,ERROR

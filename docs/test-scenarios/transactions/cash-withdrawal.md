@@ -22,6 +22,25 @@ public ResponseEntity<Object> withdrawal(@Valid @RequestBody WithdrawalRequest r
 account.withdraw(request.getAmount()); // Entity business method
 ```
 
+### ✅ **NEW: Web Interface Controller (TransactionController)**
+```java
+@PostMapping("/cash-withdrawal")
+public String processCashWithdrawal(@Valid @ModelAttribute WithdrawalRequest withdrawalRequest,
+                                   BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes)
+
+// Navigation endpoints:
+@GetMapping("/cash-withdrawal") // Account selection
+@GetMapping("/cash-withdrawal/{accountId}") // Withdrawal form
+
+// Business Logic Integration:
+account.withdraw(withdrawalRequest.getAmount()); // Entity business method
+```
+
+### ✅ **NEW: Web UI Templates**
+- `templates/transaction/select-account.html` - Account selection with withdrawal support
+- `templates/transaction/cash-withdrawal-form.html` - Withdrawal form with real-time validation
+- `templates/transaction/list.html` - Transaction list with withdrawal button and display
+
 ### CSV Test Data Reference
 ```csv
 # src/test/resources/fixtures/transaction/withdrawal-normal.csv
@@ -43,18 +62,22 @@ account.withdraw(request.getAmount()); // Entity business method
 
 **Steps**:
 1. Login sebagai Teller (teller1)
-2. Navigasi ke menu "Penarikan Tunai"
-3. Input account number: ACC0000001
-4. Sistem menampilkan customer data dan current balance
-5. Input withdrawal amount: 250000.00
+2. **✅ NEW: Navigate via Web UI:** Dashboard → Transaction List → "- Penarikan Tunai" button
+3. **✅ NEW: Account Selection Page:** Search and select account ACC0000001
+4. **✅ NEW: Withdrawal Form Page:** System displays customer data, account info, and current balance
+5. **✅ NEW: Real-time Validation:** Input withdrawal amount: 250000.00 (with live balance calculation)
 6. Input description: "Penarikan tunai harian"
-7. Konfirmasi transaksi
-8. Klik "Proses Penarikan"
+7. Input reference number (optional)
+8. Input processed by: "teller1"
+9. **✅ NEW: Client-side Validation:** System validates sufficient balance before submit
+10. Click "Proses Penarikan Tunai" button
 
 **Expected Result**:
 - Account.withdraw(amount) method dipanggil
 - Validation: amount > 0 ✓
 - Validation: balance >= amount ✓
+- **✅ NEW: Client-side Validation:** Real-time balance warning system functioning
+- **✅ NEW: JavaScript Validation:** New balance calculated and displayed correctly
 - Balance sebelum: 1000000.00
 - Balance sesudah: 750000.00
 - Transaction record tersimpan dengan:
@@ -71,8 +94,9 @@ account.withdraw(request.getAmount()); // Entity business method
   - created_by: teller1
 - Constraint validation: amount > 0 ✓
 - Constraint validation: balance_after = balance_before - amount ✓
-- Notifikasi sukses ditampilkan
-- Receipt penarikan dapat dicetak
+- **✅ NEW: Web UI Success:** Redirect to transaction list with success message
+- **✅ NEW: Transaction Display:** Transaction appears in list with negative amount (-IDR 250,000.00)
+- **✅ NEW: Transaction Detail:** View transaction detail shows withdrawal information correctly
 
 ### TC-CW-002: Penarikan Tunai dengan Limit Harian - TABUNGAN_MUDHARABAH
 **Deskripsi**: Melakukan penarikan tunai dengan validasi daily withdrawal limit
@@ -679,3 +703,103 @@ void shouldValidateWithdrawalErrors(String accountId, BigDecimal amount, String 
 - **Fee Scenarios**: Excess transaction fees, channel-specific charges
 - **Daily Limits**: Multiple withdrawals testing daily limits
 - **Edge Cases**: Minimum balance constraints, large amounts
+
+## ✅ **NEW: Comprehensive Selenium Testing**
+
+### Web UI Automation Tests (CashWithdrawalSeleniumTest)
+
+The cash withdrawal functionality now includes comprehensive Selenium tests following technical practices and lessons learned:
+
+#### Test Coverage (15+ Test Methods):
+1. **Navigation Workflow Testing**
+   - `shouldNavigateThroughCashWithdrawalWorkflow()` - Full UI navigation flow
+   - Dashboard → Transaction List → Withdrawal Button → Account Selection → Withdrawal Form
+
+2. **Successful Processing Tests**
+   - `shouldProcessCashWithdrawalSuccessfully()` - Complete withdrawal processing
+   - Real-time balance validation, transaction creation, success message verification
+
+3. **Client-side Validation Tests**
+   - `shouldRejectWithdrawalInsufficientBalance()` - JavaScript balance warnings
+   - `shouldCalculateNewBalanceCorrectly()` - Real-time balance calculations
+   - Button state management (disabled when insufficient balance)
+
+4. **Form Validation Tests**
+   - `shouldValidateRequiredFields()` - Required field validation (amount, created by)
+   - `shouldRejectNegativeAmount()` - Negative amount validation
+   - `shouldRejectZeroAmount()` - Zero amount validation
+
+5. **Account Management Tests**
+   - `shouldHandleAccountSearch()` - Account search and filtering functionality
+   - `shouldHandleFormCancellation()` - Form cancellation and navigation
+
+6. **Transaction Verification Tests**
+   - `shouldViewTransactionDetails()` - Transaction detail view validation
+   - `shouldFilterTransactionsByWithdrawalType()` - Transaction filtering by WITHDRAWAL type
+
+7. **Multi-role Permission Tests**
+   - `shouldWorkWithManagerRole()` - Manager role withdrawal processing
+   - Role-based access control validation
+
+8. **Edge Case Testing**
+   - `shouldHandleMinimumBalanceEdgeCase()` - Minimum balance scenarios
+   - Withdrawal leaving exactly minimum balance
+
+9. **Parameterized Testing**
+   - `shouldProcessValidCashWithdrawals()` - CSV-driven test scenarios
+   - Multiple withdrawal amounts based on percentage of current balance
+
+#### Technical Practices Compliance:
+- ✅ **ID-based Locators:** Primary use of ID attributes for stability
+- ✅ **Explicit Waits:** WebDriverWait with ExpectedConditions (no Thread.sleep)
+- ✅ **Page Object Model:** Clean abstractions with CashWithdrawalFormPage
+- ✅ **Comprehensive Logging:** Emoji-based logging for easy test identification
+- ✅ **JavaScript Testing:** Real-time validation, balance calculations, warning systems
+- ✅ **Error Handling:** Client-side and server-side validation testing
+- ✅ **Multi-role Testing:** Teller and Manager permission validation
+
+#### Selenium Test Commands:
+```bash
+# Run Cash Withdrawal Selenium tests (headless mode)
+mvn test -Dtest=CashWithdrawalSeleniumTest
+
+# Run with visible browser for debugging
+mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.headless=false
+
+# Run with recording enabled for monitoring
+mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.recording.enabled=true
+
+# Run specific test method
+mvn test -Dtest=CashWithdrawalSeleniumTest#shouldProcessCashWithdrawalSuccessfully
+
+# Run with Firefox browser
+mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.browser=firefox
+
+# Combined debugging options
+mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
+```
+
+#### Test Data Integration:
+- **CSV Parameterized Testing:** `/fixtures/transaction/valid-cash-withdrawals.csv`
+- **SQL Setup/Cleanup:** Automated test data management
+- **Account Test Data:** Multiple accounts with different balance scenarios
+- **Percentage-based Amounts:** Dynamic withdrawal amounts based on account balance
+
+#### Page Objects Created:
+- **CashWithdrawalFormPage:** Complete withdrawal form automation
+- **AccountSelectionPage:** Enhanced for withdrawal support
+- **TransactionListPage:** Updated with withdrawal button functionality
+- **TransactionViewPage:** Withdrawal transaction detail validation
+
+#### JavaScript Validation Testing:
+- **Real-time Balance Calculation:** New balance display during input
+- **Insufficient Balance Warnings:** Client-side warning system
+- **Button State Management:** Submit button disabled/enabled based on validation
+- **Warning Text Validation:** Specific insufficient balance messages
+- **Form Reset Testing:** JavaScript state reset functionality
+
+#### Islamic Banking Compliance Testing:
+- Uses existing `Account.withdraw()` business logic
+- Validates Shariah-compliant transaction processing
+- Tests Islamic banking product types (Wadiah, Mudharabah)
+- Ensures no interest-based calculations in withdrawal processing

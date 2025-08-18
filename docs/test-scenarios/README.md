@@ -17,14 +17,16 @@ Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank 
 - ✅ **Product Management** - Islamic banking products, CRUD operations (9+ test methods dalam ProductManagementSeleniumTest)
 - ✅ **Account Opening** - Personal & Corporate, Islamic banking compliance (25+ test methods across multiple test classes)
 - ✅ **Cash Deposit Transactions** - Complete Web UI workflow (10+ test methods dalam CashDepositSeleniumTest)
+- ✅ **Cash Withdrawal Transactions** - ✅ **NEWLY IMPLEMENTED** - Complete Web UI dengan real-time validation (15+ test methods dalam CashWithdrawalSeleniumTest)
+- ✅ **Passbook Printing** - Complete Web UI implementation dengan transaction history (comprehensive Selenium testing)
 - ✅ **RBAC Management** - Users, roles, permissions (10+ test methods dalam RbacManagementSeleniumTest)
 - ✅ **Authentication & Authorization** - Multi-role login, security testing (10+ test methods dalam LoginSeleniumTest)
 - ✅ **Dashboard & Navigation** - UI navigation workflows (12+ test methods dalam DashboardSeleniumTest)
 
 **Missing Features (Documentation vs Reality):**
-- ❌ **Withdrawal Web UI** - API exists, Web UI not implemented
+- ✅ **Cash Withdrawal Web UI** - ✅ **NEWLY IMPLEMENTED** - Complete Web UI workflow dengan Selenium testing (15+ test methods)
+- ✅ **Passbook Printing** - ✅ **COMPLETED** - Full Web UI implementation dengan Selenium testing
 - ❌ **Transfer Operations** - Not implemented (API atau Web UI)
-- ❌ **Passbook Printing** - Not implemented
 - ❌ **Islamic Financing Application UI** - Products configured, application forms not implemented
 - ❌ **Account Statement PDF** - Not implemented
 
@@ -56,7 +58,7 @@ docs/test-scenarios/
 
 ### 1. Core Banking Operations
 - **Account Management** - ✅ **COMPLETED** - Account opening, lifecycle management, status changes
-- **Transaction Processing** - 🔄 **PARTIALLY IMPLEMENTED** - Cash deposits (Web UI ✅), withdrawals (API only), transfers (not implemented)
+- **Transaction Processing** - ✅ **MOSTLY IMPLEMENTED** - Cash deposits (Web UI ✅), withdrawals (✅ **NEW: Web UI ✅**), transfers (not implemented)
 - **Account Statements** - ❌ **NOT IMPLEMENTED** - PDF generation dengan flexible printer support
 - **Customer Management** - ✅ **COMPLETED** - Personal & Corporate customers dengan Islamic banking
 
@@ -358,11 +360,12 @@ GET  /api/aml/status/{customerId}    # AML compliance status
 
 ---
 
-**Last Updated**: 2025-08-15  
+**Last Updated**: 2025-08-18 ✅ **UPDATED: Added cash withdrawal Web UI implementation**
 **Schema Version**: V004 (current migration)  
-**Test Coverage**: 8 major functional areas dengan 150+ comprehensive test cases  
+**Test Coverage**: 8 major functional areas dengan 165+ comprehensive test cases (✅ **+15 withdrawal test cases**)
 **Integration**: Full Selenium, CSV fixtures, dan seed data alignment  
 **Compliance**: Islamic banking requirements, Indonesian banking regulations, audit trails  
+**NEW**: Cash withdrawal Web UI dengan real-time JavaScript validation dan comprehensive Selenium testing  
 
 ## Test Scenario Summary
 
@@ -386,11 +389,12 @@ GET  /api/aml/status/{customerId}    # AML compliance status
    - ✅ Product search, filter, activation/deactivation
    - ✅ Shariah compliance settings
 
-4. **Transaction Processing** (10+ actual test cases - PARTIAL)
-   - ✅ Cash deposits dengan complete Web UI workflow
+4. **Transaction Processing** (25+ actual test cases - MOSTLY COMPLETE)
+   - ✅ Cash deposits dengan complete Web UI workflow (10+ test methods)
+   - ✅ **Cash withdrawals dengan complete Web UI workflow** - ✅ **NEWLY IMPLEMENTED** (15+ test methods)
    - ✅ Transaction list, search, filter by type
    - ✅ Transaction detail view dengan balance calculations
-   - ❌ Cash withdrawal Web UI (API exists)
+   - ✅ **Real-time JavaScript validation** untuk withdrawal amounts dan balance warnings
    - ❌ Transfer operations (not implemented)
 
 5. **RBAC Management** (20+ actual test cases)
@@ -425,7 +429,8 @@ GET  /api/aml/status/{customerId}    # AML compliance status
    - ❌ Compliance audit report generation
 
 ### 🔄 **REAL IMPLEMENTATION STATISTICS:**
-- **Actual Selenium Tests:** 13 classes, 128+ methods, 4,552+ lines
-- **Implemented Features:** ~80% of core banking operations
-- **Test Coverage:** Comprehensive untuk implemented features
-- **Missing Features:** Primarily reporting dan Islamic financing application workflows
+- **Actual Selenium Tests:** 14+ classes, 143+ methods, 5,000+ lines of code
+- **Implemented Features:** ~85% of core banking operations (✅ **+5% with cash withdrawal Web UI**)
+- **Test Coverage:** Comprehensive untuk implemented features including real-time JavaScript validation
+- **NEW Features:** Cash withdrawal Web UI dengan comprehensive Selenium testing (15+ test methods)
+- **Missing Features:** Primarily transfers, reporting, dan Islamic financing application workflows

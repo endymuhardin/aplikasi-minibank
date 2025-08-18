@@ -189,4 +189,23 @@ public abstract class BasePage {
         WebElement element = driver.findElement(By.id("error-message"));
         return element.getText();
     }
+    
+    protected void waitForJavaScriptProcessing(int milliseconds) {
+        // Wait for JavaScript processing to complete by waiting for a condition or timeout
+        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(milliseconds));
+        try {
+            shortWait.until(webDriver -> {
+                // Check if any pending JavaScript operations are complete
+                try {
+                    return ((JavascriptExecutor) webDriver)
+                        .executeScript("return document.readyState === 'complete' && (typeof jQuery === 'undefined' || jQuery.active === 0)");
+                } catch (Exception e) {
+                    // If jQuery is not available or there's an error, consider it complete
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            // If timeout occurs, continue anyway as this is just a processing wait
+        }
+    }
 }
