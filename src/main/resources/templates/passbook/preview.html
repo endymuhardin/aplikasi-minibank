@@ -1,0 +1,146 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Passbook Preview - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Passbook Preview</h1>
+                <div class="flex space-x-2">
+                    <a th:href="@{/passbook/select-account}" 
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                        Back to Selection
+                    </a>
+                    <a th:href="@{/passbook/print/{id}(id=${account.id})}" 
+                       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                        Print Passbook
+                    </a>
+                </div>
+            </div>
+
+            <!-- Account information card -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-blue-800 mb-2">Account Details</h3>
+                        <p class="text-sm"><strong>Account Number:</strong> <span th:text="${account.accountNumber}">A2000001</span></p>
+                        <p class="text-sm"><strong>Account Name:</strong> <span th:text="${account.accountName}">Account Name</span></p>
+                        <p class="text-sm"><strong>Product:</strong> <span th:text="${account.product.productName}">Product Name</span></p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-blue-800 mb-2">Customer Details</h3>
+                        <p class="text-sm"><strong>Customer:</strong> <span th:text="${account.customer.displayName}">Customer Name</span></p>
+                        <p class="text-sm"><strong>Customer Number:</strong> <span th:text="${account.customer.customerNumber}">C1000001</span></p>
+                        <p class="text-sm"><strong>Current Balance:</strong> 
+                            <span class="font-medium">IDR <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date filter form -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <form method="get" th:action="@{/passbook/print/{id}(id=${account.id})}" class="flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label for="fromDate" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                        <input type="date" 
+                               id="fromDate"
+                               name="fromDate" 
+                               th:value="${fromDate}" 
+                               class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="toDate" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                        <input type="date" 
+                               id="toDate"
+                               name="toDate" 
+                               th:value="${toDate}" 
+                               class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                        Apply Filter & Print
+                    </button>
+                    <a th:href="@{/passbook/print/{id}(id=${account.id})}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+                        Print All
+                    </a>
+                </form>
+            </div>
+
+            <!-- Preview note -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-yellow-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-sm font-medium text-yellow-800">Preview Information</h3>
+                        <p class="text-sm text-yellow-700 mt-1">
+                            This preview shows the most recent 10 transactions. The actual passbook printing will include all transactions within the selected date range.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent transactions preview -->
+            <div th:if="${transactions.content}" class="overflow-x-auto">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">Recent Transactions Preview</h3>
+                <table class="min-w-full table-auto border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700">Date</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-700">Description</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-700">Type</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-700">Amount</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-700">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr th:each="transaction : ${transactions.content}" class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-xs text-gray-900">
+                                <span th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                                <br>
+                                <span class="text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'HH:mm')}">10:00</span>
+                            </td>
+                            <td class="px-4 py-2 text-xs">
+                                <div class="text-gray-900" th:text="${transaction.description}">Transaction description</div>
+                                <div class="text-gray-500" th:text="${transaction.transactionNumber}">TXN0000001</div>
+                            </td>
+                            <td class="px-4 py-2 text-xs text-center">
+                                <span class="px-2 py-1 rounded-full text-xs"
+                                      th:classappend="${transaction.isCreditTransaction()} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                      th:text="${transaction.transactionType.name()}">TYPE</span>
+                            </td>
+                            <td class="px-4 py-2 text-xs text-right">
+                                <span th:classappend="${transaction.isCreditTransaction()} ? 'text-green-600' : 'text-red-600'">
+                                    <span th:text="${transaction.isCreditTransaction()} ? '+' : '-'">+</span>
+                                    IDR <span th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 text-xs text-right font-medium text-gray-900">
+                                IDR <span th:text="${#numbers.formatDecimal(transaction.balanceAfter, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty state -->
+            <div th:if="${transactions.content.empty}" class="text-center py-8">
+                <div class="text-gray-500 mb-4">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
+                <p class="text-gray-500 mb-4">This account has no transaction history yet.</p>
+                <a th:href="@{/transaction/list}" class="text-blue-600 hover:text-blue-800">
+                    View transaction management →
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

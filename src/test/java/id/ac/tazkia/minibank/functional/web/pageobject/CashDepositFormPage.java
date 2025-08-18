@@ -36,7 +36,7 @@ public class CashDepositFormPage extends BasePage {
     @FindBy(id = "process-deposit-btn")
     private WebElement processDepositButton;
     
-    @FindBy(xpath = "//a[text()='Batal']")
+    @FindBy(id = "cancel-button")
     private WebElement cancelButton;
     
     @FindBy(id = "new-balance-display")

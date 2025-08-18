@@ -1,0 +1,26 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bank building base -->
+  <rect width="80" height="80" fill="#00a39d" rx="8"/>
+  
+  <!-- Bank building columns -->
+  <rect x="15" y="25" width="4" height="30" fill="white"/>
+  <rect x="25" y="25" width="4" height="30" fill="white"/>
+  <rect x="35" y="25" width="4" height="30" fill="white"/>
+  <rect x="45" y="25" width="4" height="30" fill="white"/>
+  <rect x="55" y="25" width="4" height="30" fill="white"/>
+  <rect x="65" y="25" width="4" height="30" fill="white"/>
+  
+  <!-- Bank roof -->
+  <polygon points="10,25 40,10 70,25" fill="white"/>
+  
+  <!-- Bank steps -->
+  <rect x="12" y="55" width="56" height="3" fill="white"/>
+  <rect x="14" y="58" width="52" height="3" fill="white"/>
+  <rect x="16" y="61" width="48" height="3" fill="white"/>
+  
+  <!-- Door -->
+  <rect x="35" y="40" width="10" height="15" fill="white"/>
+  
+  <!-- Bank text -->
+  <text x="40" y="72" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" font-weight="bold">MINIBANK</text>
+</svg>

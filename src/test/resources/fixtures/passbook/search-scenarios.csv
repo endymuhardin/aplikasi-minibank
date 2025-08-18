@@ -1,0 +1,5 @@
+searchTerm,expectedResults,description
+A2000001,FOUND,Search by specific account number
+A200,PARTIAL,Search by partial account number
+INVALID_ACCOUNT,EMPTY,Search by invalid account number
+EMPTY,ALL,No search term provided

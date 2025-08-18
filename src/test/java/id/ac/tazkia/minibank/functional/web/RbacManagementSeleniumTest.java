@@ -4,18 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.TimeUnit;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.User;
-import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.PermissionListPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.RoleFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.RoleListPage;
@@ -23,8 +21,6 @@ import id.ac.tazkia.minibank.functional.web.pageobject.UserFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.UserListPage;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

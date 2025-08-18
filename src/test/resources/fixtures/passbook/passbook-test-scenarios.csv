@@ -1,0 +1,3 @@
+accountNumber,expectedStatus,description
+A2000001,OK,Active account with transaction history
+A2000002,OK,Active account without transactions

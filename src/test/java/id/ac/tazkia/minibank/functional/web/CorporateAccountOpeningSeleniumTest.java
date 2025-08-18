@@ -3,9 +3,7 @@ package id.ac.tazkia.minibank.functional.web;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -17,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
-import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
-import id.ac.tazkia.minibank.entity.Product;
 import id.ac.tazkia.minibank.functional.web.pageobject.AccountListPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateAccountOpeningFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerSelectionPage;

@@ -97,4 +97,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
         String transactionNumber, String description, Pageable pageable);
     
     Page<Transaction> findByTransactionType(Transaction.TransactionType transactionType, Pageable pageable);
+    
+    // Passbook printing methods
+    Page<Transaction> findByAccount(Account account, Pageable pageable);
+    
+    List<Transaction> findByAccountOrderByTransactionDateAsc(Account account);
+    
+    Page<Transaction> findByAccountAndTransactionDateBetween(Account account, 
+                                                           LocalDateTime startDate, 
+                                                           LocalDateTime endDate, 
+                                                           Pageable pageable);
+    
+    Page<Transaction> findByAccountAndTransactionDateGreaterThanEqual(Account account, 
+                                                                    LocalDateTime startDate, 
+                                                                    Pageable pageable);
+    
+    Page<Transaction> findByAccountAndTransactionDateLessThan(Account account, 
+                                                            LocalDateTime endDate, 
+                                                            Pageable pageable);
 }
