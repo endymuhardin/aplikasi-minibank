@@ -20,7 +20,7 @@ public abstract class BasePage {
     public BasePage(WebDriver driver, String baseUrl) {
         this.driver = driver;
         this.baseUrl = baseUrl;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // Increased timeout for slow application startup
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Optimized timeout for faster feedback
         PageFactory.initElements(driver, this);
     }
     
@@ -107,6 +107,19 @@ public abstract class BasePage {
             driver.findElement(locator);
             return true;
         } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Element not present. Locator: '%s', URL: '%s', Page title: '%s', Error: %s",
+                locator, driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
+        }
+    }
+    
+    protected boolean isElementPresentSafely(By locator) {
+        try {
+            driver.findElement(locator);
+            return true;
+        } catch (Exception e) {
             return false;
         }
     }
@@ -115,7 +128,11 @@ public abstract class BasePage {
         try {
             return element.isDisplayed();
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element visibility. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -172,12 +189,16 @@ public abstract class BasePage {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.id("success-message")));
             return true;
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Success message not displayed within timeout. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
         }
     }
     
     public boolean isErrorMessageDisplayed() {
-        return isElementPresent(By.id("error-message"));
+        return isElementPresentSafely(By.id("error-message"));
     }
     
     public String getSuccessMessage() {
@@ -192,7 +213,7 @@ public abstract class BasePage {
     
     protected void waitForJavaScriptProcessing(int milliseconds) {
         // Wait for JavaScript processing to complete by waiting for a condition or timeout
-        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(milliseconds));
+        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(Math.min(milliseconds, 3000))); // Cap at 3 seconds max
         try {
             shortWait.until(webDriver -> {
                 // Check if any pending JavaScript operations are complete
@@ -205,7 +226,11 @@ public abstract class BasePage {
                 }
             });
         } catch (Exception e) {
-            // If timeout occurs, continue anyway as this is just a processing wait
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: JavaScript processing wait failed. URL: '%s', Page title: '%s', Timeout: %dms, Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), milliseconds, e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
         }
     }
 }

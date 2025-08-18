@@ -127,42 +127,48 @@ public class ProductListPage extends BasePage {
     }
     
     public boolean isProductDisplayed(String productCode) {
-        // Don't refresh the page - preserve current search state
-        // Wait for page to be stable
-        waitForPageToLoad();
-        
-        // First check if we're showing "No products found" message
-        String pageSource = null;
         try {
-            pageSource = driver.getPageSource();
-            if (pageSource != null && pageSource.contains("No products found")) {
-                return false;
+            // Wait for page to be stable - fail fast if timeout
+            waitForPageToLoad();
+            
+            // First check for "No products found" message - use ID locator
+            try {
+                WebElement noProductsMsg = driver.findElement(By.id("no-products-message"));
+                if (noProductsMsg.isDisplayed()) {
+                    log.info("ℹ️ No products found message displayed for product '{}'", productCode);
+                    return false;
+                }
+            } catch (org.openqa.selenium.NoSuchElementException e) {
+                // No "no products" message found, continue to check table
             }
-        } catch (Exception e) {
-            log.warn("Page source might not be available, continuing with table check", e);
-        }
-        
-        // Try to find the products table
-        try {
+            
             waitForElementToBeVisible(productsTable);
             
-            // Reinitialize page elements to get fresh references
-            org.openqa.selenium.support.PageFactory.initElements(driver, this);
-            
             // Look for the product code in the table rows
-            return productRows.stream()
+            boolean found = productRows.stream()
                 .anyMatch(row -> {
                     String rowText = row.getText();
                     return rowText.contains(productCode);
                 });
-        } catch (Exception e) {
-            log.error("Error checking products table, falling back to page source check", e);
-            // If table is not available, fallback to page source check
-            if (pageSource != null) {
-                return pageSource.contains(productCode);
+            
+            if (!found) {
+                // Provide comprehensive debugging info
+                log.info("❌ Product '{}' not found. Current products in table:", productCode);
+                productRows.forEach(row -> log.info("  - {}", row.getText()));
+                log.info("Total products found: {}, URL: {}, Page title: '{}'", 
+                    productRows.size(), driver.getCurrentUrl(), driver.getTitle());
+            } else {
+                log.info("✅ Product '{}' found successfully", productCode);
             }
-            // If both approaches fail, return false
-            return false;
+            
+            return found;
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Failed to check product display. Product: '%s', URL: '%s', Page title: '%s', Error: %s",
+                productCode, driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails);
+            throw new AssertionError(errorDetails, e);
         }
     }
     

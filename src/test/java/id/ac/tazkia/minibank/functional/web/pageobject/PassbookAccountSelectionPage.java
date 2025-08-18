@@ -10,13 +10,13 @@ import java.util.List;
 
 public class PassbookAccountSelectionPage extends BasePage {
 
-    @FindBy(css = "h1:contains('Passbook Printing')")
+    @FindBy(id = "page-title")
     private WebElement pageTitle;
 
     @FindBy(id = "error-message")
     private WebElement errorMessage;
 
-    @FindBy(name = "search")
+    @FindBy(id = "search")
     private WebElement searchInput;
 
     @FindBy(id = "search-accounts-btn")
@@ -38,7 +38,7 @@ public class PassbookAccountSelectionPage extends BasePage {
     }
 
     public void waitForPageLoad() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
         waitForPageToLoad();
     }
 
@@ -57,17 +57,34 @@ public class PassbookAccountSelectionPage extends BasePage {
     }
 
     public void clearSearch() {
-        WebElement clearLink = driver.findElement(By.linkText("Clear"));
+        WebElement clearLink = driver.findElement(By.id("clear-search-button"));
         scrollToElementAndClick(clearLink);
         waitForPageToLoad();
     }
 
     public boolean isAccountDisplayed(String accountNumber) {
-        return isElementPresent(By.id("account-number-" + accountNumber));
+        return isElementPresentSafely(By.id("account-row-" + accountNumber));
     }
 
     public List<WebElement> getDisplayedAccounts() {
-        return driver.findElements(By.cssSelector("#accounts-table-body tr"));
+        try {
+            // Return accounts using a specific ID list approach
+            List<WebElement> accounts = new java.util.ArrayList<>();
+            String[] testAccountNumbers = {"A2000001", "A2000002", "A2000003", "A2000004", "A2000005"};
+            
+            for (String accountNumber : testAccountNumbers) {
+                if (isElementPresentSafely(By.id("account-row-" + accountNumber))) {
+                    accounts.add(driver.findElement(By.id("account-row-" + accountNumber)));
+                }
+            }
+            return accounts;
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get displayed accounts. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
+        }
     }
 
     public void clickPreviewPassbook(String accountNumber) {
@@ -89,21 +106,42 @@ public class PassbookAccountSelectionPage extends BasePage {
     }
 
     public String getAccountBalance(String accountNumber) {
-        WebElement accountRow = driver.findElement(By.id("account-row-" + accountNumber));
-        WebElement balanceCell = accountRow.findElement(By.cssSelector("td:nth-child(5)"));
-        return balanceCell.getText();
+        try {
+            WebElement balanceElement = driver.findElement(By.id("account-balance-" + accountNumber));
+            return balanceElement.getText();
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get account balance for %s. URL: '%s', Page title: '%s', Error: %s",
+                accountNumber, driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
+        }
     }
 
     public String getAccountCustomer(String accountNumber) {
-        WebElement accountRow = driver.findElement(By.id("account-row-" + accountNumber));
-        WebElement customerCell = accountRow.findElement(By.cssSelector("td:nth-child(3)"));
-        return customerCell.getText();
+        try {
+            WebElement customerElement = driver.findElement(By.id("account-customer-" + accountNumber));
+            return customerElement.getText();
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get account customer for %s. URL: '%s', Page title: '%s', Error: %s",
+                accountNumber, driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
+        }
     }
 
     public String getAccountProduct(String accountNumber) {
-        WebElement accountRow = driver.findElement(By.id("account-row-" + accountNumber));
-        WebElement productCell = accountRow.findElement(By.cssSelector("td:nth-child(4)"));
-        return productCell.getText();
+        try {
+            WebElement productElement = driver.findElement(By.id("account-product-" + accountNumber));
+            return productElement.getText();
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get account product for %s. URL: '%s', Page title: '%s', Error: %s",
+                accountNumber, driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            throw new AssertionError(errorDetails, e);
+        }
     }
 
     public boolean areOnlyActiveAccountsDisplayed() {
@@ -114,7 +152,7 @@ public class PassbookAccountSelectionPage extends BasePage {
     }
 
     public void navigateToAccountList() {
-        WebElement backButton = driver.findElement(By.linkText("Back to Accounts"));
+        WebElement backButton = driver.findElement(By.id("back-to-accounts-button"));
         scrollToElementAndClick(backButton);
     }
 

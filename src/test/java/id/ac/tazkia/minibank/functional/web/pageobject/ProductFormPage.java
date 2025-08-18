@@ -239,48 +239,68 @@ public class ProductFormPage extends BasePage {
     }
     
     public ProductListPage submitForm() {
-        // Try to use the hidden legacy submit button first, which should work regardless of step
         try {
-            WebElement legacySubmit = driver.findElement(By.id("legacy-submit-btn"));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", legacySubmit);
+            // Navigate to final step to ensure all data is valid and submit button is available
+            navigateToStep(6);
+            waitForElementToBeClickable(submitButton);
+            
+            log.info("⏳ Submitting product form...");
+            submitButton.click();
+            
+            // Wait for redirect to list page with specific timeout
+            waitForUrlToContain("/product/list");
+            log.info("✅ Product form submitted successfully, redirected to list page");
+            
+            return new ProductListPage(driver, baseUrl);
         } catch (Exception e) {
-            // Fallback: try to submit the form directly
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Product form submission failed. Current URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails);
+            
+            // Capture form state for debugging
             try {
                 WebElement form = driver.findElement(By.id("product-form"));
-                ((JavascriptExecutor) driver).executeScript("arguments[0].submit();", form);
-            } catch (Exception e2) {
-                // Last fallback: navigate to step 6 and use main submit button
-                navigateToStep(6);
-                waitForElementToBeClickable(submitButton);
-                submitButton.click();
+                log.error("ℹ️ Form state - Action: '{}', Method: '{}'", 
+                    form.getAttribute("action"), form.getAttribute("method"));
+            } catch (Exception formEx) {
+                log.error("ℹ️ Could not capture form state: {}", formEx.getMessage());
             }
+            
+            throw new AssertionError(errorDetails, e);
         }
-        
-        // Wait for redirect to list page
-        waitForUrlToContain("/product/list");
-        
-        return new ProductListPage(driver, baseUrl);
     }
     
     public ProductFormPage submitFormExpectingError() {
-        // Try to use the hidden legacy submit button first
         try {
-            WebElement legacySubmit = driver.findElement(By.id("legacy-submit-btn"));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", legacySubmit);
+            // Navigate to final step and attempt submission - expect validation errors
+            navigateToStep(6);
+            waitForElementToBeClickable(submitButton);
+            
+            log.info("⏳ Submitting product form expecting validation errors...");
+            submitButton.click();
+            
+            // Wait for validation errors to appear using explicit wait
+            wait.until(driver -> {
+                try {
+                    return driver.findElement(By.id("validation-errors")).isDisplayed() ||
+                           driver.findElement(By.id("error-message")).isDisplayed();
+                } catch (Exception ex) {
+                    return true; // Continue if no error elements found
+                }
+            });
+            
+            log.info("✅ Product form submitted (expecting errors)");
+            return this;
         } catch (Exception e) {
-            // Fallback: try to submit the form directly
-            try {
-                WebElement form = driver.findElement(By.id("product-form"));
-                ((JavascriptExecutor) driver).executeScript("arguments[0].submit();", form);
-            } catch (Exception e2) {
-                // Last fallback: navigate to step 6 and use main submit button
-                navigateToStep(6);
-                waitForElementToBeClickable(submitButton);
-                submitButton.click();
-            }
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Form submission failed unexpectedly. URL: '%s', Title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails);
+            throw new AssertionError(errorDetails, e);
         }
-        
-        return this;
     }
     
     public boolean hasValidationError(String fieldId) {
@@ -288,20 +308,24 @@ public class ProductFormPage extends BasePage {
             // Check for validation error by looking for the error message element with ID
             String errorElementId = fieldId + "-error";
             WebElement errorElement = driver.findElement(By.id(errorElementId));
-            return errorElement.isDisplayed();
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            // No error element found, check HTML5 validation state as fallback
-            try {
-                WebElement field = driver.findElement(By.id(fieldId));
-                String validationMessage = field.getAttribute("validationMessage");
-                return validationMessage != null && !validationMessage.isEmpty();
-            } catch (Exception e2) {
-                // If all approaches fail, assume no validation error
-                return false;
+            boolean hasError = errorElement.isDisplayed();
+            
+            if (hasError) {
+                log.info("❌ Validation error found for field '{}': '{}'", fieldId, errorElement.getText());
             }
-        } catch (Exception e) {
-            // If any error occurs, assume no validation error
+            
+            return hasError;
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            // No error element found - this is expected for valid fields
+            log.debug("✅ No validation error element found for field '{}' (field is valid)", fieldId);
             return false;
+        } catch (Exception e) {
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Failed to check validation error for field '%s'. URL: '%s', Error: %s",
+                fieldId, driver.getCurrentUrl(), e.getMessage()
+            );
+            log.error(errorDetails);
+            throw new AssertionError(errorDetails, e);
         }
     }
     

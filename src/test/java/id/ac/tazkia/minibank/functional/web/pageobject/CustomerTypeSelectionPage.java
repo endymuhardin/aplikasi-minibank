@@ -29,7 +29,7 @@ public class CustomerTypeSelectionPage extends BasePage {
     }
     
     private void waitForPageLoad() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
     }
     
     public PersonalCustomerFormPage clickPersonalCustomer() {

@@ -12,12 +12,12 @@ import java.util.List;
 public class AccountListPage extends BasePage {
     
     // Page elements - using ID-based locators for reliability
-    private static final By OPEN_ACCOUNT_BUTTON = By.linkText("Open New Account");
-    private static final By ACCOUNT_TABLE = By.tagName("table");
+    private static final By OPEN_ACCOUNT_BUTTON = By.id("open-account-button");
+    private static final By ACCOUNT_TABLE = By.id("accounts-table");
     private static final By SEARCH_INPUT = By.name("search");
     private static final By SEARCH_BUTTON = By.id("search-accounts-btn");
     private static final By STATUS_FILTER = By.name("status");
-    private static final By CLEAR_BUTTON = By.linkText("Clear");
+    private static final By CLEAR_BUTTON = By.id("clear-button");
     private static final By ACCOUNT_ROWS_CONTAINER = By.id("accounts-table-body");
     private static final By SUCCESS_MESSAGE = By.id("success-message");
     private static final By ERROR_MESSAGE = By.id("error-message");
@@ -76,9 +76,9 @@ public class AccountListPage extends BasePage {
             return 0;
         }
         // Count rows in the accounts table body
-        WebElement tableBody = driver.findElement(ACCOUNT_ROWS_CONTAINER);
-        List<WebElement> rows = tableBody.findElements(By.tagName("tr"));
-        return rows.size();
+        WebElement countElement = driver.findElement(By.id("account-count"));
+        String countAttr = countElement.getAttribute("data-count");
+        return countAttr != null ? Integer.parseInt(countAttr) : 0;
     }
     
     public boolean isAccountDisplayed(String accountNumber) {

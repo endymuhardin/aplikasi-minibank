@@ -50,7 +50,7 @@ public class CustomerListPage extends BasePage {
     }
     
     private void waitForPageLoad() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("customer-table")));
     }
     
     public boolean isCreateButtonDisplayed() {
@@ -72,7 +72,7 @@ public class CustomerListPage extends BasePage {
         } catch (Exception e) {
             // Fallback: look for any table
             try {
-                return driver.findElement(By.tagName("table")).isDisplayed();
+                return driver.findElement(By.id("customer-table")).isDisplayed();
             } catch (Exception ex) {
                 return false;
             }
@@ -195,7 +195,7 @@ public class CustomerListPage extends BasePage {
             log.info("Checking for success message on URL: {}", currentUrl);
             
             // Wait for page to stabilize first
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("customer-table")));
             
             // Check if we're on the right page (customer list)
             if (!currentUrl.contains("/customer/list")) {
@@ -277,7 +277,9 @@ public class CustomerListPage extends BasePage {
     public boolean hasSearchResults() {
         try {
             WebElement searchResults = driver.findElement(By.id("search-results"));
-            return searchResults.findElements(By.tagName("tr")).size() > 0;
+            WebElement countElement = driver.findElement(By.id("customer-count"));
+            String countAttr = countElement.getAttribute("data-count");
+            return countAttr != null && Integer.parseInt(countAttr) > 0;
         } catch (Exception e) {
             log.error("Error checking element display status", e);
             return false;

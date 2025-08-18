@@ -8,13 +8,13 @@
     <div layout:fragment="content" class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">
                     <svg class="inline-block h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
                     Passbook Printing
                 </h1>
-                <a th:href="@{/account/list}" 
+                <a th:href="@{/account/list}" id="back-to-accounts-button"
                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
                     Back to Accounts
                 </a>
@@ -45,6 +45,7 @@
                 <form method="get" action="/passbook/select-account" class="flex gap-4">
                     <div class="flex-1">
                         <input type="text" 
+                               id="search"
                                name="search" 
                                th:value="${search}" 
                                placeholder="Search by account number or account name..."
@@ -53,7 +54,7 @@
                     <button id="search-accounts-btn" type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
                         Search
                     </button>
-                    <a href="/passbook/select-account" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+                    <a href="/passbook/select-account" id="clear-search-button" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
                         Clear
                     </a>
                 </form>
@@ -86,15 +87,20 @@
                                 <div class="text-gray-900" th:text="${account.accountName}">Account Name</div>
                             </td>
                             <td class="px-4 py-3 text-sm">
-                                <div class="text-gray-900" th:text="${account.customer.displayName}">Customer Name</div>
+                                <div class="text-gray-900" 
+                                     th:id="'account-customer-' + ${account.accountNumber}"
+                                     th:text="${account.customer.displayName}">Customer Name</div>
                                 <div class="text-gray-500 text-xs" th:text="${account.customer.customerNumber}">C1000001</div>
                             </td>
                             <td class="px-4 py-3 text-sm">
-                                <div class="text-gray-900" th:text="${account.product.productName}">Product Name</div>
+                                <div class="text-gray-900" 
+                                     th:id="'account-product-' + ${account.accountNumber}"
+                                     th:text="${account.product.productName}">Product Name</div>
                                 <div class="text-gray-500 text-xs" th:text="${account.product.productType}">TYPE</div>
                             </td>
                             <td class="px-4 py-3 text-sm text-right">
-                                <div class="font-medium text-gray-900">
+                                <div class="font-medium text-gray-900" 
+                                     th:id="'account-balance-' + ${account.accountNumber}">
                                     IDR <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span>
                                 </div>
                             </td>

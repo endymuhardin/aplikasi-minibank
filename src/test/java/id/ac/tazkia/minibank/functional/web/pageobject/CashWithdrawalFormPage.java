@@ -60,7 +60,7 @@ public class CashWithdrawalFormPage extends BasePage {
     @FindBy(id = "validation-errors")
     private WebElement validationErrors;
     
-    @FindBy(xpath = "//a[contains(@href, '/transaction/cash-withdrawal')]")
+    @FindBy(id = "back-to-account-selection-link")
     private WebElement backToAccountSelectionLink;
     
     // Constructor
@@ -233,8 +233,13 @@ public class CashWithdrawalFormPage extends BasePage {
     }
     
     public boolean hasFieldError(String fieldName) {
-        return isElementPresent(By.xpath("//input[@id='" + fieldName + "' and contains(@class, 'border-red')]")) ||
-               isElementPresent(By.xpath("//textarea[@id='" + fieldName + "' and contains(@class, 'border-red')]"));
+        try {
+            WebElement field = driver.findElement(By.id(fieldName));
+            String className = field.getAttribute("class");
+            return className != null && className.contains("border-red");
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     // Success/Error message methods

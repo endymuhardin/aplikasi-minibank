@@ -12,10 +12,10 @@ public class TransactionListPage extends BasePage {
     @FindBy(id = "page-title")
     private WebElement pageTitle;
     
-    @FindBy(linkText = "+ Setoran Tunai")
+    @FindBy(id = "cash-deposit-button")
     private WebElement cashDepositButton;
     
-    @FindBy(linkText = "- Penarikan Tunai")
+    @FindBy(id = "cash-withdrawal-button")
     private WebElement cashWithdrawalButton;
     
     @FindBy(id = "search")

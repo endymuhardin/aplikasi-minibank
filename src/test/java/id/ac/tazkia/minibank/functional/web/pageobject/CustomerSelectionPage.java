@@ -13,10 +13,10 @@ public class CustomerSelectionPage extends BasePage {
     
     // Page elements
     private static final By PAGE_TITLE = By.id("page-title");
-    private static final By MANAGE_CUSTOMERS_BUTTON = By.linkText("Manage Customers");
+    private static final By MANAGE_CUSTOMERS_BUTTON = By.id("manage-customers-button");
     private static final By SEARCH_INPUT = By.id("search-input");
     private static final By SEARCH_BUTTON = By.id("search-button");
-    private static final By CUSTOMER_CARDS = By.className("customer-card");
+    private static final By CUSTOMER_CARDS = By.id("customer-cards-container");
     private static final By NO_CUSTOMERS_MESSAGE = By.id("no-customers-message");
     private static final By SUCCESS_MESSAGE = By.id("success-message");
     private static final By ERROR_MESSAGE = By.id("error-message");

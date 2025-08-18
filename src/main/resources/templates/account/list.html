@@ -9,7 +9,7 @@
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl font-bold text-gray-800">Account Management</h1>
-                <a href="/account/open" 
+                <a href="/account/open" id="open-account-button"
                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
                     Open New Account
                 </a>
@@ -45,15 +45,16 @@
                     <button id="search-accounts-btn" type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
                         Search
                     </button>
-                    <a href="/account/list" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
+                    <a href="/account/list" id="clear-button" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded">
                         Clear
                     </a>
                 </form>
             </div>
 
             <!-- Accounts table -->
+            <div id="account-count" th:attr="data-count=${#lists.size(accounts.content)}" style="display: none;"></div>
             <div th:if="${accounts.content}" class="overflow-x-auto">
-                <table class="min-w-full table-auto border-collapse">
+                <table id="accounts-table" class="min-w-full table-auto border-collapse">
                     <thead>
                         <tr class="bg-gray-100 border-b">
                             <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Account Number</th>
