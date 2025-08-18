@@ -370,14 +370,16 @@ public class ComprehensiveAccountOpeningSeleniumTest extends BaseSeleniumTest {
             Product product = mudharabahProduct.get();
             formPage.selectProductByValue(product.getId().toString());
             
-            // Wait for JavaScript to show product information
+            // Wait for JavaScript to populate product information
             try {
-                org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(5));
-                wait.until(org.openqa.selenium.support.ui.ExpectedConditions.attributeContains(
-                    org.openqa.selenium.By.id("product-info"), "class", ""
+                org.openqa.selenium.support.ui.WebDriverWait wait = new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(3));
+                wait.until(org.openqa.selenium.support.ui.ExpectedConditions.not(
+                    org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated(
+                        org.openqa.selenium.By.id("product-type"), "-"
+                    )
                 ));
             } catch (Exception e) {
-                log.debug("Product info section may still be hidden: {}", e.getMessage());
+                log.debug("Product info may still be loading: {}", e.getMessage());
             }
             
             // Verify Islamic banking product information is displayed

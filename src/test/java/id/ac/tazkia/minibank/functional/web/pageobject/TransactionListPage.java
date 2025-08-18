@@ -24,7 +24,7 @@ public class TransactionListPage extends BasePage {
     @FindBy(id = "search-button")
     private WebElement searchButton;
     
-    @FindBy(xpath = "//a[text()='Reset']")
+    @FindBy(id = "reset-button")
     private WebElement resetButton;
     
     @FindBy(id = "success-message")
@@ -33,7 +33,7 @@ public class TransactionListPage extends BasePage {
     @FindBy(id = "error-message") 
     private WebElement errorMessage;
     
-    @FindBy(css = "table tbody tr")
+    @FindBy(id = "transaction-row-0")
     private WebElement firstTransactionRow;
     
     // Constructor
@@ -98,31 +98,31 @@ public class TransactionListPage extends BasePage {
     
     public String getFirstTransactionNumber() {
         if (hasTransactions()) {
-            WebElement transactionNumberCell = firstTransactionRow.findElement(By.cssSelector("td:first-child div.text-sm"));
-            return transactionNumberCell.getText();
+            WebElement transactionNumberElement = driver.findElement(By.id("transaction-number-0"));
+            return transactionNumberElement.getText();
         }
         return "";
     }
     
     public String getFirstTransactionType() {
         if (hasTransactions()) {
-            WebElement transactionTypeCell = firstTransactionRow.findElement(By.cssSelector("td:nth-child(3) span"));
-            return transactionTypeCell.getText();
+            WebElement transactionTypeElement = driver.findElement(By.id("transaction-type-0"));
+            return transactionTypeElement.getText();
         }
         return "";
     }
     
     public String getFirstTransactionAmount() {
         if (hasTransactions()) {
-            WebElement amountCell = firstTransactionRow.findElement(By.cssSelector("td:nth-child(5) div.text-sm"));
-            return amountCell.getText();
+            WebElement transactionAmountElement = driver.findElement(By.id("transaction-amount-0"));
+            return transactionAmountElement.getText();
         }
         return "";
     }
     
     public TransactionViewPage clickViewDetailForFirstTransaction() {
         if (hasTransactions()) {
-            WebElement viewLink = firstTransactionRow.findElement(By.linkText("Lihat Detail"));
+            WebElement viewLink = driver.findElement(By.id("view-detail-0"));
             scrollToElementAndClick(viewLink);
             waitForUrlToContain("/transaction/view/");
             return new TransactionViewPage(driver, baseUrl);

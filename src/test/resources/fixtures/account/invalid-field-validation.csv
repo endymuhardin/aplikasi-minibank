@@ -1,6 +1,6 @@
 testCase,fieldName,invalidValue,expectedError
 Empty Account Name,accountName,,Account name is required
-Long Account Name,accountName,This is an extremely long account name that exceeds the maximum allowed length of 200 characters and should trigger a validation error when attempting to create an account with such a lengthy name,Account name must not exceed 200 characters
+Long Account Name,accountName,This is an extremely long account name that exceeds the maximum allowed length of 200 characters and should trigger a validation error when attempting to create an account with such a lengthy name that goes way beyond limits,Account name must not exceed 200 characters
 Negative Initial Deposit,initialDeposit,-50000,Initial deposit must be positive
 Zero Initial Deposit,initialDeposit,0,Initial deposit must be greater than minimum
 Invalid Decimal Format,initialDeposit,abc123,Invalid number format
