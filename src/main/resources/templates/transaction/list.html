@@ -10,9 +10,13 @@
             <div class="flex justify-between items-center mb-6">
                 <h1 id="page-title" class="text-2xl font-bold text-gray-800">Daftar Transaksi</h1>
                 <div class="flex space-x-2">
-                    <a href="/transaction/cash-deposit" 
+                    <a href="/transaction/cash-deposit" id="cash-deposit-button"
                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
                         + Setoran Tunai
+                    </a>
+                    <a href="/transaction/cash-withdrawal" id="cash-withdrawal-button"
+                       class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        - Penarikan Tunai
                     </a>
                     <a href="/dashboard" 
                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
@@ -117,7 +121,7 @@
                             <td class="px-4 py-4 whitespace-nowrap">
                                 <span th:id="${'transaction-type-' + iterStat.index}" 
                                       class="px-2 py-1 text-xs rounded-full"
-                                      th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                      th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'bg-green-100 text-green-800' : (${transaction.transactionType.name() == 'WITHDRAWAL'} ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')"
                                       th:text="${transaction.transactionType.name()}">DEPOSIT</span>
                                 <div class="text-xs text-gray-500 mt-1" th:text="${transaction.channel.name()}">TELLER</div>
                             </td>
@@ -128,8 +132,8 @@
                             <td class="px-4 py-4 whitespace-nowrap text-right">
                                 <div th:id="${'transaction-amount-' + iterStat.index}" 
                                      class="text-sm font-medium"
-                                     th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'text-green-600' : 'text-red-600'"
-                                     th:text="${'IDR ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 2, 'POINT')}">IDR 100,000.00</div>
+                                     th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'text-green-600' : (${transaction.transactionType.name() == 'WITHDRAWAL'} ? 'text-red-600' : 'text-blue-600')"
+                                     th:text="${(transaction.transactionType.name() == 'WITHDRAWAL' ? '-' : '+') + 'IDR ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 2, 'POINT')}">IDR 100,000.00</div>
                                 <div class="text-xs text-gray-500" 
                                      th:text="${'Saldo: IDR ' + #numbers.formatDecimal(transaction.balanceAfter, 0, 'COMMA', 2, 'POINT')}">Balance: IDR 1,100,000.00</div>
                             </td>

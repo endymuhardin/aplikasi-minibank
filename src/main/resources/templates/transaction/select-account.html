@@ -8,7 +8,10 @@
     <div layout:fragment="content" class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-6xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Setoran Tunai - Pilih Rekening</h1>
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800" 
+                    th:text="${transactionType == 'withdrawal'} ? 'Penarikan Tunai - Pilih Rekening' : 'Setoran Tunai - Pilih Rekening'">
+                    Setoran Tunai - Pilih Rekening
+                </h1>
                 <a href="/transaction/list" 
                    id="back-to-transaction-list"
                    class="text-gray-600 hover:text-gray-800">
@@ -29,7 +32,7 @@
                             class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                         Cari
                     </button>
-                    <a th:href="@{/transaction/cash-deposit}" 
+                    <a th:href="${transactionType == 'withdrawal'} ? @{/transaction/cash-withdrawal} : @{/transaction/cash-deposit}" 
                        id="reset-button"
                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                         Reset
@@ -57,7 +60,7 @@
                 <div th:each="account : ${accounts}" 
                      th:id="'account-card-' + ${account.id}"
                      class="account-card border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                     onclick="selectAccount([[${account.id}]])">
+                     th:onclick="'selectAccount(\'' + ${account.id} + '\')'">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-2">
@@ -83,8 +86,8 @@
                         <div class="ml-4">
                             <button type="button" 
                                     th:id="'select-button-' + ${account.id}"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                                    onclick="selectAccount([[${account.id}]])">
+                                    th:class="${transactionType == 'withdrawal'} ? 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors' : 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'"
+                                    th:onclick="'selectAccount(\'' + ${account.id} + '\')'">
                                 Pilih Rekening
                             </button>
                         </div>
@@ -93,18 +96,18 @@
             </div>
 
             <!-- Information box -->
-            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="mt-6" th:classappend="${transactionType == 'withdrawal'} ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'" class="rounded-lg p-4">
                 <div class="flex items-start">
-                    <svg class="h-5 w-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5 mt-0.5 mr-3" th:classappend="${transactionType == 'withdrawal'} ? 'text-yellow-600' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
-                        <h3 class="text-sm font-medium text-blue-800 mb-1">Informasi Setoran Tunai</h3>
-                        <ul class="text-sm text-blue-700 space-y-1">
-                            <li>• Pilih rekening yang akan digunakan untuk setoran tunai</li>
+                        <h3 class="text-sm font-medium mb-1" th:classappend="${transactionType == 'withdrawal'} ? 'text-yellow-800' : 'text-blue-800'" th:text="${transactionType == 'withdrawal'} ? 'Informasi Penarikan Tunai' : 'Informasi Setoran Tunai'">Informasi Setoran Tunai</h3>
+                        <ul class="text-sm space-y-1" th:classappend="${transactionType == 'withdrawal'} ? 'text-yellow-700' : 'text-blue-700'">
+                            <li th:text="${transactionType == 'withdrawal'} ? '• Pilih rekening yang akan digunakan untuk penarikan tunai' : '• Pilih rekening yang akan digunakan untuk setoran tunai'">• Pilih rekening yang akan digunakan untuk setoran tunai</li>
                             <li>• Pastikan rekening dalam status aktif</li>
-                            <li>• Setoran tunai akan langsung menambah saldo rekening</li>
-                            <li>• Minimum setoran adalah IDR 10,000.00</li>
+                            <li th:text="${transactionType == 'withdrawal'} ? '• Penarikan tunai akan langsung mengurangi saldo rekening' : '• Setoran tunai akan langsung menambah saldo rekening'">• Setoran tunai akan langsung menambah saldo rekening</li>
+                            <li th:text="${transactionType == 'withdrawal'} ? '• Pastikan saldo mencukupi untuk jumlah penarikan' : '• Minimum setoran adalah IDR 10,000.00'">• Minimum setoran adalah IDR 10,000.00</li>
                         </ul>
                     </div>
                 </div>
@@ -112,9 +115,15 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const transactionType = /*[[${transactionType}]]*/ 'deposit';
+        
         function selectAccount(accountId) {
-            window.location.href = '/transaction/cash-deposit/' + accountId;
+            if (transactionType === 'withdrawal') {
+                window.location.href = '/transaction/cash-withdrawal/' + accountId;
+            } else {
+                window.location.href = '/transaction/cash-deposit/' + accountId;
+            }
         }
     </script>
 </body>

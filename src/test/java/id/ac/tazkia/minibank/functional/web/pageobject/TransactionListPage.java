@@ -15,6 +15,9 @@ public class TransactionListPage extends BasePage {
     @FindBy(linkText = "+ Setoran Tunai")
     private WebElement cashDepositButton;
     
+    @FindBy(linkText = "- Penarikan Tunai")
+    private WebElement cashWithdrawalButton;
+    
     @FindBy(id = "search")
     private WebElement searchInput;
     
@@ -50,6 +53,12 @@ public class TransactionListPage extends BasePage {
     public AccountSelectionPage clickCashDepositButton() {
         scrollToElementAndClick(cashDepositButton);
         waitForUrlToContain("/transaction/cash-deposit");
+        return new AccountSelectionPage(driver, baseUrl);
+    }
+    
+    public AccountSelectionPage clickCashWithdrawalButton() {
+        scrollToElementAndClick(cashWithdrawalButton);
+        waitForUrlToContain("/transaction/cash-withdrawal");
         return new AccountSelectionPage(driver, baseUrl);
     }
     
