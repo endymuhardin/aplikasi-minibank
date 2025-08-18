@@ -49,7 +49,7 @@
                                 class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                             Cari
                         </button>
-                        <a th:href="@{/transaction/list}" 
+                        <a th:href="@{/transaction/list}" id="reset-button"
                            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                             Reset
                         </a>
@@ -101,9 +101,13 @@
                                 Tidak ada transaksi ditemukan.
                             </td>
                         </tr>
-                        <tr th:each="transaction : ${transactions.content}" class="hover:bg-gray-50">
+                        <tr th:each="transaction, iterStat : ${transactions.content}" 
+                            th:id="${'transaction-row-' + iterStat.index}" 
+                            class="hover:bg-gray-50">
                             <td class="px-4 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900" th:text="${transaction.transactionNumber}">TXN0000001</div>
+                                <div th:id="${'transaction-number-' + iterStat.index}" 
+                                     class="text-sm font-medium text-gray-900" 
+                                     th:text="${transaction.transactionNumber}">TXN0000001</div>
                                 <div class="text-xs text-gray-500" th:text="${transaction.referenceNumber}">REF123</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap">
@@ -111,7 +115,8 @@
                                 <div class="text-xs text-gray-500" th:text="${#temporals.format(transaction.transactionDate, 'HH:mm:ss')}">10:30:00</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full"
+                                <span th:id="${'transaction-type-' + iterStat.index}" 
+                                      class="px-2 py-1 text-xs rounded-full"
                                       th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                                       th:text="${transaction.transactionType.name()}">DEPOSIT</span>
                                 <div class="text-xs text-gray-500 mt-1" th:text="${transaction.channel.name()}">TELLER</div>
@@ -121,7 +126,8 @@
                                 <div class="text-xs text-gray-500" th:text="${transaction.account.accountName}">Account Name</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-right">
-                                <div class="text-sm font-medium"
+                                <div th:id="${'transaction-amount-' + iterStat.index}" 
+                                     class="text-sm font-medium"
                                      th:classappend="${transaction.transactionType.name() == 'DEPOSIT'} ? 'text-green-600' : 'text-red-600'"
                                      th:text="${'IDR ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 2, 'POINT')}">IDR 100,000.00</div>
                                 <div class="text-xs text-gray-500" 
@@ -133,6 +139,7 @@
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-center">
                                 <a th:href="@{/transaction/view/{id}(id=${transaction.id})}" 
+                                   th:id="${'view-detail-' + iterStat.index}"
                                    class="text-blue-600 hover:text-blue-900 text-sm">
                                     Lihat Detail
                                 </a>

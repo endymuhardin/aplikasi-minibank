@@ -87,8 +87,8 @@
                     <p class="text-sm text-gray-500 mt-1">Choose an Islamic banking product for saving or checking</p>
                 </div>
 
-                <!-- Product Information Display (Client-side managed) -->
-                <div id="product-info" class="hidden bg-blue-50 rounded-lg p-4">
+                <!-- Product Information Display (Server-side filtered, client-side populated) -->
+                <div id="product-info" class="bg-blue-50 rounded-lg p-4">
                     <h3 class="text-md font-semibold text-blue-800 mb-2">Product Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
@@ -167,12 +167,8 @@
         function updateProductInfo() {
             const select = document.getElementById('productId');
             const selectedOption = select.options[select.selectedIndex];
-            const productInfo = document.getElementById('product-info');
             
             if (selectedOption.value) {
-                // Show product information
-                productInfo.classList.remove('hidden');
-                
                 // Update product details from data attributes
                 document.getElementById('product-type').textContent = selectedOption.dataset.type || '-';
                 document.getElementById('product-category').textContent = selectedOption.dataset.category || '-';
@@ -197,8 +193,11 @@
                     }
                 });
             } else {
-                // Hide product information
-                productInfo.classList.add('hidden');
+                // Reset product information to default values
+                document.getElementById('product-type').textContent = '-';
+                document.getElementById('product-category').textContent = '-';
+                document.getElementById('min-balance').textContent = 'IDR 0.00';
+                document.getElementById('product-description').textContent = 'Please select a product';
                 document.getElementById('min-deposit-warning').classList.add('hidden');
             }
         }
