@@ -11,6 +11,9 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class BasePage {
     
     protected final WebDriver driver;
@@ -120,6 +123,7 @@ public abstract class BasePage {
             driver.findElement(locator);
             return true;
         } catch (Exception e) {
+            log.debug("Element not present: {}", locator);
             return false;
         }
     }

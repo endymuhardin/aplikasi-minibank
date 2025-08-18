@@ -1,11 +1,13 @@
 package id.ac.tazkia.minibank.functional.web.pageobject;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+@Slf4j
 public class CashWithdrawalFormPage extends BasePage {
     
     // Page elements
