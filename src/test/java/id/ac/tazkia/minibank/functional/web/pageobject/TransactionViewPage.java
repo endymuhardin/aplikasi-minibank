@@ -12,40 +12,40 @@ public class TransactionViewPage extends BasePage {
     @FindBy(id = "page-title")
     private WebElement pageTitle;
     
-    @FindBy(xpath = "//h2[contains(text(), 'TXN')]")
+    @FindBy(id = "transaction-number-header")
     private WebElement transactionNumber;
     
-    @FindBy(xpath = "//div[contains(@class, 'text-2xl')]")
+    @FindBy(id = "transaction-amount-header")
     private WebElement transactionAmount;
     
-    @FindBy(xpath = "//span[text()='Nomor Transaksi:']/following-sibling::span")
+    @FindBy(id = "transaction-number-detail")
     private WebElement transactionNumberDetail;
     
-    @FindBy(xpath = "//span[text()='Tipe Transaksi:']/following-sibling::span")
+    @FindBy(id = "transaction-type")
     private WebElement transactionType;
     
-    @FindBy(xpath = "//span[text()='Kanal:']/following-sibling::span")
+    @FindBy(id = "transaction-channel")
     private WebElement transactionChannel;
     
-    @FindBy(xpath = "//span[text()='Nomor Rekening:']/following-sibling::span")
+    @FindBy(id = "account-number")
     private WebElement accountNumber;
     
-    @FindBy(xpath = "//span[text()='Saldo Sebelum:']/following-sibling::span")
+    @FindBy(id = "balance-before")
     private WebElement balanceBefore;
     
-    @FindBy(xpath = "//span[text()='Saldo Setelah:']/following-sibling::span")
+    @FindBy(id = "balance-after")
     private WebElement balanceAfter;
     
-    @FindBy(xpath = "//p[contains(@class, 'bg-gray-50')]")
+    @FindBy(id = "description-text")
     private WebElement descriptionText;
     
-    @FindBy(xpath = "//span[text()='Diproses Oleh:']/following-sibling::span")
+    @FindBy(id = "processed-by")
     private WebElement processedBy;
     
-    @FindBy(xpath = "//a[contains(@href, '/transaction/list')]")
+    @FindBy(id = "back-to-transaction-list-button")
     private WebElement backToTransactionListButton;
     
-    @FindBy(xpath = "//button[text()='Cetak Bukti']")
+    @FindBy(id = "print-receipt-button")
     private WebElement printReceiptButton;
     
     // Constructor
@@ -57,7 +57,7 @@ public class TransactionViewPage extends BasePage {
     public void waitForPageLoad() {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
         wait.until(ExpectedConditions.textToBePresentInElement(pageTitle, "Detail Transaksi"));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[contains(text(), 'TXN')]")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("transaction-number-header")));
         waitForPageToLoad();
     }
     

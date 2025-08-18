@@ -54,7 +54,7 @@ public class CashDepositFormPage extends BasePage {
     @FindBy(id = "validation-errors")
     private WebElement validationErrors;
     
-    @FindBy(xpath = "//a[contains(@href, '/transaction/cash-deposit')]")
+    @FindBy(id = "back-to-cash-deposit-selection")
     private WebElement backToAccountSelectionLink;
     
     // Constructor
@@ -206,8 +206,13 @@ public class CashDepositFormPage extends BasePage {
     }
     
     public boolean hasFieldError(String fieldName) {
-        return isElementPresent(By.xpath("//input[@id='" + fieldName + "' and contains(@class, 'border-red')]")) ||
-               isElementPresent(By.xpath("//textarea[@id='" + fieldName + "' and contains(@class, 'border-red')]"));
+        try {
+            WebElement field = driver.findElement(By.id(fieldName));
+            String className = field.getAttribute("class");
+            return className != null && className.contains("border-red");
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     // Success/Error message methods

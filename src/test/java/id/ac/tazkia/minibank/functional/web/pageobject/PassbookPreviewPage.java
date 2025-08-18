@@ -10,7 +10,7 @@ import java.util.List;
 
 public class PassbookPreviewPage extends BasePage {
 
-    @FindBy(css = "h1:contains('Passbook Preview')")
+    @FindBy(id = "page-title")
     private WebElement pageTitle;
 
     @FindBy(id = "account-number")
@@ -48,7 +48,7 @@ public class PassbookPreviewPage extends BasePage {
     }
 
     public void waitForPageLoad() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
         waitForPageToLoad();
     }
 

@@ -41,7 +41,7 @@ public class LoginPage {
     
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(3)); // Faster timeout for quicker feedback
         PageFactory.initElements(driver, this);
     }
     
@@ -89,7 +89,12 @@ public class LoginPage {
                 log.info("Hidden field: {}={}", name, value);
             }
         } catch (Exception e) {
-            log.warn("Could not check hidden fields: {}", e.getMessage());
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check hidden fields during login. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
         
         loginButton.click();
@@ -104,17 +109,12 @@ public class LoginPage {
                 ExpectedConditions.visibilityOf(errorMessage)
             ));
         } catch (Exception e) {
-            log.error("Login wait condition failed: {}", e.getMessage());
-            String currentUrl = driver.getCurrentUrl();
-            log.error("Current URL after login attempt: {}", currentUrl);
-            
-            // Check if there's an error message
-            if (isErrorMessageDisplayed()) {
-                String error = getErrorMessage();
-                log.error("Login error message displayed: {}", error);
-            } else {
-                log.info("No error message displayed");
-            }
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Login wait condition failed. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
         return new DashboardPage(driver);
     }
@@ -152,7 +152,12 @@ public class LoginPage {
             wait.until(ExpectedConditions.visibilityOf(errorMessage));
             return errorMessage.getText();
         } catch (Exception e) {
-            return "";
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get error message. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -161,7 +166,12 @@ public class LoginPage {
             wait.until(ExpectedConditions.visibilityOf(successMessage));
             return successMessage.getText();
         } catch (Exception e) {
-            return "";
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get success message. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -169,7 +179,12 @@ public class LoginPage {
         try {
             return errorMessage.isDisplayed();
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check error message display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -177,7 +192,12 @@ public class LoginPage {
         try {
             return successMessage.isDisplayed();
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check success message display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -201,7 +221,12 @@ public class LoginPage {
             ));
             return driver.getCurrentUrl().contains("/login");
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot verify login page. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -213,7 +238,12 @@ public class LoginPage {
         try {
             return forgotPasswordLink.isDisplayed();
         } catch (Exception e) {
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check forgot password link display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -231,7 +261,12 @@ public class LoginPage {
                 ExpectedConditions.urlContains("/login?error")
             ));
         } catch (Exception e) {
-            // Timeout is acceptable here
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Error message wait condition failed. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
 }

@@ -13,21 +13,21 @@ public class CorporateCustomerSelectionPage extends BasePage {
     
     // Page elements
     private static final By PAGE_TITLE = By.id("page-title");
-    private static final By PERSONAL_ACCOUNTS_BUTTON = By.linkText("Personal Accounts");
-    private static final By MANAGE_CUSTOMERS_BUTTON = By.linkText("Manage Customers");
+    private static final By PERSONAL_ACCOUNTS_BUTTON = By.id("personal-accounts-button");
+    private static final By MANAGE_CUSTOMERS_BUTTON = By.id("manage-customers-button");
     private static final By SEARCH_INPUT = By.id("search-input");
     private static final By SEARCH_BUTTON = By.id("search-button");
-    private static final By CUSTOMER_CARDS = By.className("corporate-customer-card");
+    private static final By CUSTOMER_CARDS = By.id("corporate-customer-cards-container");
     private static final By NO_CUSTOMERS_MESSAGE = By.id("no-customers-message");
     private static final By SUCCESS_MESSAGE = By.id("success-message");
     private static final By ERROR_MESSAGE = By.id("error-message");
     
     // Corporate-specific elements
     private static final By CORPORATE_BADGE = By.id("corporate-badge");
-    private static final By COMPANY_NAME = By.xpath("//h3[contains(@class, 'text-xl')]");
-    private static final By REGISTRATION_NUMBER = By.xpath("//p[contains(text(), 'Registration Number:')]");
-    private static final By TAX_ID = By.xpath("//p[contains(text(), 'Tax ID')]");
-    private static final By CONTACT_PERSON = By.xpath("//p[contains(text(), 'Contact Person:')]");
+    private static final By COMPANY_NAME = By.id("company-name");
+    private static final By REGISTRATION_NUMBER = By.id("registration-number");
+    private static final By TAX_ID = By.id("tax-id");
+    private static final By CONTACT_PERSON = By.id("contact-person");
     
     public CorporateCustomerSelectionPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);

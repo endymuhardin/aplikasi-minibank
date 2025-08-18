@@ -67,13 +67,13 @@ public class DashboardPage {
     
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(3)); // Faster timeout for quicker feedback
         PageFactory.initElements(driver, this);
     }
     
     public DashboardPage(WebDriver driver, String baseUrl) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(3)); // Faster timeout for quicker feedback
         PageFactory.initElements(driver, this);
     }
     
@@ -105,10 +105,12 @@ public class DashboardPage {
             
             return isOnDashboardUrl && hasRequiredElements;
         } catch (Exception e) {
-            log.error("Error checking dashboard page status: {}", e.getMessage());
-            String currentUrl = driver.getCurrentUrl();
-            log.error("Current URL during error: {}", currentUrl);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot verify dashboard page status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -117,7 +119,12 @@ public class DashboardPage {
             wait.until(ExpectedConditions.visibilityOf(pageTitle));
             return pageTitle.getText();
         } catch (Exception e) {
-            return driver.getTitle();
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot get page title from element. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -157,7 +164,12 @@ public class DashboardPage {
                 WebElement userInfo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-menu-username")));
                 return userInfo.getText().trim();
             } catch (Exception ex) {
-                return "";
+                String errorDetails = String.format(
+                    "❌ FAIL-FAST: Cannot get username from user menu. URL: '%s', Page title: '%s', Error: %s",
+                    driver.getCurrentUrl(), driver.getTitle(), ex.getMessage()
+                );
+                log.error(errorDetails, ex);
+                throw new AssertionError(errorDetails, ex);
             }
         }
         return "";
@@ -177,7 +189,12 @@ public class DashboardPage {
                 WebElement roleElement = driver.findElement(By.id("user-menu-role"));
                 return roleElement.getText().trim();
             } catch (Exception ex) {
-                return "";
+                String errorDetails = String.format(
+                    "❌ FAIL-FAST: Cannot get user role from menu. URL: '%s', Page title: '%s', Error: %s",
+                    driver.getCurrentUrl(), driver.getTitle(), ex.getMessage()
+                );
+                log.error(errorDetails, ex);
+                throw new AssertionError(errorDetails, ex);
             }
         }
         return "";
@@ -225,8 +242,12 @@ public class DashboardPage {
             WebElement adminSection = driver.findElement(By.id("administration-section"));
             return adminSection.isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -318,8 +339,12 @@ public class DashboardPage {
             WebElement quickActions = driver.findElement(By.id("quick-actions-title"));
             return quickActions.isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -328,8 +353,12 @@ public class DashboardPage {
             WebElement recentTransactions = driver.findElement(By.id("recent-transactions-title"));
             return recentTransactions.isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -338,8 +367,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("dashboard-content")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -347,8 +380,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("statistics-section")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -356,8 +393,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("product-management-link")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -369,8 +410,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("user-management-link")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -382,8 +427,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("transaction-management-link")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -391,8 +440,12 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("quick-actions")).size() > 0;
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -400,8 +453,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("create-product-button")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -409,8 +466,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("create-user-button")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -418,8 +479,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("system-config-link")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -427,8 +492,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("process-transaction-button")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -436,8 +505,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("account-lookup-button")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -445,8 +518,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("logout-link")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -454,8 +531,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("recent-activities")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -463,8 +544,12 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("activity-items")).size() > 0;
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -472,8 +557,12 @@ public class DashboardPage {
         try {
             return driver.findElement(By.id("notifications")).isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -481,8 +570,12 @@ public class DashboardPage {
         try {
             return driver.findElements(By.id("notification-items")).size() > 0;
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
     
@@ -490,8 +583,12 @@ public class DashboardPage {
         try {
             return element.isDisplayed();
         } catch (Exception e) {
-            log.error("Error checking element display status", e);
-            return false;
+            String errorDetails = String.format(
+                "❌ FAIL-FAST: Cannot check element display status. URL: '%s', Page title: '%s', Error: %s",
+                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
+            );
+            log.error(errorDetails, e);
+            throw new AssertionError(errorDetails, e);
         }
     }
 }

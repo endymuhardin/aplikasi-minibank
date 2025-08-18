@@ -60,12 +60,13 @@
                 <div th:each="account : ${accounts}" 
                      th:id="'account-card-' + ${account.id}"
                      class="account-card border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                     th:onclick="'selectAccount(\'' + ${account.id} + '\')'">
+                     th:data-account-id="${account.id}"
+                     onclick="selectAccountFromCard(this)">
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-2">
                                 <h3 th:id="'account-number-' + ${account.id}" class="account-number text-lg font-semibold text-gray-800" th:text="${account.accountNumber}">A2000001</h3>
-                                <span class="px-2 py-1 text-xs rounded-full"
+                                <span th:id="'account-status-' + ${account.id}" class="px-2 py-1 text-xs rounded-full"
                                       th:classappend="${account.status.name() == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                                       th:text="${account.status.name()}">ACTIVE</span>
                             </div>
@@ -77,7 +78,7 @@
                                     <p><strong>Produk:</strong> <span th:text="${account.product.productName}">Product Name</span></p>
                                 </div>
                                 <div>
-                                    <p><strong>Saldo:</strong> <span class="font-semibold text-green-600" th:text="${'IDR ' + #numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">IDR 1,000,000.00</span></p>
+                                    <p><strong>Saldo:</strong> <span th:id="'account-balance-' + ${account.id}" class="font-semibold text-green-600" th:text="${'IDR ' + #numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">IDR 1,000,000.00</span></p>
                                     <p><strong>Tipe Produk:</strong> <span th:text="${account.product.productType}">TABUNGAN_WADIAH</span></p>
                                     <p th:if="${account.branch}"><strong>Cabang:</strong> <span th:text="${account.branch.branchName}">Main Branch</span></p>
                                 </div>
@@ -87,7 +88,8 @@
                             <button type="button" 
                                     th:id="'select-button-' + ${account.id}"
                                     th:class="${transactionType == 'withdrawal'} ? 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors' : 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors'"
-                                    th:onclick="'selectAccount(\'' + ${account.id} + '\')'">
+                                    th:data-account-id="${account.id}"
+                                    onclick="selectAccountFromButton(this)"
                                 Pilih Rekening
                             </button>
                         </div>
@@ -96,7 +98,7 @@
             </div>
 
             <!-- Information box -->
-            <div class="mt-6" th:classappend="${transactionType == 'withdrawal'} ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'" class="rounded-lg p-4">
+            <div class="mt-6 rounded-lg p-4" th:classappend="${transactionType == 'withdrawal'} ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'">
                 <div class="flex items-start">
                     <svg class="h-5 w-5 mt-0.5 mr-3" th:classappend="${transactionType == 'withdrawal'} ? 'text-yellow-600' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -124,6 +126,16 @@
             } else {
                 window.location.href = '/transaction/cash-deposit/' + accountId;
             }
+        }
+        
+        function selectAccountFromCard(cardElement) {
+            const accountId = cardElement.getAttribute('data-account-id');
+            selectAccount(accountId);
+        }
+        
+        function selectAccountFromButton(buttonElement) {
+            const accountId = buttonElement.getAttribute('data-account-id');
+            selectAccount(accountId);
         }
     </script>
 </body>

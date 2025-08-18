@@ -10,14 +10,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class CorporateAccountOpeningFormPage extends BasePage {
     
     // Page elements
-    private static final By PAGE_TITLE = By.xpath("//h1[contains(text(), 'Open Corporate Account')]");
-    private static final By BACK_TO_SELECTION_LINK = By.linkText("← Back to Corporate Customer Selection");
+    private static final By PAGE_TITLE = By.id("page-title");
+    private static final By BACK_TO_SELECTION_LINK = By.id("back-to-selection-link");
     private static final By PRODUCT_DROPDOWN = By.id("productId");
     private static final By ACCOUNT_NAME_INPUT = By.id("accountName");
     private static final By INITIAL_DEPOSIT_INPUT = By.id("initialDeposit");
     private static final By CREATED_BY_INPUT = By.id("createdBy");
-    private static final By SUBMIT_BUTTON = By.xpath("//button[contains(text(), 'Open Corporate Account')]");
-    private static final By CANCEL_LINK = By.linkText("Cancel");
+    private static final By SUBMIT_BUTTON = By.id("submit-button");
+    private static final By CANCEL_LINK = By.id("cancel-link");
     
     // Corporate product information section
     private static final By CORPORATE_PRODUCT_INFO_SECTION = By.id("corporate-product-info");
@@ -35,15 +35,15 @@ public class CorporateAccountOpeningFormPage extends BasePage {
     private static final By VALIDATION_ERRORS = By.id("validation-errors");
     
     // Corporate customer information section (read-only display)
-    private static final By CORPORATE_CUSTOMER_SECTION = By.xpath("//div[contains(@class, 'from-purple-50')]");
-    private static final By COMPANY_NAME_DISPLAY = By.xpath("//h3[contains(@class, 'text-xl')]");
-    private static final By CUSTOMER_NUMBER_DISPLAY = By.xpath("//p[contains(text(), 'Customer Number:')]//span");
-    private static final By REGISTRATION_NUMBER_DISPLAY = By.xpath("//p[contains(text(), 'Registration Number:')]//span");
-    private static final By TAX_ID_DISPLAY = By.xpath("//p[contains(text(), 'Tax ID')]//span");
-    private static final By CONTACT_PERSON_DISPLAY = By.xpath("//p[contains(text(), 'Contact Person:')]//span");
+    private static final By CORPORATE_CUSTOMER_SECTION = By.id("corporate-customer-section");
+    private static final By COMPANY_NAME_DISPLAY = By.id("company-name-display");
+    private static final By CUSTOMER_NUMBER_DISPLAY = By.id("customer-number-display");
+    private static final By REGISTRATION_NUMBER_DISPLAY = By.id("registration-number-display");
+    private static final By TAX_ID_DISPLAY = By.id("tax-id-display");
+    private static final By CONTACT_PERSON_DISPLAY = By.id("contact-person-display");
     
     // Corporate banking benefits section
-    private static final By CORPORATE_BENEFITS_SECTION = By.xpath("//h4[contains(text(), 'Corporate Banking Benefits')]");
+    private static final By CORPORATE_BENEFITS_SECTION = By.id("corporate-benefits-title");
     
     public CorporateAccountOpeningFormPage(WebDriver driver, String baseUrl) {
         super(driver, baseUrl);

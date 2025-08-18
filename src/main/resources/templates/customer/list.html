@@ -55,7 +55,8 @@
             </div>
 
             <!-- Customer Table -->
-            <div class="overflow-x-auto">
+            <div id="customer-count" th:attr="data-count=${#lists.size(customers.content)}" style="display: none;"></div>
+            <div id="table-container" class="overflow-x-auto">
                 <table id="customer-table" class="min-w-full bg-white border border-gray-300">
                     <thead class="bg-gray-50">
                         <tr>

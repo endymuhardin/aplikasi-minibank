@@ -8,8 +8,8 @@
     <div layout:fragment="content" class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-5xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Open Corporate Account</h1>
-                <a href="/account/open/corporate" 
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Open Corporate Account</h1>
+                <a href="/account/open/corporate" id="back-to-selection-link"
                    class="text-gray-600 hover:text-gray-800">
                     ← Back to Corporate Customer Selection
                 </a>
@@ -34,7 +34,7 @@
             </div>
 
             <!-- Corporate Customer Information Section -->
-            <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6">
+            <div id="corporate-customer-section" class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 mb-6">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                     <i class="fas fa-building text-purple-600"></i>
                     Corporate Customer Information
@@ -42,13 +42,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 mb-3">
-                            <h3 class="text-xl font-bold text-gray-900" th:text="${customer.displayName}">Company Name</h3>
+                            <h3 id="company-name-display" class="text-xl font-bold text-gray-900" th:text="${customer.displayName}">Company Name</h3>
                             <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-800">
                                 <i class="fas fa-building mr-1"></i>CORPORATE
                             </span>
                         </div>
                         <p class="text-sm text-gray-600"><strong>Customer Number:</strong> 
-                            <span th:text="${customer.customerNumber}" class="font-mono text-gray-900">C1000001</span>
+                            <span id="customer-number-display" th:text="${customer.customerNumber}" class="font-mono text-gray-900">C1000001</span>
                         </p>
                         <p class="text-sm text-gray-600" th:if="${customer.email}"><strong>Email:</strong> 
                             <span th:text="${customer.email}" class="text-gray-900">email@company.com</span>
@@ -62,15 +62,15 @@
                         <div th:if="${corporateCustomer}">
                             <p class="text-sm text-gray-600" th:if="${corporateCustomer.companyRegistrationNumber}">
                                 <strong>Registration Number:</strong> 
-                                <span th:text="${corporateCustomer.companyRegistrationNumber}" class="font-mono text-gray-900">12345678901234</span>
+                                <span id="registration-number-display" th:text="${corporateCustomer.companyRegistrationNumber}" class="font-mono text-gray-900">12345678901234</span>
                             </p>
                             <p class="text-sm text-gray-600" th:if="${corporateCustomer.taxIdentificationNumber}">
                                 <strong>Tax ID (NPWP):</strong> 
-                                <span th:text="${corporateCustomer.taxIdentificationNumber}" class="font-mono text-gray-900">01.234.567.8-901.000</span>
+                                <span id="tax-id-display" th:text="${corporateCustomer.taxIdentificationNumber}" class="font-mono text-gray-900">01.234.567.8-901.000</span>
                             </p>
                             <p class="text-sm text-gray-600" th:if="${corporateCustomer.contactPersonName}">
                                 <strong>Contact Person:</strong> 
-                                <span th:text="${corporateCustomer.contactPersonFullName}" class="text-gray-900">John Doe (Finance Manager)</span>
+                                <span id="contact-person-display" th:text="${corporateCustomer.contactPersonFullName}" class="text-gray-900">John Doe (Finance Manager)</span>
                             </p>
                         </div>
                         <p class="text-sm text-gray-600" th:if="${customer.branch}"><strong>Branch:</strong> 
@@ -192,7 +192,7 @@
 
                 <!-- Corporate Banking Notice -->
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                    <h4 id="corporate-benefits-title" class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                         <i class="fas fa-handshake"></i>
                         Corporate Banking Benefits
                     </h4>
@@ -207,11 +207,11 @@
 
                 <!-- Submit Buttons -->
                 <div class="flex justify-end space-x-4 pt-6">
-                    <a href="/account/open/corporate" 
+                    <a href="/account/open/corporate" id="cancel-link"
                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
                         Cancel
                     </a>
-                    <button type="submit" 
+                    <button type="submit" id="submit-button"
                             class="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-2">
                         <i class="fas fa-building"></i>
                         Open Corporate Account
