@@ -1,29 +1,38 @@
 package id.ac.tazkia.minibank.controller.rest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import id.ac.tazkia.minibank.dto.AccountOpeningRequest;
 import id.ac.tazkia.minibank.dto.AccountOpeningResponse;
+import id.ac.tazkia.minibank.dto.AccountStatementRequest;
 import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.entity.Transaction;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
+import id.ac.tazkia.minibank.service.AccountStatementService;
+import id.ac.tazkia.minibank.service.AccountStatementPdfService;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -41,19 +50,25 @@ public class AccountRestController {
     private final ProductRepository productRepository;
     private final BranchRepository branchRepository;
     private final SequenceNumberService sequenceNumberService;
+    private final AccountStatementService accountStatementService;
+    private final AccountStatementPdfService accountStatementPdfService;
     
     public AccountRestController(PersonalCustomerRepository personalCustomerRepository,
                                CorporateCustomerRepository corporateCustomerRepository,
                                AccountRepository accountRepository,
                                ProductRepository productRepository,
                                BranchRepository branchRepository,
-                               SequenceNumberService sequenceNumberService) {
+                               SequenceNumberService sequenceNumberService,
+                               AccountStatementService accountStatementService,
+                               AccountStatementPdfService accountStatementPdfService) {
         this.personalCustomerRepository = personalCustomerRepository;
         this.corporateCustomerRepository = corporateCustomerRepository;
         this.accountRepository = accountRepository;
         this.productRepository = productRepository;
         this.branchRepository = branchRepository;
         this.sequenceNumberService = sequenceNumberService;
+        this.accountStatementService = accountStatementService;
+        this.accountStatementPdfService = accountStatementPdfService;
     }
 
     @PostMapping("/open")
@@ -172,5 +187,103 @@ public class AccountRestController {
 
     private String generateAccountNumber() {
         return sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "ACC");
+    }
+
+    @PostMapping("/statement/pdf")
+    public ResponseEntity<byte[]> generateAccountStatementPdf(@Valid @RequestBody AccountStatementRequest request, 
+                                                            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().forEach(error -> 
+                errors.put(error.getField(), error.getDefaultMessage())
+            );
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            // Validate that either accountId or accountNumber is provided
+            if (request.getAccountId() == null && (request.getAccountNumber() == null || request.getAccountNumber().trim().isEmpty())) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Find account
+            Optional<Account> accountOpt;
+            if (request.getAccountId() != null) {
+                accountOpt = accountStatementService.findAccountById(request.getAccountId());
+            } else {
+                accountOpt = accountStatementService.findAccountByAccountNumber(request.getAccountNumber().trim());
+            }
+
+            if (accountOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Account account = accountOpt.get();
+
+            // Validate date range
+            if (request.getStartDate().isAfter(request.getEndDate())) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Get transactions for the period
+            List<Transaction> transactions = accountStatementService.getTransactionsByAccountAndDateRange(
+                account.getId(), request.getStartDate(), request.getEndDate()
+            );
+
+            // Generate PDF
+            byte[] pdfBytes = accountStatementPdfService.generateAccountStatementPdf(
+                account, transactions, request.getStartDate(), request.getEndDate()
+            );
+
+            // Build filename
+            String filename = String.format("statement_%s_%s_to_%s.pdf", 
+                account.getAccountNumber(),
+                request.getStartDate().toString(),
+                request.getEndDate().toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", filename);
+            headers.setContentLength(pdfBytes.length);
+
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request for account statement", e);
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            log.error("Failed to generate account statement PDF", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/statement/pdf")
+    public ResponseEntity<byte[]> generateAccountStatementPdfByParams(
+            @RequestParam(required = false) String accountId,
+            @RequestParam(required = false) String accountNumber,
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        
+        try {
+            AccountStatementRequest request = new AccountStatementRequest();
+            
+            if (accountId != null && !accountId.trim().isEmpty()) {
+                request.setAccountId(java.util.UUID.fromString(accountId));
+            }
+            if (accountNumber != null && !accountNumber.trim().isEmpty()) {
+                request.setAccountNumber(accountNumber.trim());
+            }
+            
+            request.setStartDate(java.time.LocalDate.parse(startDate));
+            request.setEndDate(java.time.LocalDate.parse(endDate));
+
+            return generateAccountStatementPdf(request, new org.springframework.validation.BeanPropertyBindingResult(request, "accountStatementRequest"));
+            
+        } catch (Exception e) {
+            log.error("Failed to parse account statement parameters", e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

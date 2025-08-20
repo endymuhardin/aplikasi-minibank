@@ -25,6 +25,7 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 - **Penarikan Tunai:** Transaksi withdrawal dengan validasi saldo dan status rekening
 - **Transfer Antar Rekening:** Sistem transfer dengan audit trail lengkap
 - **Cetak Buku Tabungan:** Pencetakan riwayat transaksi ke buku tabungan
+- **Rekening Koran PDF:** Generate dan download mutasi rekening dalam format PDF profesional
 
 ### User Management & RBAC
 - **Manajemen User:** Pengelolaan user sistem dengan role-based access control
@@ -42,6 +43,7 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 - **PostgreSQL 17** - Primary database
 - **Flyway** - Database migration management
 - **Bean Validation** - Input validation
+- **iText 5.5.13.3** - PDF generation library
 
 ### Frontend
 - **Thymeleaf** - Server-side templating
