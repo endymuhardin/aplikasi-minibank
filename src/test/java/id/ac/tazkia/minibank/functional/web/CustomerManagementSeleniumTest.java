@@ -37,7 +37,7 @@ public class CustomerManagementSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Login as Customer Service user who has CUSTOMER_READ, CUSTOMER_CREATE, CUSTOMER_UPDATE permissions
-        loginHelper.loginAsCustomerServiceUser();
+        getLoginHelper().loginAsCustomerServiceUser();
     }
     
     @Test

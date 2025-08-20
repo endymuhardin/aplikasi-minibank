@@ -1,12 +1,12 @@
 package id.ac.tazkia.minibank.functional.web;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,11 +14,9 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
-import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
-
-import org.junit.jupiter.api.BeforeEach;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SqlGroup({
@@ -32,10 +30,8 @@ public class DashboardSeleniumTest extends BaseSeleniumTest {
         // Setup WebDriver once per test class
         setupWebDriverOnce();
         
-        // Initialize LoginHelper
-        if (loginHelper == null) {
-            loginHelper = new LoginHelper(driver, baseUrl);
-        }
+        // LoginHelper is automatically initialized by BaseSeleniumTest for thread-local use
+        // No manual initialization needed here
     }
 
     private String getPasswordFor() {

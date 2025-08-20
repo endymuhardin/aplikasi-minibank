@@ -1,12 +1,20 @@
 -- Setup test data for customer management tests
-DELETE FROM accounts;
-DELETE FROM personal_customers;
-DELETE FROM corporate_customers;
-DELETE FROM customers;
+-- Clean up only test-created data, preserve migration data
+DELETE FROM accounts WHERE id_customers IN (
+    SELECT id FROM customers WHERE customer_number LIKE 'TEST_%' OR customer_number LIKE 'EDIT%' OR customer_number LIKE 'SEARCH%'
+);
+DELETE FROM personal_customers WHERE id IN (
+    SELECT id FROM customers WHERE customer_number LIKE 'TEST_%' OR customer_number LIKE 'EDIT%' OR customer_number LIKE 'SEARCH%'
+);
+DELETE FROM corporate_customers WHERE id IN (
+    SELECT id FROM customers WHERE customer_number LIKE 'TEST_%' OR customer_number LIKE 'EDIT%' OR customer_number LIKE 'SEARCH%'
+);
+DELETE FROM customers WHERE customer_number LIKE 'TEST_%' OR customer_number LIKE 'EDIT%' OR customer_number LIKE 'SEARCH%';
 
--- Note: Branches are created by migration, using main branch from V002__insert_initial_data.sql
+-- NOTE: Branches and sequence numbers are provided by migration V002__insert_initial_data.sql
+-- Using main branch HO001 (01234567-8901-2345-6789-012345678901) from migration data
 
--- Insert base customer records with branch assignments (using main branch from initial data)
+-- Insert minimal test customers that extend migration data
 INSERT INTO customers (id, customer_number, customer_type, id_branches, email, phone_number, address, city, postal_code, country, status, created_by, created_date, updated_by, updated_date)
 VALUES ('22222222-2222-2222-2222-222222222001', 'EDIT001', 'PERSONAL', '01234567-8901-2345-6789-012345678901', 'john.doe@example.com', '081234567890', '123 Main Street', 'Jakarta', '12345', 'Indonesia', 'ACTIVE', 'system', NOW(), 'system', NOW());
 

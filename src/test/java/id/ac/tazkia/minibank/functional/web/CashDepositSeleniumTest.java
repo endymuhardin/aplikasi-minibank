@@ -35,7 +35,7 @@ public class CashDepositSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Use Teller role for transaction operations (primary use case)
-        loginHelper.loginAsTeller();
+        getLoginHelper().loginAsTeller();
     }
     
     @Test
@@ -78,10 +78,6 @@ public class CashDepositSeleniumTest extends BaseSeleniumTest {
         TransactionListPage transactionListPage = navigateToTransactionList();
         AccountSelectionPage accountSelectionPage = transactionListPage.clickCashDepositButton();
         CashDepositFormPage cashDepositFormPage = accountSelectionPage.selectFirstAccount();
-        
-        // Store original balance for verification
-        String originalBalance = cashDepositFormPage.getCurrentBalance();
-        String accountNumber = cashDepositFormPage.getAccountNumber();
         
         // Fill and submit the form
         String depositAmount = "100000";
@@ -322,7 +318,7 @@ public class CashDepositSeleniumTest extends BaseSeleniumTest {
         log.info("🧪 TEST START: shouldWorkWithManagerRole");
         
         // Login as Manager instead of Teller
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
         
         // Navigate and process cash deposit
         TransactionListPage transactionListPage = navigateToTransactionList();
@@ -346,10 +342,4 @@ public class CashDepositSeleniumTest extends BaseSeleniumTest {
         return dashboardPage.clickTransactionLink();
     }
     
-    private void assertTransactionIsCreated(TransactionListPage transactionListPage, String expectedAmount) {
-        assertTrue(transactionListPage.hasTransactions(), "Should have transactions");
-        assertEquals("DEPOSIT", transactionListPage.getFirstTransactionType(), "Should be deposit transaction");
-        assertTrue(transactionListPage.getFirstTransactionAmount().contains(expectedAmount.replace("000", ",000")), 
-                  "Amount should match expected");
-    }
 }

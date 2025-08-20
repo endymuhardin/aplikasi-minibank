@@ -34,7 +34,7 @@ public class PermissionManagementSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Login as Manager who has USER_READ, USER_CREATE, USER_UPDATE permissions for RBAC management
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
     }
     
     @Test

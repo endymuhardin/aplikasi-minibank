@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
@@ -16,14 +18,15 @@ import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.RolePermission;
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserRole;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 import id.ac.tazkia.minibank.repository.RolePermissionRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import id.ac.tazkia.minibank.repository.UserRoleRepository;
 
-class RolePermissionRepositoryTest extends BaseRepositoryTest {
+@Execution(ExecutionMode.SAME_THREAD)
+class RolePermissionRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -52,14 +55,7 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        rolePermissionRepository.deleteAll();
-        userRoleRepository.deleteAll();
-        userRepository.deleteAll();
-        permissionRepository.deleteAll();
-        roleRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-        
+        logTestExecution("RolePermissionRepositoryTest setup");
         setupTestData();
     }
 
@@ -324,51 +320,25 @@ class RolePermissionRepositoryTest extends BaseRepositoryTest {
     }
 
     private void setupTestData() {
-        // Create roles
-        branchManagerRole = createRole("BRANCH_MANAGER", "Branch Manager", "Full access");
-        tellerRole = createRole("TELLER", "Teller", "Transaction processing");
+        // Use existing roles from migration data
+        branchManagerRole = roleRepository.findByRoleCode("BRANCH_MANAGER")
+                .orElseThrow(() -> new RuntimeException("BRANCH_MANAGER role not found in database"));
+        tellerRole = roleRepository.findByRoleCode("TELLER")
+                .orElseThrow(() -> new RuntimeException("TELLER role not found in database"));
 
-        roleRepository.save(branchManagerRole);
-        roleRepository.save(tellerRole);
-
-        // Create permissions
-        customerViewPermission = createPermission("CUSTOMER_VIEW", "View Customer", "CUSTOMER", 
-            "View customer information");
-        customerCreatePermission = createPermission("CUSTOMER_CREATE", "Create Customer", "CUSTOMER", 
-            "Create new customers");
-        transactionDepositPermission = createPermission("TRANSACTION_DEPOSIT", "Process Deposit", "TRANSACTION", 
-            "Process deposit transactions");
-        transactionWithdrawalPermission = createPermission("TRANSACTION_WITHDRAWAL", "Process Withdrawal", "TRANSACTION", 
-            "Process withdrawal transactions");
-
-        permissionRepository.save(customerViewPermission);
-        permissionRepository.save(customerCreatePermission);
-        permissionRepository.save(transactionDepositPermission);
-        permissionRepository.save(transactionWithdrawalPermission);
+        // Use existing permissions from migration data
+        customerViewPermission = permissionRepository.findByPermissionCode("CUSTOMER_VIEW")
+                .orElseThrow(() -> new RuntimeException("CUSTOMER_VIEW permission not found in database"));
+        customerCreatePermission = permissionRepository.findByPermissionCode("CUSTOMER_CREATE")
+                .orElseThrow(() -> new RuntimeException("CUSTOMER_CREATE permission not found in database"));
+        transactionDepositPermission = permissionRepository.findByPermissionCode("TRANSACTION_DEPOSIT")
+                .orElseThrow(() -> new RuntimeException("TRANSACTION_DEPOSIT permission not found in database"));
+        transactionWithdrawalPermission = permissionRepository.findByPermissionCode("TRANSACTION_WITHDRAWAL")
+                .orElseThrow(() -> new RuntimeException("TRANSACTION_WITHDRAWAL permission not found in database"));
         
+        // Clean up existing role-permissions to avoid constraint violations
+        rolePermissionRepository.deleteAll();
         entityManager.flush();
-    }
-
-    private Role createRole(String roleCode, String roleName, String description) {
-        Role role = new Role();
-        role.setRoleCode(roleCode);
-        role.setRoleName(roleName);
-        role.setDescription(description);
-        role.setIsActive(true);
-        role.setCreatedBy("TEST");
-        role.setUpdatedBy("TEST");
-        return role;
-    }
-
-    private Permission createPermission(String permissionCode, String permissionName, String category,
-                                       String description) {
-        Permission permission = new Permission();
-        permission.setPermissionCode(permissionCode);
-        permission.setPermissionName(permissionName);
-        permission.setPermissionCategory(category);
-        permission.setDescription(description);
-        permission.setCreatedBy("TEST");
-        return permission;
     }
 
     private User createUser(String username, String email, String fullName) {

@@ -65,7 +65,7 @@ public class ComprehensiveAccountOpeningSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Login as Manager for comprehensive permissions
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
     }
     
     // TC-AO-003: DEPOSITO_MUDHARABAH Opening

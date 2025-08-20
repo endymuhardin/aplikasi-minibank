@@ -1,812 +1,191 @@
-# Aplikasi Mini Bank #
+# Aplikasi Mini Bank
 
-## Fitur Aplikasi ##
+Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang menyediakan fungsionalitas lengkap untuk operasional bank syariah, termasuk manajemen nasabah, produk Islamic banking, transaksi, dan sistem RBAC.
 
-Aplikasi Mini Bank mencakup modul-modul utama dengan status implementasi sebagai berikut:
+## 🚀 Fitur Utama
 
-### ✅ **MODUL YANG SUDAH SELESAI** ###
+### Manajemen Nasabah
+- **Registrasi Nasabah:** Pendaftaran nasabah perorangan dan korporat dengan validasi lengkap
+- **Pencarian & Pengelolaan:** Sistem pencarian dan pengelolaan data nasabah yang efisien
+- **Validasi Data:** Validasi comprehensive untuk data nasabah dan constraint database
 
-* **✅ Modul Manajemen Nasabah:**
-    * ✅ **Registrasi Nasabah Perorangan:** Input data lengkap, validasi KTP, verifikasi data
-    * ✅ **Registrasi Nasabah Badan Usaha:** Input data perusahaan, validasi dokumen, verifikasi legalitas
-    * ✅ **Pencarian & Filtering Nasabah:** Pencarian berdasarkan nama, nomor nasabah, jenis nasabah
-    * ✅ **Edit & Update Data Nasabah:** Perubahan data nasabah dengan audit trail
-    * ✅ **Aktivasi/Deaktivasi Nasabah:** Pengelolaan status nasabah
-    * ✅ **View Detail Nasabah:** Tampilan lengkap informasi nasabah
-    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi nasabah
-    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test, Karate BDD test
+### Produk Perbankan Syariah
+- **Tabungan Syariah:** Tabungan Wadiah dan Tabungan Mudharabah dengan sistem bagi hasil
+- **Deposito Mudharabah:** Investasi berjangka dengan sistem profit sharing
+- **Pembiayaan Syariah:** Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna
+- **Konfigurasi Produk:** Pengaturan nisbah, minimal saldo, dan parameter produk
 
-* **✅ Modul Manajemen Produk Perbankan:**
-    * ✅ **Konfigurasi Produk Tabungan Syariah:** Tabungan Wadiah, Tabungan Mudharabah
-    * ✅ **Konfigurasi Produk Deposito:** Deposito Mudharabah dengan nisbah bagi hasil
-    * ✅ **Konfigurasi Produk Pembiayaan:** Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna
-    * ✅ **Pengaturan Fee & Limit:** Konfigurasi biaya administrasi, limit transaksi
-    * ✅ **Pengaturan Nisbah Bagi Hasil:** Sistem profit sharing untuk produk syariah
-    * ✅ **CRUD Produk Lengkap:** Create, Read, Update, Delete, Search, Filter
-    * ✅ **Aktivasi/Deaktivasi Produk:** Pengelolaan status produk
-    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi produk
-    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test
+### Manajemen Rekening
+- **Pembukaan Rekening:** Proses pembukaan rekening untuk nasabah perorangan dan korporat
+- **Status Rekening:** Pengelolaan status rekening (ACTIVE, INACTIVE, CLOSED, FROZEN)
+- **Validasi Bisnis:** Business logic validation untuk operasional rekening
 
-* **✅ Modul Pembukaan Rekening:**
-    * ✅ **REST API Pembukaan Rekening:** Endpoint untuk membuka rekening baru
-    * ✅ **Web Interface Pembukaan Rekening Personal:** UI lengkap untuk pembukaan rekening nasabah perorangan
-    * ✅ **Web Interface Pembukaan Rekening Corporate:** UI terpisah untuk pembukaan rekening nasabah korporat
-    * ✅ **Validasi Nasabah & Produk:** Verifikasi kelayakan pembukaan rekening
-    * ✅ **Otomatisasi Nomor Rekening:** Generate nomor rekening otomatis dengan prefix (ACC/CORP)
-    * ✅ **Pengaturan Saldo Awal:** Set saldo minimum sesuai produk dan jenis nasabah
-    * ✅ **Islamic Banking Compliance:** Support lengkap untuk produk syariah (Wadiah, Mudharabah, Deposito)
-    * ✅ **Corporate Banking Rules:** Minimum deposit 5x lipat untuk nasabah korporat
-    * ✅ **Multi-Account Support:** Nasabah dapat memiliki multiple rekening dengan produk berbeda
-    * ✅ **Karate BDD Testing:** Test cases lengkap untuk pembukaan rekening
-    * ✅ **Comprehensive Selenium Testing:** 25+ test methods covering personal, corporate, and Islamic banking scenarios
+### Transaksi Perbankan
+- **Setoran Tunai:** Transaksi deposit dengan multiple channel (TELLER, ATM, ONLINE, MOBILE)
+- **Penarikan Tunai:** Transaksi withdrawal dengan validasi saldo dan status rekening
+- **Transfer Antar Rekening:** Sistem transfer dengan audit trail lengkap
+- **Cetak Buku Tabungan:** Pencetakan riwayat transaksi ke buku tabungan
 
-* **✅ Modul Transaksi Perbankan:**
-    * ✅ **Setoran Tunai (Cash Deposit):**
-        * ✅ REST API untuk deposit dengan validasi lengkap
-        * ✅ **Web Interface Lengkap:** Form setoran tunai dengan account selection, validation, success notification
-        * ✅ Update saldo otomatis dengan audit trail
-        * ✅ Pencatatan riwayat transaksi lengkap
-        * ✅ Validasi limit dan aturan bisnis (minimum IDR 10,000)
-        * ✅ Transaction list view dengan filter dan search
-        * ✅ Transaction detail view dengan balance calculations
-        * ✅ **Comprehensive Selenium Testing:** 10+ test methods covering full workflow, validation, multi-role access
-        * ✅ Karate BDD testing dengan berbagai skenario
-    * ✅ **Penarikan Tunai (Cash Withdrawal):**
-        * ✅ REST API untuk withdrawal dengan validasi saldo
-        * ✅ **Web Interface Lengkap:** Form penarikan tunai dengan account selection, real-time balance validation, warning system
-        * ✅ **JavaScript Real-time Validation:** Client-side balance checking, insufficient balance warnings, button state management
-        * ✅ Update saldo otomatis dengan validasi business logic
-        * ✅ Pencatatan audit trail transaksi lengkap
-        * ✅ Transaction list view dengan withdrawal display (negative amounts)
-        * ✅ Transaction detail view dengan withdrawal balance calculations
-        * ✅ **Comprehensive Selenium Testing:** 15+ test methods covering insufficient balance, edge cases, multi-role access
-        * ✅ Karate BDD testing komprehensif
-        * ✅ **Islamic Banking Compliance:** Menggunakan business logic Account.withdraw() dengan validasi syariah
-    * ❌ **Transfer:** Belum diimplementasi (REST API maupun Web UI)
+### User Management & RBAC
+- **Manajemen User:** Pengelolaan user sistem dengan role-based access control
+- **Role & Permission:** Sistem permission granular untuk berbagai jenis user
+- **User Roles:** Customer Service (CS), Teller, Branch Manager (Kepala Cabang)
+- **Security:** Password hashing dengan BCrypt, account locking, failed login tracking
 
-* **✅ Modul User Management & RBAC:**
-    * ✅ **Manajemen User:** Create, edit, view, activate/deactivate user
-    * ✅ **Manajemen Role:** Customer Service, Teller, Branch Manager dengan permissions
-    * ✅ **Manajemen Permission:** Fine-grained permissions per fitur
-    * ✅ **Assignment Role ke User:** Assign/remove multiple roles per user
-    * ✅ **Assignment Permission ke Role:** Configure permissions per role
-    * ✅ **Password Management:** Change password dengan BCrypt hashing
-    * ✅ **Authentication & Security:** Login/logout, session management
-    * ✅ **Multi-Branch Support:** Branch assignment untuk users dan customers
-    * ✅ **Web Interface Lengkap:** Form, list, search, pagination
-    * ✅ **REST API Lengkap:** Endpoint untuk semua operasi RBAC
-    * ✅ **Testing Komprehensif:** Unit test, integration test, Selenium test
+## 🛠️ Technology Stack
 
-* **✅ Modul Cetak Buku Tabungan (Passbook Printing):**
-    * ✅ **Web Interface Lengkap:** Account selection, transaction history display, printing functionality
-    * ✅ Pencarian rekening nasabah dengan validasi status aktif
-    * ✅ Tampilan riwayat transaksi dengan pagination dan filtering
-    * ✅ Fungsionalitas pencetakan entri transaksi ke buku tabungan fisik
-    * ✅ **Islamic Banking Compliance:** Support untuk semua jenis produk syariah
-    * ✅ **Comprehensive Selenium Testing:** Full passbook workflow testing
-    * ✅ Real-time sinkronisasi dengan data transaksi terbaru
+### Backend
+- **Java 21** - Programming language
+- **Spring Boot 3.5.3** - Application framework
+- **Spring Data JPA** - Data access layer
+- **Spring Security** - Authentication & authorization
+- **PostgreSQL 17** - Primary database
+- **Flyway** - Database migration management
+- **Bean Validation** - Input validation
 
-### ❌ **MODUL YANG BELUM DIIMPLEMENTASI** ###
+### Frontend
+- **Thymeleaf** - Server-side templating
+- **Tailwind CSS 3.4.17** - Utility-first CSS framework
+- **PostCSS 8.5.6** - CSS processing
+- **Autoprefixer 10.4.21** - CSS vendor prefixes
 
-* **🔄 Modul Transaksi (Sebagian):**
-    * ❌ **Transfer Antar Rekening:** Belum diimplementasi sama sekali (REST API & Web UI)
-    * ❌ **Transfer ke Bank Lain:** Belum diimplementasi
+### Development & Testing
+- **Docker Compose** - Development environment
+- **JUnit 5** - Unit testing framework
+- **Karate 1.4.1** - API integration testing
+- **Selenium** - Web UI testing
+- **JaCoCo 0.8.12** - Code coverage
+- **TestContainers** - Integration testing with containers
 
-* **❌ Modul Pembiayaan Syariah (Web Interface):**
-    * **✅ Note:** *Produk pembiayaan syariah sudah dikonfigurasi dalam Product Management (Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna)*
-    * ❌ **Web Interface Pembiayaan Murabahah:**
-        * ❌ Form pengajuan pembiayaan dengan data nasabah dan objek pembiayaan
-        * ❌ Perhitungan harga pokok, margin keuntungan, dan harga jual
-        * ❌ Penentuan jangka waktu dan angsuran
-        * ❌ Workflow approval dan pencatatan akad
-        * ❌ Pencetakan dokumen akad murabahah
-    * ❌ **Web Interface Pembiayaan Mudharabah:**
-        * ❌ Form pengajuan dengan data proyek/usaha
-        * ❌ Penentuan nisbah bagi hasil dan jangka waktu
-        * ❌ Workflow approval dan pencatatan akad
-        * ❌ Pencetakan dokumen akad mudharabah
+### Build & CI/CD
+- **Maven 3.8+** - Build tool
+- **SonarCloud** - Code quality analysis
+- **GitHub Actions** - Continuous integration
 
-### 📊 **PROGRESS SUMMARY** ###
-- **✅ Completed Modules:** 5/8 (Customer Management, Product Management, Account Opening, Cash Deposit, RBAC)
-- **🔄 Partially Implemented:** 1/8 (Transaction Module - Missing withdrawal UI & transfers)
-- **❌ Not Started:** 2/8 (Passbook Printing, Islamic Financing UI)
-- **Overall Progress:** ~80% Complete
+Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices/index.md).
 
-**Testing Coverage Summary:**
-- **Selenium UI Tests:** 13 test classes, 128+ test methods, 4,552+ lines of test code
-- **Repository Tests:** Comprehensive @DataJpaTest coverage for all repositories
-- **API Integration Tests:** Karate BDD tests for all REST endpoints
-- **Unit Tests:** Entity business logic and service layer testing
+## 📚 Dokumentasi
 
-**Account Opening Module Status:**
-- ✅ Personal Customer Account Opening: **100% Complete**
-- ✅ Corporate Customer Account Opening: **100% Complete**  
-- ✅ Islamic Banking Products Support: **100% Complete**
-- ✅ Testing Coverage: **100% Complete** (25+ comprehensive test scenarios)
+### Dokumentasi Teknis
+- [📋 Panduan Setup Development](./docs/development-setup.md) - Setup environment dan instalasi
+- [👥 Panduan Pengguna](./docs/user-guide.md) - Panduan penggunaan aplikasi
+- [🧪 Panduan Testing](./docs/testing-guide.md) - Strategi dan panduan testing
+- [🏗️ Praktik Teknis](./docs/technical-practices/index.md) - Arsitektur dan best practices
+- [🗃️ Dokumentasi Database](./docs/database-documentation.md) - Schema dan design database
 
-## Pengguna Aplikasi ##
+### Skenario Testing
+- [🧩 Skenario Testing](./docs/test-scenarios/README.md) - Comprehensive test scenarios
+- [👤 Customer Management](./docs/test-scenarios/customer-management/) - Test nasabah
+- [💳 Account Management](./docs/test-scenarios/account-management/) - Test rekening
+- [💰 Transaction Testing](./docs/test-scenarios/transactions/) - Test transaksi
+- [🔐 RBAC Testing](./docs/test-scenarios/system-management/) - Test user management
 
-Aplikasi ini dirancang untuk melayani kebutuhan berbagai peran pengguna dengan hak akses dan fungsionalitas yang disesuaikan per cabang:
+## 🚀 Quick Start
 
-* **Customer Service (CS):**
-    * Memiliki akses penuh ke fitur pembukaan rekening tabungan dan deposito.
-    * Dapat melihat riwayat transaksi nasabah dalam cabang yang sama.
-    * Dapat menginput pengajuan pembiayaan murabahah dan mudharabah (tanpa persetujuan akhir).
-    * Dapat mengelola data nasabah yang terdaftar di cabang yang sama.
-    * Tidak memiliki akses untuk melakukan transaksi tunai secara langsung.
-* **Teller:**
-    * Memiliki akses penuh ke fitur setoran tunai dan penarikan tunai.
-    * Memiliki akses ke fitur cetak buku tabungan.
-    * Dapat melihat data nasabah dan riwayat transaksi yang terkait dengan cabang tugasnya.
-    * Dapat memproses transaksi untuk rekening dalam cabang yang sama.
-    * Tidak memiliki akses ke fitur pembukaan rekening atau pembiayaan.
-* **Kepala Cabang (Branch Manager):**
-    * Memiliki akses administratif penuh ke seluruh fitur aplikasi dalam cabang yang dikelola.
-    * Dapat memonitor seluruh transaksi dan aktivitas pengguna dalam cabang.
-    * Dapat memberikan persetujuan akhir untuk pengajuan pembiayaan murabahah dan mudharabah.
-    * Dapat mengelola data pengguna dan hak akses untuk staff cabang.
-    * Dapat menghasilkan laporan terkait operasional cabang.
-    * **Admin (System Administrator)** memiliki akses lintas cabang untuk keperluan sistem.
+### Prerequisites
+- **Java 21+** 
+- **Maven 3.8+**
+- **Docker Desktop**
+- **Node.js 16+** (untuk frontend build)
 
-## Technology Stack ##
-
-* Java 21
-* Spring Boot 3.5.3
-* PostgreSQL 17
-* Docker Compose
-* Node.js (untuk frontend build)
-* Tailwind CSS
-
-## Setup Development Environment ##
-
-### Prerequisites untuk Semua Operating System ###
-
-- **Java 21** (menggunakan SDKMAN)
-- **Maven 3.6+** (atau gunakan Maven wrapper `./mvnw`)
-- **Node.js 18+** (menggunakan NVM)
-- **Docker Desktop** (untuk database dan Selenium tests)
-- **Git** (untuk version control)
-
-### Windows Setup ###
-
-#### 1. Install Git Bash ####
-```powershell
-# Download dan install Git for Windows dari https://git-scm.com/download/win
-# Pastikan pilih "Git Bash" saat instalasi
-```
-
-#### 2. Install SDKMAN (melalui Git Bash) ####
+### 1. Setup Database
 ```bash
-# Buka Git Bash dan jalankan:
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Verify installation
-sdk version
+# Start PostgreSQL dengan Docker Compose
+docker compose up -d
 ```
 
-#### 3. Install Java 21 menggunakan SDKMAN ####
+### 2. Build Frontend Assets
 ```bash
-# List available Java versions
-sdk list java
-
-# Install Java 21 (Temurin/Eclipse Adoptium)
-sdk install java 21.0.5-tem
-
-# Set as default
-sdk default java 21.0.5-tem
-
-# Verify installation
-java -version
-```
-
-#### 4. Install Maven menggunakan SDKMAN ####
-```bash
-sdk install maven
-```
-
-#### 5. Install NVM ####
-```bash
-# Download nvm-windows dari https://github.com/coreybutler/nvm-windows
-# Atau install via chocolatey:
-choco install nvm
-```
-
-#### 6. Install Node.js menggunakan NVM ####
-```bash
-# Install Node.js 18 LTS
-nvm install 18.19.0
-nvm use 18.19.0
-
-# Verify installation
-node --version
-npm --version
-```
-
-#### 7. Install Docker Desktop ####
-```powershell
-# Download dari https://docs.docker.com/desktop/install/windows-install/
-# Atau menggunakan winget
-winget install Docker.DockerDesktop
-```
-
-### Ubuntu/Debian Setup ###
-
-#### 1. Update sistem dan install dependencies ####
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install curl wget gnupg2 software-properties-common apt-transport-https ca-certificates git -y
-```
-
-#### 2. Install SDKMAN ####
-```bash
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Verify installation
-sdk version
-```
-
-#### 3. Install Java 21 menggunakan SDKMAN ####
-```bash
-# List available Java versions
-sdk list java
-
-# Install Java 21 (Temurin/Eclipse Adoptium)
-sdk install java 21.0.5-tem
-
-# Set as default
-sdk default java 21.0.5-tem
-
-# Verify installation
-java -version
-javac -version
-```
-
-#### 4. Install Maven menggunakan SDKMAN ####
-```bash
-sdk install maven
-
-# Verify installation
-mvn -version
-```
-
-#### 5. Install NVM ####
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-source ~/.bashrc
-
-# Verify installation
-nvm --version
-```
-
-#### 6. Install Node.js menggunakan NVM ####
-```bash
-# Install Node.js 18 LTS
-nvm install 18.19.0
-nvm use 18.19.0
-nvm alias default 18.19.0
-
-# Verify installation
-node --version
-npm --version
-```
-
-#### 7. Install Docker Desktop ####
-```bash
-# Install Docker Engine
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-newgrp docker
-
-# Install Docker Desktop (optional GUI)
-wget https://desktop.docker.com/linux/main/amd64/docker-desktop-4.25.0-amd64.deb
-sudo dpkg -i docker-desktop-4.25.0-amd64.deb
-```
-
-### macOS Setup ###
-
-#### 1. Install Homebrew (jika belum ada) ####
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-#### 2. Install SDKMAN ####
-```bash
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Verify installation
-sdk version
-```
-
-#### 3. Install Java 21 menggunakan SDKMAN ####
-```bash
-# List available Java versions
-sdk list java
-
-# Install Java 21 (Temurin/Eclipse Adoptium)
-sdk install java 21.0.5-tem
-
-# Set as default
-sdk default java 21.0.5-tem
-
-# Verify installation
-java -version
-```
-
-#### 4. Install Maven menggunakan SDKMAN ####
-```bash
-sdk install maven
-
-# Verify installation
-mvn -version
-```
-
-#### 5. Install NVM ####
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-source ~/.zshrc
-
-# Verify installation
-nvm --version
-```
-
-#### 6. Install Node.js menggunakan NVM ####
-```bash
-# Install Node.js 18 LTS
-nvm install 18.19.0
-nvm use 18.19.0
-nvm alias default 18.19.0
-
-# Verify installation
-node --version
-npm --version
-```
-
-#### 7. Install Docker Desktop ####
-```bash
-brew install --cask docker
-
-# Atau download manual dari https://docs.docker.com/desktop/install/mac-install/
-```
-
-#### 8. Install Git (jika belum ada) ####
-```bash
-brew install git
-```
-
-### Verification dan First Setup ###
-
-#### 1. Clone repository ####
-```bash
-git clone <repository-url>
-cd aplikasi-minibank
-```
-
-#### 2. Verify semua tools terinstall ####
-```bash
-# Check Java
-java -version
-# Expected: openjdk version "21.0.5"
-
-# Check Maven
-mvn -version
-# Expected: Apache Maven 3.x.x
-
-# Check Node.js
-node --version
-# Expected: v18.19.0
-
-# Check npm
-npm --version
-
-# Check Docker
-docker --version
-docker-compose --version
-
-# Check SDKMAN
-sdk version
-
-# Check NVM
-nvm --version
-```
-
-#### 3. Setup IDE (Opsional) ####
-
-**Visual Studio Code:**
-- Install extension: "Extension Pack for Java"
-- Install extension: "Spring Boot Extension Pack"
-- Install extension: "Tailwind CSS IntelliSense"
-
-**IntelliJ IDEA:**
-- Install Spring Boot plugin
-- Import project sebagai Maven project
-- Enable annotation processing untuk Lombok
-
-#### 4. First Run Test ####
-```bash
-# Test Maven build
-./mvnw clean compile
-
-# Test frontend build
+# Masuk ke direktori frontend
 cd src/main/frontend
+
+# Install dependencies
 npm install
-cd ../../..
 
-# Test Docker
-docker --version
-docker-compose --version
+# Start watch mode untuk development
+npm run watch
 ```
 
-### Version Management dengan SDKMAN dan NVM ###
-
-#### SDKMAN Commands ####
+### 3. Run Application
 ```bash
-# List installed Java versions
-sdk list java
-
-# Switch Java version
-sdk use java 21.0.5-tem
-
-# Install additional Java version
-sdk install java 17.0.9-tem
-
-# Set default Java version
-sdk default java 21.0.5-tem
-
-# Update SDKMAN
-sdk update
+# Di terminal terpisah, jalankan Spring Boot application
+mvn spring-boot:run
 ```
 
-#### NVM Commands ####
+### 4. Access Application
+- **Web Application:** [http://localhost:8080/product/list](http://localhost:8080/product/list)
+- **REST API:** [http://localhost:8080/api/customers](http://localhost:8080/api/customers)
+- **Database:** `localhost:2345/pgminibank` (username: `minibank`, password: `minibank1234`)
+
+## 🧪 Running Tests
+
+### Unit Tests
 ```bash
-# List installed Node versions
-nvm list
-
-# Switch Node version
-nvm use 18.19.0
-
-# Install additional Node version
-nvm install 20.10.0
-
-# Set default Node version
-nvm alias default 18.19.0
-
-# Update NVM
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-```
-
-### Troubleshooting Common Issues ###
-
-#### Windows Issues ####
-- **SDKMAN tidak dikenali**: Pastikan menjalankan di Git Bash, bukan Command Prompt
-- **Docker permission**: Jalankan Docker Desktop sebagai administrator
-- **Port conflicts**: Pastikan port 8080 dan 2345 tidak digunakan aplikasi lain
-
-#### Ubuntu Issues ####
-- **Permission denied (Docker)**: Pastikan user sudah di group docker: `sudo usermod -aG docker $USER`
-- **SDKMAN not found**: Restart terminal atau jalankan `source ~/.bashrc`
-- **NVM command not found**: Restart terminal atau jalankan `source ~/.bashrc`
-
-#### macOS Issues ####
-- **SDKMAN not found**: Restart terminal atau jalankan `source ~/.zshrc`
-- **NVM command not found**: Restart terminal atau jalankan `source ~/.zshrc`
-- **Docker memory**: Tingkatkan Docker Desktop memory allocation di preferences
-
-#### General SDKMAN/NVM Issues ####
-- **Version conflicts**: Gunakan `sdk current` dan `nvm current` untuk check active versions
-- **Path issues**: SDKMAN dan NVM otomatis manage PATH, hindari manual PATH modification
-- **Shell conflicts**: Pastikan menggunakan shell yang benar (bash/zsh)
-
-## Menjalankan Aplikasi ##
-
-1. Jalankan docker desktop
-
-2.  **Menjalankan Tailwind CSS build process:**
-    Buka terminal dalam folder `src/main/frontend` dan jalankan perintah berikut :
-
-    ```bash
-    npm install
-    npm run watch
-    ```
-
-3.  **Menjalankan aplikasi Spring Boot:**
-    Buka terminal kedua di folder project dan jalankan perintah berikut:
-
-    ```bash
-    mvn spring-boot:run
-    ```
-
-4. **Browse aplikasi:**
-   Buka browser ke alamat [http://localhost:8080/product/list](http://localhost:8080/product/list)
-
-## Menggunakan Aplikasi ##
-
-### Login Credentials ###
-
-Aplikasi memiliki sample users untuk setiap role dengan credentials berikut:
-
-#### Branch Manager (Kepala Cabang) ####
-| Username | Password | Email | Full Name | Branch Assignment |
-|----------|----------|-------|-----------|------------------|
-| `admin` | `minibank123` | admin@yopmail.com | System Administrator | Main Branch (Kantor Pusat) |
-| `manager1` | `minibank123` | manager1@yopmail.com | Branch Manager Jakarta | Main Branch (Kantor Pusat) |
-| `manager2` | `minibank123` | manager2@yopmail.com | Branch Manager Surabaya | Main Branch (Kantor Pusat) |
-
-**Hak Akses:** Akses penuh ke seluruh fitur aplikasi dalam cabang yang dikelola, monitoring, approval, user management, dan laporan cabang.
-
-#### Teller ####
-| Username | Password | Email | Full Name | Branch Assignment |
-|----------|----------|-------|-----------|------------------|
-| `teller1` | `minibank123` | teller1@yopmail.com | Teller Counter 1 | Main Branch (Kantor Pusat) |
-| `teller2` | `minibank123` | teller2@yopmail.com | Teller Counter 2 | Main Branch (Kantor Pusat) |
-| `teller3` | `minibank123` | teller3@yopmail.com | Teller Counter 3 | Main Branch (Kantor Pusat) |
-
-**Hak Akses:** Transaksi tunai (setoran/tarik tunai/transfer), cetak buku tabungan, lihat data nasabah dan saldo dalam cabang yang sama.
-
-#### Customer Service ####
-| Username | Password | Email | Full Name | Branch Assignment |
-|----------|----------|-------|-----------|------------------|
-| `cs1` | `minibank123` | cs1@yopmail.com | Customer Service Staff 1 | Main Branch (Kantor Pusat) |
-| `cs2` | `minibank123` | cs2@yopmail.com | Customer Service Staff 2 | Main Branch (Kantor Pusat) |
-| `cs3` | `minibank123` | cs3@yopmail.com | Customer Service Staff 3 | Main Branch (Kantor Pusat) |
-
-**Hak Akses:** Pembukaan rekening tabungan/deposito, input data nasabah, pengajuan pembiayaan (tanpa approval) dalam cabang yang sama.
-
-### Sistem Multi-Branch ###
-
-Aplikasi mendukung sistem multi-branch untuk mengorganisir operasional bank berdasarkan cabang:
-
-#### Informasi Branch Tersedia ####
-| Branch Code | Branch Name | Address | City | Status |
-|-------------|-------------|---------|------|--------|
-| **MAIN** | Main Branch (Kantor Pusat) | Jl. Gatot Subroto No. 1, Jakarta 12190 | Jakarta | ACTIVE |
-
-#### Fitur Multi-Branch ####
-* **Branch Assignment untuk Users:** Setiap user ditetapkan ke cabang tertentu
-* **Branch Assignment untuk Customers:** Setiap nasabah terdaftar di cabang tertentu  
-* **Segmentasi Data:** Data dan operasi dibatasi berdasarkan cabang
-* **Isolated Operations:** Operasi dalam cabang bersifat terisolasi
-* **Cross-Branch Access:** Admin memiliki akses lintas cabang
-
-#### Branch-Based Access Control ####
-* **CS dan Teller:** Hanya dapat mengakses data nasabah dan operasi dalam cabang yang sama
-* **Branch Manager:** Akses penuh dalam cabang yang dikelola
-* **System Admin:** Akses lintas cabang untuk keperluan administrasi sistem
-
-### Akses URL ###
-
-**Web UI:**
-- **Dashboard**: [http://localhost:8080/dashboard](http://localhost:8080/dashboard)
-- **Product Management**: [http://localhost:8080/product/list](http://localhost:8080/product/list)
-- **Customer Management**: [http://localhost:8080/customer/list](http://localhost:8080/customer/list)
-- **Account Opening (Personal)**: [http://localhost:8080/account/open](http://localhost:8080/account/open)
-- **Account Opening (Corporate)**: [http://localhost:8080/account/open/corporate](http://localhost:8080/account/open/corporate)
-- **Account List**: [http://localhost:8080/account/list](http://localhost:8080/account/list)
-- **Transaction List**: [http://localhost:8080/transaction/list](http://localhost:8080/transaction/list)
-- **Cash Deposit**: [http://localhost:8080/transaction/cash-deposit](http://localhost:8080/transaction/cash-deposit)
-- **User Management**: [http://localhost:8080/user/list](http://localhost:8080/user/list)
-- **Role Management**: [http://localhost:8080/role/list](http://localhost:8080/role/list)
-
-**REST API**: [http://localhost:8080/api/](http://localhost:8080/api/)
-- Customers: `/api/customers`
-- Accounts: `/api/accounts`
-- Transactions: `/api/transactions`
-- Users: `/api/users`
-- Branches: `/api/branches`
-
-### Sample Data Nasabah ###
-
-Aplikasi telah memiliki data sample nasabah yang dapat digunakan untuk testing:
-
-**Nasabah Perorangan:**
-| Customer Number | Name | Email | KTP | Phone | Address | Branch |
-|-----------------|------|-------|-----|-------|---------|--------|
-| C1000001 | Ahmad Suharto | ahmad.suharto@email.com | 3271081503850001 | 081234567890 | Jl. Sudirman No. 123, Jakarta 10220 | Main Branch |
-| C1000002 | Siti Nurhaliza | siti.nurhaliza@email.com | 3271082207900002 | 081234567891 | Jl. Thamrin No. 456, Jakarta 10230 | Main Branch |
-| C1000004 | Budi Santoso | budi.santoso@email.com | 3271081011880003 | 081234567892 | Jl. Gatot Subroto No. 321, Jakarta 12930 | Main Branch |
-| C1000006 | Dewi Lestari | dewi.lestari@email.com | 3271081805920004 | 081234567893 | Jl. MH Thamrin No. 654, Jakarta 10350 | Main Branch |
-
-**Nasabah Korporasi:**
-| Customer Number | Company Name | Email | Registration Number | Tax ID | Phone | Address | Branch |
-|-----------------|--------------|-------|-------------------|--------|-------|---------|--------|
-| C1000003 | PT. Teknologi Maju | info@teknologimaju.com | 1234567890123456 | 01.234.567.8-901.000 | 02123456789 | Jl. HR Rasuna Said No. 789, Jakarta 12950 | Main Branch |
-
-### Produk Perbankan Tersedia ###
-
-| Product Code | Product Name | Type | Category | Min Opening | Min Balance | Nisbah Customer | Nisbah Bank | Customer Types | Features |
-|--------------|--------------|------|----------|-------------|-------------|-----------------|-------------|----------------|----------|
-| **TAB001** | Tabungan Wadiah Basic | TABUNGAN_WADIAH | Tabungan Syariah | Rp 50.000 | Rp 10.000 | - | - | PERSONAL | 10 transaksi gratis/bulan, biaya admin Rp 2.500 |
-| **TAB002** | Tabungan Mudharabah Premium | TABUNGAN_MUDHARABAH | Tabungan Syariah | Rp 1.000.000 | Rp 500.000 | 70% | 30% | PERSONAL | 25 transaksi gratis/bulan, tanpa biaya admin |
-| **DEP001** | Deposito Mudharabah | DEPOSITO_MUDHARABAH | Deposito Syariah | Rp 100.000 | Rp 50.000 | 70% | 30% | PERSONAL | Bagi hasil on maturity, 20 transaksi gratis/bulan |
-| **PEM001** | Pembiayaan Murabahah | PEMBIAYAAN_MURABAHAH | Pembiayaan Syariah | Rp 5.000.000 | Rp 1.000.000 | - | - | CORPORATE | Untuk kebutuhan konsumtif, akad murabahah |
-| **PEM002** | Pembiayaan Musharakah | PEMBIAYAAN_MUSHARAKAH | Pembiayaan Syariah | Rp 2.000.000 | Rp 1.000.000 | 60% | 40% | PERSONAL | Untuk modal usaha, akad musharakah |
-
-**Initial Sequence Numbers:**
-- Customer Number: Starting from C1000001
-- Account Number: Starting from A2000001  
-- Transaction Number: Starting from T3000001
-
-### Cara Menggunakan Fitur ###
-
-#### 1. Customer Service - Pembukaan Rekening ####
-
-**Pembukaan Rekening Personal:**
-- Login dengan user CS (cs1/cs2/cs3) atau Teller (teller1/teller2/teller3)
-- Akses URL: [http://localhost:8080/account/open](http://localhost:8080/account/open)
-- Pilih nasabah perorangan dari daftar atau search berdasarkan nomor nasabah
-- Pilih produk Islamic banking (Tabungan Wadiah, Mudharabah, atau Deposito)
-- Input nama rekening dan setoran awal (minimum sesuai produk)
-- Input nama pegawai yang membuka rekening
-- Submit form untuk generate nomor rekening otomatis dengan prefix "ACC"
-
-**Pembukaan Rekening Corporate:**
-- Login dengan user Manager (manager1/manager2) atau Admin
-- Akses URL: [http://localhost:8080/account/open/corporate](http://localhost:8080/account/open/corporate)
-- Pilih nasabah korporat dari daftar (ditampilkan dengan badge CORPORATE)
-- Lihat informasi perusahaan (nama, SIUP, NPWP, contact person)
-- Pilih produk Corporate banking dengan minimum deposit 5x lipat
-- Input nama rekening korporat dan setoran awal
-- Input nama account manager
-- Submit form untuk generate nomor rekening dengan prefix "CORP"
-
-**Fitur Pendukung:**
-- Multi-account: Nasabah dapat memiliki beberapa rekening dengan produk berbeda
-- Islamic banking compliance: Nisbah profit sharing untuk produk Mudharabah
-- Real-time validation: Validasi minimum deposit dan kelayakan produk
-- Audit trail: Pencatatan lengkap siapa dan kapan rekening dibuka
-
-#### 2. Teller - Transaksi Tunai ####
-- Login dengan user Teller (teller1/teller2/teller3)
-- **Setoran Tunai (Cash Deposit):**
-  - Akses [Transaction List](http://localhost:8080/transaction/list)
-  - Klik "Cash Deposit" untuk mulai transaksi
-  - Search dan pilih rekening nasabah
-  - Input nominal setoran (minimum IDR 10,000)
-  - Input deskripsi dan nomor referensi (opsional)
-  - Input nama teller yang memproses
-  - Sistem otomatis update saldo dan generate transaction number
-  - View transaction details dan balance calculations
-  - Print transaction receipt (tersedia melalui transaction view)
-- **Riwayat Transaksi:**
-  - View semua transaksi dengan pagination
-  - Filter by transaction type (DEPOSIT, WITHDRAWAL)
-  - Search by transaction number atau deskripsi
-  - View detail transaksi dengan audit trail lengkap
-- ❌ **Penarikan Tunai:** REST API tersedia, Web UI belum diimplementasi
-- ❌ **Cetak Buku Tabungan:** Belum diimplementasi
-
-#### 3. Branch Manager - Monitoring dan Approval ####
-- Login dengan user Branch Manager (admin/manager1/manager2)
-- Akses semua fitur aplikasi
-- Monitor seluruh transaksi dan aktivitas
-- Approve pengajuan pembiayaan murabahah/mudharabah
-- Kelola data pengguna dan hak akses
-- Generate laporan operasional
-
-#### 4. REST API Usage ####
-```bash
-# Contoh penggunaan API dengan curl
-
-# Get daftar nasabah
-curl http://localhost:8080/api/customers
-
-# Get detail nasabah
-curl http://localhost:8080/api/customers/{customerId}
-
-# Create nasabah baru
-curl -X POST http://localhost:8080/api/customers \
-  -H "Content-Type: application/json" \
-  -d '{"customerType":"PERSONAL","email":"test@email.com","phoneNumber":"081234567890"}'
-
-# Get daftar rekening
-curl http://localhost:8080/api/accounts
-
-# Proses setoran
-curl -X POST http://localhost:8080/api/transactions/deposit \
-  -H "Content-Type: application/json" \
-  -d '{"accountId":"account-id","amount":100000,"description":"Setoran tunai"}'
-```
-
-## Testing ##
-
-### Unit dan Integration Tests ###
-
-```bash
-# Run semua test
+# Run all tests
 mvn test
 
-# Run test dengan coverage report
+# Run with coverage report
 mvn test jacoco:report
 
-# Run test class tertentu
+# Run specific test class
 mvn test -Dtest=AccountRepositoryTest
-
-# Run test method tertentu
-mvn test -Dtest=AccountRepositoryTest#shouldFindByCustomerId
-
-# Run Karate feature tests
-mvn test -Dtest=DepositTest
 ```
 
-### Selenium Tests ###
-
-Aplikasi menggunakan Selenium dengan TestContainers untuk automated UI testing. Selenium tests berjalan dalam Docker container yang terisolasi dengan recording capability untuk monitoring dan debugging.
-
-#### Menjalankan Selenium Tests ####
-
+### Integration Tests (Karate)
 ```bash
-# Mode default (headless mode, tanpa recording - fastest)
+# Run API integration tests
+mvn test -Dtest=DepositTest
+
+# Run customer registration tests
+mvn test -Dtest=CustomerRegistrationTest
+```
+
+### Selenium UI Tests
+```bash
+# Run headless (default)
 mvn test -Dtest=ProductManagementSeleniumTest
 
-# Mode dengan browser window visible (untuk debugging)
+# Run with visible browser (debugging)
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
 
-# Mode dengan video recording untuk monitoring/debugging
+# Run with recording enabled
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
-
-# Run semua Selenium tests
-mvn test -Dtest="*Selenium*"
-# Run Cash Deposit Selenium tests  
-mvn test -Dtest=CashDepositSeleniumTest
-# Run Cash Withdrawal Selenium tests
-mvn test -Dtest=CashWithdrawalSeleniumTest
-
-# Run dengan browser Chrome (default: Chrome)
-mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=chrome
-
-# Run dengan browser Firefox
-mvn test -Dtest=LoginSeleniumTest -Dselenium.browser=firefox
-
-# Kombinasi opsi untuk debugging maksimal
-mvn test -Dtest=LoginSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true -Dselenium.browser=chrome
 ```
 
-#### Monitoring Selenium Tests ####
+## 🏗️ Project Structure
 
-**VNC Viewer untuk Live Monitoring:**
-- Saat test berjalan, check log untuk VNC URL: `VNC URL : http://localhost:[port]`
-- Buka URL tersebut di browser untuk melihat browser automation secara real-time
-- Berguna untuk debugging test failures dan memantau test execution
-- **Note**: VNC viewer tersedia baik dalam headless maupun non-headless mode
+```
+aplikasi-minibank/
+├── src/main/java/id/ac/tazkia/minibank/
+│   ├── AplikasiMinibankApplication.java    # Main application
+│   ├── config/                             # Configuration classes
+│   ├── controller/                         # Web MVC controllers
+│   ├── controller/rest/                    # REST API endpoints
+│   ├── dto/                               # Data Transfer Objects
+│   ├── entity/                            # JPA entities with business logic
+│   ├── repository/                        # Spring Data JPA repositories
+│   └── service/                           # Business services
+├── src/main/resources/
+│   ├── db/migration/                      # Flyway database migrations
+│   ├── static/                           # Static web assets
+│   └── templates/                        # Thymeleaf templates
+├── src/test/
+│   ├── java/                             # Test classes
+│   └── resources/
+│       ├── fixtures/                     # Test data (CSV files)
+│       ├── karate/                       # Karate BDD tests
+│       └── sql/                          # SQL setup/cleanup scripts
+└── docs/                                 # Project documentation
+```
 
-**Video Recordings:**
-- Lokasi: `target/selenium-recordings/`
-- Format: MP4
-- Hanya tersedia jika `-Dselenium.recording.enabled=true`
-- Recording dimulai otomatis saat test start dan berhenti saat test selesai
+## 🤝 Contributing
 
-**Log Monitoring:**
-- Selenium container logs menampilkan browser startup, WebDriver creation, dan test execution
-- Test method logs menampilkan page interactions dan assertions
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-#### Available Selenium Tests ####
+## 📝 License
 
-- **LoginSeleniumTest**: Test login functionality dengan berbagai user roles
-- **ProductManagementSeleniumTest**: Test CRUD operations untuk banking products
-- **RbacManagementSeleniumTest**: Test role-based access control dan user management
-
-#### Selenium Test Configuration ####
-
-**Runtime Options:**
-- **Browser**: Chrome (default), Firefox (dengan `-Dselenium.browser=firefox`)
-- **Headless Mode**: Enabled by default (fastest), disable dengan `-Dselenium.headless=false` untuk debugging
-- **Recording**: Disabled by default, enable dengan `-Dselenium.recording.enabled=true`
-- **TestContainers**: Otomatis start/stop Selenium Grid container
-
-**Test Architecture:**
-- **Page Objects**: Menggunakan Page Object Pattern untuk maintainability
-- **LoginHelper**: Centralized authentication utilities untuk semua user roles
-
-#### Troubleshooting ####
-
-- **Test Timeout**: Selenium tests memiliki implicit wait 5 detik dan retry logic
-- **Recording Issues**: Pastikan directory `target/selenium-recordings/` dapat ditulis
-- **VNC Connection**: Gunakan VNC URL dari log untuk live monitoring test execution
-- **Browser Issues**: Switch browser dengan `-Dselenium.browser=chrome` jika Firefox bermasalah
+This project is part of academic coursework at STEI Tazkia.

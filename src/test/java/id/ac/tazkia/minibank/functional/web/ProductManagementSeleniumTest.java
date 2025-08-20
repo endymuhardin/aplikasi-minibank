@@ -30,7 +30,7 @@ public class ProductManagementSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Login as Customer Service user who has PRODUCT_READ, CUSTOMER_READ, ACCOUNT_READ permissions
-        loginHelper.loginAsCustomerServiceUser();
+        getLoginHelper().loginAsCustomerServiceUser();
     }
     
     @Test

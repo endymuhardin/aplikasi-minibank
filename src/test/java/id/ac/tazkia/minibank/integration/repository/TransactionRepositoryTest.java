@@ -1,18 +1,13 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.Account;
-import id.ac.tazkia.minibank.entity.Branch;
-import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.PersonalCustomer;
-import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.entity.Transaction;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.TransactionRepository;
-import id.ac.tazkia.minibank.repository.AccountRepository;
-import id.ac.tazkia.minibank.repository.BranchRepository;
-import id.ac.tazkia.minibank.repository.CustomerRepository;
-import id.ac.tazkia.minibank.repository.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -22,17 +17,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import id.ac.tazkia.minibank.entity.Account;
+import id.ac.tazkia.minibank.entity.Branch;
+import id.ac.tazkia.minibank.entity.PersonalCustomer;
+import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.entity.Transaction;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.AccountRepository;
+import id.ac.tazkia.minibank.repository.BranchRepository;
+import id.ac.tazkia.minibank.repository.CustomerRepository;
+import id.ac.tazkia.minibank.repository.ProductRepository;
+import id.ac.tazkia.minibank.repository.TransactionRepository;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class TransactionRepositoryTest extends BaseRepositoryTest {
+/**
+ * TransactionRepository tests optimized for parallel execution.
+ * Uses dynamic test data to prevent conflicts during concurrent execution.
+ * Note: Using SAME_THREAD execution to avoid transaction management conflicts.
+ */
+@org.junit.jupiter.api.parallel.Execution(org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD)
+class TransactionRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -52,32 +56,167 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
     @Autowired
     private BranchRepository branchRepository;
 
-    private Map<String, Account> accountMap = new HashMap<>();
-    private Branch testBranch;
+    // Helper method to create a single test account for individual tests
+    private Account createTestAccount() {
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        return accountRepository.save(account);
+    }
+    
+    // Helper method to create test transactions for an account
+    private List<Transaction> createTestTransactions(Account account) {
+        String prefix = getTestPrefix();
+        List<Transaction> transactions = new ArrayList<>();
 
-    @BeforeEach
-    void setUp() {
-        transactionRepository.deleteAll();
-        accountRepository.deleteAll();
-        customerRepository.deleteAll();
-        productRepository.deleteAll();
-        branchRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
+        // Initial deposit
+        Transaction deposit1 = new Transaction();
+        deposit1.setAccount(account);
+        deposit1.setTransactionNumber("T" + prefix + "01");
+        deposit1.setTransactionType(Transaction.TransactionType.DEPOSIT);
+        deposit1.setAmount(new BigDecimal("500000"));
+        deposit1.setCurrency("IDR");
+        deposit1.setBalanceBefore(BigDecimal.ZERO);
+        deposit1.setBalanceAfter(new BigDecimal("500000"));
+        deposit1.setDescription("Initial deposit");
+        deposit1.setReferenceNumber("REF" + prefix + "01");
+        deposit1.setChannel(Transaction.TransactionChannel.TELLER);
+        deposit1.setTransactionDate(LocalDateTime.of(2024, 1, 15, 10, 0));
+        deposit1.setProcessedDate(LocalDateTime.of(2024, 1, 15, 10, 0));
+        deposit1.setCreatedBy("TEST");
+        transactions.add(transactionRepository.save(deposit1));
+
+        // Withdrawal
+        Transaction withdrawal1 = new Transaction();
+        withdrawal1.setAccount(account);
+        withdrawal1.setTransactionNumber("T" + prefix + "02");
+        withdrawal1.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
+        withdrawal1.setAmount(new BigDecimal("50000"));
+        withdrawal1.setCurrency("IDR");
+        withdrawal1.setBalanceBefore(new BigDecimal("500000"));
+        withdrawal1.setBalanceAfter(new BigDecimal("450000"));
+        withdrawal1.setDescription("ATM withdrawal");
+        withdrawal1.setReferenceNumber("REF" + prefix + "02");
+        withdrawal1.setChannel(Transaction.TransactionChannel.ATM);
+        withdrawal1.setTransactionDate(LocalDateTime.of(2024, 1, 25, 16, 45));
+        withdrawal1.setProcessedDate(LocalDateTime.of(2024, 1, 25, 16, 45));
+        withdrawal1.setCreatedBy("TEST");
+        transactions.add(transactionRepository.save(withdrawal1));
+
+        // Another deposit
+        Transaction deposit2 = new Transaction();
+        deposit2.setAccount(account);
+        deposit2.setTransactionNumber("T" + prefix + "03");
+        deposit2.setTransactionType(Transaction.TransactionType.DEPOSIT);
+        deposit2.setAmount(new BigDecimal("100000"));
+        deposit2.setCurrency("IDR");
+        deposit2.setBalanceBefore(new BigDecimal("450000"));
+        deposit2.setBalanceAfter(new BigDecimal("550000"));
+        deposit2.setDescription("Salary deposit");
+        deposit2.setReferenceNumber("REF" + prefix + "03");
+        deposit2.setChannel(Transaction.TransactionChannel.ONLINE);
+        deposit2.setTransactionDate(LocalDateTime.of(2024, 2, 5, 8, 30));
+        deposit2.setProcessedDate(LocalDateTime.of(2024, 2, 5, 8, 30));
+        deposit2.setCreatedBy("TEST");
+        transactions.add(transactionRepository.save(deposit2));
+
+        return transactions;
+    }
+    
+    // Helper method to create extended transaction history for passbook tests
+    private void createExtendedTransactionHistory(Account account) {
+        BigDecimal runningBalance = BigDecimal.ZERO;
+        String prefix = getTestPrefix();
         
-        // Create test branch
-        testBranch = new Branch();
-        testBranch.setBranchCode("TEST");
-        testBranch.setBranchName("Test Branch");
-        testBranch.setAddress("Test Address");
-        testBranch.setCity("Test City");
-        testBranch.setCountry("Indonesia");
-        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        testBranch.setCreatedBy("TEST");
-        testBranch = branchRepository.save(testBranch);
-        entityManager.flush();
+        // Create a realistic transaction history over several months
+        LocalDateTime baseDate = LocalDateTime.of(2024, 1, 1, 9, 0);
         
-        setupTestData();
+        for (int month = 1; month <= 6; month++) {
+            for (int day = 1; day <= 28; day += 7) { // Weekly transactions
+                
+                // Salary deposit (monthly on 1st)
+                if (day == 1) {
+                    Transaction salaryDeposit = createTransaction(
+                        account,
+                        "T" + prefix + String.format("%04d", (month * 100) + day),
+                        Transaction.TransactionType.DEPOSIT,
+                        new BigDecimal("5000000"), // 5 million IDR salary
+                        runningBalance,
+                        "Salary deposit - Month " + month,
+                        "SAL" + prefix + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ONLINE,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(8)
+                    );
+                    runningBalance = runningBalance.add(salaryDeposit.getAmount());
+                    salaryDeposit.setBalanceAfter(runningBalance);
+                    transactionRepository.save(salaryDeposit);
+                }
+                
+                // Weekly ATM withdrawal
+                if (day > 1 && runningBalance.compareTo(new BigDecimal("500000")) > 0) {
+                    Transaction atmWithdrawal = createTransaction(
+                        account,
+                        "T" + prefix + String.format("%04d", (month * 100) + day + 50),
+                        Transaction.TransactionType.WITHDRAWAL,
+                        new BigDecimal("500000"), // 500k IDR withdrawal
+                        runningBalance,
+                        "ATM withdrawal - Week " + (day / 7 + 1),
+                        "ATM" + prefix + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ATM,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(18)
+                    );
+                    runningBalance = runningBalance.subtract(atmWithdrawal.getAmount());
+                    atmWithdrawal.setBalanceAfter(runningBalance);
+                    transactionRepository.save(atmWithdrawal);
+                }
+                
+                // Bi-weekly bill payment
+                if (day % 14 == 0 && runningBalance.compareTo(new BigDecimal("200000")) > 0) {
+                    Transaction billPayment = createTransaction(
+                        account,
+                        "T" + prefix + String.format("%04d", (month * 100) + day + 75),
+                        Transaction.TransactionType.WITHDRAWAL,
+                        new BigDecimal("150000"), // 150k IDR bill
+                        runningBalance,
+                        "Utility bill payment",
+                        "BILL" + prefix + month + String.format("%02d", day),
+                        Transaction.TransactionChannel.ONLINE,
+                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(14)
+                    );
+                    runningBalance = runningBalance.subtract(billPayment.getAmount());
+                    billPayment.setBalanceAfter(runningBalance);
+                    transactionRepository.save(billPayment);
+                }
+            }
+        }
+    }
+
+    private Transaction createTransaction(Account account, String transactionNumber, 
+                                       Transaction.TransactionType type, BigDecimal amount,
+                                       BigDecimal balanceBefore, String description,
+                                       String referenceNumber, Transaction.TransactionChannel channel,
+                                       LocalDateTime transactionDate) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setTransactionNumber(transactionNumber);
+        transaction.setTransactionType(type);
+        transaction.setAmount(amount);
+        transaction.setCurrency("IDR");
+        transaction.setBalanceBefore(balanceBefore);
+        transaction.setDescription(description);
+        transaction.setReferenceNumber(referenceNumber);
+        transaction.setChannel(channel);
+        transaction.setTransactionDate(transactionDate);
+        transaction.setProcessedDate(transactionDate);
+        transaction.setCreatedBy("TEST");
+        return transaction;
     }
 
     @ParameterizedTest
@@ -94,10 +233,21 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
             String referenceNumber,
             String channel,
             String transactionDateStr) {
+            
+        logTestExecution("shouldSaveAndFindTransactionFromCsv");
 
-        // Given - Create transaction from CSV data
-        Account account = accountMap.get(accountNumber);
-        assertThat(account).isNotNull();
+        // Given - Create unique test data for this specific test
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        account = accountRepository.save(account);
 
         Transaction transaction = new Transaction();
         transaction.setAccount(account);
@@ -134,41 +284,48 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccount() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByAccount");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        List<Transaction> savedTransactions = createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         List<Transaction> transactions = transactionRepository.findByAccount(account);
 
         // Then
         assertThat(transactions).hasSizeGreaterThan(0);
+        assertThat(transactions).hasSize(savedTransactions.size());
         transactions.forEach(transaction -> 
-            assertThat(transaction.getAccount().getAccountNumber()).isEqualTo("A2000001"));
+            assertThat(transaction.getAccount().getId()).isEqualTo(account.getId()));
     }
 
     @Test
     void shouldFindTransactionsByAccountId() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByAccountId");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        List<Transaction> savedTransactions = createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         List<Transaction> transactions = transactionRepository.findByAccountId(account.getId());
 
         // Then
         assertThat(transactions).hasSizeGreaterThan(0);
+        assertThat(transactions).hasSize(savedTransactions.size());
         transactions.forEach(transaction -> 
             assertThat(transaction.getAccount().getId()).isEqualTo(account.getId()));
     }
 
     @Test
     void shouldFindTransactionsByAccountIdWithPagination() {
-        // Given
-        saveTestTransactions();
-
+        logTestExecution("shouldFindTransactionsByAccountIdWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        
         // When
-        Account account = accountMap.get("A2000001");
         Pageable pageable = PageRequest.of(0, 5);
         Page<Transaction> transactionPage = transactionRepository.findByAccountIdOrderByTransactionDateDesc(
             account.getId(), pageable);
@@ -187,11 +344,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountIdAndTransactionType() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByAccountIdAndTransactionType");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         List<Transaction> deposits = transactionRepository.findByAccountIdAndTransactionType(
             account.getId(), Transaction.TransactionType.DEPOSIT);
 
@@ -205,11 +364,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByDateRange() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByDateRange");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 12, 31, 23, 59);
         
@@ -226,11 +387,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByDateRangeWithPagination() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByDateRangeWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 12, 31, 23, 59);
         Pageable pageable = PageRequest.of(0, 3);
@@ -245,11 +408,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldGetTotalAmountByAccountAndTypeAndDateRange() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldGetTotalAmountByAccountAndTypeAndDateRange");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 12, 31, 23, 59);
         
@@ -263,11 +428,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldCountTransactionsByAccountAndDateRange() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldCountTransactionsByAccountAndDateRange");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 12, 31, 23, 59);
         
@@ -280,11 +447,13 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByCustomerId() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByCustomerId");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         Pageable pageable = PageRequest.of(0, 10);
         Page<Transaction> transactionPage = transactionRepository.findByCustomerIdOrderByTransactionDateDesc(
             account.getCustomer().getId(), pageable);
@@ -298,50 +467,64 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByReferenceNumber() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionsByReferenceNumber");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        List<Transaction> savedTransactions = createTestTransactions(account);
+        String testReferenceNumber = savedTransactions.get(0).getReferenceNumber();
 
         // When
-        List<Transaction> transactions = transactionRepository.findByReferenceNumber("REF001");
+        List<Transaction> transactions = transactionRepository.findByReferenceNumber(testReferenceNumber);
 
         // Then
         assertThat(transactions).hasSizeGreaterThan(0);
         transactions.forEach(transaction -> 
-            assertThat(transaction.getReferenceNumber()).isEqualTo("REF001"));
+            assertThat(transaction.getReferenceNumber()).isEqualTo(testReferenceNumber));
     }
 
     @Test
     void shouldCheckTransactionNumberExistence() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldCheckTransactionNumberExistence");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        List<Transaction> savedTransactions = createTestTransactions(account);
+        String existingTransactionNumber = savedTransactions.get(0).getTransactionNumber();
 
         // When & Then
-        assertThat(transactionRepository.existsByTransactionNumber("T3000001")).isTrue();
+        assertThat(transactionRepository.existsByTransactionNumber(existingTransactionNumber)).isTrue();
         assertThat(transactionRepository.existsByTransactionNumber("T9999999")).isFalse();
     }
 
     @Test
     void shouldFindTransactionByTransactionNumberWithDetails() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindTransactionByTransactionNumberWithDetails");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        List<Transaction> savedTransactions = createTestTransactions(account);
+        String testTransactionNumber = savedTransactions.get(0).getTransactionNumber();
 
         // When
-        Optional<Transaction> transaction = transactionRepository.findByTransactionNumberWithDetails("T3000001");
+        Optional<Transaction> transaction = transactionRepository.findByTransactionNumberWithDetails(testTransactionNumber);
 
         // Then
         assertThat(transaction).isPresent();
         assertThat(transaction.get().getAccount()).isNotNull();
         assertThat(transaction.get().getAccount().getCustomer()).isNotNull();
-        assertThat(transaction.get().getTransactionNumber()).isEqualTo("T3000001");
+        assertThat(transaction.get().getTransactionNumber()).isEqualTo(testTransactionNumber);
     }
 
     @Test
     void shouldFindLastTransactionByAccountId() {
-        // Given
-        saveTestTransactions();
+        logTestExecution("shouldFindLastTransactionByAccountId");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
-        Account account = accountMap.get("A2000001");
         Optional<Transaction> lastTransaction = transactionRepository.findLastTransactionByAccountId(account.getId());
 
         // Then
@@ -371,9 +554,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountWithPagination() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldFindTransactionsByAccountWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
         Pageable pageable = PageRequest.of(0, 2);
 
         // When
@@ -391,9 +576,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountOrderedByDateAscending() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldFindTransactionsByAccountOrderedByDateAscending");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
 
         // When
         List<Transaction> transactions = transactionRepository.findByAccountOrderByTransactionDateAsc(account);
@@ -414,9 +601,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountAndDateRangeWithPagination() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldFindTransactionsByAccountAndDateRangeWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
         LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime endDate = LocalDateTime.of(2024, 2, 28, 23, 59);
         Pageable pageable = PageRequest.of(0, 10);
@@ -438,9 +627,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountAndStartDateWithPagination() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldFindTransactionsByAccountAndStartDateWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
         LocalDateTime startDate = LocalDateTime.of(2024, 2, 1, 0, 0);
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -460,9 +651,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsByAccountAndEndDateWithPagination() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldFindTransactionsByAccountAndEndDateWithPagination");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
         LocalDateTime endDate = LocalDateTime.of(2024, 2, 1, 0, 0);
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -482,8 +675,10 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldReturnEmptyResultForAccountWithNoTransactions() {
-        // Given
-        Account accountWithoutTransactions = accountMap.get("A2000002"); // This account has no test transactions
+        logTestExecution("shouldReturnEmptyResultForAccountWithNoTransactions");
+        
+        // Given - Create test account without transactions
+        Account accountWithoutTransactions = createTestAccount(); // This account has no transactions
         Pageable pageable = PageRequest.of(0, 10);
 
         // When
@@ -497,9 +692,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldHandleDateRangeWithNoMatches() {
-        // Given
-        saveTestTransactions();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldHandleDateRangeWithNoMatches");
+        
+        // Given - Create test account and transactions
+        Account account = createTestAccount();
+        createTestTransactions(account);
         LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0, 0); // Future date
         LocalDateTime endDate = LocalDateTime.of(2025, 12, 31, 23, 59);
         Pageable pageable = PageRequest.of(0, 10);
@@ -516,9 +713,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindTransactionsForPassbookPrintingScenario() {
+        logTestExecution("shouldFindTransactionsForPassbookPrintingScenario");
+        
         // Given - Create a realistic passbook printing scenario
-        saveExtendedTransactionHistory();
-        Account account = accountMap.get("A2000001");
+        Account account = createTestAccount();
+        createExtendedTransactionHistory(account);
         
         // Recent transactions (last 30 days)
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
@@ -557,9 +756,11 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldHandleLargePageSizeForPassbookPrinting() {
-        // Given
-        saveExtendedTransactionHistory();
-        Account account = accountMap.get("A2000001");
+        logTestExecution("shouldHandleLargePageSizeForPassbookPrinting");
+        
+        // Given - Create test account with extended transaction history
+        Account account = createTestAccount();
+        createExtendedTransactionHistory(account);
         Pageable largePage = PageRequest.of(0, 1000); // Large page size for printing
 
         // When
@@ -575,300 +776,5 @@ class TransactionRepositoryTest extends BaseRepositoryTest {
         transactionRepository.findByAccount(account, largePage);
         long endTime = System.currentTimeMillis();
         assertThat(endTime - startTime).isLessThan(5000); // Should complete within 5 seconds
-    }
-
-    private void saveExtendedTransactionHistory() {
-        Account account = accountMap.get("A2000001");
-        BigDecimal runningBalance = BigDecimal.ZERO;
-        
-        // Create a realistic transaction history over several months
-        LocalDateTime baseDate = LocalDateTime.of(2024, 1, 1, 9, 0);
-        
-        for (int month = 1; month <= 6; month++) {
-            for (int day = 1; day <= 28; day += 7) { // Weekly transactions
-                
-                // Salary deposit (monthly on 1st)
-                if (day == 1) {
-                    Transaction salaryDeposit = createTransaction(
-                        account,
-                        "T300" + String.format("%04d", (month * 100) + day),
-                        Transaction.TransactionType.DEPOSIT,
-                        new BigDecimal("5000000"), // 5 million IDR salary
-                        runningBalance,
-                        "Salary deposit - Month " + month,
-                        "SAL" + month + String.format("%02d", day),
-                        Transaction.TransactionChannel.ONLINE,
-                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(8)
-                    );
-                    runningBalance = runningBalance.add(salaryDeposit.getAmount());
-                    salaryDeposit.setBalanceAfter(runningBalance);
-                    transactionRepository.save(salaryDeposit);
-                }
-                
-                // Weekly ATM withdrawal
-                if (day > 1 && runningBalance.compareTo(new BigDecimal("500000")) > 0) {
-                    Transaction atmWithdrawal = createTransaction(
-                        account,
-                        "T300" + String.format("%04d", (month * 100) + day + 50),
-                        Transaction.TransactionType.WITHDRAWAL,
-                        new BigDecimal("500000"), // 500k IDR withdrawal
-                        runningBalance,
-                        "ATM withdrawal - Week " + (day / 7 + 1),
-                        "ATM" + month + String.format("%02d", day),
-                        Transaction.TransactionChannel.ATM,
-                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(18)
-                    );
-                    runningBalance = runningBalance.subtract(atmWithdrawal.getAmount());
-                    atmWithdrawal.setBalanceAfter(runningBalance);
-                    transactionRepository.save(atmWithdrawal);
-                }
-                
-                // Bi-weekly bill payment
-                if (day % 14 == 0 && runningBalance.compareTo(new BigDecimal("200000")) > 0) {
-                    Transaction billPayment = createTransaction(
-                        account,
-                        "T300" + String.format("%04d", (month * 100) + day + 75),
-                        Transaction.TransactionType.WITHDRAWAL,
-                        new BigDecimal("150000"), // 150k IDR bill
-                        runningBalance,
-                        "Utility bill payment",
-                        "BILL" + month + String.format("%02d", day),
-                        Transaction.TransactionChannel.ONLINE,
-                        baseDate.plusMonths(month - 1).plusDays(day - 1).plusHours(14)
-                    );
-                    runningBalance = runningBalance.subtract(billPayment.getAmount());
-                    billPayment.setBalanceAfter(runningBalance);
-                    transactionRepository.save(billPayment);
-                }
-            }
-        }
-        
-        entityManager.flush();
-    }
-
-    private Transaction createTransaction(Account account, String transactionNumber, 
-                                       Transaction.TransactionType type, BigDecimal amount,
-                                       BigDecimal balanceBefore, String description,
-                                       String referenceNumber, Transaction.TransactionChannel channel,
-                                       LocalDateTime transactionDate) {
-        Transaction transaction = new Transaction();
-        transaction.setAccount(account);
-        transaction.setTransactionNumber(transactionNumber);
-        transaction.setTransactionType(type);
-        transaction.setAmount(amount);
-        transaction.setCurrency("IDR");
-        transaction.setBalanceBefore(balanceBefore);
-        transaction.setDescription(description);
-        transaction.setReferenceNumber(referenceNumber);
-        transaction.setChannel(channel);
-        transaction.setTransactionDate(transactionDate);
-        transaction.setProcessedDate(transactionDate);
-        transaction.setCreatedBy("TEST");
-        return transaction;
-    }
-
-    private void setupTestData() {
-        // Create test customers to match CSV transaction data
-        PersonalCustomer customer1 = new PersonalCustomer();
-        customer1.setCustomerNumber("C1000001");
-        customer1.setFirstName("Ahmad");
-        customer1.setLastName("Suharto");
-        customer1.setDateOfBirth(LocalDate.of(1985, 3, 15));
-        customer1.setIdentityNumber("3271081503850001");
-        customer1.setIdentityType(Customer.IdentityType.KTP);
-        customer1.setEmail("ahmad.suharto@email.com");
-        customer1.setPhoneNumber("081234567890");
-        customer1.setAddress("Jl. Sudirman No. 123");
-        customer1.setCity("Jakarta");
-        customer1.setPostalCode("10220");
-        customer1.setCountry("Indonesia");
-        customer1.setCreatedBy("TEST");
-        customer1.setBranch(testBranch);
-        customerRepository.save(customer1);
-
-        PersonalCustomer customer2 = new PersonalCustomer();
-        customer2.setCustomerNumber("C1000002");
-        customer2.setFirstName("Siti");
-        customer2.setLastName("Nurhaliza");
-        customer2.setDateOfBirth(LocalDate.of(1990, 7, 22));
-        customer2.setIdentityNumber("3271082207900002");
-        customer2.setIdentityType(Customer.IdentityType.KTP);
-        customer2.setEmail("siti.nurhaliza@email.com");
-        customer2.setPhoneNumber("081234567891");
-        customer2.setAddress("Jl. Thamrin No. 456");
-        customer2.setCity("Jakarta");
-        customer2.setPostalCode("10230");
-        customer2.setCountry("Indonesia");
-        customer2.setCreatedBy("TEST");
-        customer2.setBranch(testBranch);
-        customerRepository.save(customer2);
-
-        PersonalCustomer customer3 = new PersonalCustomer();
-        customer3.setCustomerNumber("C1000003");
-        customer3.setFirstName("Budi");
-        customer3.setLastName("Santoso");
-        customer3.setDateOfBirth(LocalDate.of(1988, 12, 10));
-        customer3.setIdentityNumber("3271081012880003");
-        customer3.setIdentityType(Customer.IdentityType.KTP);
-        customer3.setEmail("budi.santoso@email.com");
-        customer3.setPhoneNumber("081234567892");
-        customer3.setAddress("Jl. Gatot Subroto No. 789");
-        customer3.setCity("Jakarta");
-        customer3.setPostalCode("12950");
-        customer3.setCountry("Indonesia");
-        customer3.setCreatedBy("TEST");
-        customer3.setBranch(testBranch);
-        customerRepository.save(customer3);
-
-        // Create test products
-        Product savingsProduct = new Product();
-        savingsProduct.setProductCode("SAV001");
-        savingsProduct.setProductName("Basic Savings Account");
-        savingsProduct.setProductType(Product.ProductType.SAVINGS);
-        savingsProduct.setProductCategory("Regular Savings");
-        savingsProduct.setDescription("Basic savings account");
-        savingsProduct.setIsActive(true);
-        savingsProduct.setIsDefault(true);
-        savingsProduct.setCurrency("IDR");
-        savingsProduct.setMinimumOpeningBalance(new BigDecimal("50000"));
-        savingsProduct.setMinimumBalance(new BigDecimal("10000"));
-        savingsProduct.setProfitSharingRatio(new BigDecimal("0.0275"));
-        savingsProduct.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
-        savingsProduct.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        savingsProduct.setNisbahCustomer(new BigDecimal("0.7000"));
-        savingsProduct.setNisbahBank(new BigDecimal("0.3000"));
-        savingsProduct.setCreatedBy("TEST");
-        productRepository.save(savingsProduct);
-
-        Product checkingProduct = new Product();
-        checkingProduct.setProductCode("CHK001");
-        checkingProduct.setProductName("Basic Checking Account");
-        checkingProduct.setProductType(Product.ProductType.CHECKING);
-        checkingProduct.setProductCategory("Regular Checking");
-        checkingProduct.setDescription("Basic checking account");
-        checkingProduct.setIsActive(true);
-        checkingProduct.setIsDefault(false);
-        checkingProduct.setCurrency("IDR");
-        checkingProduct.setMinimumOpeningBalance(new BigDecimal("100000"));
-        checkingProduct.setMinimumBalance(new BigDecimal("50000"));
-        checkingProduct.setProfitSharingRatio(new BigDecimal("0.0100"));
-        checkingProduct.setProfitSharingType(Product.ProfitSharingType.WADIAH);
-        checkingProduct.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        checkingProduct.setAllowOverdraft(true);
-        checkingProduct.setCreatedBy("TEST");
-        productRepository.save(checkingProduct);
-
-        // Create test accounts to match CSV transaction data
-        Account account1 = new Account();
-        account1.setCustomer(customer1);
-        account1.setProduct(savingsProduct);
-        account1.setBranch(testBranch);
-        account1.setAccountNumber("A2000001");
-        account1.setAccountName("Ahmad Suharto - Savings");
-        account1.setBalance(new BigDecimal("500000"));
-        account1.setStatus(Account.AccountStatus.ACTIVE);
-        account1.setOpenedDate(LocalDate.of(2024, 1, 15));
-        account1.setCreatedBy("TEST");
-        accountRepository.save(account1);
-
-        Account account2 = new Account();
-        account2.setCustomer(customer2);
-        account2.setProduct(savingsProduct);
-        account2.setBranch(testBranch);
-        account2.setAccountNumber("A2000002");
-        account2.setAccountName("Siti Nurhaliza - Savings");
-        account2.setBalance(new BigDecimal("750000"));
-        account2.setStatus(Account.AccountStatus.ACTIVE);
-        account2.setOpenedDate(LocalDate.of(2024, 1, 20));
-        account2.setCreatedBy("TEST");
-        accountRepository.save(account2);
-
-        Account account3 = new Account();
-        account3.setCustomer(customer3);
-        account3.setProduct(checkingProduct);
-        account3.setBranch(testBranch);
-        account3.setAccountNumber("A2000003");
-        account3.setAccountName("Budi Santoso - Checking");
-        account3.setBalance(new BigDecimal("1200000"));
-        account3.setStatus(Account.AccountStatus.ACTIVE);
-        account3.setOpenedDate(LocalDate.of(2024, 2, 1));
-        account3.setCreatedBy("TEST");
-        accountRepository.save(account3);
-
-        Account account4 = new Account();
-        account4.setCustomer(customer1);
-        account4.setProduct(checkingProduct);
-        account4.setBranch(testBranch);
-        account4.setAccountNumber("A2000004");
-        account4.setAccountName("Ahmad Suharto - Checking");
-        account4.setBalance(new BigDecimal("300000"));
-        account4.setStatus(Account.AccountStatus.ACTIVE);
-        account4.setOpenedDate(LocalDate.of(2024, 2, 10));
-        account4.setCreatedBy("TEST");
-        accountRepository.save(account4);
-
-        accountMap.put("A2000001", account1);
-        accountMap.put("A2000002", account2);
-        accountMap.put("A2000003", account3);
-        accountMap.put("A2000004", account4);
-        
-        entityManager.flush();
-    }
-
-    private void saveTestTransactions() {
-        Account account = accountMap.get("A2000001");
-
-        // Initial deposit
-        Transaction deposit1 = new Transaction();
-        deposit1.setAccount(account);
-        deposit1.setTransactionNumber("T3000001");
-        deposit1.setTransactionType(Transaction.TransactionType.DEPOSIT);
-        deposit1.setAmount(new BigDecimal("500000"));
-        deposit1.setCurrency("IDR");
-        deposit1.setBalanceBefore(BigDecimal.ZERO);
-        deposit1.setBalanceAfter(new BigDecimal("500000"));
-        deposit1.setDescription("Initial deposit");
-        deposit1.setReferenceNumber("REF001");
-        deposit1.setChannel(Transaction.TransactionChannel.TELLER);
-        deposit1.setTransactionDate(LocalDateTime.of(2024, 1, 15, 10, 0));
-        deposit1.setProcessedDate(LocalDateTime.of(2024, 1, 15, 10, 0));
-        deposit1.setCreatedBy("TEST");
-
-        // Withdrawal
-        Transaction withdrawal1 = new Transaction();
-        withdrawal1.setAccount(account);
-        withdrawal1.setTransactionNumber("T3000002");
-        withdrawal1.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
-        withdrawal1.setAmount(new BigDecimal("50000"));
-        withdrawal1.setCurrency("IDR");
-        withdrawal1.setBalanceBefore(new BigDecimal("500000"));
-        withdrawal1.setBalanceAfter(new BigDecimal("450000"));
-        withdrawal1.setDescription("ATM withdrawal");
-        withdrawal1.setReferenceNumber("REF002");
-        withdrawal1.setChannel(Transaction.TransactionChannel.ATM);
-        withdrawal1.setTransactionDate(LocalDateTime.of(2024, 1, 25, 16, 45));
-        withdrawal1.setProcessedDate(LocalDateTime.of(2024, 1, 25, 16, 45));
-        withdrawal1.setCreatedBy("TEST");
-
-        // Another deposit
-        Transaction deposit2 = new Transaction();
-        deposit2.setAccount(account);
-        deposit2.setTransactionNumber("T3000003");
-        deposit2.setTransactionType(Transaction.TransactionType.DEPOSIT);
-        deposit2.setAmount(new BigDecimal("100000"));
-        deposit2.setCurrency("IDR");
-        deposit2.setBalanceBefore(new BigDecimal("450000"));
-        deposit2.setBalanceAfter(new BigDecimal("550000"));
-        deposit2.setDescription("Salary deposit");
-        deposit2.setReferenceNumber("REF003");
-        deposit2.setChannel(Transaction.TransactionChannel.ONLINE);
-        deposit2.setTransactionDate(LocalDateTime.of(2024, 2, 5, 8, 30));
-        deposit2.setProcessedDate(LocalDateTime.of(2024, 2, 5, 8, 30));
-        deposit2.setCreatedBy("TEST");
-
-        transactionRepository.save(deposit1);
-        transactionRepository.save(withdrawal1);
-        transactionRepository.save(deposit2);
-        entityManager.flush();
     }
 }

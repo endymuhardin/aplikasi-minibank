@@ -62,7 +62,7 @@ public class IslamicBankingAccountOpeningSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Login as Customer Service for Islamic banking operations
-        loginHelper.loginAsCustomerServiceUser();
+        getLoginHelper().loginAsCustomerServiceUser();
     }
     
     // TC-AO-001 Enhanced: TABUNGAN_WADIAH Opening (Safekeeping without profit sharing)

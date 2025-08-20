@@ -1,8 +1,11 @@
 -- Clean up test data after account opening tests
-DELETE FROM transactions WHERE id_accounts IN (SELECT id FROM accounts WHERE account_number LIKE 'ACC%');
-DELETE FROM accounts WHERE account_number LIKE 'ACC%';
-DELETE FROM personal_customers WHERE id IN (SELECT id FROM customers WHERE customer_number LIKE 'C%');
-DELETE FROM corporate_customers WHERE id IN (SELECT id FROM customers WHERE customer_number LIKE 'C%');
-DELETE FROM customers WHERE customer_number LIKE 'C%';
-DELETE FROM products WHERE product_code IN ('SAV001', 'SAV002', 'SAV003', 'CHK001', 'CHK002');
-DELETE FROM sequence_numbers WHERE sequence_name = 'ACCOUNT_NUMBER';
+-- PRESERVE migration data: customers (C1000001-C1000006), products (TAB001, TAB002, etc.), branches, sequences
+
+-- Clean up only test-created accounts and transactions
+DELETE FROM transactions WHERE id_accounts IN (
+    SELECT id FROM accounts WHERE created_by = 'TEST' OR account_number LIKE 'TEST_%'
+);
+DELETE FROM accounts WHERE created_by = 'TEST' OR account_number LIKE 'TEST_%';
+
+-- NOTE: Migration data (customers, products, branches, sequence_numbers) is preserved
+-- This allows subsequent tests to reuse the same base data consistently

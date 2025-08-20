@@ -1,36 +1,35 @@
 package id.ac.tazkia.minibank.integration.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Branch;
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
-import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.Product;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-class AccountRepositoryTest extends BaseRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
+/**
+ * AccountRepository tests optimized for parallel execution.
+ * Uses dynamic test data to prevent conflicts during concurrent execution.
+ * Note: Using SAME_THREAD execution to avoid transaction management conflicts.
+ */
+@org.junit.jupiter.api.parallel.Execution(org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD)
+class AccountRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -44,594 +43,529 @@ class AccountRepositoryTest extends BaseRepositoryTest {
     @Autowired
     private BranchRepository branchRepository;
 
-    private Map<String, Customer> customerMap = new HashMap<>();
-    private Map<String, Product> productMap = new HashMap<>();
-    private Branch testBranch;
-
-    @BeforeEach
-    void setUp() {
-        accountRepository.deleteAll();
-        customerRepository.deleteAll();
-        productRepository.deleteAll();
-        branchRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
+    @Test
+    void shouldSaveAndFindAccount() {
+        logTestExecution("shouldSaveAndFindAccount");
         
-        // Create test branch
-        testBranch = new Branch();
-        testBranch.setBranchCode("TEST");
-        testBranch.setBranchName("Test Branch");
-        testBranch.setAddress("Test Address");
-        testBranch.setCity("Test City");
-        testBranch.setCountry("Indonesia");
-        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        testBranch.setCreatedBy("TEST");
-        testBranch = branchRepository.save(testBranch);
-        entityManager.flush();
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
         
-        // Setup test customers and products
-        setupTestCustomersAndProducts();
-    }
-
-    @ParameterizedTest
-    @CsvFileSource(resources = "/fixtures/account/accounts.csv", numLinesToSkip = 1)
-    void shouldSaveAndFindAccountFromCsv(
-            String customerNumber,
-            String productCode,
-            String accountNumber,
-            String accountName,
-            String balanceStr,
-            String status,
-            String openedDateStr) {
-
-        // Given - Create account from CSV data
-        Customer customer = customerMap.get(customerNumber);
-        Product product = productMap.get(productCode);
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
         
-        assertThat(customer).isNotNull();
-        assertThat(product).isNotNull();
-
-        Account account = new Account();
-        account.setCustomer(customer);
-        account.setProduct(product);
-        account.setBranch(testBranch);
-        account.setAccountNumber(accountNumber);
-        account.setAccountName(accountName);
-        account.setBalance(new BigDecimal(balanceStr));
-        account.setStatus(Account.AccountStatus.valueOf(status));
-        account.setOpenedDate(LocalDate.parse(openedDateStr));
-        account.setCreatedBy("TEST");
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
 
         // When - Save account
         Account savedAccount = accountRepository.save(account);
-        entityManager.flush();
 
         // Then - Verify account was saved correctly
         assertThat(savedAccount.getId()).isNotNull();
-        assertThat(savedAccount.getAccountNumber()).isEqualTo(accountNumber);
-        assertThat(savedAccount.getAccountName()).isEqualTo(accountName);
-        assertThat(savedAccount.getBalance()).isEqualByComparingTo(balanceStr);
-        assertThat(savedAccount.getStatus().name()).isEqualTo(status);
-        assertThat(savedAccount.getCreatedDate()).isNotNull();
-
-        // Verify we can find by account number
-        Optional<Account> foundAccount = accountRepository.findByAccountNumber(accountNumber);
-        assertThat(foundAccount).isPresent();
-        assertThat(foundAccount.get().getAccountNumber()).isEqualTo(accountNumber);
+        assertThat(savedAccount.getAccountNumber()).isEqualTo(account.getAccountNumber());
+        assertThat(savedAccount.getCustomer()).isEqualTo(customer);
+        assertThat(savedAccount.getProduct()).isEqualTo(product);
+        assertThat(savedAccount.getBranch()).isEqualTo(branch);
+        assertThat(savedAccount.getBalance()).isEqualTo(account.getBalance());
+        assertThat(savedAccount.getStatus()).isEqualTo(Account.AccountStatus.ACTIVE);
     }
 
     @Test
-    void shouldFindAccountsByCustomer() {
-        // Given
-        saveTestAccounts();
-
-        // When
-        Customer customer = customerMap.get("C1000001");
-        List<Account> accounts = accountRepository.findByCustomer(customer);
-
-        // Then
-        assertThat(accounts).hasSizeGreaterThan(0);
-        accounts.forEach(account -> 
-            assertThat(account.getCustomer().getCustomerNumber()).isEqualTo("C1000001"));
-    }
-
-    @Test
-    void shouldFindAccountsByCustomerId() {
-        // Given
-        saveTestAccounts();
-
-        // When
-        Customer customer = customerMap.get("C1000001");
-        List<Account> accounts = accountRepository.findByCustomerId(customer.getId());
-
-        // Then
-        assertThat(accounts).hasSizeGreaterThan(0);
-        accounts.forEach(account -> 
-            assertThat(account.getCustomer().getId()).isEqualTo(customer.getId()));
-    }
-
-    @Test
-    void shouldFindAccountsByProduct() {
-        // Given
-        saveTestAccounts();
-
-        // When
-        Product product = productMap.get("SAV001");
-        List<Account> accounts = accountRepository.findByProduct(product);
-
-        // Then
-        assertThat(accounts).hasSizeGreaterThan(0);
-        accounts.forEach(account -> 
-            assertThat(account.getProduct().getProductCode()).isEqualTo("SAV001"));
-    }
-
-    @Test
-    void shouldFindAccountsByStatus() {
-        // Given
-        saveTestAccounts();
-
-        // When
-        List<Account> activeAccounts = accountRepository.findByStatus(Account.AccountStatus.ACTIVE);
-        List<Account> inactiveAccounts = accountRepository.findByStatus(Account.AccountStatus.INACTIVE);
-
-        // Then
-        assertThat(activeAccounts).hasSizeGreaterThan(0);
-        assertThat(inactiveAccounts).hasSizeGreaterThanOrEqualTo(0);
+    void shouldFindByAccountNumber() {
+        logTestExecution("shouldFindByAccountNumber");
         
-        activeAccounts.forEach(account -> 
-            assertThat(account.getStatus()).isEqualTo(Account.AccountStatus.ACTIVE));
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        accountRepository.save(account);
+
+        // When
+        Optional<Account> foundAccount = accountRepository.findByAccountNumber(account.getAccountNumber());
+
+        // Then
+        assertThat(foundAccount).isPresent();
+        assertThat(foundAccount.get().getAccountNumber()).isEqualTo(account.getAccountNumber());
+        assertThat(foundAccount.get().getCustomer().getCustomerNumber()).isEqualTo(customer.getCustomerNumber());
+    }
+
+    @Test
+    void shouldFindByCustomerId() {
+        logTestExecution("shouldFindByCustomerId");
+        
+        // Given - Create unique test data with multiple accounts
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product savingsProduct = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        Product depositProduct = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.DEPOSITO_MUDHARABAH);
+        productRepository.save(savingsProduct);
+        productRepository.save(depositProduct);
+        
+        Account savingsAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, savingsProduct, branch);
+        Account depositAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, depositProduct, branch);
+        accountRepository.save(savingsAccount);
+        accountRepository.save(depositAccount);
+
+        // When
+        List<Account> customerAccounts = accountRepository.findByCustomerId(customer.getId());
+
+        // Then
+        assertThat(customerAccounts).hasSize(2);
+        assertThat(customerAccounts).extracting(Account::getCustomer)
+                .allMatch(c -> c.getId().equals(customer.getId()));
+        assertThat(customerAccounts).extracting(Account::getAccountNumber)
+                .containsExactlyInAnyOrder(savingsAccount.getAccountNumber(), depositAccount.getAccountNumber());
     }
 
     @Test
     void shouldFindActiveAccountsByCustomerId() {
-        // Given
-        saveTestAccounts();
+        logTestExecution("shouldFindActiveAccountsByCustomerId");
+        
+        // Given - Create unique test data with active and inactive accounts
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account activeAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        activeAccount.setStatus(Account.AccountStatus.ACTIVE);
+        
+        Account inactiveAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        inactiveAccount.setStatus(Account.AccountStatus.INACTIVE);
+        
+        accountRepository.save(activeAccount);
+        accountRepository.save(inactiveAccount);
 
         // When
-        Customer customer = customerMap.get("C1000001");
         List<Account> activeAccounts = accountRepository.findActiveAccountsByCustomerId(customer.getId());
 
         // Then
-        assertThat(activeAccounts).hasSizeGreaterThan(0);
-        activeAccounts.forEach(account -> {
-            assertThat(account.getCustomer().getId()).isEqualTo(customer.getId());
-            assertThat(account.getStatus()).isEqualTo(Account.AccountStatus.ACTIVE);
-        });
+        assertThat(activeAccounts).hasSize(1);
+        assertThat(activeAccounts.get(0).getStatus()).isEqualTo(Account.AccountStatus.ACTIVE);
+        assertThat(activeAccounts.get(0).getAccountNumber()).isEqualTo(activeAccount.getAccountNumber());
     }
 
+    @Test
+    void shouldFindAccountsByProduct() {
+        logTestExecution("shouldFindAccountsByProduct");
+        
+        // Given - Create unique test data with different products
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer1 = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        PersonalCustomer customer2 = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer1);
+        customerRepository.save(customer2);
+        
+        Product savingsProduct = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        Product depositProduct = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.DEPOSITO_MUDHARABAH);
+        productRepository.save(savingsProduct);
+        productRepository.save(depositProduct);
+        
+        Account savingsAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer1, savingsProduct, branch);
+        Account depositAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer2, depositProduct, branch);
+        accountRepository.save(savingsAccount);
+        accountRepository.save(depositAccount);
+
+        // When - Find accounts by product ID
+        List<Account> savingsAccounts = accountRepository.findByProduct(savingsProduct);
+        List<Account> depositAccounts = accountRepository.findByProduct(depositProduct);
+
+        // Then
+        assertThat(savingsAccounts).hasSize(1);
+        assertThat(savingsAccounts.get(0).getProduct()).isEqualTo(savingsProduct);
+        
+        assertThat(depositAccounts).hasSize(1);
+        assertThat(depositAccounts.get(0).getProduct()).isEqualTo(depositProduct);
+    }
+
+    @Test
+    void shouldFindAccountsByBalanceRange() {
+        logTestExecution("shouldFindAccountsByBalanceRange");
+        
+        // Given - Create unique test data with different balances
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer1 = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        PersonalCustomer customer2 = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer1);
+        customerRepository.save(customer2);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account highBalanceAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer1, product, branch);
+        highBalanceAccount.setBalance(new BigDecimal("10000000")); // 10M
+        
+        Account lowBalanceAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer2, product, branch);
+        lowBalanceAccount.setBalance(new BigDecimal("100000")); // 100K
+        
+        accountRepository.save(highBalanceAccount);
+        accountRepository.save(lowBalanceAccount);
+
+        // When - Find all accounts and verify balances
+        List<Account> allAccounts = accountRepository.findAll();
+
+        // Then - Filter by balance in test logic
+        BigDecimal threshold = new BigDecimal("5000000");
+        List<Account> highBalanceAccounts = allAccounts.stream()
+                .filter(a -> a.getBalance().compareTo(threshold) > 0)
+                .toList();
+        
+        assertThat(highBalanceAccounts).hasSize(1);
+        assertThat(highBalanceAccounts.get(0).getBalance()).isGreaterThan(threshold);
+        assertThat(highBalanceAccounts.get(0).getAccountNumber()).isEqualTo(highBalanceAccount.getAccountNumber());
+    }
+
+    @Test
+    void shouldUpdateAccountBalance() {
+        logTestExecution("shouldUpdateAccountBalance");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        accountRepository.save(account);
+        
+        BigDecimal initialBalance = account.getBalance();
+        BigDecimal newBalance = initialBalance.add(new BigDecimal("500000"));
+
+        // When
+        account.setBalance(newBalance);
+        Account updatedAccount = accountRepository.save(account);
+
+        // Then
+        assertThat(updatedAccount.getBalance()).isEqualTo(newBalance);
+        
+        // Verify in database
+        Optional<Account> foundAccount = accountRepository.findById(account.getId());
+        assertThat(foundAccount).isPresent();
+        assertThat(foundAccount.get().getBalance()).isEqualTo(newBalance);
+    }
+    
+    @ParameterizedTest
+    @CsvFileSource(resources = "/fixtures/account/parallel-accounts.csv", numLinesToSkip = 1)
+    @ResourceLock("parameterized-test-transaction")
+    void shouldSaveAccountFromCsv(String productType, String initialBalance, String accountStatus) {
+        logTestExecution("shouldSaveAccountFromCsv: " + productType);
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.valueOf(productType));
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        account.setBalance(new BigDecimal(initialBalance));
+        account.setStatus(Account.AccountStatus.valueOf(accountStatus));
+
+        // When
+        Account savedAccount = accountRepository.save(account);
+
+        // Then
+        assertThat(savedAccount).isNotNull();
+        assertThat(savedAccount.getBalance()).isEqualTo(new BigDecimal(initialBalance));
+        assertThat(savedAccount.getStatus()).isEqualTo(Account.AccountStatus.valueOf(accountStatus));
+        assertThat(savedAccount.getProduct().getProductType()).isEqualTo(Product.ProductType.valueOf(productType));
+    }
+    
+    @Test
+    void shouldFindAccountsByCustomer() {
+        logTestExecution("shouldFindAccountsByCustomer");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        accountRepository.save(account);
+        
+        // When
+        List<Account> accounts = accountRepository.findByCustomer(customer);
+        
+        // Then
+        assertThat(accounts).hasSize(1);
+        assertThat(accounts.get(0).getCustomer().getId()).isEqualTo(customer.getId());
+    }
+    
+    @Test
+    void shouldFindAccountsByStatus() {
+        logTestExecution("shouldFindAccountsByStatus");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account activeAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        activeAccount.setStatus(Account.AccountStatus.ACTIVE);
+        accountRepository.save(activeAccount);
+        
+        Account inactiveAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        inactiveAccount.setStatus(Account.AccountStatus.INACTIVE);
+        accountRepository.save(inactiveAccount);
+        
+        // When
+        List<Account> activeAccounts = accountRepository.findByStatus(Account.AccountStatus.ACTIVE);
+        List<Account> inactiveAccounts = accountRepository.findByStatus(Account.AccountStatus.INACTIVE);
+        
+        // Then
+        assertThat(activeAccounts).hasSizeGreaterThanOrEqualTo(1);
+        assertThat(inactiveAccounts).hasSizeGreaterThanOrEqualTo(1);
+        
+        activeAccounts.forEach(account -> 
+            assertThat(account.getStatus()).isEqualTo(Account.AccountStatus.ACTIVE));
+        inactiveAccounts.forEach(account -> 
+            assertThat(account.getStatus()).isEqualTo(Account.AccountStatus.INACTIVE));
+    }
+    
     @Test
     void shouldGetTotalBalanceByCustomerId() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldGetTotalBalanceByCustomerId");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account1 = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        account1.setBalance(new BigDecimal("500000"));
+        accountRepository.save(account1);
+        
+        Account account2 = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        account2.setBalance(new BigDecimal("300000"));
+        accountRepository.save(account2);
+        
         // When
-        Customer customer = customerMap.get("C1000001");
         BigDecimal totalBalance = accountRepository.getTotalBalanceByCustomerId(customer.getId());
-
+        
         // Then
         assertThat(totalBalance).isNotNull();
-        assertThat(totalBalance.compareTo(BigDecimal.ZERO)).isGreaterThan(0);
+        assertThat(totalBalance).isEqualByComparingTo("800000");
     }
-
+    
     @Test
     void shouldCountAccountsByStatus() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldCountAccountsByStatus");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        // Create accounts with different statuses
+        Account activeAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        activeAccount.setStatus(Account.AccountStatus.ACTIVE);
+        accountRepository.save(activeAccount);
+        
+        Account inactiveAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        inactiveAccount.setStatus(Account.AccountStatus.INACTIVE);
+        accountRepository.save(inactiveAccount);
+        
         // When
-        Long activeCount = accountRepository.countByStatus(Account.AccountStatus.ACTIVE);
-        Long inactiveCount = accountRepository.countByStatus(Account.AccountStatus.INACTIVE);
-
+        Long activeCountBefore = accountRepository.countByStatus(Account.AccountStatus.ACTIVE);
+        Long inactiveCountBefore = accountRepository.countByStatus(Account.AccountStatus.INACTIVE);
+        
         // Then
-        assertThat(activeCount).isGreaterThan(0);
-        assertThat(inactiveCount).isGreaterThanOrEqualTo(0);
+        assertThat(activeCountBefore).isGreaterThanOrEqualTo(1);
+        assertThat(inactiveCountBefore).isGreaterThanOrEqualTo(1);
     }
-
+    
     @Test
     void shouldCountActiveAccountsByProductType() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldCountActiveAccountsByProductType");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product wadiah = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(wadiah);
+        
+        Product mudharabah = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_MUDHARABAH);
+        productRepository.save(mudharabah);
+        
+        Account wadiahAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, wadiah, branch);
+        wadiahAccount.setStatus(Account.AccountStatus.ACTIVE);
+        accountRepository.save(wadiahAccount);
+        
+        Account mudharabahAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, mudharabah, branch);
+        mudharabahAccount.setStatus(Account.AccountStatus.ACTIVE);
+        accountRepository.save(mudharabahAccount);
+        
         // When
-        Long savingsCount = accountRepository.countActiveAccountsByProductType(Product.ProductType.SAVINGS);
-        Long checkingCount = accountRepository.countActiveAccountsByProductType(Product.ProductType.CHECKING);
-
+        Long wadiahCount = accountRepository.countActiveAccountsByProductType(Product.ProductType.TABUNGAN_WADIAH);
+        Long mudharabahCount = accountRepository.countActiveAccountsByProductType(Product.ProductType.TABUNGAN_MUDHARABAH);
+        
         // Then
-        assertThat(savingsCount).isGreaterThan(0);
-        assertThat(checkingCount).isGreaterThanOrEqualTo(0);
+        assertThat(wadiahCount).isGreaterThanOrEqualTo(1);
+        assertThat(mudharabahCount).isGreaterThanOrEqualTo(1);
     }
-
+    
     @Test
     void shouldFindAccountsBelowMinimumBalance() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldFindAccountsBelowMinimumBalance");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account lowBalanceAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        lowBalanceAccount.setBalance(new BigDecimal("50000"));
+        accountRepository.save(lowBalanceAccount);
+        
+        Account highBalanceAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        highBalanceAccount.setBalance(new BigDecimal("200000"));
+        accountRepository.save(highBalanceAccount);
+        
         // When
         List<Account> belowMinimumAccounts = accountRepository.findAccountsBelowMinimumBalance(new BigDecimal("100000"));
-
+        
         // Then
-        assertThat(belowMinimumAccounts).hasSizeGreaterThanOrEqualTo(0);
+        assertThat(belowMinimumAccounts).hasSizeGreaterThanOrEqualTo(1);
         belowMinimumAccounts.forEach(account -> 
             assertThat(account.getBalance().compareTo(new BigDecimal("100000"))).isLessThan(0));
     }
-
+    
     @Test
     void shouldFindZeroBalanceAccounts() {
-        // Given
-        saveTestAccounts();
+        logTestExecution("shouldFindZeroBalanceAccounts");
         
-        // Add a zero balance account
-        Customer customer = customerMap.get("C1000001");
-        Product product = productMap.get("SAV001");
-        Account zeroBalanceAccount = new Account();
-        zeroBalanceAccount.setCustomer(customer);
-        zeroBalanceAccount.setProduct(product);
-        zeroBalanceAccount.setBranch(testBranch);
-        zeroBalanceAccount.setAccountNumber("A9999999");
-        zeroBalanceAccount.setAccountName("Zero Balance Test");
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account zeroBalanceAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
         zeroBalanceAccount.setBalance(BigDecimal.ZERO);
-        zeroBalanceAccount.setStatus(Account.AccountStatus.ACTIVE);
-        zeroBalanceAccount.setCreatedBy("TEST");
         accountRepository.save(zeroBalanceAccount);
-        entityManager.flush();
-
+        
+        Account normalAccount = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        normalAccount.setBalance(new BigDecimal("100000"));
+        accountRepository.save(normalAccount);
+        
         // When
         List<Account> zeroBalanceAccounts = accountRepository.findZeroBalanceAccounts();
-
+        
         // Then
-        assertThat(zeroBalanceAccounts).hasSizeGreaterThan(0);
+        assertThat(zeroBalanceAccounts).hasSizeGreaterThanOrEqualTo(1);
         zeroBalanceAccounts.forEach(account -> 
             assertThat(account.getBalance()).isEqualByComparingTo(BigDecimal.ZERO));
     }
-
+    
     @Test
     void shouldCheckAccountNumberExistence() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldCheckAccountNumberExistence");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        String existingAccountNumber = account.getAccountNumber();
+        accountRepository.save(account);
+        
         // When & Then
-        assertThat(accountRepository.existsByAccountNumber("A2000001")).isTrue();
-        assertThat(accountRepository.existsByAccountNumber("A9999999")).isFalse();
+        assertThat(accountRepository.existsByAccountNumber(existingAccountNumber)).isTrue();
+        assertThat(accountRepository.existsByAccountNumber("NON_EXISTENT_" + existingAccountNumber)).isFalse();
     }
-
+    
     @Test
     void shouldFindAccountByAccountNumberWithDetails() {
-        // Given
-        saveTestAccounts();
-
+        logTestExecution("shouldFindAccountByAccountNumberWithDetails");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer customer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(customer);
+        
+        Product product = SimpleParallelTestDataFactory.createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        productRepository.save(product);
+        
+        Account account = SimpleParallelTestDataFactory.createUniqueAccount(customer, product, branch);
+        accountRepository.save(account);
+        
         // When
-        Optional<Account> account = accountRepository.findByAccountNumberWithDetails("A2000001");
-
+        Optional<Account> foundAccount = accountRepository.findByAccountNumberWithDetails(account.getAccountNumber());
+        
         // Then
-        assertThat(account).isPresent();
-        assertThat(account.get().getCustomer()).isNotNull();
-        assertThat(account.get().getProduct()).isNotNull();
-        assertThat(account.get().getAccountNumber()).isEqualTo("A2000001");
-    }
-
-
-    private void setupTestCustomersAndProducts() {
-        // Create test customers to match CSV data
-        PersonalCustomer personal1 = new PersonalCustomer();
-        personal1.setCustomerNumber("C1000001");
-        personal1.setFirstName("Ahmad");
-        personal1.setLastName("Suharto");
-        personal1.setDateOfBirth(LocalDate.of(1985, 3, 15));
-        personal1.setIdentityNumber("3271081503850001");
-        personal1.setIdentityType(Customer.IdentityType.KTP);
-        personal1.setEmail("ahmad.suharto@email.com");
-        personal1.setPhoneNumber("081234567890");
-        personal1.setAddress("Jl. Sudirman No. 123");
-        personal1.setCity("Jakarta");
-        personal1.setPostalCode("10220");
-        personal1.setCountry("Indonesia");
-        personal1.setCreatedBy("TEST");
-        personal1.setBranch(testBranch);
-
-        PersonalCustomer personal2 = new PersonalCustomer();
-        personal2.setCustomerNumber("C1000002");
-        personal2.setFirstName("Siti");
-        personal2.setLastName("Nurhaliza");
-        personal2.setDateOfBirth(LocalDate.of(1990, 7, 22));
-        personal2.setIdentityNumber("3271082207900002");
-        personal2.setIdentityType(Customer.IdentityType.KTP);
-        personal2.setEmail("siti.nurhaliza@email.com");
-        personal2.setPhoneNumber("081234567891");
-        personal2.setAddress("Jl. Thamrin No. 456");
-        personal2.setCity("Jakarta");
-        personal2.setPostalCode("10230");
-        personal2.setCountry("Indonesia");
-        personal2.setCreatedBy("TEST");
-        personal2.setBranch(testBranch);
-
-        PersonalCustomer personal3 = new PersonalCustomer();
-        personal3.setCustomerNumber("C1000003");
-        personal3.setFirstName("Budi");
-        personal3.setLastName("Santoso");
-        personal3.setDateOfBirth(LocalDate.of(1988, 12, 10));
-        personal3.setIdentityNumber("3271081012880003");
-        personal3.setIdentityType(Customer.IdentityType.KTP);
-        personal3.setEmail("budi.santoso@email.com");
-        personal3.setPhoneNumber("081234567892");
-        personal3.setAddress("Jl. Gatot Subroto No. 789");
-        personal3.setCity("Jakarta");
-        personal3.setPostalCode("12950");
-        personal3.setCountry("Indonesia");
-        personal3.setCreatedBy("TEST");
-        personal3.setBranch(testBranch);
-
-        CorporateCustomer corporate1 = new CorporateCustomer();
-        corporate1.setCustomerNumber("C1000004");
-        corporate1.setCompanyName("PT. Teknologi Maju");
-        corporate1.setCompanyRegistrationNumber("1234567890123456");
-        corporate1.setTaxIdentificationNumber("01.234.567.8-901.000");
-        corporate1.setEmail("info@teknologimaju.com");
-        corporate1.setPhoneNumber("02123456789");
-        corporate1.setAddress("Jl. HR Rasuna Said No. 789");
-        corporate1.setCity("Jakarta");
-        corporate1.setPostalCode("12950");
-        corporate1.setCountry("Indonesia");
-        corporate1.setCreatedBy("TEST");
-        corporate1.setBranch(testBranch);
-
-        CorporateCustomer corporate2 = new CorporateCustomer();
-        corporate2.setCustomerNumber("C1000005");
-        corporate2.setCompanyName("CV. Berkah Jaya");
-        corporate2.setCompanyRegistrationNumber("9876543210987654");
-        corporate2.setTaxIdentificationNumber("98.765.432.1-098.000");
-        corporate2.setEmail("admin@berkahjaya.com");
-        corporate2.setPhoneNumber("02187654321");
-        corporate2.setAddress("Jl. Kuningan Raya No. 456");
-        corporate2.setCity("Jakarta");
-        corporate2.setPostalCode("12940");
-        corporate2.setCountry("Indonesia");
-        corporate2.setCreatedBy("TEST");
-        corporate2.setBranch(testBranch);
-
-        PersonalCustomer personal4 = new PersonalCustomer();
-        personal4.setCustomerNumber("C1000006");
-        personal4.setFirstName("Dewi");
-        personal4.setLastName("Lestari");
-        personal4.setDateOfBirth(LocalDate.of(1992, 5, 18));
-        personal4.setIdentityNumber("3271051892920004");
-        personal4.setIdentityType(Customer.IdentityType.PASSPORT);
-        personal4.setEmail("dewi.lestari@email.com");
-        personal4.setPhoneNumber("081234567893");
-        personal4.setAddress("Jl. Senayan No. 321");
-        personal4.setCity("Jakarta");
-        personal4.setPostalCode("10270");
-        personal4.setCountry("Indonesia");
-        personal4.setCreatedBy("TEST");
-        personal4.setBranch(testBranch);
-
-        customerRepository.save(personal1);
-        customerRepository.save(personal2);
-        customerRepository.save(personal3);
-        customerRepository.save(corporate1);
-        customerRepository.save(corporate2);
-        customerRepository.save(personal4);
-        
-        customerMap.put("C1000001", personal1);
-        customerMap.put("C1000002", personal2);
-        customerMap.put("C1000003", personal3);
-        customerMap.put("C1000004", corporate1);
-        customerMap.put("C1000005", corporate2);
-        customerMap.put("C1000006", personal4);
-
-        // Create test products to match CSV data
-        Product savingsBasic = new Product();
-        savingsBasic.setProductCode("SAV001");
-        savingsBasic.setProductName("Basic Savings Account");
-        savingsBasic.setProductType(Product.ProductType.SAVINGS);
-        savingsBasic.setProductCategory("Regular Savings");
-        savingsBasic.setDescription("Basic savings account for individual customers");
-        savingsBasic.setIsActive(true);
-        savingsBasic.setIsDefault(true);
-        savingsBasic.setCurrency("IDR");
-        savingsBasic.setMinimumOpeningBalance(new BigDecimal("50000.00"));
-        savingsBasic.setMinimumBalance(new BigDecimal("10000.00"));
-        savingsBasic.setDailyWithdrawalLimit(new BigDecimal("5000000.00"));
-        savingsBasic.setMonthlyTransactionLimit(50);
-        savingsBasic.setProfitSharingRatio(new BigDecimal("0.0275"));
-        savingsBasic.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
-        savingsBasic.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        savingsBasic.setNisbahCustomer(new BigDecimal("0.7000"));
-        savingsBasic.setNisbahBank(new BigDecimal("0.3000"));
-        savingsBasic.setMonthlyMaintenanceFee(new BigDecimal("2500.00"));
-        savingsBasic.setAtmWithdrawalFee(new BigDecimal("5000.00"));
-        savingsBasic.setInterBankTransferFee(new BigDecimal("7500.00"));
-        savingsBasic.setBelowMinimumBalanceFee(new BigDecimal("10000.00"));
-        savingsBasic.setAccountClosureFee(new BigDecimal("0.00"));
-        savingsBasic.setFreeTransactionsPerMonth(10);
-        savingsBasic.setExcessTransactionFee(new BigDecimal("2500.00"));
-        savingsBasic.setAllowOverdraft(false);
-        savingsBasic.setRequireMaintainingBalance(true);
-        savingsBasic.setMinCustomerAge(17);
-        savingsBasic.setAllowedCustomerTypes("PERSONAL");
-        savingsBasic.setRequiredDocuments("KTP, NPWP (optional)");
-        savingsBasic.setCreatedBy("TEST");
-
-        Product savingsPremium = new Product();
-        savingsPremium.setProductCode("SAV002");
-        savingsPremium.setProductName("Premium Savings Account");
-        savingsPremium.setProductType(Product.ProductType.SAVINGS);
-        savingsPremium.setProductCategory("Premium Savings");
-        savingsPremium.setDescription("Premium savings account with higher profit sharing");
-        savingsPremium.setIsActive(true);
-        savingsPremium.setIsDefault(false);
-        savingsPremium.setCurrency("IDR");
-        savingsPremium.setMinimumOpeningBalance(new BigDecimal("1000000.00"));
-        savingsPremium.setMinimumBalance(new BigDecimal("500000.00"));
-        savingsPremium.setDailyWithdrawalLimit(new BigDecimal("10000000.00"));
-        savingsPremium.setMonthlyTransactionLimit(100);
-        savingsPremium.setProfitSharingRatio(new BigDecimal("0.0350"));
-        savingsPremium.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
-        savingsPremium.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        savingsPremium.setNisbahCustomer(new BigDecimal("0.7000"));
-        savingsPremium.setNisbahBank(new BigDecimal("0.3000"));
-        savingsPremium.setMonthlyMaintenanceFee(new BigDecimal("0.00"));
-        savingsPremium.setAtmWithdrawalFee(new BigDecimal("0.00"));
-        savingsPremium.setInterBankTransferFee(new BigDecimal("5000.00"));
-        savingsPremium.setBelowMinimumBalanceFee(new BigDecimal("25000.00"));
-        savingsPremium.setAccountClosureFee(new BigDecimal("0.00"));
-        savingsPremium.setFreeTransactionsPerMonth(25);
-        savingsPremium.setExcessTransactionFee(new BigDecimal("2500.00"));
-        savingsPremium.setAllowOverdraft(false);
-        savingsPremium.setRequireMaintainingBalance(true);
-        savingsPremium.setMinCustomerAge(21);
-        savingsPremium.setAllowedCustomerTypes("PERSONAL");
-        savingsPremium.setRequiredDocuments("KTP, NPWP, Slip Gaji");
-        savingsPremium.setCreatedBy("TEST");
-
-        Product savingsCorporate = new Product();
-        savingsCorporate.setProductCode("SAV003");
-        savingsCorporate.setProductName("Corporate Savings Account");
-        savingsCorporate.setProductType(Product.ProductType.SAVINGS);
-        savingsCorporate.setProductCategory("Corporate");
-        savingsCorporate.setDescription("Savings account for corporate customers");
-        savingsCorporate.setIsActive(true);
-        savingsCorporate.setIsDefault(false);
-        savingsCorporate.setCurrency("IDR");
-        savingsCorporate.setMinimumOpeningBalance(new BigDecimal("5000000.00"));
-        savingsCorporate.setMinimumBalance(new BigDecimal("1000000.00"));
-        savingsCorporate.setDailyWithdrawalLimit(new BigDecimal("50000000.00"));
-        savingsCorporate.setMonthlyTransactionLimit(200);
-        savingsCorporate.setProfitSharingRatio(new BigDecimal("0.0300"));
-        savingsCorporate.setProfitSharingType(Product.ProfitSharingType.MUDHARABAH);
-        savingsCorporate.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        savingsCorporate.setNisbahCustomer(new BigDecimal("0.7000"));
-        savingsCorporate.setNisbahBank(new BigDecimal("0.3000"));
-        savingsCorporate.setMonthlyMaintenanceFee(new BigDecimal("15000.00"));
-        savingsCorporate.setAtmWithdrawalFee(new BigDecimal("5000.00"));
-        savingsCorporate.setInterBankTransferFee(new BigDecimal("5000.00"));
-        savingsCorporate.setBelowMinimumBalanceFee(new BigDecimal("50000.00"));
-        savingsCorporate.setAccountClosureFee(new BigDecimal("25000.00"));
-        savingsCorporate.setFreeTransactionsPerMonth(50);
-        savingsCorporate.setExcessTransactionFee(new BigDecimal("5000.00"));
-        savingsCorporate.setAllowOverdraft(false);
-        savingsCorporate.setRequireMaintainingBalance(true);
-        savingsCorporate.setAllowedCustomerTypes("CORPORATE");
-        savingsCorporate.setRequiredDocuments("Akta Pendirian, SIUP, TDP, NPWP");
-        savingsCorporate.setCreatedBy("TEST");
-
-        Product checkingBasic = new Product();
-        checkingBasic.setProductCode("CHK001");
-        checkingBasic.setProductName("Basic Checking Account");
-        checkingBasic.setProductType(Product.ProductType.CHECKING);
-        checkingBasic.setProductCategory("Regular Checking");
-        checkingBasic.setDescription("Basic checking account with overdraft facility");
-        checkingBasic.setIsActive(true);
-        checkingBasic.setIsDefault(false);
-        checkingBasic.setCurrency("IDR");
-        checkingBasic.setMinimumOpeningBalance(new BigDecimal("100000.00"));
-        checkingBasic.setMinimumBalance(new BigDecimal("50000.00"));
-        checkingBasic.setDailyWithdrawalLimit(new BigDecimal("20000000.00"));
-        checkingBasic.setMonthlyTransactionLimit(100);
-        checkingBasic.setProfitSharingRatio(new BigDecimal("0.0100"));
-        checkingBasic.setProfitSharingType(Product.ProfitSharingType.WADIAH);
-        checkingBasic.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        checkingBasic.setMonthlyMaintenanceFee(new BigDecimal("5000.00"));
-        checkingBasic.setAtmWithdrawalFee(new BigDecimal("5000.00"));
-        checkingBasic.setInterBankTransferFee(new BigDecimal("7500.00"));
-        checkingBasic.setBelowMinimumBalanceFee(new BigDecimal("15000.00"));
-        checkingBasic.setAccountClosureFee(new BigDecimal("10000.00"));
-        checkingBasic.setFreeTransactionsPerMonth(20);
-        checkingBasic.setExcessTransactionFee(new BigDecimal("3000.00"));
-        checkingBasic.setAllowOverdraft(true);
-        checkingBasic.setRequireMaintainingBalance(true);
-        checkingBasic.setMinCustomerAge(18);
-        checkingBasic.setAllowedCustomerTypes("PERSONAL");
-        checkingBasic.setRequiredDocuments("KTP, NPWP, Slip Gaji");
-        checkingBasic.setCreatedBy("TEST");
-
-        Product checkingPremium = new Product();
-        checkingPremium.setProductCode("CHK002");
-        checkingPremium.setProductName("Premium Checking Account");
-        checkingPremium.setProductType(Product.ProductType.CHECKING);
-        checkingPremium.setProductCategory("Premium Checking");
-        checkingPremium.setDescription("Premium checking with higher overdraft limit");
-        checkingPremium.setIsActive(true);
-        checkingPremium.setIsDefault(false);
-        checkingPremium.setCurrency("IDR");
-        checkingPremium.setMinimumOpeningBalance(new BigDecimal("2000000.00"));
-        checkingPremium.setMinimumBalance(new BigDecimal("1000000.00"));
-        checkingPremium.setDailyWithdrawalLimit(new BigDecimal("50000000.00"));
-        checkingPremium.setMonthlyTransactionLimit(200);
-        checkingPremium.setProfitSharingRatio(new BigDecimal("0.0150"));
-        checkingPremium.setProfitSharingType(Product.ProfitSharingType.WADIAH);
-        checkingPremium.setProfitDistributionFrequency(Product.ProfitDistributionFrequency.MONTHLY);
-        checkingPremium.setMonthlyMaintenanceFee(new BigDecimal("0.00"));
-        checkingPremium.setAtmWithdrawalFee(new BigDecimal("0.00"));
-        checkingPremium.setInterBankTransferFee(new BigDecimal("5000.00"));
-        checkingPremium.setBelowMinimumBalanceFee(new BigDecimal("25000.00"));
-        checkingPremium.setAccountClosureFee(new BigDecimal("15000.00"));
-        checkingPremium.setFreeTransactionsPerMonth(50);
-        checkingPremium.setExcessTransactionFee(new BigDecimal("3000.00"));
-        checkingPremium.setAllowOverdraft(true);
-        checkingPremium.setRequireMaintainingBalance(true);
-        checkingPremium.setMinCustomerAge(25);
-        checkingPremium.setAllowedCustomerTypes("PERSONAL");
-        checkingPremium.setRequiredDocuments("KTP, NPWP, Slip Gaji, Rekening Koran");
-        checkingPremium.setCreatedBy("TEST");
-
-        productRepository.save(savingsBasic);
-        productRepository.save(savingsPremium);
-        productRepository.save(savingsCorporate);
-        productRepository.save(checkingBasic);
-        productRepository.save(checkingPremium);
-        
-        productMap.put("SAV001", savingsBasic);
-        productMap.put("SAV002", savingsPremium);
-        productMap.put("SAV003", savingsCorporate);
-        productMap.put("CHK001", checkingBasic);
-        productMap.put("CHK002", checkingPremium);
-        
-        entityManager.flush();
-    }
-
-    private void saveTestAccounts() {
-        // Save test accounts
-        Customer customer1 = customerMap.get("C1000001");
-        Customer customer2 = customerMap.get("C1000002");
-        Product savingsProduct = productMap.get("SAV001");
-        Product checkingProduct = productMap.get("CHK001");
-
-        Account account1 = new Account();
-        account1.setCustomer(customer1);
-        account1.setProduct(savingsProduct);
-        account1.setBranch(testBranch);
-        account1.setAccountNumber("A2000001");
-        account1.setAccountName("Ahmad Suharto - Savings");
-        account1.setBalance(new BigDecimal("500000"));
-        account1.setStatus(Account.AccountStatus.ACTIVE);
-        account1.setOpenedDate(LocalDate.of(2024, 1, 15));
-        account1.setCreatedBy("TEST");
-
-        Account account2 = new Account();
-        account2.setCustomer(customer2);
-        account2.setProduct(savingsProduct);
-        account2.setBranch(testBranch);
-        account2.setAccountNumber("A2000002");
-        account2.setAccountName("Siti Nurhaliza - Savings");
-        account2.setBalance(new BigDecimal("750000"));
-        account2.setStatus(Account.AccountStatus.ACTIVE);
-        account2.setOpenedDate(LocalDate.of(2024, 1, 20));
-        account2.setCreatedBy("TEST");
-
-        Account account3 = new Account();
-        account3.setCustomer(customer1);
-        account3.setProduct(checkingProduct);
-        account3.setBranch(testBranch);
-        account3.setAccountNumber("A2000003");
-        account3.setAccountName("Ahmad Suharto - Checking");
-        account3.setBalance(new BigDecimal("300000"));
-        account3.setStatus(Account.AccountStatus.ACTIVE);
-        account3.setOpenedDate(LocalDate.of(2024, 2, 10));
-        account3.setCreatedBy("TEST");
-
-        accountRepository.save(account1);
-        accountRepository.save(account2);
-        accountRepository.save(account3);
-        entityManager.flush();
+        assertThat(foundAccount).isPresent();
+        assertThat(foundAccount.get().getCustomer()).isNotNull();
+        assertThat(foundAccount.get().getProduct()).isNotNull();
+        assertThat(foundAccount.get().getBranch()).isNotNull();
+        assertThat(foundAccount.get().getAccountNumber()).isEqualTo(account.getAccountNumber());
     }
 }

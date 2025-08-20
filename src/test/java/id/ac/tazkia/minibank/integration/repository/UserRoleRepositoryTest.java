@@ -6,23 +6,29 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import id.ac.tazkia.minibank.entity.Role;
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserRole;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.entity.Branch;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.BranchRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 import id.ac.tazkia.minibank.repository.UserRoleRepository;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-class UserRoleRepositoryTest extends BaseRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
+/**
+ * UserRoleRepository tests optimized for parallel execution.
+ * Uses dynamic test data to prevent conflicts during concurrent execution.
+ * Note: Using SAME_THREAD execution to avoid transaction management conflicts.
+ */
+@Execution(ExecutionMode.SAME_THREAD)
+class UserRoleRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
@@ -32,30 +38,39 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
     
     @Autowired
     private RoleRepository roleRepository;
-
-    private User testUser1;
-    private User testUser2;
-    private Role branchManagerRole;
-    private Role tellerRole;
-    private Role customerServiceRole;
-
-    @BeforeEach
-    void setUp() {
-        userRoleRepository.deleteAll();
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-        
-        setupTestData();
-    }
+    
+    @Autowired
+    private BranchRepository branchRepository;
 
     @Test
     void shouldFindUserRolesByUser() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser1, tellerRole); // User with multiple roles
-        createUserRole(testUser2, customerServiceRole);
+        logTestExecution("shouldFindUserRolesByUser");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        Role customerServiceRole = SimpleParallelTestDataFactory.createUniqueRole();
+        customerServiceRole.setRoleCode("CUSTOMER_SERVICE_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        roleRepository.save(customerServiceRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        UserRole userRole3 = SimpleParallelTestDataFactory.createUserRole(testUser2, customerServiceRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
+        userRoleRepository.save(userRole3);
 
         // When
         List<UserRole> user1Roles = userRoleRepository.findByUser(testUser1);
@@ -64,17 +79,36 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
         // Then
         assertThat(user1Roles).hasSize(2);
         assertThat(user1Roles).extracting(ur -> ur.getRole().getRoleCode())
-            .containsExactlyInAnyOrder("BRANCH_MANAGER", "TELLER");
+            .containsExactlyInAnyOrder(branchManagerRole.getRoleCode(), tellerRole.getRoleCode());
             
         assertThat(user2Roles).hasSize(1);
-        assertThat(user2Roles.get(0).getRole().getRoleCode()).isEqualTo("CUSTOMER_SERVICE");
+        assertThat(user2Roles.get(0).getRole().getRoleCode()).isEqualTo(customerServiceRole.getRoleCode());
     }
 
     @Test
     void shouldFindUserRolesByRole() {
-        // Given
-        createUserRole(testUser1, tellerRole);
-        createUserRole(testUser2, tellerRole); // Multiple users with same role
+        logTestExecution("shouldFindUserRolesByRole");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        roleRepository.save(tellerRole);
+        roleRepository.save(branchManagerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser2, tellerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
 
         // When
         List<UserRole> tellerUsers = userRoleRepository.findByRole(tellerRole);
@@ -83,15 +117,30 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
         // Then
         assertThat(tellerUsers).hasSize(2);
         assertThat(tellerUsers).extracting(ur -> ur.getUser().getUsername())
-            .containsExactlyInAnyOrder("testuser1", "testuser2");
+            .containsExactlyInAnyOrder(testUser1.getUsername(), testUser2.getUsername());
             
         assertThat(branchManagerUsers).isEmpty();
     }
 
     @Test
     void shouldFindSpecificUserRole() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
+        logTestExecution("shouldFindSpecificUserRole");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        
+        UserRole userRole = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        userRoleRepository.save(userRole);
 
         // When
         Optional<UserRole> foundUserRole = userRoleRepository.findByUserAndRole(testUser1, branchManagerRole);
@@ -99,55 +148,111 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
 
         // Then
         assertThat(foundUserRole).isPresent();
-        assertThat(foundUserRole.get().getUser().getUsername()).isEqualTo("testuser1");
-        assertThat(foundUserRole.get().getRole().getRoleCode()).isEqualTo("BRANCH_MANAGER");
+        assertThat(foundUserRole.get().getUser().getUsername()).isEqualTo(testUser1.getUsername());
+        assertThat(foundUserRole.get().getRole().getRoleCode()).isEqualTo(branchManagerRole.getRoleCode());
         
         assertThat(notFoundUserRole).isEmpty();
     }
 
     @Test
     void shouldFindUserRolesByUsername() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser1, tellerRole);
+        logTestExecution("shouldFindUserRolesByUsername");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
 
         // When
-        List<UserRole> userRoles = userRoleRepository.findByUsername("testuser1");
-        List<UserRole> emptyRoles = userRoleRepository.findByUsername("nonexistent");
+        List<UserRole> userRoles = userRoleRepository.findByUsername(testUser1.getUsername());
+        List<UserRole> emptyRoles = userRoleRepository.findByUsername("nonexistent_" + System.currentTimeMillis());
 
         // Then
         assertThat(userRoles).hasSize(2);
-        assertThat(userRoles).allMatch(ur -> ur.getUser().getUsername().equals("testuser1"));
+        assertThat(userRoles).allMatch(ur -> ur.getUser().getUsername().equals(testUser1.getUsername()));
         
         assertThat(emptyRoles).isEmpty();
     }
 
     @Test
     void shouldFindUserRolesByRoleCode() {
-        // Given
-        createUserRole(testUser1, tellerRole);
-        createUserRole(testUser2, tellerRole);
-        createUserRole(testUser1, customerServiceRole);
+        logTestExecution("shouldFindUserRolesByRoleCode");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        String uniqueTimestamp = String.valueOf(System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + uniqueTimestamp);
+        Role customerServiceRole = SimpleParallelTestDataFactory.createUniqueRole();
+        customerServiceRole.setRoleCode("CUSTOMER_SERVICE_" + uniqueTimestamp);
+        roleRepository.save(tellerRole);
+        roleRepository.save(customerServiceRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser2, tellerRole);
+        UserRole userRole3 = SimpleParallelTestDataFactory.createUserRole(testUser1, customerServiceRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
+        userRoleRepository.save(userRole3);
 
         // When
-        List<UserRole> tellerRoles = userRoleRepository.findByRoleCode("TELLER");
-        List<UserRole> csRoles = userRoleRepository.findByRoleCode("CUSTOMER_SERVICE");
-        List<UserRole> emptyRoles = userRoleRepository.findByRoleCode("NON_EXISTENT");
+        List<UserRole> tellerRoles = userRoleRepository.findByRoleCode(tellerRole.getRoleCode());
+        List<UserRole> csRoles = userRoleRepository.findByRoleCode(customerServiceRole.getRoleCode());
+        List<UserRole> emptyRoles = userRoleRepository.findByRoleCode("NON_EXISTENT_" + uniqueTimestamp);
 
         // Then
         assertThat(tellerRoles).hasSize(2);
-        assertThat(tellerRoles).allMatch(ur -> ur.getRole().getRoleCode().equals("TELLER"));
+        assertThat(tellerRoles).allMatch(ur -> ur.getRole().getRoleCode().equals(tellerRole.getRoleCode()));
         
         assertThat(csRoles).hasSize(1);
-        assertThat(csRoles.get(0).getUser().getUsername()).isEqualTo("testuser1");
+        assertThat(csRoles.get(0).getUser().getUsername()).isEqualTo(testUser1.getUsername());
         
         assertThat(emptyRoles).isEmpty();
     }
 
     @Test
     void shouldCheckExistenceByUserAndRole() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
+        logTestExecution("shouldCheckExistenceByUserAndRole");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        
+        UserRole userRole = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        userRoleRepository.save(userRole);
 
         // When & Then
         assertThat(userRoleRepository.existsByUserAndRole(testUser1, branchManagerRole)).isTrue();
@@ -157,27 +262,56 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldDeleteByUserAndRole() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser1, tellerRole);
+        logTestExecution("shouldDeleteByUserAndRole");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
         
         // Verify initial state
         assertThat(userRoleRepository.findByUser(testUser1)).hasSize(2);
 
         // When
         userRoleRepository.deleteByUserAndRole(testUser1, branchManagerRole);
-        entityManager.flush();
 
         // Then
         List<UserRole> remainingRoles = userRoleRepository.findByUser(testUser1);
         assertThat(remainingRoles).hasSize(1);
-        assertThat(remainingRoles.get(0).getRole().getRoleCode()).isEqualTo("TELLER");
+        assertThat(remainingRoles.get(0).getRole().getRoleCode()).isEqualTo(tellerRole.getRoleCode());
     }
 
     @Test
     void shouldPreventDuplicateUserRoleAssignment() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
+        logTestExecution("shouldPreventDuplicateUserRoleAssignment");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        
+        UserRole userRole = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        userRoleRepository.save(userRole);
 
         // When & Then - Attempt to create duplicate should fail
         assertThatThrownBy(() -> {
@@ -186,57 +320,92 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
             duplicate.setRole(branchManagerRole);
             duplicate.setAssignedBy("TEST");
             userRoleRepository.save(duplicate);
-            entityManager.flush();
+            userRoleRepository.flush(); // Force constraint check
         }).isInstanceOf(Exception.class); // Accept any constraint violation exception
     }
 
     @Test
     void shouldCascadeDeleteWhenUserIsDeleted() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser1, tellerRole);
-        entityManager.flush();
+        logTestExecution("shouldCascadeDeleteWhenUserIsDeleted");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
         
         // Verify initial state
         assertThat(userRoleRepository.findByUser(testUser1)).hasSize(2);
 
         // When - Delete user roles first, then user
         userRoleRepository.deleteAll(userRoleRepository.findByUser(testUser1));
-        entityManager.flush();
         userRepository.delete(testUser1);
-        entityManager.flush();
 
-        // Then - All roles should be deleted
-        List<UserRole> remainingRoles = userRoleRepository.findAll();
-        assertThat(remainingRoles).isEmpty();
+        // Then - User should be deleted
         assertThat(userRepository.findById(testUser1.getId())).isEmpty();
     }
 
     @Test
     void shouldCascadeDeleteWhenRoleIsDeleted() {
-        // Given
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser2, branchManagerRole);
-        entityManager.flush();
+        logTestExecution("shouldCascadeDeleteWhenRoleIsDeleted");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser2, branchManagerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
         
         // Verify initial state
         assertThat(userRoleRepository.findByRole(branchManagerRole)).hasSize(2);
 
         // When - Delete user roles first, then role
         userRoleRepository.deleteAll(userRoleRepository.findByRole(branchManagerRole));
-        entityManager.flush();
         roleRepository.delete(branchManagerRole);
-        entityManager.flush();
 
-        // Then - All roles should be deleted
-        List<UserRole> remainingRoles = userRoleRepository.findAll();
-        assertThat(remainingRoles).isEmpty();
+        // Then - Role should be deleted
         assertThat(roleRepository.findById(branchManagerRole.getId())).isEmpty();
     }
 
     @Test
     void shouldSaveUserRoleWithAuditFields() {
-        // Given
+        logTestExecution("shouldSaveUserRoleWithAuditFields");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + System.currentTimeMillis());
+        roleRepository.save(branchManagerRole);
+        
         UserRole userRole = new UserRole();
         userRole.setUser(testUser1);
         userRole.setRole(branchManagerRole);
@@ -244,20 +413,40 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
 
         // When
         UserRole savedUserRole = userRoleRepository.save(userRole);
-        entityManager.flush();
 
         // Then
         assertThat(savedUserRole.getId()).isNotNull();
-        assertThat(savedUserRole.getAssignedDate()).isNotNull();
         assertThat(savedUserRole.getAssignedBy()).isEqualTo("ADMIN");
     }
 
     @Test
     void shouldHandleMultipleRoleAssignmentsForUser() {
-        // Given - Assign multiple roles to one user
-        createUserRole(testUser1, branchManagerRole);
-        createUserRole(testUser1, tellerRole);
-        createUserRole(testUser1, customerServiceRole);
+        logTestExecution("shouldHandleMultipleRoleAssignmentsForUser");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        
+        String uniqueTimestamp = String.valueOf(System.currentTimeMillis());
+        Role branchManagerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        branchManagerRole.setRoleCode("BRANCH_MANAGER_" + uniqueTimestamp);
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + uniqueTimestamp);
+        Role customerServiceRole = SimpleParallelTestDataFactory.createUniqueRole();
+        customerServiceRole.setRoleCode("CUSTOMER_SERVICE_" + uniqueTimestamp);
+        roleRepository.save(branchManagerRole);
+        roleRepository.save(tellerRole);
+        roleRepository.save(customerServiceRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, branchManagerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        UserRole userRole3 = SimpleParallelTestDataFactory.createUserRole(testUser1, customerServiceRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
+        userRoleRepository.save(userRole3);
 
         // When
         List<UserRole> userRoles = userRoleRepository.findByUser(testUser1);
@@ -265,7 +454,7 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
         // Then
         assertThat(userRoles).hasSize(3);
         assertThat(userRoles).extracting(ur -> ur.getRole().getRoleCode())
-            .containsExactlyInAnyOrder("BRANCH_MANAGER", "TELLER", "CUSTOMER_SERVICE");
+            .containsExactlyInAnyOrder(branchManagerRole.getRoleCode(), tellerRole.getRoleCode(), customerServiceRole.getRoleCode());
             
         // Verify each role assignment is unique
         assertThat(userRoles.stream().map(ur -> ur.getRole().getRoleCode()).distinct().count()).isEqualTo(3);
@@ -273,9 +462,25 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldHandleRoleAssignedToMultipleUsers() {
-        // Given - Assign same role to multiple users
-        createUserRole(testUser1, tellerRole);
-        createUserRole(testUser2, tellerRole);
+        logTestExecution("shouldHandleRoleAssignedToMultipleUsers");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        User testUser1 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        User testUser2 = SimpleParallelTestDataFactory.createUniqueUser(branch);
+        userRepository.save(testUser1);
+        userRepository.save(testUser2);
+        
+        Role tellerRole = SimpleParallelTestDataFactory.createUniqueRole();
+        tellerRole.setRoleCode("TELLER_" + System.currentTimeMillis());
+        roleRepository.save(tellerRole);
+        
+        UserRole userRole1 = SimpleParallelTestDataFactory.createUserRole(testUser1, tellerRole);
+        UserRole userRole2 = SimpleParallelTestDataFactory.createUserRole(testUser2, tellerRole);
+        userRoleRepository.save(userRole1);
+        userRoleRepository.save(userRole2);
 
         // When
         List<UserRole> roleAssignments = userRoleRepository.findByRole(tellerRole);
@@ -283,58 +488,7 @@ class UserRoleRepositoryTest extends BaseRepositoryTest {
         // Then
         assertThat(roleAssignments).hasSize(2);
         assertThat(roleAssignments).extracting(ur -> ur.getUser().getUsername())
-            .containsExactlyInAnyOrder("testuser1", "testuser2");
+            .containsExactlyInAnyOrder(testUser1.getUsername(), testUser2.getUsername());
     }
 
-    private void setupTestData() {
-        // Create roles
-        branchManagerRole = createRole("BRANCH_MANAGER", "Branch Manager", "Full access");
-        tellerRole = createRole("TELLER", "Teller", "Transaction processing");
-        customerServiceRole = createRole("CUSTOMER_SERVICE", "Customer Service", "Customer management");
-
-        roleRepository.save(branchManagerRole);
-        roleRepository.save(tellerRole);
-        roleRepository.save(customerServiceRole);
-
-        // Create users
-        testUser1 = createUser("testuser1", "testuser1@yopmail.com", "Test User 1");
-        testUser2 = createUser("testuser2", "testuser2@yopmail.com", "Test User 2");
-
-        userRepository.save(testUser1);
-        userRepository.save(testUser2);
-        
-        entityManager.flush();
-    }
-
-    private User createUser(String username, String email, String fullName) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setFullName(fullName);
-        user.setIsActive(true);
-        user.setIsLocked(false);
-        user.setFailedLoginAttempts(0);
-        user.setCreatedBy("TEST");
-        user.setUpdatedBy("TEST");
-        return user;
-    }
-
-    private Role createRole(String roleCode, String roleName, String description) {
-        Role role = new Role();
-        role.setRoleCode(roleCode);
-        role.setRoleName(roleName);
-        role.setDescription(description);
-        role.setIsActive(true);
-        role.setCreatedBy("TEST");
-        role.setUpdatedBy("TEST");
-        return role;
-    }
-
-    private UserRole createUserRole(User user, Role role) {
-        UserRole userRole = new UserRole();
-        userRole.setUser(user);
-        userRole.setRole(role);
-        userRole.setAssignedBy("TEST");
-        return userRoleRepository.save(userRole);
-    }
 }

@@ -1,7 +1,6 @@
 package id.ac.tazkia.minibank.functional.web;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,9 +10,9 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
-import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
 import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.LoginPage;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LoginSeleniumTest extends BaseSeleniumTest {
@@ -23,10 +22,8 @@ public class LoginSeleniumTest extends BaseSeleniumTest {
         // Setup WebDriver once per test class
         setupWebDriverOnce();
         
-        // Initialize LoginHelper without authentication (since we test login itself)
-        if (loginHelper == null) {
-            loginHelper = new LoginHelper(driver, baseUrl);
-        }
+        // LoginHelper is automatically initialized by BaseSeleniumTest for thread-local use
+        // No manual initialization needed here
     }
     
     @Override

@@ -1,15 +1,22 @@
 package id.ac.tazkia.minibank.functional.web;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 
-import id.ac.tazkia.minibank.functional.web.pageobject.*;
+import id.ac.tazkia.minibank.functional.web.pageobject.AccountSelectionPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.CashWithdrawalFormPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.DashboardPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.TransactionListPage;
+import id.ac.tazkia.minibank.functional.web.pageobject.TransactionViewPage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -58,7 +65,7 @@ public class CashWithdrawalSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Use Teller role for transaction operations (primary use case)
-        loginHelper.loginAsTeller();
+        getLoginHelper().loginAsTeller();
     }
     
     @Test
@@ -104,8 +111,6 @@ public class CashWithdrawalSeleniumTest extends BaseSeleniumTest {
         CashWithdrawalFormPage cashWithdrawalFormPage = accountSelectionPage.selectFirstAccountForWithdrawal();
         
         // Store original balance for verification
-        String originalBalance = cashWithdrawalFormPage.getCurrentBalance();
-        String accountNumber = cashWithdrawalFormPage.getAccountNumber();
         double currentBalance = cashWithdrawalFormPage.getCurrentBalanceAsNumber();
         
         // Use withdrawal amount less than current balance
@@ -453,7 +458,7 @@ public class CashWithdrawalSeleniumTest extends BaseSeleniumTest {
         log.info("🧪 TEST START: shouldWorkWithManagerRole");
         
         // Login as Manager instead of Teller
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
         
         // Navigate and process cash withdrawal
         TransactionListPage transactionListPage = navigateToTransactionList();
@@ -513,14 +518,5 @@ public class CashWithdrawalSeleniumTest extends BaseSeleniumTest {
     private TransactionListPage navigateToTransactionList() {
         DashboardPage dashboardPage = new DashboardPage(driver, baseUrl);
         return dashboardPage.clickTransactionLink();
-    }
-    
-    private void assertTransactionIsCreated(TransactionListPage transactionListPage, String expectedAmount) {
-        assertTrue(transactionListPage.hasTransactions(), "Should have transactions");
-        assertEquals("WITHDRAWAL", transactionListPage.getFirstTransactionType(), "Should be withdrawal transaction");
-        assertTrue(transactionListPage.getFirstTransactionAmount().contains(expectedAmount.replace("000", ",000")), 
-                  "Amount should match expected");
-        assertTrue(transactionListPage.getFirstTransactionAmount().startsWith("-"), 
-                  "Withdrawal amount should be negative");
     }
 }

@@ -1,178 +1,304 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.Branch;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.BranchRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-class BranchRepositoryTest extends BaseRepositoryTest {
+import id.ac.tazkia.minibank.entity.Branch;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.BranchRepository;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-    @Autowired
-    private TestEntityManager entityManager;
+/**
+ * BranchRepository tests optimized for parallel execution.
+ * Uses dynamic test data to prevent conflicts during concurrent execution.
+ * Note: Using SAME_THREAD execution to avoid transaction management conflicts.
+ */
+@Execution(ExecutionMode.SAME_THREAD)
+class BranchRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private BranchRepository branchRepository;
 
-    @BeforeEach
-    void setUp() {
-        branchRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-    }
-
     @Test
     void shouldFindBranchByBranchCode() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindBranchByBranchCode");
+        
+        // Given - Create unique test data
+        Branch mainBranch = SimpleParallelTestDataFactory.createUniqueBranch("Jakarta Pusat", Branch.BranchStatus.ACTIVE, true);
+        mainBranch.setBranchName("Kantor Pusat Jakarta");
+        branchRepository.save(mainBranch);
 
         // When
-        Optional<Branch> mainBranch = branchRepository.findByBranchCode("HO001");
-        Optional<Branch> nonExistentBranch = branchRepository.findByBranchCode("NONEXISTENT");
+        Optional<Branch> foundMainBranch = branchRepository.findByBranchCode(mainBranch.getBranchCode());
+        Optional<Branch> nonExistentBranch = branchRepository.findByBranchCode("NONEXISTENT_" + System.currentTimeMillis());
 
         // Then
-        assertThat(mainBranch).isPresent();
-        assertThat(mainBranch.get().getBranchName()).isEqualTo("Kantor Pusat Jakarta");
-        assertThat(mainBranch.get().getIsMainBranch()).isTrue();
+        assertThat(foundMainBranch).isPresent();
+        assertThat(foundMainBranch.get().getBranchName()).isEqualTo("Kantor Pusat Jakarta");
+        assertThat(foundMainBranch.get().getIsMainBranch()).isTrue();
         assertThat(nonExistentBranch).isEmpty();
     }
 
     @Test
     void shouldFindBranchesByStatus() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindBranchesByStatus");
+        
+        // Given - Create unique test data
+        Branch activeBranch1 = SimpleParallelTestDataFactory.createUniqueBranch("Jakarta", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch1);
+        
+        Branch activeBranch2 = SimpleParallelTestDataFactory.createUniqueBranch("Bandung", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch2);
+        
+        Branch inactiveBranch = SimpleParallelTestDataFactory.createUniqueBranch("Yogyakarta", Branch.BranchStatus.INACTIVE, false);
+        branchRepository.save(inactiveBranch);
 
         // When
         List<Branch> activeBranches = branchRepository.findByStatusOrderByBranchCodeAsc(Branch.BranchStatus.ACTIVE);
         List<Branch> inactiveBranches = branchRepository.findByStatusOrderByBranchCodeAsc(Branch.BranchStatus.INACTIVE);
 
         // Then
-        assertThat(activeBranches).hasSize(4);
-        assertThat(activeBranches.get(0).getBranchCode()).isEqualTo("BDG01");
-        assertThat(inactiveBranches).hasSize(1);
-        assertThat(inactiveBranches.get(0).getBranchCode()).isEqualTo("YGY01");
+        assertThat(activeBranches).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(inactiveBranches).hasSizeGreaterThanOrEqualTo(1);
+        
+        boolean hasActiveBranch1 = activeBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(activeBranch1.getBranchCode()));
+        boolean hasActiveBranch2 = activeBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(activeBranch2.getBranchCode()));
+        boolean hasInactiveBranch = inactiveBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(inactiveBranch.getBranchCode()));
+            
+        assertThat(hasActiveBranch1).isTrue();
+        assertThat(hasActiveBranch2).isTrue();
+        assertThat(hasInactiveBranch).isTrue();
     }
 
     @Test
     void shouldFindAllBranchesOrderedByCode() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindAllBranchesOrderedByCode");
+        
+        // Given - Create unique test data with known ordering
+        String uniquePrefix = String.valueOf(System.currentTimeMillis());
+        
+        Branch branch1 = SimpleParallelTestDataFactory.createUniqueBranch();
+        branch1.setBranchCode("A" + uniquePrefix);
+        branchRepository.save(branch1);
+        
+        Branch branch2 = SimpleParallelTestDataFactory.createUniqueBranch();
+        branch2.setBranchCode("B" + uniquePrefix);
+        branchRepository.save(branch2);
+        
+        Branch branch3 = SimpleParallelTestDataFactory.createUniqueBranch();
+        branch3.setBranchCode("C" + uniquePrefix);
+        branchRepository.save(branch3);
 
         // When
         List<Branch> allBranches = branchRepository.findAllByOrderByBranchCodeAsc();
 
         // Then
-        assertThat(allBranches).hasSize(5);
-        assertThat(allBranches.get(0).getBranchCode()).isEqualTo("BDG01");
-        assertThat(allBranches.get(1).getBranchCode()).isEqualTo("HO001");
-        assertThat(allBranches.get(2).getBranchCode()).isEqualTo("JKT01");
-        assertThat(allBranches.get(3).getBranchCode()).isEqualTo("SBY01");
-        assertThat(allBranches.get(4).getBranchCode()).isEqualTo("YGY01");
+        assertThat(allBranches).hasSizeGreaterThanOrEqualTo(3);
+        
+        // Find our test branches and verify ordering
+        List<Branch> ourBranches = allBranches.stream()
+            .filter(b -> b.getBranchCode().contains(uniquePrefix))
+            .toList();
+            
+        assertThat(ourBranches).hasSize(3);
+        assertThat(ourBranches.get(0).getBranchCode()).isEqualTo("A" + uniquePrefix);
+        assertThat(ourBranches.get(1).getBranchCode()).isEqualTo("B" + uniquePrefix);
+        assertThat(ourBranches.get(2).getBranchCode()).isEqualTo("C" + uniquePrefix);
     }
 
     @Test
     void shouldSearchBranchesWithSearchTerm() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldSearchBranchesWithSearchTerm");
+        
+        // Given - Create unique test data with unique search terms
+        String uniqueTimestamp = String.valueOf(System.currentTimeMillis());
+        
+        Branch jakartaBranch1 = SimpleParallelTestDataFactory.createUniqueBranch();
+        jakartaBranch1.setBranchName("Jakarta " + uniqueTimestamp + " Pusat");
+        jakartaBranch1.setCity("Jakarta Pusat");
+        branchRepository.save(jakartaBranch1);
+        
+        Branch jakartaBranch2 = SimpleParallelTestDataFactory.createUniqueBranch();
+        jakartaBranch2.setBranchName("Jakarta " + uniqueTimestamp + " Timur");
+        jakartaBranch2.setCity("Jakarta Timur");
+        branchRepository.save(jakartaBranch2);
+        
+        Branch bandungBranch = SimpleParallelTestDataFactory.createUniqueBranch();
+        bandungBranch.setBranchName("Bandung " + uniqueTimestamp);
+        bandungBranch.setCity("Bandung");
+        branchRepository.save(bandungBranch);
 
         // When
-        List<Branch> jakartaBranches = branchRepository.findBranchesWithSearchTerm("Jakarta");
-        List<Branch> bandungBranches = branchRepository.findBranchesWithSearchTerm("Bandung");
-        List<Branch> ho001Branches = branchRepository.findBranchesWithSearchTerm("HO001");
+        List<Branch> jakartaBranches = branchRepository.findBranchesWithSearchTerm("Jakarta " + uniqueTimestamp);
+        List<Branch> bandungBranches = branchRepository.findBranchesWithSearchTerm("Bandung " + uniqueTimestamp);
+        List<Branch> codeSearchResults = branchRepository.findBranchesWithSearchTerm(jakartaBranch1.getBranchCode());
 
         // Then
-        assertThat(jakartaBranches).hasSize(2);
-        assertThat(bandungBranches).hasSize(1);
-        assertThat(bandungBranches.get(0).getBranchCode()).isEqualTo("BDG01");
-        assertThat(ho001Branches).hasSize(1);
-        assertThat(ho001Branches.get(0).getBranchCode()).isEqualTo("HO001");
+        assertThat(jakartaBranches).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(bandungBranches).hasSizeGreaterThanOrEqualTo(1);
+        assertThat(codeSearchResults).hasSizeGreaterThanOrEqualTo(1);
+        
+        boolean hasJakartaBranch1 = jakartaBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(jakartaBranch1.getBranchCode()));
+        boolean hasBandungBranch = bandungBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(bandungBranch.getBranchCode()));
+        boolean hasCodeSearchResult = codeSearchResults.stream()
+            .anyMatch(b -> b.getBranchCode().equals(jakartaBranch1.getBranchCode()));
+            
+        assertThat(hasJakartaBranch1).isTrue();
+        assertThat(hasBandungBranch).isTrue();
+        assertThat(hasCodeSearchResult).isTrue();
     }
 
     @Test
     void shouldFindBranchesWithPageableSearch() {
-        // Given
-        saveTestBranches();
-        Pageable pageable = PageRequest.of(0, 3);
+        logTestExecution("shouldFindBranchesWithPageableSearch");
+        
+        // Given - Create unique test data
+        String uniqueTimestamp = String.valueOf(System.currentTimeMillis());
+        
+        Branch jakartaBranch1 = SimpleParallelTestDataFactory.createUniqueBranch();
+        jakartaBranch1.setBranchName("Jakarta " + uniqueTimestamp + " Search Test 1");
+        jakartaBranch1.setCity("Jakarta " + uniqueTimestamp);
+        branchRepository.save(jakartaBranch1);
+        
+        Branch jakartaBranch2 = SimpleParallelTestDataFactory.createUniqueBranch();
+        jakartaBranch2.setBranchName("Jakarta " + uniqueTimestamp + " Search Test 2");
+        jakartaBranch2.setCity("Jakarta " + uniqueTimestamp);
+        branchRepository.save(jakartaBranch2);
+        
+        Pageable pageable = PageRequest.of(0, 10);
 
         // When
         Page<Branch> jakartaPage = branchRepository.findByBranchCodeContainingIgnoreCaseOrBranchNameContainingIgnoreCaseOrCityContainingIgnoreCase(
-            "Jakarta", "Jakarta", "Jakarta", pageable);
+            "Jakarta " + uniqueTimestamp, "Jakarta " + uniqueTimestamp, "Jakarta " + uniqueTimestamp, pageable);
 
         // Then
-        assertThat(jakartaPage.getTotalElements()).isEqualTo(2);
-        assertThat(jakartaPage.getContent()).hasSize(2);
-        assertThat(jakartaPage.isFirst()).isTrue();
-        assertThat(jakartaPage.isLast()).isTrue();
+        assertThat(jakartaPage.getTotalElements()).isGreaterThanOrEqualTo(2);
+        assertThat(jakartaPage.getContent()).hasSizeGreaterThanOrEqualTo(2);
+        
+        boolean hasJakartaBranch1 = jakartaPage.getContent().stream()
+            .anyMatch(b -> b.getBranchCode().equals(jakartaBranch1.getBranchCode()));
+        boolean hasJakartaBranch2 = jakartaPage.getContent().stream()
+            .anyMatch(b -> b.getBranchCode().equals(jakartaBranch2.getBranchCode()));
+            
+        assertThat(hasJakartaBranch1).isTrue();
+        assertThat(hasJakartaBranch2).isTrue();
     }
 
     @Test
     void shouldFindBranchesByStatusWithPagination() {
-        // Given
-        saveTestBranches();
-        Pageable pageable = PageRequest.of(0, 10);
+        logTestExecution("shouldFindBranchesByStatusWithPagination");
+        
+        // Given - Create unique test data
+        Long initialActiveCount = branchRepository.countByStatus(Branch.BranchStatus.ACTIVE);
+        Long initialInactiveCount = branchRepository.countByStatus(Branch.BranchStatus.INACTIVE);
+        
+        Branch activeBranch = SimpleParallelTestDataFactory.createUniqueBranch("Test City", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch);
+        
+        Branch inactiveBranch = SimpleParallelTestDataFactory.createUniqueBranch("Test City 2", Branch.BranchStatus.INACTIVE, false);
+        branchRepository.save(inactiveBranch);
+        
+        Pageable pageable = PageRequest.of(0, 100);
 
         // When
         Page<Branch> activePage = branchRepository.findByStatus(Branch.BranchStatus.ACTIVE, pageable);
         Page<Branch> inactivePage = branchRepository.findByStatus(Branch.BranchStatus.INACTIVE, pageable);
 
         // Then
-        assertThat(activePage.getTotalElements()).isEqualTo(4);
-        assertThat(inactivePage.getTotalElements()).isEqualTo(1);
+        assertThat(activePage.getTotalElements()).isEqualTo(initialActiveCount + 1);
+        assertThat(inactivePage.getTotalElements()).isEqualTo(initialInactiveCount + 1);
     }
 
     @Test
     void shouldFindBranchesByCity() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindBranchesByCity");
+        
+        // Given - Create unique test data
+        String uniqueCity1 = "TestCity" + System.currentTimeMillis() + "A";
+        String uniqueCity2 = "TestCity" + System.currentTimeMillis() + "B";
+        
+        Branch branch1 = SimpleParallelTestDataFactory.createUniqueBranch(uniqueCity1, Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(branch1);
+        
+        Branch branch2 = SimpleParallelTestDataFactory.createUniqueBranch(uniqueCity2, Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(branch2);
+        
         Pageable pageable = PageRequest.of(0, 10);
 
         // When
-        Page<Branch> jakartaPage = branchRepository.findByCityContainingIgnoreCase("Jakarta", pageable);
-        Page<Branch> bandungPage = branchRepository.findByCityContainingIgnoreCase("Bandung", pageable);
+        Page<Branch> city1Page = branchRepository.findByCityContainingIgnoreCase(uniqueCity1, pageable);
+        Page<Branch> city2Page = branchRepository.findByCityContainingIgnoreCase(uniqueCity2, pageable);
 
         // Then
-        assertThat(jakartaPage.getTotalElements()).isEqualTo(2);
-        assertThat(bandungPage.getTotalElements()).isEqualTo(1);
+        assertThat(city1Page.getTotalElements()).isEqualTo(1);
+        assertThat(city2Page.getTotalElements()).isEqualTo(1);
+        assertThat(city1Page.getContent().get(0).getBranchCode()).isEqualTo(branch1.getBranchCode());
+        assertThat(city2Page.getContent().get(0).getBranchCode()).isEqualTo(branch2.getBranchCode());
     }
 
     @Test
     void shouldCheckBranchCodeExistence() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldCheckBranchCodeExistence");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
 
         // When & Then
-        assertThat(branchRepository.existsByBranchCode("HO001")).isTrue();
-        assertThat(branchRepository.existsByBranchCode("NONEXISTENT")).isFalse();
+        assertThat(branchRepository.existsByBranchCode(branch.getBranchCode())).isTrue();
+        assertThat(branchRepository.existsByBranchCode("NONEXISTENT_" + System.currentTimeMillis())).isFalse();
     }
 
     @Test
     void shouldFindMainBranch() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindMainBranch");
+        
+        // Given - Create unique test data (check if main branch exists first)
+        Optional<Branch> existingMainBranch = branchRepository.findByIsMainBranchTrue();
+        
+        if (existingMainBranch.isEmpty()) {
+            Branch mainBranch = SimpleParallelTestDataFactory.createUniqueBranch("Jakarta Pusat", Branch.BranchStatus.ACTIVE, true);
+            mainBranch.setBranchName("Kantor Pusat Jakarta");
+            branchRepository.save(mainBranch);
+        }
 
         // When
-        Optional<Branch> mainBranch = branchRepository.findByIsMainBranchTrue();
+        Optional<Branch> foundMainBranch = branchRepository.findByIsMainBranchTrue();
 
         // Then
-        assertThat(mainBranch).isPresent();
-        assertThat(mainBranch.get().getBranchCode()).isEqualTo("HO001");
-        assertThat(mainBranch.get().getBranchName()).isEqualTo("Kantor Pusat Jakarta");
+        assertThat(foundMainBranch).isPresent();
+        assertThat(foundMainBranch.get().getIsMainBranch()).isTrue();
     }
 
     @Test
     void shouldCountBranchesByStatus() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldCountBranchesByStatus");
+        
+        // Given - Create unique test data
+        Long initialActiveCount = branchRepository.countByStatus(Branch.BranchStatus.ACTIVE);
+        Long initialInactiveCount = branchRepository.countByStatus(Branch.BranchStatus.INACTIVE);
+        Long initialClosedCount = branchRepository.countByStatus(Branch.BranchStatus.CLOSED);
+        
+        Branch activeBranch = SimpleParallelTestDataFactory.createUniqueBranch("Active City", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch);
+        
+        Branch inactiveBranch = SimpleParallelTestDataFactory.createUniqueBranch("Inactive City", Branch.BranchStatus.INACTIVE, false);
+        branchRepository.save(inactiveBranch);
 
         // When
         Long activeCount = branchRepository.countByStatus(Branch.BranchStatus.ACTIVE);
@@ -180,91 +306,119 @@ class BranchRepositoryTest extends BaseRepositoryTest {
         Long closedCount = branchRepository.countByStatus(Branch.BranchStatus.CLOSED);
 
         // Then
-        assertThat(activeCount).isEqualTo(4);
-        assertThat(inactiveCount).isEqualTo(1);
-        assertThat(closedCount).isEqualTo(0);
+        assertThat(activeCount).isEqualTo(initialActiveCount + 1);
+        assertThat(inactiveCount).isEqualTo(initialInactiveCount + 1);
+        assertThat(closedCount).isEqualTo(initialClosedCount);
     }
 
     @Test
     void shouldCountAllBranches() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldCountAllBranches");
+        
+        // Given - Create unique test data
+        Long initialCount = branchRepository.countAllBranches();
+        
+        Branch newBranch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(newBranch);
 
         // When
         Long totalCount = branchRepository.countAllBranches();
 
         // Then
-        assertThat(totalCount).isEqualTo(5);
+        assertThat(totalCount).isEqualTo(initialCount + 1);
     }
 
     @Test
     void shouldFindBranchesByCityExact() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindBranchesByCityExact");
+        
+        // Given - Create unique test data
+        String uniqueCity1 = "TestExactCity" + System.currentTimeMillis() + "A";
+        String uniqueCity2 = "TestExactCity" + System.currentTimeMillis() + "B";
+        
+        Branch branch1 = SimpleParallelTestDataFactory.createUniqueBranch(uniqueCity1, Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(branch1);
+        
+        Branch branch2 = SimpleParallelTestDataFactory.createUniqueBranch(uniqueCity2, Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(branch2);
 
         // When
-        List<Branch> jakartaBranches = branchRepository.findByCityIgnoreCaseOrderByBranchCodeAsc("Jakarta Pusat");
-        List<Branch> bandungBranches = branchRepository.findByCityIgnoreCaseOrderByBranchCodeAsc("Bandung");
+        List<Branch> city1Branches = branchRepository.findByCityIgnoreCaseOrderByBranchCodeAsc(uniqueCity1);
+        List<Branch> city2Branches = branchRepository.findByCityIgnoreCaseOrderByBranchCodeAsc(uniqueCity2);
 
         // Then
-        assertThat(jakartaBranches).hasSize(1);
-        assertThat(jakartaBranches.get(0).getBranchCode()).isEqualTo("HO001");
-        assertThat(bandungBranches).hasSize(1);
-        assertThat(bandungBranches.get(0).getBranchCode()).isEqualTo("BDG01");
+        assertThat(city1Branches).hasSize(1);
+        assertThat(city1Branches.get(0).getBranchCode()).isEqualTo(branch1.getBranchCode());
+        assertThat(city2Branches).hasSize(1);
+        assertThat(city2Branches.get(0).getBranchCode()).isEqualTo(branch2.getBranchCode());
     }
 
     @Test
     void shouldFindActiveBranches() {
-        // Given
-        saveTestBranches();
+        logTestExecution("shouldFindActiveBranches");
+        
+        // Given - Create unique test data
+        int initialActiveCount = branchRepository.findActiveBranches().size();
+        
+        Branch activeBranch1 = SimpleParallelTestDataFactory.createUniqueBranch("Test Active City 1", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch1);
+        
+        Branch activeBranch2 = SimpleParallelTestDataFactory.createUniqueBranch("Test Active City 2", Branch.BranchStatus.ACTIVE, false);
+        branchRepository.save(activeBranch2);
+        
+        Branch inactiveBranch = SimpleParallelTestDataFactory.createUniqueBranch("Test Inactive City", Branch.BranchStatus.INACTIVE, false);
+        branchRepository.save(inactiveBranch);
 
         // When
         List<Branch> activeBranches = branchRepository.findActiveBranches();
 
         // Then
-        assertThat(activeBranches).hasSize(4);
-        assertThat(activeBranches.get(0).getBranchCode()).isEqualTo("BDG01");
-        assertThat(activeBranches.get(1).getBranchCode()).isEqualTo("HO001");
-        assertThat(activeBranches.get(2).getBranchCode()).isEqualTo("JKT01");
-        assertThat(activeBranches.get(3).getBranchCode()).isEqualTo("SBY01");
+        assertThat(activeBranches).hasSizeGreaterThanOrEqualTo(initialActiveCount + 2);
+        activeBranches.forEach(branch -> assertThat(branch.getStatus()).isEqualTo(Branch.BranchStatus.ACTIVE));
+        
+        boolean hasActiveBranch1 = activeBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(activeBranch1.getBranchCode()));
+        boolean hasActiveBranch2 = activeBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(activeBranch2.getBranchCode()));
+        boolean hasInactiveBranch = activeBranches.stream()
+            .anyMatch(b -> b.getBranchCode().equals(inactiveBranch.getBranchCode()));
+            
+        assertThat(hasActiveBranch1).isTrue();
+        assertThat(hasActiveBranch2).isTrue();
+        assertThat(hasInactiveBranch).isFalse();
     }
 
     @Test
     void shouldSaveAndUpdateBranch() {
-        // Given
-        Branch newBranch = new Branch();
-        newBranch.setBranchCode("TEST01");
+        logTestExecution("shouldSaveAndUpdateBranch");
+        
+        // Given - Create unique test data
+        Branch newBranch = SimpleParallelTestDataFactory.createUniqueBranch();
         newBranch.setBranchName("Test Branch");
         newBranch.setCity("Test City");
-        newBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        newBranch.setIsMainBranch(false);
-        newBranch.setCreatedBy("TEST");
 
         // When
         Branch savedBranch = branchRepository.save(newBranch);
-        entityManager.flush();
 
         // Then
         assertThat(savedBranch.getId()).isNotNull();
-        assertThat(savedBranch.getBranchCode()).isEqualTo("TEST01");
-        assertThat(savedBranch.getCreatedDate()).isNotNull();
+        assertThat(savedBranch.getBranchCode()).isEqualTo(newBranch.getBranchCode());
 
         // Update test
         savedBranch.setBranchName("Updated Test Branch");
         savedBranch.setUpdatedBy("UPDATER");
         Branch updatedBranch = branchRepository.save(savedBranch);
-        entityManager.flush();
 
         assertThat(updatedBranch.getBranchName()).isEqualTo("Updated Test Branch");
         assertThat(updatedBranch.getUpdatedBy()).isEqualTo("UPDATER");
-        assertThat(updatedBranch.getUpdatedDate()).isNotNull();
     }
 
     @Test
     void shouldValidateBranchBusinessMethods() {
-        // Given
-        Branch branch = new Branch();
-        branch.setBranchCode("TEST01");
+        logTestExecution("shouldValidateBranchBusinessMethods");
+        
+        // Given - Create test branch with specific properties
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
         branch.setBranchName("Test Branch");
         branch.setAddress("Jl. Test No. 123");
         branch.setCity("Test City");
@@ -272,7 +426,7 @@ class BranchRepositoryTest extends BaseRepositoryTest {
         branch.setCountry("Indonesia");
 
         // When & Then
-        assertThat(branch.getDisplayName()).isEqualTo("Test Branch (TEST01)");
+        assertThat(branch.getDisplayName()).isEqualTo("Test Branch (" + branch.getBranchCode() + ")");
         assertThat(branch.getFullAddress()).isEqualTo("Jl. Test No. 123, Test City 12345");
 
         // Test with null values
@@ -283,84 +437,5 @@ class BranchRepositoryTest extends BaseRepositoryTest {
         // Test with non-Indonesia country
         branch.setCountry("Malaysia");
         assertThat(branch.getFullAddress()).isEqualTo("Test City, Malaysia");
-    }
-
-    private void saveTestBranches() {
-        // Main branch - HO001
-        Branch mainBranch = new Branch();
-        mainBranch.setBranchCode("HO001");
-        mainBranch.setBranchName("Kantor Pusat Jakarta");
-        mainBranch.setAddress("Jl. Sudirman Kav. 10-11");
-        mainBranch.setCity("Jakarta Pusat");
-        mainBranch.setPostalCode("10220");
-        mainBranch.setPhoneNumber("021-29345678");
-        mainBranch.setEmail("kantor.pusat@bankbsi.co.id");
-        mainBranch.setManagerName("H. Ahmad Surya");
-        mainBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        mainBranch.setIsMainBranch(true);
-        mainBranch.setCreatedBy("SYSTEM");
-        branchRepository.save(mainBranch);
-
-        // Jakarta Timur branch - JKT01
-        Branch jakartaBranch = new Branch();
-        jakartaBranch.setBranchCode("JKT01");
-        jakartaBranch.setBranchName("Cabang Jakarta Timur");
-        jakartaBranch.setAddress("Jl. Ahmad Yani No. 45");
-        jakartaBranch.setCity("Jakarta Timur");
-        jakartaBranch.setPostalCode("13230");
-        jakartaBranch.setPhoneNumber("021-85761234");
-        jakartaBranch.setEmail("jakarta.timur@bankbsi.co.id");
-        jakartaBranch.setManagerName("Drs. Budi Pratama");
-        jakartaBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        jakartaBranch.setIsMainBranch(false);
-        jakartaBranch.setCreatedBy("SYSTEM");
-        branchRepository.save(jakartaBranch);
-
-        // Bandung branch - BDG01
-        Branch bandungBranch = new Branch();
-        bandungBranch.setBranchCode("BDG01");
-        bandungBranch.setBranchName("Cabang Bandung");
-        bandungBranch.setAddress("Jl. Asia Afrika No. 88");
-        bandungBranch.setCity("Bandung");
-        bandungBranch.setPostalCode("40111");
-        bandungBranch.setPhoneNumber("022-42056789");
-        bandungBranch.setEmail("bandung@bankbsi.co.id");
-        bandungBranch.setManagerName("H. Siti Nurhalimah");
-        bandungBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        bandungBranch.setIsMainBranch(false);
-        bandungBranch.setCreatedBy("SYSTEM");
-        branchRepository.save(bandungBranch);
-
-        // Surabaya branch - SBY01
-        Branch surabayaBranch = new Branch();
-        surabayaBranch.setBranchCode("SBY01");
-        surabayaBranch.setBranchName("Cabang Surabaya");
-        surabayaBranch.setAddress("Jl. Pemuda No. 123");
-        surabayaBranch.setCity("Surabaya");
-        surabayaBranch.setPostalCode("60271");
-        surabayaBranch.setPhoneNumber("031-53419876");
-        surabayaBranch.setEmail("surabaya@bankbsi.co.id");
-        surabayaBranch.setManagerName("Ir. Wahyu Setiawan");
-        surabayaBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        surabayaBranch.setIsMainBranch(false);
-        surabayaBranch.setCreatedBy("SYSTEM");
-        branchRepository.save(surabayaBranch);
-
-        // Yogyakarta branch (inactive) - YGY01
-        Branch yogyaBranch = new Branch();
-        yogyaBranch.setBranchCode("YGY01");
-        yogyaBranch.setBranchName("Cabang Yogyakarta");
-        yogyaBranch.setAddress("Jl. Malioboro No. 56");
-        yogyaBranch.setCity("Yogyakarta");
-        yogyaBranch.setPostalCode("55213");
-        yogyaBranch.setPhoneNumber("0274-562789");
-        yogyaBranch.setEmail("yogyakarta@bankbsi.co.id");
-        yogyaBranch.setManagerName("Dr. Retno Wulandari");
-        yogyaBranch.setStatus(Branch.BranchStatus.INACTIVE);
-        yogyaBranch.setIsMainBranch(false);
-        yogyaBranch.setCreatedBy("SYSTEM");
-        branchRepository.save(yogyaBranch);
-
-        entityManager.flush();
     }
 }

@@ -5,20 +5,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach; // Import BeforeEach
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
 
+import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.BranchRepository;
+import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-@Sql("/sql/corporate-customer-test-data.sql")
 class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Autowired
@@ -26,6 +26,14 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
     
     @Autowired
     private BranchRepository branchRepository;
+
+    private Branch testBranch; // Declare testBranch field
+
+    @BeforeEach // Initialize testBranch before each test
+    void setup() {
+        testBranch = branchRepository.findByBranchCode("HO001")
+            .orElseThrow(() -> new IllegalStateException("Test branch HO001 should be available from SQL script"));
+    }
 
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/customer/corporate/corporate_customers.csv", numLinesToSkip = 1)
@@ -64,9 +72,6 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
         customer.setPostalCode(postalCode);
         customer.setCountry(country);
         customer.setCreatedBy("TEST");
-        // Get test branch from SQL data
-        Branch testBranch = branchRepository.findByBranchCode("HO001")
-            .orElseThrow(() -> new IllegalStateException("Test branch HO001 should be available from SQL script"));
         customer.setBranch(testBranch);
 
         // When - Save customer
@@ -89,78 +94,129 @@ class CorporateCustomerRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldFindCorporateCustomerByCompanyRegistrationNumber() {
+        // Given
+        CorporateCustomer customer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer.setCompanyName("Test Corp Reg");
+        corporateCustomerRepository.save(customer);
+
         // When
-        Optional<CorporateCustomer> customer = corporateCustomerRepository
-                .findByCompanyRegistrationNumber("1234567890123456");
+        Optional<CorporateCustomer> foundCustomer = corporateCustomerRepository
+                .findByCompanyRegistrationNumber(customer.getCompanyRegistrationNumber());
 
         // Then
-        assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
+        assertThat(foundCustomer).isPresent();
+        assertThat(foundCustomer.get().getCompanyName()).isEqualTo("Test Corp Reg");
     }
 
     @Test
     void shouldFindCorporateCustomerByTaxIdentificationNumber() {
+        // Given
+        CorporateCustomer customer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer.setCompanyName("Test Corp Tax");
+        corporateCustomerRepository.save(customer);
+
         // When
-        Optional<CorporateCustomer> customer = corporateCustomerRepository
-                .findByTaxIdentificationNumber("01.234.567.8-901.000");
+        Optional<CorporateCustomer> foundCustomer = corporateCustomerRepository
+                .findByTaxIdentificationNumber(customer.getTaxIdentificationNumber());
 
         // Then
-        assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
+        assertThat(foundCustomer).isPresent();
+        assertThat(foundCustomer.get().getCompanyName()).isEqualTo("Test Corp Tax");
     }
 
     @Test
     void shouldFindCorporateCustomerByEmail() {
+        // Given
+        CorporateCustomer customer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer.setCompanyName("Test Corp Email");
+        corporateCustomerRepository.save(customer);
+
         // When
-        Optional<CorporateCustomer> customer = corporateCustomerRepository.findByEmail("test.corp2@email.com");
+        Optional<CorporateCustomer> foundCustomer = corporateCustomerRepository.findByEmail(customer.getEmail());
 
         // Then
-        assertThat(customer).isPresent();
-        assertThat(customer.get().getCompanyName()).isEqualTo("Test Corp 2");
+        assertThat(foundCustomer).isPresent();
+        assertThat(foundCustomer.get().getCompanyName()).isEqualTo("Test Corp Email");
     }
 
     @Test
     void shouldFindCorporateCustomersByCompanyName() {
+        // Given
+        CorporateCustomer customer1 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer1.setCompanyName("Searchable Company A");
+        corporateCustomerRepository.save(customer1);
+
+        CorporateCustomer customer2 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer2.setCompanyName("Another Searchable Company B");
+        corporateCustomerRepository.save(customer2);
+
+        CorporateCustomer customer3 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer3.setCompanyName("Non-matching Company");
+        corporateCustomerRepository.save(customer3);
+
         // When
         List<CorporateCustomer> customers = corporateCustomerRepository
-                .findByCompanyNameContainingIgnoreCase("Test Corp");
+                .findByCompanyNameContainingIgnoreCase("Searchable Company");
 
         // Then
-        assertThat(customers).hasSizeGreaterThan(0);
-        assertThat(customers.get(0).getCompanyName()).containsIgnoringCase("Test Corp");
+        assertThat(customers).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(customers).extracting(CorporateCustomer::getCompanyName)
+                .contains(customer1.getCompanyName(), customer2.getCompanyName());
     }
 
     @Test
     void shouldFindCorporateCustomersWithSearchTerm() {
+        // Given
+        CorporateCustomer customer1 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer1.setCompanyName("Search Term Company A");
+        customer1.setContactPersonName("John Doe");
+        corporateCustomerRepository.save(customer1);
+
+        CorporateCustomer customer2 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        customer2.setCompanyName("Another Company");
+        customer2.setContactPersonName("Jane Search");
+        corporateCustomerRepository.save(customer2);
+
         // When
         List<CorporateCustomer> results = corporateCustomerRepository
-                .findCorporateCustomersWithSearchTerm("Test Corp");
+                .findCorporateCustomersWithSearchTerm("Search");
 
         // Then
-        assertThat(results).hasSizeGreaterThan(0);
-        assertThat(results.get(0).getCompanyName()).containsIgnoringCase("Test Corp");
+        assertThat(results).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(results).extracting(CorporateCustomer::getCustomerNumber)
+                .contains(customer1.getCustomerNumber(), customer2.getCustomerNumber());
     }
 
     @Test
     void shouldCheckExistenceByUniqueFields() {
+        // Given
+        CorporateCustomer customer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        corporateCustomerRepository.save(customer);
+
         // When & Then
-        assertThat(corporateCustomerRepository.existsByCustomerNumber("C2000001")).isTrue();
+        assertThat(corporateCustomerRepository.existsByCustomerNumber(customer.getCustomerNumber())).isTrue();
         assertThat(corporateCustomerRepository.existsByCustomerNumber("C9999999")).isFalse();
 
-        assertThat(corporateCustomerRepository.existsByCompanyRegistrationNumber("1234567890123456")).isTrue();
+        assertThat(corporateCustomerRepository.existsByCompanyRegistrationNumber(customer.getCompanyRegistrationNumber())).isTrue();
         assertThat(corporateCustomerRepository.existsByCompanyRegistrationNumber("9999999999999999")).isFalse();
 
-        assertThat(corporateCustomerRepository.existsByEmail("test.corp1@email.com")).isTrue();
+        assertThat(corporateCustomerRepository.existsByEmail(customer.getEmail())).isTrue();
         assertThat(corporateCustomerRepository.existsByEmail("nonexistent@email.com")).isFalse();
     }
 
     @Test
     void shouldCountCorporateCustomers() {
+        // Given
+        CorporateCustomer customer1 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        corporateCustomerRepository.save(customer1);
+        CorporateCustomer customer2 = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(testBranch);
+        corporateCustomerRepository.save(customer2);
+
         // When
         Long count = corporateCustomerRepository.countCorporateCustomers();
 
         // Then
-        assertThat(count).isGreaterThan(0);
+        assertThat(count).isGreaterThanOrEqualTo(2);
     }
 
     @Test

@@ -22,7 +22,6 @@ import id.ac.tazkia.minibank.functional.web.pageobject.CorporateCustomerSelectio
 import id.ac.tazkia.minibank.functional.web.pageobject.CustomerSelectionPage;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
-import id.ac.tazkia.minibank.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,13 +37,10 @@ public class CorporateAccountOpeningSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private CustomerRepository customerRepository;
     
-    @Autowired
-    private ProductRepository productRepository;
-    
     @Override
     protected void performInitialLogin() {
         // Login as Manager user who has ACCOUNT_CREATE, CUSTOMER_READ, PRODUCT_READ permissions for corporate accounts
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
     }
     
     @Test

@@ -1,0 +1,32 @@
+test:
+  selenium:
+    container:
+      # Resource allocation - can be overridden via system properties
+      maxContainers: 2  # Conservative default, system will calculate if not set
+      memoryLimitMb: 1024
+      cpuQuota: 100000  # 1 full CPU core
+      sharedMemoryBytes: 1073741824  # 1GB
+      startupTimeoutSeconds: 300  # 5 minutes
+      maxStartupRetries: 1  # Fail fast - no retries
+      retryDelayMs: 0  # No delay since we don't retry
+    
+    timeouts:
+      # WebDriver timeouts in seconds
+      pageLoadTimeoutSeconds: 30
+      scriptTimeoutSeconds: 20
+      implicitWaitSeconds: 10
+      pageObjectWaitSeconds: 30
+    
+    applicationReadiness:
+      # Application startup checking
+      enabled: true
+      maxWaitTimeSeconds: 60
+      pollIntervalMs: 1000
+      httpTimeoutSeconds: 3
+
+# Logging configuration for tests
+logging:
+  level:
+    id.ac.tazkia.minibank.config.ParallelSeleniumManager: INFO
+    id.ac.tazkia.minibank.config.ApplicationReadinessService: INFO
+    id.ac.tazkia.minibank.functional.web: INFO

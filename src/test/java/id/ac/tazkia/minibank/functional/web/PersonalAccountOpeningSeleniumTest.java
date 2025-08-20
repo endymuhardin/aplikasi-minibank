@@ -24,7 +24,6 @@ import id.ac.tazkia.minibank.functional.web.pageobject.AccountOpeningFormPage;
 import id.ac.tazkia.minibank.functional.web.pageobject.CustomerSelectionPage;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
-import id.ac.tazkia.minibank.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,13 +55,10 @@ public class PersonalAccountOpeningSeleniumTest extends BaseSeleniumTest {
     @Autowired
     private CustomerRepository customerRepository;
     
-    @Autowired
-    private ProductRepository productRepository;
-    
     @Override
     protected void performInitialLogin() {
         // Login as Teller user who has ACCOUNT_CREATE, CUSTOMER_READ, PRODUCT_READ permissions
-        loginHelper.loginAsTeller();
+        getLoginHelper().loginAsTeller();
     }
     
     @Test
