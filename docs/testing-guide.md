@@ -75,9 +75,25 @@ mvn test -Dtest=LoginSeleniumTest -Dselenium.headless=false -Dselenium.recording
 
 #### Available Selenium Tests ####
 
-- **LoginSeleniumTest**: Test login functionality dengan berbagai user roles
-- **ProductManagementSeleniumTest**: Test CRUD operations untuk banking products
-- **RbacManagementSeleniumTest**: Test role-based access control dan user management
+**✅ Completed Test Implementations (17 Classes):**
+
+- **LoginSeleniumTest**: ✅ Login functionality dengan berbagai user roles
+- **ProductManagementSeleniumTest**: ✅ CRUD operations untuk banking products  
+- **RbacManagementSeleniumTest**: ✅ Role-based access control dan user management
+- **CustomerManagementSeleniumTest**: ✅ Customer CRUD operations (Personal/Corporate)
+- **PersonalAccountOpeningSeleniumTest**: ✅ Personal customer account opening flows
+- **CorporateAccountOpeningSeleniumTest**: ✅ Corporate account opening workflows
+- **ComprehensiveAccountOpeningSeleniumTest**: ✅ End-to-end account opening scenarios
+- **IslamicBankingAccountOpeningSeleniumTest**: ✅ Islamic banking product account opening
+- **CashDepositSeleniumTest**: ✅ Cash deposit transaction processing
+- **CashWithdrawalSeleniumTest**: ✅ Cash withdrawal transaction processing  
+- **PassbookPrintingSeleniumTest**: ✅ Passbook printing and transaction history
+- **DashboardSeleniumTest**: ✅ Main dashboard functionality and navigation
+- **BranchManagementSeleniumTest**: ✅ Branch management operations
+- **PermissionManagementSeleniumTest**: ✅ Permission and authorization management
+- **BaseSeleniumTest**: 🔧 Base test infrastructure with login helpers
+- **AbstractSeleniumTestBase**: 🔧 Abstract base class for WebDriver management
+- **SeleniumTestProperties**: ⚙️ Configuration properties for test execution
 
 #### Selenium Test Configuration ####
 

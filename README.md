@@ -117,9 +117,29 @@ mvn spring-boot:run
 - **REST API:** [http://localhost:8080/api/customers](http://localhost:8080/api/customers)
 - **Database:** `localhost:2345/pgminibank` (username: `minibank`, password: `minibank1234`)
 
-## 🧪 Running Tests
+## 🧪 Testing Status & Coverage
 
-### Unit Tests
+### ✅ Test Implementation Progress
+| Test Type | Coverage | Status | Test Classes |
+|-----------|----------|--------|-------------|
+| **Unit Tests** | ✅ Complete | 🟢 Active | Entity, Repository, Service layer tests |
+| **Integration Tests (Karate)** | ✅ Complete | 🟢 Active | API endpoint testing with BDD scenarios |
+| **Selenium UI Tests** | ✅ Complete | 🟢 Active | 17 comprehensive UI test classes |
+| **Parallel Test Execution** | ✅ Implemented | 🟢 Optimized | Thread-safe Selenium with TestContainers |
+
+### 🎯 Selenium Test Coverage
+- **Login & Authentication** - Login flows and RBAC validation
+- **Customer Management** - Personal/Corporate customer CRUD operations  
+- **Account Management** - Account opening, status management, comprehensive workflows
+- **Transaction Processing** - Cash deposits, withdrawals, transfers
+- **Islamic Banking Products** - Product management and configuration
+- **Passbook Services** - Passbook printing and transaction history
+- **User & Permission Management** - RBAC administration, role assignments
+- **Dashboard & Navigation** - Main dashboard and navigation flows
+
+### Running Tests
+
+#### Unit Tests
 ```bash
 # Run all tests
 mvn test
@@ -131,7 +151,7 @@ mvn test jacoco:report
 mvn test -Dtest=AccountRepositoryTest
 ```
 
-### Integration Tests (Karate)
+#### Integration Tests (Karate)
 ```bash
 # Run API integration tests
 mvn test -Dtest=DepositTest
@@ -140,7 +160,7 @@ mvn test -Dtest=DepositTest
 mvn test -Dtest=CustomerRegistrationTest
 ```
 
-### Selenium UI Tests
+#### Selenium UI Tests
 ```bash
 # Run headless (default)
 mvn test -Dtest=ProductManagementSeleniumTest
@@ -150,6 +170,9 @@ mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
 
 # Run with recording enabled
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
+
+# Run parallel tests with optimized containers
+mvn test -Dtest=*SeleniumTest
 ```
 
 ## 🏗️ Project Structure
