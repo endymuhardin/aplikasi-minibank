@@ -72,6 +72,7 @@ Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices
 - [🧪 Panduan Testing](./docs/testing-guide.md) - Strategi dan panduan testing
 - [🏗️ Praktik Teknis](./docs/technical-practices/index.md) - Arsitektur dan best practices
 - [🗃️ Dokumentasi Database](./docs/database-documentation.md) - Schema dan design database
+- [📈 Status Implementasi Fitur](./docs/feature-implementation-status.md) - Comprehensive feature status dan roadmap
 
 ### Skenario Testing
 - [🧩 Skenario Testing](./docs/test-scenarios/README.md) - Comprehensive test scenarios

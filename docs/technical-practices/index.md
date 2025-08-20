@@ -20,3 +20,7 @@ This section provides a comprehensive guide to the technical practices, patterns
 14. [Monitoring and Observability](13-monitoring-and-observability.md)
 15. [Lessons Learned](14-lessons-learned.md)
 16. [Database Schema Design](15-database-schema-design.md)
+
+## Project Status & Planning
+
+- [📈 Feature Implementation Status](../feature-implementation-status.md) - Comprehensive analysis of implemented and missing features with development roadmap
