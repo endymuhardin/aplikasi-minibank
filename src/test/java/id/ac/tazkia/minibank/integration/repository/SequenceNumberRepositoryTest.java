@@ -1,10 +1,12 @@
 package id.ac.tazkia.minibank.integration.repository;
 
 import id.ac.tazkia.minibank.entity.SequenceNumber;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.SequenceNumberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SequenceNumberRepositoryTest extends BaseRepositoryTest {
+@Execution(ExecutionMode.SAME_THREAD)
+class SequenceNumberRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -25,9 +28,7 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        sequenceNumberRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
+        logTestExecution("SequenceNumberRepositoryTest setup");
     }
 
     @ParameterizedTest
@@ -37,9 +38,10 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
             String lastNumberStr,
             String prefix) {
 
-        // Given - Create sequence number from CSV data
+        // Given - Create sequence number from CSV data with unique name to avoid conflicts
+        String uniqueSequenceName = getTestPrefix() + "_" + sequenceName;
         SequenceNumber sequenceNumber = new SequenceNumber();
-        sequenceNumber.setSequenceName(sequenceName);
+        sequenceNumber.setSequenceName(uniqueSequenceName);
         sequenceNumber.setLastNumber(Long.parseLong(lastNumberStr));
         sequenceNumber.setPrefix(prefix);
 
@@ -49,16 +51,16 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
 
         // Then - Verify sequence number was saved correctly
         assertThat(savedSequenceNumber.getId()).isNotNull();
-        assertThat(savedSequenceNumber.getSequenceName()).isEqualTo(sequenceName);
+        assertThat(savedSequenceNumber.getSequenceName()).isEqualTo(uniqueSequenceName);
         assertThat(savedSequenceNumber.getLastNumber()).isEqualTo(Long.parseLong(lastNumberStr));
         assertThat(savedSequenceNumber.getPrefix()).isEqualTo(prefix);
         assertThat(savedSequenceNumber.getCreatedDate()).isNotNull();
         assertThat(savedSequenceNumber.getUpdatedDate()).isNotNull();
 
         // Verify we can find by sequence name
-        Optional<SequenceNumber> foundSequenceNumber = sequenceNumberRepository.findBySequenceName(sequenceName);
+        Optional<SequenceNumber> foundSequenceNumber = sequenceNumberRepository.findBySequenceName(uniqueSequenceName);
         assertThat(foundSequenceNumber).isPresent();
-        assertThat(foundSequenceNumber.get().getSequenceName()).isEqualTo(sequenceName);
+        assertThat(foundSequenceNumber.get().getSequenceName()).isEqualTo(uniqueSequenceName);
         assertThat(foundSequenceNumber.get().getLastNumber()).isEqualTo(Long.parseLong(lastNumberStr));
     }
 
@@ -66,13 +68,14 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
     void shouldFindBySequenceNameWithLock() {
         // Given
         saveTestSequenceNumbers();
+        String customerSequenceName = getCustomerSequenceName();
 
         // When
-        Optional<SequenceNumber> sequenceNumber = sequenceNumberRepository.findBySequenceNameWithLock("CUSTOMER_NUMBER");
+        Optional<SequenceNumber> sequenceNumber = sequenceNumberRepository.findBySequenceNameWithLock(customerSequenceName);
 
         // Then
         assertThat(sequenceNumber).isPresent();
-        assertThat(sequenceNumber.get().getSequenceName()).isEqualTo("CUSTOMER_NUMBER");
+        assertThat(sequenceNumber.get().getSequenceName()).isEqualTo(customerSequenceName);
         assertThat(sequenceNumber.get().getPrefix()).isEqualTo("C");
     }
 
@@ -81,50 +84,55 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
     void shouldIncrementSequenceNumber() {
         // Given
         saveTestSequenceNumbers();
-        Long originalValue = sequenceNumberRepository.findBySequenceName("CUSTOMER_NUMBER")
+        String customerSequenceName = getCustomerSequenceName();
+        Long originalValue = sequenceNumberRepository.findBySequenceName(customerSequenceName)
             .map(SequenceNumber::getLastNumber)
             .orElse(0L);
 
         // When
-        int updatedRows = sequenceNumberRepository.incrementSequenceNumber("CUSTOMER_NUMBER");
+        int updatedRows = sequenceNumberRepository.incrementSequenceNumber(customerSequenceName);
         entityManager.flush();
         entityManager.clear();
 
         // Then
         assertThat(updatedRows).isEqualTo(1);
         
-        Optional<SequenceNumber> updatedSequence = sequenceNumberRepository.findBySequenceName("CUSTOMER_NUMBER");
+        Optional<SequenceNumber> updatedSequence = sequenceNumberRepository.findBySequenceName(customerSequenceName);
         assertThat(updatedSequence).isPresent();
         assertThat(updatedSequence.get().getLastNumber()).isEqualTo(originalValue + 1);
     }
 
     @Test
     @Transactional
+    @Execution(ExecutionMode.SAME_THREAD)
     void shouldResetSequenceNumber() {
         // Given
         saveTestSequenceNumbers();
+        String customerSequenceName = getCustomerSequenceName();
         Long newValue = 5000000L;
 
         // When
-        int updatedRows = sequenceNumberRepository.resetSequenceNumber("CUSTOMER_NUMBER", newValue);
+        int updatedRows = sequenceNumberRepository.resetSequenceNumber(customerSequenceName, newValue);
         entityManager.flush();
         entityManager.clear();
 
         // Then
         assertThat(updatedRows).isEqualTo(1);
         
-        Optional<SequenceNumber> updatedSequence = sequenceNumberRepository.findBySequenceName("CUSTOMER_NUMBER");
+        Optional<SequenceNumber> updatedSequence = sequenceNumberRepository.findBySequenceName(customerSequenceName);
         assertThat(updatedSequence).isPresent();
         assertThat(updatedSequence.get().getLastNumber()).isEqualTo(newValue);
     }
 
     @Test
+    @Execution(ExecutionMode.SAME_THREAD)
     void shouldGetCurrentSequenceValue() {
         // Given
         saveTestSequenceNumbers();
+        String customerSequenceName = getCustomerSequenceName();
 
         // When
-        Optional<Long> currentValue = sequenceNumberRepository.getCurrentSequenceValue("CUSTOMER_NUMBER");
+        Optional<Long> currentValue = sequenceNumberRepository.getCurrentSequenceValue(customerSequenceName);
 
         // Then
         assertThat(currentValue).isPresent();
@@ -135,9 +143,10 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
     void shouldCheckSequenceNameExistence() {
         // Given
         saveTestSequenceNumbers();
+        String customerSequenceName = getCustomerSequenceName();
 
         // When & Then
-        assertThat(sequenceNumberRepository.existsBySequenceName("CUSTOMER_NUMBER")).isTrue();
+        assertThat(sequenceNumberRepository.existsBySequenceName(customerSequenceName)).isTrue();
         assertThat(sequenceNumberRepository.existsBySequenceName("NONEXISTENT_SEQUENCE")).isFalse();
     }
 
@@ -244,8 +253,9 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
     @Test
     void shouldTestSequenceNumberPersistence() {
         // Given
+        String uniqueSequenceName = getTestPrefix() + "_PERSISTENCE_TEST";
         SequenceNumber sequenceNumber = new SequenceNumber();
-        sequenceNumber.setSequenceName("PERSISTENCE_TEST");
+        sequenceNumber.setSequenceName(uniqueSequenceName);
         sequenceNumber.setLastNumber(12345L);
         sequenceNumber.setPrefix("PT");
 
@@ -254,12 +264,12 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
         entityManager.flush();
         entityManager.clear();
 
-        Optional<SequenceNumber> retrievedSequence = sequenceNumberRepository.findBySequenceName("PERSISTENCE_TEST");
+        Optional<SequenceNumber> retrievedSequence = sequenceNumberRepository.findBySequenceName(uniqueSequenceName);
 
         // Then
         assertThat(retrievedSequence).isPresent();
         assertThat(retrievedSequence.get().getId()).isNotNull();
-        assertThat(retrievedSequence.get().getSequenceName()).isEqualTo("PERSISTENCE_TEST");
+        assertThat(retrievedSequence.get().getSequenceName()).isEqualTo(uniqueSequenceName);
         assertThat(retrievedSequence.get().getLastNumber()).isEqualTo(12345L);
         assertThat(retrievedSequence.get().getPrefix()).isEqualTo("PT");
         assertThat(retrievedSequence.get().getCreatedDate()).isNotNull();
@@ -267,27 +277,29 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
     }
 
     private void saveTestSequenceNumbers() {
+        String prefix = getTestPrefix();
+        
         // Customer number sequence
         SequenceNumber customerSequence = new SequenceNumber();
-        customerSequence.setSequenceName("CUSTOMER_NUMBER");
+        customerSequence.setSequenceName(prefix + "_CUSTOMER_NUMBER");
         customerSequence.setLastNumber(1000006L);
         customerSequence.setPrefix("C");
 
         // Account number sequence  
         SequenceNumber accountSequence = new SequenceNumber();
-        accountSequence.setSequenceName("ACCOUNT_NUMBER");
+        accountSequence.setSequenceName(prefix + "_ACCOUNT_NUMBER");
         accountSequence.setLastNumber(2000008L);
         accountSequence.setPrefix("A");
 
         // Transaction number sequence
         SequenceNumber transactionSequence = new SequenceNumber();
-        transactionSequence.setSequenceName("TRANSACTION_NUMBER");
+        transactionSequence.setSequenceName(prefix + "_TRANSACTION_NUMBER");
         transactionSequence.setLastNumber(3000008L);
         transactionSequence.setPrefix("T");
 
         // Reference number sequence
         SequenceNumber referenceSequence = new SequenceNumber();
-        referenceSequence.setSequenceName("REFERENCE_NUMBER");
+        referenceSequence.setSequenceName(prefix + "_REFERENCE_NUMBER");
         referenceSequence.setLastNumber(100000L);
         referenceSequence.setPrefix("REF");
 
@@ -296,5 +308,9 @@ class SequenceNumberRepositoryTest extends BaseRepositoryTest {
         sequenceNumberRepository.save(transactionSequence);
         sequenceNumberRepository.save(referenceSequence);
         entityManager.flush();
+    }
+    
+    private String getCustomerSequenceName() {
+        return getTestPrefix() + "_CUSTOMER_NUMBER";
     }
 }

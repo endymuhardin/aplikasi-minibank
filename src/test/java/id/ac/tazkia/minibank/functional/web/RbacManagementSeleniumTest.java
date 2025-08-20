@@ -41,7 +41,7 @@ public class RbacManagementSeleniumTest extends BaseSeleniumTest {
         log.info("RbacManagementSeleniumTest performInitialLogin() - START");
         log.info("About to call loginAsManager with loginHelper: {}", loginHelper);
         // Login as Manager who has all permissions including USER_READ, USER_CREATE, USER_UPDATE
-        loginHelper.loginAsManager();
+        getLoginHelper().loginAsManager();
         log.info("loginAsManager completed successfully");
     }
 

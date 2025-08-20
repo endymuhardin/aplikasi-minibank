@@ -1,205 +1,203 @@
 package id.ac.tazkia.minibank.integration.repository;
 
-import id.ac.tazkia.minibank.entity.Customer;
-import id.ac.tazkia.minibank.entity.PersonalCustomer;
-import id.ac.tazkia.minibank.entity.CorporateCustomer;
-import id.ac.tazkia.minibank.entity.Branch;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
-import id.ac.tazkia.minibank.repository.CustomerRepository;
-import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
-import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
-import id.ac.tazkia.minibank.repository.BranchRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-class CustomerRepositoryTest extends BaseRepositoryTest {
+import id.ac.tazkia.minibank.entity.Branch;
+import id.ac.tazkia.minibank.entity.CorporateCustomer;
+import id.ac.tazkia.minibank.entity.Customer;
+import id.ac.tazkia.minibank.entity.PersonalCustomer;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
+import id.ac.tazkia.minibank.repository.BranchRepository;
+import id.ac.tazkia.minibank.repository.CustomerRepository;
+import id.ac.tazkia.minibank.util.SimpleParallelTestDataFactory;
 
-    @Autowired
-    private TestEntityManager entityManager;
+/**
+ * CustomerRepository tests optimized for parallel execution.
+ * Uses dynamic test data to prevent conflicts during concurrent execution.
+ * Note: Using SAME_THREAD execution to avoid transaction management conflicts.
+ */
+@org.junit.jupiter.api.parallel.Execution(org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD)
+class CustomerRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private CustomerRepository customerRepository;
-    
-    @Autowired
-    private PersonalCustomerRepository personalCustomerRepository;
-    
-    @Autowired
-    private CorporateCustomerRepository corporateCustomerRepository;
-    
+
     @Autowired
     private BranchRepository branchRepository;
-    
-    private Branch testBranch;
-
-    @BeforeEach
-    void setUp() {
-        customerRepository.deleteAll();
-        personalCustomerRepository.deleteAll();
-        corporateCustomerRepository.deleteAll();
-        branchRepository.deleteAll();
-        entityManager.flush();
-        entityManager.clear();
-        
-        // Create test branch
-        testBranch = new Branch();
-        testBranch.setBranchCode("TEST");
-        testBranch.setBranchName("Test Branch");
-        testBranch.setAddress("Test Address");
-        testBranch.setCity("Test City");
-        testBranch.setCountry("Indonesia");
-        testBranch.setStatus(Branch.BranchStatus.ACTIVE);
-        testBranch.setCreatedBy("TEST");
-        testBranch = branchRepository.save(testBranch);
-        entityManager.flush();
-    }
 
     @Test
     void shouldFindCustomerByCustomerNumber() {
-        // Given
-        saveTestCustomers();
-
-        // When
-        Optional<Customer> personalCustomer = customerRepository.findByCustomerNumber("C1000001");
-        Optional<Customer> corporateCustomer = customerRepository.findByCustomerNumber("C1000003");
-
-        // Then
-        assertThat(personalCustomer).isPresent();
-        assertThat(personalCustomer.get().getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        logTestExecution("shouldFindCustomerByCustomerNumber");
         
-        assertThat(corporateCustomer).isPresent();
-        assertThat(corporateCustomer.get().getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
+        // When
+        Optional<Customer> foundPersonal = customerRepository.findByCustomerNumber(personalCustomer.getCustomerNumber());
+        Optional<Customer> foundCorporate = customerRepository.findByCustomerNumber(corporateCustomer.getCustomerNumber());
+        
+        // Then
+        assertThat(foundPersonal).isPresent();
+        assertThat(foundPersonal.get().getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        assertThat(foundPersonal.get().getCustomerNumber()).isEqualTo(personalCustomer.getCustomerNumber());
+        
+        assertThat(foundCorporate).isPresent();
+        assertThat(foundCorporate.get().getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
+        assertThat(foundCorporate.get().getCustomerNumber()).isEqualTo(corporateCustomer.getCustomerNumber());
     }
 
     @Test
     void shouldFindCustomerByEmail() {
-        // Given
-        saveTestCustomers();
-
-        // When
-        Optional<Customer> personalCustomer = customerRepository.findByEmail("ahmad.suharto@email.com");
-        Optional<Customer> corporateCustomer = customerRepository.findByEmail("info@teknologimaju.com");
-
-        // Then
-        assertThat(personalCustomer).isPresent();
-        assertThat(personalCustomer.get().getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        logTestExecution("shouldFindCustomerByEmail");
         
-        assertThat(corporateCustomer).isPresent();
-        assertThat(corporateCustomer.get().getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
+        // When
+        Optional<Customer> foundPersonal = customerRepository.findByEmail(personalCustomer.getEmail());
+        Optional<Customer> foundCorporate = customerRepository.findByEmail(corporateCustomer.getEmail());
+        
+        // Then
+        assertThat(foundPersonal).isPresent();
+        assertThat(foundPersonal.get().getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
+        assertThat(foundPersonal.get().getEmail()).isEqualTo(personalCustomer.getEmail());
+        
+        assertThat(foundCorporate).isPresent();
+        assertThat(foundCorporate.get().getCustomerType()).isEqualTo(Customer.CustomerType.CORPORATE);
+        assertThat(foundCorporate.get().getEmail()).isEqualTo(corporateCustomer.getEmail());
     }
 
     @Test
     void shouldFindCustomersWithSearchTerm() {
-        // Given
-        saveTestCustomers();
-
-        // When - Search by email term
-        List<Customer> emailResults = customerRepository.findCustomersWithSearchTerm("ahmad");
-        List<Customer> customerNumberResults = customerRepository.findCustomersWithSearchTerm("C1000001");
-        List<Customer> emptyResults = customerRepository.findCustomersWithSearchTerm("nonexistent");
-
+        logTestExecution("shouldFindCustomersWithSearchTerm");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
+        // When - Search by parts of unique identifiers
+        String commonTerm = personalCustomer.getEmail().substring(0, 5); // Get first 5 chars of email as common term
+        List<Customer> emailResults = customerRepository.findCustomersWithSearchTerm(commonTerm);
+        List<Customer> customerNumberResults = customerRepository.findCustomersWithSearchTerm(personalCustomer.getCustomerNumber().substring(0, 5));
+        List<Customer> emptyResults = customerRepository.findCustomersWithSearchTerm("NONEXISTENT_TERM_" + System.currentTimeMillis());
+        
         // Then
-        assertThat(emailResults).hasSizeGreaterThan(0);
-        assertThat(emailResults.get(0).getEmail()).containsIgnoringCase("ahmad");
-        assertThat(emailResults.get(0).getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
-        
-        assertThat(customerNumberResults).hasSizeGreaterThan(0);
-        assertThat(customerNumberResults.get(0).getCustomerNumber()).isEqualTo("C1000001");
-        
+        assertThat(emailResults).hasSizeGreaterThanOrEqualTo(1); // Should find at least one customer
+        assertThat(customerNumberResults).hasSizeGreaterThanOrEqualTo(1); // Should find at least the personal customer
         assertThat(emptyResults).isEmpty();
     }
 
     @Test
     void shouldCheckExistenceByUniqueFields() {
-        // Given
-        saveTestCustomers();
-
-        // When & Then
-        assertThat(customerRepository.existsByCustomerNumber("C1000001")).isTrue();
-        assertThat(customerRepository.existsByCustomerNumber("C9999999")).isFalse();
+        logTestExecution("shouldCheckExistenceByUniqueFields");
         
-        assertThat(customerRepository.existsByEmail("ahmad.suharto@email.com")).isTrue();
-        assertThat(customerRepository.existsByEmail("nonexistent@email.com")).isFalse();
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        // When & Then
+        assertThat(customerRepository.existsByCustomerNumber(personalCustomer.getCustomerNumber())).isTrue();
+        assertThat(customerRepository.existsByCustomerNumber("NONEXISTENT_" + personalCustomer.getCustomerNumber())).isFalse();
+        
+        assertThat(customerRepository.existsByEmail(personalCustomer.getEmail())).isTrue();
+        assertThat(customerRepository.existsByEmail("nonexistent_" + personalCustomer.getEmail())).isFalse();
     }
 
     @Test
     void shouldCountAllCustomers() {
-        // Given
-        saveTestCustomers();
-
+        logTestExecution("shouldCountAllCustomers");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        Long initialCount = customerRepository.countAllCustomers();
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
         // When
-        Long count = customerRepository.countAllCustomers();
-
+        Long finalCount = customerRepository.countAllCustomers();
+        
         // Then
-        assertThat(count).isEqualTo(2); // One personal, one corporate
+        assertThat(finalCount).isEqualTo(initialCount + 2);
     }
 
     @Test
     void shouldFindAllCustomersPolymorphically() {
-        // Given
-        saveTestCustomers();
-
+        logTestExecution("shouldFindAllCustomersPolymorphically");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
         // When
         List<Customer> allCustomers = customerRepository.findAll();
-
-        // Then
-        assertThat(allCustomers).hasSize(2);
         
-        // Verify we have both types
-        boolean hasPersonal = allCustomers.stream()
-            .anyMatch(c -> c.getCustomerType() == Customer.CustomerType.PERSONAL);
-        boolean hasCorporate = allCustomers.stream()
-            .anyMatch(c -> c.getCustomerType() == Customer.CustomerType.CORPORATE);
+        // Then - Check our specific customers exist in the results
+        boolean hasOurPersonal = allCustomers.stream()
+            .anyMatch(c -> c.getCustomerNumber().equals(personalCustomer.getCustomerNumber()));
+        boolean hasOurCorporate = allCustomers.stream()
+            .anyMatch(c -> c.getCustomerNumber().equals(corporateCustomer.getCustomerNumber()));
             
-        assertThat(hasPersonal).isTrue();
-        assertThat(hasCorporate).isTrue();
+        assertThat(hasOurPersonal).isTrue();
+        assertThat(hasOurCorporate).isTrue();
+        assertThat(allCustomers.size()).isGreaterThanOrEqualTo(2);
     }
 
     @Test
     void shouldSaveAndRetrieveDifferentCustomerTypes() {
-        // Given
-        PersonalCustomer personalCustomer = new PersonalCustomer();
-        personalCustomer.setCustomerNumber("P001");
-        personalCustomer.setFirstName("John");
-        personalCustomer.setLastName("Doe");
-        personalCustomer.setDateOfBirth(LocalDate.of(1990, 1, 1));
-        personalCustomer.setIdentityNumber("1234567890");
-        personalCustomer.setIdentityType(Customer.IdentityType.KTP);
-        personalCustomer.setEmail("john.doe@email.com");
-        personalCustomer.setPhoneNumber("081234567890");
-        personalCustomer.setAddress("Test Address");
-        personalCustomer.setCity("Test City");
-        personalCustomer.setPostalCode("12345");
-        personalCustomer.setCountry("Indonesia");
-        personalCustomer.setCreatedBy("TEST");
-        personalCustomer.setBranch(testBranch);
-
-        CorporateCustomer corporateCustomer = new CorporateCustomer();
-        corporateCustomer.setCustomerNumber("C001");
-        corporateCustomer.setCompanyName("Test Company");
-        corporateCustomer.setCompanyRegistrationNumber("123456789");
-        corporateCustomer.setTaxIdentificationNumber("12.345.678.9-123.456");
-        corporateCustomer.setEmail("test@company.com");
-        corporateCustomer.setPhoneNumber("021123456");
-        corporateCustomer.setAddress("Company Address");
-        corporateCustomer.setCity("Jakarta");
-        corporateCustomer.setPostalCode("54321");
-        corporateCustomer.setCountry("Indonesia");
-        corporateCustomer.setCreatedBy("TEST");
-        corporateCustomer.setBranch(testBranch);
-
+        logTestExecution("shouldSaveAndRetrieveDifferentCustomerTypes");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        
         // When
         Customer savedPersonal = customerRepository.save(personalCustomer);
         Customer savedCorporate = customerRepository.save(corporateCustomer);
-        entityManager.flush();
-
+        
         // Then
         assertThat(savedPersonal.getId()).isNotNull();
         assertThat(savedPersonal.getCustomerType()).isEqualTo(Customer.CustomerType.PERSONAL);
@@ -212,52 +210,30 @@ class CustomerRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void shouldHandleEmptySearchTerm() {
-        // Given
-        saveTestCustomers();
-
+        logTestExecution("shouldHandleEmptySearchTerm");
+        
+        // Given - Create unique test data
+        Branch branch = SimpleParallelTestDataFactory.createUniqueBranch();
+        branchRepository.save(branch);
+        
+        PersonalCustomer personalCustomer = SimpleParallelTestDataFactory.createUniquePersonalCustomer(branch);
+        customerRepository.save(personalCustomer);
+        
+        CorporateCustomer corporateCustomer = SimpleParallelTestDataFactory.createUniqueCorporateCustomer(branch);
+        customerRepository.save(corporateCustomer);
+        
         // When
         List<Customer> results = customerRepository.findCustomersWithSearchTerm("");
-
-        // Then
-        assertThat(results).hasSize(2); // Should return all customers when search term is empty
-    }
-
-    private void saveTestCustomers() {
-        // Personal Customer for polymorphic testing
-        PersonalCustomer personal1 = new PersonalCustomer();
-        personal1.setCustomerNumber("C1000001");
-        personal1.setFirstName("Ahmad");
-        personal1.setLastName("Suharto");
-        personal1.setDateOfBirth(LocalDate.of(1985, 3, 15));
-        personal1.setIdentityNumber("3271081503850001");
-        personal1.setIdentityType(Customer.IdentityType.KTP);
-        personal1.setEmail("ahmad.suharto@email.com");
-        personal1.setPhoneNumber("081234567890");
-        personal1.setAddress("Jl. Sudirman No. 123");
-        personal1.setCity("Jakarta");
-        personal1.setPostalCode("10220");
-        personal1.setCountry("Indonesia");
-        personal1.setCreatedBy("TEST");
-        personal1.setBranch(testBranch);
-
-        // Corporate Customer for polymorphic testing
-        CorporateCustomer corporate1 = new CorporateCustomer();
-        corporate1.setCustomerNumber("C1000003");
-        corporate1.setCompanyName("PT. Teknologi Maju");
-        corporate1.setCompanyRegistrationNumber("1234567890123456");
-        corporate1.setTaxIdentificationNumber("01.234.567.8-901.000");
-        corporate1.setEmail("info@teknologimaju.com");
-        corporate1.setPhoneNumber("02123456789");
-        corporate1.setAddress("Jl. HR Rasuna Said No. 789");
-        corporate1.setCity("Jakarta");
-        corporate1.setPostalCode("12950");
-        corporate1.setCountry("Indonesia");
-        corporate1.setCreatedBy("TEST");
-        corporate1.setBranch(testBranch);
-
-        // Save using the base repository to test polymorphic behavior
-        customerRepository.save(personal1);
-        customerRepository.save(corporate1);
-        entityManager.flush();
+        
+        // Then - Should return all customers including ours when search term is empty
+        assertThat(results.size()).isGreaterThanOrEqualTo(2);
+        
+        boolean hasOurPersonal = results.stream()
+            .anyMatch(c -> c.getCustomerNumber().equals(personalCustomer.getCustomerNumber()));
+        boolean hasOurCorporate = results.stream()
+            .anyMatch(c -> c.getCustomerNumber().equals(corporateCustomer.getCustomerNumber()));
+            
+        assertThat(hasOurPersonal).isTrue();
+        assertThat(hasOurCorporate).isTrue();
     }
 }

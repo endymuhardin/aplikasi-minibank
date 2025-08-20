@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,13 @@ import id.ac.tazkia.minibank.entity.RolePermission;
 import id.ac.tazkia.minibank.entity.User;
 import id.ac.tazkia.minibank.entity.UserPassword;
 import id.ac.tazkia.minibank.entity.UserRole;
-import id.ac.tazkia.minibank.integration.BaseRepositoryTest;
+import id.ac.tazkia.minibank.integration.ParallelBaseRepositoryTest;
 import id.ac.tazkia.minibank.repository.PermissionRepository;
 import id.ac.tazkia.minibank.repository.RoleRepository;
 import id.ac.tazkia.minibank.repository.UserRepository;
 
-class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
+@Execution(ExecutionMode.SAME_THREAD)
+class UserAuthenticationRepositoryTest extends ParallelBaseRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -43,6 +46,7 @@ class UserAuthenticationRepositoryTest extends BaseRepositoryTest {
     
     @BeforeEach
     void setUp() {
+        logTestExecution("UserAuthenticationRepositoryTest setup");
         // Create test roles and permissions
         createTestRolesAndPermissions();
     }

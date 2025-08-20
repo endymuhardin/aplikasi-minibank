@@ -25,7 +25,7 @@ public class PassbookPrintingSeleniumTest extends BaseSeleniumTest {
     @Override
     protected void performInitialLogin() {
         // Use teller role for passbook operations
-        loginHelper.loginAsTeller();
+        getLoginHelper().loginAsTeller();
     }
 
     @Test
@@ -202,9 +202,6 @@ public class PassbookPrintingSeleniumTest extends BaseSeleniumTest {
         
         PassbookPrintPage printPage = new PassbookPrintPage(driver, baseUrl);
         printPage.waitForPageLoad();
-        
-        // Get initial transaction count
-        int initialCount = printPage.getTransactionCount();
         
         // Apply date filter
         printPage.setDateRange("2024-01-01", "2024-06-30");

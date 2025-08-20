@@ -32,9 +32,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT p FROM Product p WHERE " +
            "p.isActive = true AND " +
            "(:productType IS NULL OR p.productType = :productType) AND " +
-           "(:category IS NULL OR p.productCategory = :category) AND " +
-           "(:searchTerm IS NULL OR " +
-           "LOWER(p.productCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "(:category IS NULL OR :category = '' OR p.productCategory = :category) AND " +
+           "(:searchTerm IS NULL OR :searchTerm = '' OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.productName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     List<Product> findActiveProductsWithFilters(@Param("productType") Product.ProductType productType,
@@ -44,9 +43,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT p FROM Product p WHERE " +
            "p.isActive = true AND " +
            "(:productType IS NULL OR p.productType = :productType) AND " +
-           "(:category IS NULL OR p.productCategory = :category) AND " +
-           "(:searchTerm IS NULL OR " +
-           "LOWER(p.productCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "(:category IS NULL OR :category = '' OR p.productCategory = :category) AND " +
+           "(:searchTerm IS NULL OR :searchTerm = '' OR LOWER(p.productCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.productName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
     Page<Product> findActiveProductsWithFilters(@Param("productType") Product.ProductType productType,

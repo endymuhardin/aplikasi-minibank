@@ -1,23 +1,17 @@
--- Cleanup test data for permission management tests
+-- Cleanup test data for permission management Selenium tests
+-- PRESERVE migration permissions (V004__insert_roles_permissions_data.sql)
+
+-- Clean up only Selenium test-created permissions
 DELETE FROM role_permissions WHERE id_permissions IN (
-    SELECT id FROM permissions WHERE permission_code IN (
-        'EDIT_TEST_PERM', 'VIEW_TEST_PERM', 'DUPLICATE_PERM', 'USER_CREATE', 'USER_READ'
-    )
+    SELECT id FROM permissions WHERE created_by = 'SELENIUM_TEST' OR permission_code LIKE 'SELENIUM_%'
 );
 
-DELETE FROM permissions WHERE permission_code IN (
-    'EDIT_TEST_PERM', 'VIEW_TEST_PERM', 'DUPLICATE_PERM', 'USER_CREATE', 'USER_READ'
-);
+DELETE FROM permissions WHERE created_by = 'SELENIUM_TEST' OR permission_code LIKE 'SELENIUM_%';
 
--- Cleanup any test permissions created during tests (with timestamp suffix)
-DELETE FROM permissions WHERE permission_code LIKE 'TEST_PERM_%' 
-   OR permission_code LIKE 'PERM_USER_CREATE%'
-   OR permission_code LIKE 'PERM_USER_READ%'
-   OR permission_code LIKE 'PERM_USER_UPDATE%'
-   OR permission_code LIKE 'PERM_USER_DELETE%'
-   OR permission_code LIKE 'PERM_PROD_CREATE%'
-   OR permission_code LIKE 'PERM_PROD_READ%'
-   OR permission_code LIKE 'PERM_CUST_CREATE%'
-   OR permission_code LIKE 'PERM_CUST_READ%'
-   OR permission_code LIKE 'PERM_TXN_CREATE%'
-   OR permission_code LIKE 'PERM_TXN_READ%';
+-- Clean up test permissions with various naming patterns
+DELETE FROM permissions WHERE permission_code LIKE 'TEST_%' 
+   OR permission_code LIKE '%_TEST_%';
+
+-- NOTE: Migration permissions are preserved:
+-- - CUSTOMER_*, ACCOUNT_*, TRANSACTION_*, PRODUCT_*, USER_*, REPORT_*, AUDIT_*, BALANCE_*
+-- - These remain available for subsequent Selenium tests

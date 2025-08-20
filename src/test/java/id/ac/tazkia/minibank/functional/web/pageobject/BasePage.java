@@ -23,7 +23,7 @@ public abstract class BasePage {
     public BasePage(WebDriver driver, String baseUrl) {
         this.driver = driver;
         this.baseUrl = baseUrl;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Optimized timeout for faster feedback
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(8)); // Further optimized timeout for faster feedback
         PageFactory.initElements(driver, this);
     }
     
@@ -189,7 +189,7 @@ public abstract class BasePage {
     
     public boolean isSuccessMessageDisplayed() {
         try {
-            // Wait up to 5 seconds for success message to appear
+            // Wait up to 8 seconds for success message to appear (matches wait timeout)
             wait.until(ExpectedConditions.presenceOfElementLocated(By.id("success-message")));
             return true;
         } catch (Exception e) {
@@ -217,7 +217,7 @@ public abstract class BasePage {
     
     protected void waitForJavaScriptProcessing(int milliseconds) {
         // Wait for JavaScript processing to complete by waiting for a condition or timeout
-        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(Math.min(milliseconds, 3000))); // Cap at 3 seconds max
+        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(Math.min(milliseconds, 2000))); // Cap at 2 seconds max for faster execution
         try {
             shortWait.until(webDriver -> {
                 // Check if any pending JavaScript operations are complete
