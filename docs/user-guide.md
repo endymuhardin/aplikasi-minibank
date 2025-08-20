@@ -99,6 +99,7 @@ Aplikasi mendukung sistem multi-branch untuk mengorganisir operasional bank berd
 - Transactions: `/api/transactions`
 - Users: `/api/users`
 - Branches: `/api/branches`
+- Account Statements: `/api/accounts/statement/pdf`
 
 ### Sample Data Nasabah ###
 
@@ -187,6 +188,15 @@ Aplikasi telah memiliki data sample nasabah yang dapat digunakan untuk testing:
   - **Browser Print Settings**: A4 paper, disable headers/footers, enable background graphics
   - **Supported Browsers**: Chrome & Firefox (full), Safari & Edge (basic)
   - Print-optimized layout dengan bank logo dan letterhead
+- ✅ **Cetak Rekening Koran PDF (Account Statement):**
+  - Akses melalui Account List → pilih account → klik "Statement"
+  - URL langsung: `http://localhost:8080/account/{accountId}/statement`
+  - Pilih rentang tanggal (default: 3 bulan terakhir)
+  - Generate dan download PDF rekening koran profesional
+  - **Fitur PDF**: Header bank, informasi nasabah, tabel mutasi, ringkasan total
+  - **Format**: Bahasa Indonesia, format mata uang IDR, timestamp pencetakan
+  - **Kompatibilitas**: Dapat dibuka di semua PDF reader dan printer
+  - **Keamanan**: Hanya dapat mencetak rekening di cabang yang sama (role-based access)
 
 #### 3. Branch Manager - Monitoring dan Approval ####
 - Login dengan user Branch Manager (admin/manager1/manager2)
@@ -218,4 +228,14 @@ curl http://localhost:8080/api/accounts
 curl -X POST http://localhost:8080/api/transactions/deposit \
   -H "Content-Type: application/json" \
   -d '{"accountId":"account-id","amount":100000,"description":"Setoran tunai"}'
+
+# Generate account statement PDF (POST with JSON)
+curl -X POST http://localhost:8080/api/accounts/statement/pdf \
+  -H "Content-Type: application/json" \
+  -d '{"accountNumber":"ACC0000001","startDate":"2024-01-01","endDate":"2024-01-31"}' \
+  --output statement.pdf
+
+# Generate account statement PDF (GET with parameters)
+curl "http://localhost:8080/api/accounts/statement/pdf?accountNumber=ACC0000001&startDate=2024-01-01&endDate=2024-01-31" \
+  --output statement.pdf
 ```

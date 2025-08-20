@@ -1,7 +1,16 @@
 # Test Scenarios: Cetak Rekening Koran PDF
 
 ## Overview
-Dokumen ini berisi skenario test untuk fitur cetak rekening koran dalam format PDF. Berbeda dengan passbook printer tradisional, fitur ini menggunakan PDF generation yang dapat dicetak ke printer apapun, membuatnya lebih fleksibel dan kompatibel dengan berbagai perangkat.
+Dokumen ini berisi skenario test untuk fitur cetak rekening koran dalam format PDF yang telah diimplementasi. Fitur ini menggunakan iText PDF library untuk menghasilkan dokumen profesional yang dapat dicetak ke printer apapun, membuatnya lebih fleksibel dan kompatibel dengan berbagai perangkat.
+
+## Implementation Status
+✅ **IMPLEMENTED** - Fitur Account Statement PDF telah diimplementasi dengan komponen berikut:
+- `AccountStatementService`: Business logic untuk mengambil data account dan transaksi
+- `AccountStatementPdfService`: PDF generation menggunakan iText 5.5.13.3
+- REST API endpoints: `POST /api/accounts/statement/pdf` dan `GET /api/accounts/statement/pdf`
+- Web interface: `/account/{accountId}/statement` untuk form input dan PDF download
+- `AccountStatementRequest` DTO dengan validasi tanggal
+- Branch-based access control terintegrasi
 
 ## Preconditions
 - Database PostgreSQL berjalan
@@ -391,38 +400,35 @@ Dokumen ini berisi skenario test untuk fitur cetak rekening koran dalam format P
 
 ## API Test Examples
 
-### REST API Calls
+### REST API Calls (Actual Implementation)
 ```bash
-# Generate Account Statement PDF
-curl -X POST http://localhost:8080/api/accounts/ACC0000001/statement \
-  -H "Authorization: Bearer <token>" \
+# Generate Account Statement PDF (POST with JSON body)
+curl -X POST http://localhost:8080/api/accounts/statement/pdf \
   -H "Content-Type: application/json" \
   -d '{
-    "startDate": "2024-01-01",
-    "endDate": "2024-01-31",
-    "format": "PDF",
-    "transactionTypes": ["DEPOSIT", "WITHDRAWAL"],
-    "includeBalance": true
-  }' \
-  --output statement.pdf
-
-# Generate Statement for Customer (self-service)
-curl -X POST http://localhost:8080/api/customer/accounts/{accountId}/statement \
-  -H "Authorization: Bearer <customer_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
+    "accountNumber": "ACC0000001",
     "startDate": "2024-01-01",
     "endDate": "2024-01-31"
   }' \
-  --output my_statement.pdf
+  --output statement.pdf
 
-# Check Statement Generation Status (for async processing)
-curl -X GET http://localhost:8080/api/statements/status/{jobId} \
-  -H "Authorization: Bearer <token>"
+# Generate Account Statement PDF (GET with parameters)
+curl "http://localhost:8080/api/accounts/statement/pdf?accountNumber=ACC0000001&startDate=2024-01-01&endDate=2024-01-31" \
+  --output statement.pdf
 
-# Get Available Accounts for Customer
-curl -X GET http://localhost:8080/api/customer/accounts \
-  -H "Authorization: Bearer <customer_token>"
+# Generate using Account ID instead of Account Number
+curl -X POST http://localhost:8080/api/accounts/statement/pdf \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountId": "123e4567-e89b-12d3-a456-426614174000",
+    "startDate": "2024-01-01", 
+    "endDate": "2024-01-31"
+  }' \
+  --output statement.pdf
+
+# Web Interface Access
+# Navigate to: http://localhost:8080/account/{accountId}/statement
+# Fill form with date range and submit to download PDF
 ```
 
 ## Database Queries for Statement Generation

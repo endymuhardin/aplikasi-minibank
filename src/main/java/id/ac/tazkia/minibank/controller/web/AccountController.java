@@ -1,6 +1,7 @@
 package id.ac.tazkia.minibank.controller.web;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,6 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,10 +30,13 @@ import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Product;
+import id.ac.tazkia.minibank.entity.Transaction;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import id.ac.tazkia.minibank.service.AccountService;
+import id.ac.tazkia.minibank.service.AccountStatementService;
+import id.ac.tazkia.minibank.service.AccountStatementPdfService;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +60,8 @@ public class AccountController {
     private final ProductRepository productRepository;
     private final AccountRepository accountRepository;
     private final AccountService accountService;
+    private final AccountStatementService accountStatementService;
+    private final AccountStatementPdfService accountStatementPdfService;
     private final SequenceNumberService sequenceNumberService;
     
     @GetMapping("/list")
@@ -280,6 +289,73 @@ public class AccountController {
         return "account/corporate-form";
     }
     
+    @GetMapping("/{accountId}/statement")
+    public String accountStatementForm(@PathVariable UUID accountId, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Account not found");
+            return ACCOUNT_LIST_REDIRECT;
+        }
+        
+        Account account = accountOpt.get();
+        model.addAttribute("account", account);
+        
+        // Set default date range (last 3 months)
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusMonths(3);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        
+        return "account/statement-form";
+    }
     
+    @PostMapping("/{accountId}/statement/pdf")
+    public ResponseEntity<byte[]> generateAccountStatementPdf(@PathVariable UUID accountId,
+                                                             @RequestParam String startDate,
+                                                             @RequestParam String endDate,
+                                                             RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Account> accountOpt = accountRepository.findById(accountId);
+            if (accountOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Account account = accountOpt.get();
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            
+            // Validate date range
+            if (start.isAfter(end)) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Get transactions for the period
+            List<Transaction> transactions = accountStatementService.getTransactionsByAccountAndDateRange(
+                account.getId(), start, end
+            );
+            
+            // Generate PDF
+            byte[] pdfBytes = accountStatementPdfService.generateAccountStatementPdf(
+                account, transactions, start, end
+            );
+            
+            // Build filename
+            String filename = String.format("statement_%s_%s_to_%s.pdf", 
+                account.getAccountNumber(), startDate, endDate);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", filename);
+            headers.setContentLength(pdfBytes.length);
+            
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+                
+        } catch (Exception e) {
+            log.error("Failed to generate account statement PDF for account: {}", accountId, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     
 }

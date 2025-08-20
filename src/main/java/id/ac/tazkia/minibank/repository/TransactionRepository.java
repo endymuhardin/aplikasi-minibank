@@ -4,6 +4,7 @@ import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -115,4 +116,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Page<Transaction> findByAccountAndTransactionDateLessThan(Account account, 
                                                             LocalDateTime endDate, 
                                                             Pageable pageable);
+    
+    // Methods for account statement generation
+    List<Transaction> findByAccountIdAndTransactionDateBetween(UUID accountId, 
+                                                             LocalDateTime startDate, 
+                                                             LocalDateTime endDate, 
+                                                             Sort sort);
+    
+    List<Transaction> findByAccountIdOrderByTransactionDateDesc(UUID accountId);
 }
