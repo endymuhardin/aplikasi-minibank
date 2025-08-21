@@ -97,6 +97,17 @@ public class AccountListPage extends BasePage {
         scrollToElementAndClick(transactionsLink);
     }
     
+    public AccountClosurePage closeAccount(String accountNumber) {
+        log.info("Clicking close link for account: {}", accountNumber);
+        By closeLink = By.id("close-account-" + accountNumber);
+        scrollToElementAndClick(closeLink);
+        return new AccountClosurePage(driver, baseUrl);
+    }
+    
+    public boolean hasCloseLink(String accountNumber) {
+        return isElementPresent(By.id("close-account-" + accountNumber));
+    }
+    
     public boolean isOnAccountListPage() {
         return getCurrentUrl().contains("/account/list") && 
                (isElementPresent(ACCOUNT_TABLE) || isElementPresent(NO_ACCOUNTS_MESSAGE));

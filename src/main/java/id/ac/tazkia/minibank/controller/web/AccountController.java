@@ -358,4 +358,52 @@ public class AccountController {
         }
     }
     
+    @GetMapping("/{accountId}/close")
+    public String closeAccountForm(@PathVariable UUID accountId, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Account not found");
+            return ACCOUNT_LIST_REDIRECT;
+        }
+        
+        Account account = accountOpt.get();
+        
+        if (account.isClosed()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Account is already closed");
+            return ACCOUNT_LIST_REDIRECT;
+        }
+        
+        model.addAttribute("account", account);
+        return "account/close-form";
+    }
+    
+    @PostMapping("/{accountId}/close")
+    public String closeAccount(@PathVariable UUID accountId, 
+                              @RequestParam(required = false) String reason,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Account> accountOpt = accountRepository.findById(accountId);
+            if (accountOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Account not found");
+                return ACCOUNT_LIST_REDIRECT;
+            }
+            
+            Account account = accountOpt.get();
+            account.closeAccount();
+            accountRepository.save(account);
+            
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, 
+                "Account " + account.getAccountNumber() + " has been closed successfully");
+            return ACCOUNT_LIST_REDIRECT;
+            
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, e.getMessage());
+            return "redirect:/account/" + accountId + "/close";
+        } catch (Exception e) {
+            log.error("Failed to close account: {}", accountId, e);
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Failed to close account: " + e.getMessage());
+            return "redirect:/account/" + accountId + "/close";
+        }
+    }
+    
 }

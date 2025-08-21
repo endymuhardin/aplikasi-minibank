@@ -161,6 +161,27 @@ public class SimpleParallelTestDataFactory {
         return account;
     }
     
+    // Account Factory with all dependencies (for Selenium tests)
+    public static Account createUniqueTestAccount() {
+        Branch branch = createUniqueBranch();
+        PersonalCustomer customer = createUniquePersonalCustomer(branch);
+        Product product = createUniqueProduct(Product.ProductType.TABUNGAN_WADIAH);
+        
+        String accountNumber = ParallelTestDataContext.generateAccountNumber();
+        Account account = new Account();
+        account.setAccountNumber(accountNumber);
+        account.setAccountName("Test Account - " + accountNumber);
+        account.setCustomer(customer);
+        account.setProduct(product);
+        account.setBranch(branch);
+        account.setBalance(BigDecimal.ZERO);
+        account.setStatus(Account.AccountStatus.ACTIVE);
+        account.setOpenedDate(LocalDate.now());
+        account.setCreatedBy("TEST_USER");
+        account.setUpdatedBy("TEST_USER");
+        return account;
+    }
+    
     // User Factory  
     public static User createUniqueUser(Branch branch) {
         String username = ParallelTestDataContext.generateUsername("user");

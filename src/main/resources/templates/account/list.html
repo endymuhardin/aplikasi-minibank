@@ -111,6 +111,11 @@
                                     <a th:id="'transactions-account-' + ${account.accountNumber}"
                                        th:href="@{/transaction/account/{id}(id=${account.id})}" 
                                        class="text-green-600 hover:text-green-800 text-xs">Transactions</a>
+                                    <span th:unless="${account.status.name() == 'CLOSED'}" class="text-gray-300">|</span>
+                                    <a th:unless="${account.status.name() == 'CLOSED'}" 
+                                       th:id="'close-account-' + ${account.accountNumber}"
+                                       th:href="@{/account/{id}/close(id=${account.id})}" 
+                                       class="text-red-600 hover:text-red-800 text-xs">Close</a>
                                 </div>
                             </td>
                         </tr>
