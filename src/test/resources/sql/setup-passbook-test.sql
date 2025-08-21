@@ -28,7 +28,7 @@ SELECT
     c.id,
     p.id, 
     c.id_branches,
-    'PB_' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD_HH24MISS'),
+    'PB_' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYYMMDD_HH24MISS') || '_' || substr(md5(random()::text), 1, 6),
     c.customer_number || ' - ' || p.product_name,
     500000.00,
     'ACTIVE',
@@ -37,14 +37,18 @@ SELECT
     CURRENT_TIMESTAMP
 FROM customers c, products p 
 WHERE c.customer_number = 'C1000001' 
-  AND p.product_code = 'TAB001';
+  AND p.product_code = 'TAB001'
+ON CONFLICT (account_number) DO NOTHING;
 
 -- Insert sample transactions for passbook testing using the created account
+-- Split complex UNION ALL into separate statements for better reliability
+
+-- First transaction: Account opening deposit
 INSERT INTO transactions (id, id_accounts, transaction_number, transaction_type, amount, currency, balance_before, balance_after, description, reference_number, channel, transaction_date, processed_date, created_by)
 SELECT 
     gen_random_uuid(),
     a.id,
-    'T' || (3000000 + ROW_NUMBER() OVER()),  -- Use migration transaction sequence pattern
+    'T3000000',  -- Fixed transaction number for consistency
     'DEPOSIT',
     50000.00,
     'IDR',
@@ -58,14 +62,14 @@ SELECT
     'PASSBOOK_TEST'
 FROM accounts a 
 WHERE a.created_by = 'PASSBOOK_TEST'
-LIMIT 1
+LIMIT 1;
 
-UNION ALL
-
+-- Second transaction: Monthly salary deposit  
+INSERT INTO transactions (id, id_accounts, transaction_number, transaction_type, amount, currency, balance_before, balance_after, description, reference_number, channel, transaction_date, processed_date, created_by)
 SELECT 
     gen_random_uuid(),
     a.id,
-    'T' || (3000001 + ROW_NUMBER() OVER()),
+    'T3000001',  -- Fixed transaction number for consistency
     'DEPOSIT', 
     100000.00,
     'IDR',
