@@ -324,6 +324,7 @@ class TransactionRepositoryTest extends ParallelBaseRepositoryTest {
         
         // Given - Create test account and transactions
         Account account = createTestAccount();
+        createTestTransactions(account);
         
         // When
         Pageable pageable = PageRequest.of(0, 5);

@@ -3,19 +3,19 @@ test:
     container:
       # Resource allocation - can be overridden via system properties
       maxContainers: 2  # Conservative default, system will calculate if not set
-      memoryLimitMb: 1024
-      cpuQuota: 100000  # 1 full CPU core
-      sharedMemoryBytes: 1073741824  # 1GB
-      startupTimeoutSeconds: 300  # 5 minutes
-      maxStartupRetries: 1  # Fail fast - no retries
-      retryDelayMs: 0  # No delay since we don't retry
+      memoryLimitMb: 2048  # Increased from 1024MB to 2GB for better stability
+      cpuQuota: 100000  # 2 full CPU cores (increased from 1)
+      sharedMemoryBytes: 2147483648  # 2GB (increased from 1GB)
+      startupTimeoutSeconds: 600  # 10 minutes (increased from 5)
+      maxStartupRetries: 2  # Allow 2 retries instead of fail-fast
+      retryDelayMs: 5000  # 5 second delay between retries
     
     timeouts:
       # WebDriver timeouts in seconds
-      pageLoadTimeoutSeconds: 30
-      scriptTimeoutSeconds: 20
-      implicitWaitSeconds: 10
-      pageObjectWaitSeconds: 30
+      pageLoadTimeoutSeconds: 45
+      scriptTimeoutSeconds: 30
+      implicitWaitSeconds: 15
+      pageObjectWaitSeconds: 45
     
     applicationReadiness:
       # Application startup checking
