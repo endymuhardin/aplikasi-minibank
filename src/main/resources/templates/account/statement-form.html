@@ -1,0 +1,221 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Account Statement - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Rekening Koran / Account Statement</h1>
+                <a th:href="@{/account/list}" id="back-to-accounts-btn"
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    ← Back to Accounts
+                </a>
+            </div>
+
+            <!-- Success/Error messages -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Account Information Card -->
+            <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-blue-800 mb-4">Account Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                        <div id="account-number" class="text-lg font-mono font-bold text-gray-900" th:text="${account.accountNumber}">ACC0000001</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                        <div id="account-name" class="text-lg text-gray-900" th:text="${account.accountName}">Account Name</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                        <div id="customer-name" class="text-lg text-gray-900" th:text="${account.customer.displayName}">Customer Name</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Balance</label>
+                        <div id="current-balance" class="text-lg font-bold text-green-600" th:text="'IDR ' + ${#numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}">IDR 1,000,000.00</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
+                        <div class="text-lg text-gray-900" th:text="${account.product.productName}">Product Name</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
+                        <div class="text-lg">
+                            <span class="px-2 py-1 rounded text-sm font-medium"
+                                  th:class="${account.status == 'ACTIVE'} ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  th:text="${account.status}">ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statement Generation Form -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Generate Statement</h2>
+                
+                <form th:action="@{/account/{accountId}/statement/pdf(accountId=${account.id})}" 
+                      method="post" id="statement-form" class="space-y-4">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="start-date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Start Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" 
+                                   id="start-date" 
+                                   name="startDate" 
+                                   th:value="${startDate}"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <div class="validation-error text-red-500 text-sm mt-1" style="display: none;"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="end-date" class="block text-sm font-medium text-gray-700 mb-2">
+                                End Date <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" 
+                                   id="end-date" 
+                                   name="endDate" 
+                                   th:value="${endDate}"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <div class="validation-error text-red-500 text-sm mt-1" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <div class="text-sm text-gray-600">
+                            <p><strong>Note:</strong> PDF will be generated and downloaded automatically.</p>
+                            <p>File format: statement_[account]_[startDate]_to_[endDate].pdf</p>
+                        </div>
+                        
+                        <button type="submit" 
+                                id="generate-pdf-btn"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Generate PDF Statement</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading indicator (hidden by default) -->
+            <div id="loading-indicator" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <span class="text-lg">Generating PDF statement...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Section -->
+            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-yellow-800 mb-2">Statement Information</h3>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• Statement includes all transactions within the selected date range</li>
+                    <li>• PDF format is compatible with all devices and printers</li>
+                    <li>• Current balance reflects the account balance at the time of generation</li>
+                    <li>• Maximum recommended date range: 2 years for optimal performance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for form validation and UX enhancements -->
+    <script layout:fragment="scripts">
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('statement-form');
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            const generateBtn = document.getElementById('generate-pdf-btn');
+            const loadingIndicator = document.getElementById('loading-indicator');
+
+            // Client-side validation
+            function validateDateRange() {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                const today = new Date();
+                
+                // Clear previous errors
+                document.querySelectorAll('.validation-error').forEach(el => {
+                    el.style.display = 'none';
+                    el.textContent = '';
+                });
+
+                let isValid = true;
+
+                // Check if start date is after end date
+                if (startDate > endDate) {
+                    showValidationError(endDateInput, 'End date must be greater than start date');
+                    isValid = false;
+                }
+
+                // Check if end date is in the future
+                if (endDate > today) {
+                    showValidationError(endDateInput, 'End date cannot be in the future');
+                    isValid = false;
+                }
+
+                // Check for reasonable date range (not more than 5 years)
+                const maxRange = 5 * 365 * 24 * 60 * 60 * 1000; // 5 years in milliseconds
+                if (endDate - startDate > maxRange) {
+                    showValidationError(startDateInput, 'Date range should not exceed 5 years');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function showValidationError(input, message) {
+                const errorDiv = input.parentElement.querySelector('.validation-error');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                input.classList.add('border-red-500');
+            }
+
+            // Real-time validation
+            startDateInput.addEventListener('change', validateDateRange);
+            endDateInput.addEventListener('change', validateDateRange);
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                if (!validateDateRange()) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Show loading indicator
+                loadingIndicator.classList.remove('hidden');
+                loadingIndicator.classList.add('flex');
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>Generating...';
+
+                // Hide loading after download starts (approximate timing)
+                setTimeout(() => {
+                    loadingIndicator.classList.add('hidden');
+                    loadingIndicator.classList.remove('flex');
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>Generate PDF Statement</span>';
+                }, 3000);
+            });
+
+            // Set max date to today
+            const today = new Date().toISOString().split('T')[0];
+            endDateInput.setAttribute('max', today);
+        });
+    </script>
+</body>
+</html>
