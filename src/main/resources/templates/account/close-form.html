@@ -1,0 +1,130 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Close Account - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Close Account</h1>
+                <a href="/account/list" 
+                   class="text-gray-600 hover:text-gray-800">
+                    ← Back to Account List
+                </a>
+            </div>
+
+            <!-- Error messages -->
+            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Account Information Section -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Account Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600"><strong>Account Number:</strong> <span th:text="${account.accountNumber}">ACC2000001</span></p>
+                        <p class="text-sm text-gray-600"><strong>Account Name:</strong> <span th:text="${account.accountName}">Account Name</span></p>
+                        <p class="text-sm text-gray-600"><strong>Customer:</strong> <span th:text="${account.customer.displayName}">Customer Name</span></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600"><strong>Product:</strong> <span th:text="${account.product.productName}">Product Name</span></p>
+                        <p class="text-sm text-gray-600"><strong>Current Balance:</strong> 
+                            IDR <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}"
+                                     th:class="${account.balance.compareTo(T(java.math.BigDecimal).ZERO) == 0} ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">0.00</span>
+                        </p>
+                        <p class="text-sm text-gray-600"><strong>Opened Date:</strong> 
+                            <span th:text="${#temporals.format(account.openedDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Account Closure Warning
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Please ensure the following before closing this account:</p>
+                            <ul class="list-disc list-inside mt-2 space-y-1">
+                                <li>The account balance must be exactly IDR 0.00 (zero)</li>
+                                <li>All pending transactions must be completed</li>
+                                <li>Any automatic payments or deposits should be redirected to another account</li>
+                                <li>This action cannot be undone</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balance Check -->
+            <div th:if="${account.balance.compareTo(T(java.math.BigDecimal).ZERO) != 0}" 
+                 class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-red-800 font-medium">Cannot Close Account</h4>
+                        <p class="text-red-700 text-sm mt-1">
+                            The account balance must be zero before closure. Current balance is IDR 
+                            <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span>.
+                            Please withdraw or transfer the remaining balance first.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closure Form -->
+            <form th:action="@{/account/{accountId}/close(accountId=${account.id})}" method="post" class="space-y-6">
+                <!-- Reason for Closure -->
+                <div>
+                    <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for Closure (Optional)
+                    </label>
+                    <textarea id="reason" name="reason" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Enter the reason for closing this account..."></textarea>
+                    <p class="text-sm text-gray-500 mt-1">Optional explanation for account closure</p>
+                </div>
+
+                <!-- Confirmation Checkbox -->
+                <div th:if="${account.balance.compareTo(T(java.math.BigDecimal).ZERO) == 0}" class="flex items-start">
+                    <input type="checkbox" id="confirm" name="confirm" required
+                           class="mt-1 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                    <label for="confirm" class="ml-2 text-sm text-gray-700">
+                        I confirm that I want to permanently close this account. I understand that this action cannot be undone 
+                        and the account will no longer be accessible for any transactions.
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <a href="/account/list" 
+                       class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            th:disabled="${account.balance.compareTo(T(java.math.BigDecimal).ZERO) != 0}"
+                            th:class="${account.balance.compareTo(T(java.math.BigDecimal).ZERO) == 0} ? 
+                                      'px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors' : 
+                                      'px-6 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed'"
+                            class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        Close Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

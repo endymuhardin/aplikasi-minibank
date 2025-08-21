@@ -78,12 +78,18 @@ public class Account {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Deposit amount must be positive");
         }
+        if (this.status == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Cannot deposit to a closed account");
+        }
         this.balance = this.balance.add(amount);
     }
     
     public void withdraw(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Withdrawal amount must be positive");
+        }
+        if (this.status == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Cannot withdraw from a closed account");
         }
         if (this.balance.compareTo(amount) < 0) {
             throw new IllegalArgumentException("Insufficient balance");
@@ -97,6 +103,17 @@ public class Account {
     
     public boolean isClosed() {
         return AccountStatus.CLOSED.equals(this.status);
+    }
+    
+    public void closeAccount() {
+        if (this.status == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Account is already closed");
+        }
+        if (this.balance.compareTo(BigDecimal.ZERO) != 0) {
+            throw new IllegalStateException("Account balance must be zero before closure");
+        }
+        this.status = AccountStatus.CLOSED;
+        this.closedDate = LocalDate.now();
     }
     
     // Enums
