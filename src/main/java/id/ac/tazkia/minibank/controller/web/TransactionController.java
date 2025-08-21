@@ -23,11 +23,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import id.ac.tazkia.minibank.dto.DepositRequest;
 import id.ac.tazkia.minibank.dto.WithdrawalRequest;
+import id.ac.tazkia.minibank.dto.TransferRequest;
 import id.ac.tazkia.minibank.entity.Account;
 import id.ac.tazkia.minibank.entity.Transaction;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
+import id.ac.tazkia.minibank.service.TransferService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +42,12 @@ public class TransactionController {
     
     private static final String CASH_DEPOSIT_FORM_VIEW = "transaction/cash-deposit-form";
     private static final String CASH_WITHDRAWAL_FORM_VIEW = "transaction/cash-withdrawal-form";
+    private static final String TRANSFER_FORM_VIEW = "transaction/transfer-form";
+    private static final String TRANSFER_CONFIRM_VIEW = "transaction/transfer-confirm";
     private static final String TRANSACTION_LIST_REDIRECT = "redirect:/transaction/list";
     private static final String DEPOSIT_REQUEST_ATTR = "depositRequest";
     private static final String WITHDRAWAL_REQUEST_ATTR = "withdrawalRequest";
+    private static final String TRANSFER_REQUEST_ATTR = "transferRequest";
     private static final String ERROR_MESSAGE_ATTR = "errorMessage";
     private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
     private static final String ACCOUNT_NOT_FOUND_MSG = "Account not found";
@@ -50,6 +55,7 @@ public class TransactionController {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final SequenceNumberService sequenceNumberService;
+    private final TransferService transferService;
     
     @GetMapping("/list")
     public String transactionList(
@@ -349,5 +355,141 @@ public class TransactionController {
         }
         
         return CASH_WITHDRAWAL_FORM_VIEW;
+    }
+    
+    // Transfer endpoints
+    @GetMapping("/transfer")
+    public String selectSourceAccountForTransfer(@RequestParam(required = false) UUID accountId,
+                                               @RequestParam(required = false) String search,
+                                               Model model) {
+        if (accountId != null) {
+            Optional<Account> accountOpt = accountRepository.findById(accountId);
+            if (accountOpt.isPresent() && accountOpt.get().isActive()) {
+                return "redirect:/transaction/transfer/" + accountId;
+            }
+        }
+        
+        List<Account> accounts;
+        if (search != null && !search.trim().isEmpty()) {
+            accounts = accountRepository.findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
+                search.trim(), search.trim()).stream()
+                .filter(Account::isActive)
+                .toList();
+        } else {
+            accounts = accountRepository.findByStatus(Account.AccountStatus.ACTIVE);
+        }
+        
+        model.addAttribute("accounts", accounts);
+        model.addAttribute("search", search);
+        model.addAttribute("transactionType", "transfer");
+        return "transaction/select-account";
+    }
+    
+    @GetMapping("/transfer/{accountId}")
+    public String transferForm(@PathVariable UUID accountId, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, ACCOUNT_NOT_FOUND_MSG);
+            return "redirect:/transaction/transfer";
+        }
+        
+        Account account = accountOpt.get();
+        if (!account.isActive()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Account is not active");
+            return "redirect:/transaction/transfer";
+        }
+        
+        TransferRequest transferRequest = new TransferRequest();
+        transferRequest.setFromAccountId(accountId);
+        
+        model.addAttribute(TRANSFER_REQUEST_ATTR, transferRequest);
+        model.addAttribute("account", account);
+        
+        return TRANSFER_FORM_VIEW;
+    }
+    
+    @PostMapping("/transfer/validate")
+    public String validateTransfer(@Valid @ModelAttribute TransferRequest transferRequest,
+                                  BindingResult bindingResult,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
+        
+        if (bindingResult.hasErrors()) {
+            return prepareTransferFormWithErrors(transferRequest, model, bindingResult);
+        }
+        
+        try {
+            // Generate reference number if not provided
+            if (transferRequest.getReferenceNumber() == null || transferRequest.getReferenceNumber().trim().isEmpty()) {
+                transferRequest.setReferenceNumber("TRF" + System.currentTimeMillis());
+            }
+            
+            // Validate transfer and populate destination account info
+            TransferRequest validatedRequest = transferService.validateTransfer(transferRequest);
+            
+            // Get source account for display
+            Account sourceAccount = transferService.getAccountById(validatedRequest.getFromAccountId());
+            
+            model.addAttribute(TRANSFER_REQUEST_ATTR, validatedRequest);
+            model.addAttribute("sourceAccount", sourceAccount);
+            
+            return TRANSFER_CONFIRM_VIEW;
+            
+        } catch (IllegalArgumentException e) {
+            log.warn("Transfer validation failed: {}", e.getMessage());
+            model.addAttribute(ERROR_MESSAGE_ATTR, e.getMessage());
+            return prepareTransferFormWithErrors(transferRequest, model, null);
+        } catch (Exception e) {
+            log.error("Failed to validate transfer", e);
+            model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to validate transfer: " + e.getMessage());
+            return prepareTransferFormWithErrors(transferRequest, model, null);
+        }
+    }
+    
+    @PostMapping("/transfer/process")
+    public String processTransfer(@ModelAttribute TransferRequest transferRequest,
+                                 RedirectAttributes redirectAttributes) {
+        
+        try {
+            // Process the transfer
+            transferService.processTransfer(transferRequest);
+            
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, 
+                String.format("Transfer berhasil diproses. Referensi: %s, Jumlah: %,.2f dari %s ke %s", 
+                    transferRequest.getReferenceNumber(), 
+                    transferRequest.getAmount(),
+                    transferService.getAccountById(transferRequest.getFromAccountId()).getAccountNumber(),
+                    transferRequest.getToAccountNumber()));
+            return TRANSACTION_LIST_REDIRECT;
+            
+        } catch (IllegalArgumentException e) {
+            log.warn("Transfer processing failed: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, e.getMessage());
+            return "redirect:/transaction/transfer/" + transferRequest.getFromAccountId();
+        } catch (Exception e) {
+            log.error("Failed to process transfer", e);
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Failed to process transfer: " + e.getMessage());
+            return "redirect:/transaction/transfer/" + transferRequest.getFromAccountId();
+        }
+    }
+    
+    @PostMapping("/transfer/cancel")
+    public String cancelTransfer(@RequestParam UUID fromAccountId, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("infoMessage", "Transfer dibatalkan");
+        return "redirect:/transaction/transfer/" + fromAccountId;
+    }
+    
+    private String prepareTransferFormWithErrors(TransferRequest transferRequest, Model model, BindingResult bindingResult) {
+        try {
+            Optional<Account> accountOpt = accountRepository.findById(transferRequest.getFromAccountId());
+            if (accountOpt.isPresent()) {
+                model.addAttribute(TRANSFER_REQUEST_ATTR, transferRequest);
+                model.addAttribute("account", accountOpt.get());
+            }
+        } catch (Exception e) {
+            log.error("Error preparing transfer form", e);
+        }
+        
+        return TRANSFER_FORM_VIEW;
     }
 }

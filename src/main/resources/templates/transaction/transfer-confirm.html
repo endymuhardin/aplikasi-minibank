@@ -1,0 +1,189 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Konfirmasi Transfer Dana - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Konfirmasi Transfer Dana</h1>
+                <div class="text-sm text-gray-600">
+                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">
+                        Menunggu Konfirmasi
+                    </span>
+                </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            Periksa Detail Transfer
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>Harap periksa kembali semua detail transfer sebelum melanjutkan. Transfer yang telah diproses tidak dapat dibatalkan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transfer Summary -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Detail Transfer</h2>
+                
+                <!-- Transfer Amount -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 mb-1">Jumlah Transfer</p>
+                        <p class="text-3xl font-bold text-blue-600">
+                            IDR <span th:text="${#numbers.formatDecimal(transferRequest.amount, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Source Account -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <svg class="h-5 w-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Rekening Pengirim
+                        </h3>
+                        <div class="space-y-2">
+                            <p class="text-sm"><strong>Nomor Rekening:</strong> 
+                                <span class="font-mono text-gray-900" th:text="${sourceAccount.accountNumber}">A2000001</span>
+                            </p>
+                            <p class="text-sm"><strong>Nama Rekening:</strong> 
+                                <span class="text-gray-900" th:text="${sourceAccount.accountName}">Account Name</span>
+                            </p>
+                            <p class="text-sm"><strong>Pemilik:</strong> 
+                                <span class="text-gray-900" th:text="${sourceAccount.customer.displayName}">Customer Name</span>
+                            </p>
+                            <p class="text-sm"><strong>Saldo Saat Ini:</strong> 
+                                <span class="font-semibold text-green-600">
+                                    IDR <span th:text="${#numbers.formatDecimal(sourceAccount.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                                </span>
+                            </p>
+                            <p class="text-sm"><strong>Saldo Setelah Transfer:</strong> 
+                                <span class="font-semibold text-blue-600">
+                                    IDR <span th:text="${#numbers.formatDecimal(sourceAccount.balance.subtract(transferRequest.amount), 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Destination Account -->
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Rekening Penerima
+                        </h3>
+                        <div class="space-y-2">
+                            <p class="text-sm"><strong>Nomor Rekening:</strong> 
+                                <span class="font-mono text-gray-900" th:text="${transferRequest.toAccountNumber}">A2000002</span>
+                            </p>
+                            <p class="text-sm"><strong>Nama Rekening:</strong> 
+                                <span class="text-gray-900" th:text="${transferRequest.destinationAccountName}">Destination Account Name</span>
+                            </p>
+                            <p class="text-sm"><strong>Pemilik:</strong> 
+                                <span class="text-gray-900" th:text="${transferRequest.destinationCustomerName}">Destination Customer Name</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transfer Details -->
+                <div class="bg-white rounded-lg p-4 border border-gray-200 mt-4">
+                    <h3 class="font-semibold text-gray-800 mb-3">Detail Transaksi</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm"><strong>Keterangan:</strong> 
+                                <span class="text-gray-900" th:text="${transferRequest.description}">Transfer Dana</span>
+                            </p>
+                            <p class="text-sm"><strong>Nomor Referensi:</strong> 
+                                <span class="font-mono text-gray-900" th:text="${transferRequest.referenceNumber}">REF001</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm"><strong>Diproses Oleh:</strong> 
+                                <span class="text-gray-900" th:text="${transferRequest.createdBy ?: 'SYSTEM'}">SYSTEM</span>
+                            </p>
+                            <p class="text-sm"><strong>Waktu Transaksi:</strong> 
+                                <span class="text-gray-900" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm:ss')}">25/08/2024 14:30:15</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmation Form -->
+            <form th:action="@{/transaction/transfer/process}" method="post" class="space-y-6">
+                <!-- Hidden fields to preserve transfer data -->
+                <input type="hidden" name="fromAccountId" th:value="${transferRequest.fromAccountId}">
+                <input type="hidden" name="toAccountId" th:value="${transferRequest.toAccountId}">
+                <input type="hidden" name="toAccountNumber" th:value="${transferRequest.toAccountNumber}">
+                <input type="hidden" name="amount" th:value="${transferRequest.amount}">
+                <input type="hidden" name="description" th:value="${transferRequest.description}">
+                <input type="hidden" name="referenceNumber" th:value="${transferRequest.referenceNumber}">
+                <input type="hidden" name="createdBy" th:value="${transferRequest.createdBy}">
+                <input type="hidden" name="destinationAccountName" th:value="${transferRequest.destinationAccountName}">
+                <input type="hidden" name="destinationCustomerName" th:value="${transferRequest.destinationCustomerName}">
+                
+                <!-- Confirmation Checkbox -->
+                <div class="flex items-start">
+                    <input type="checkbox" id="confirm" name="confirm" required
+                           class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="confirm" class="ml-2 text-sm text-gray-700">
+                        Saya telah memeriksa dan mengkonfirmasi bahwa semua detail transfer di atas sudah benar. 
+                        Saya memahami bahwa transfer yang telah diproses tidak dapat dibatalkan.
+                        <span class="text-red-500">*</span>
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-4 pt-6">
+                    <form th:action="@{/transaction/transfer/cancel}" method="post" style="display: inline;">
+                        <input type="hidden" name="fromAccountId" th:value="${transferRequest.fromAccountId}">
+                        <button type="submit"
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                            Batalkan Transfer
+                        </button>
+                    </form>
+                    <button type="submit" id="process-transfer-btn"
+                            class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        Proses Transfer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for form validation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmCheckbox = document.getElementById('confirm');
+            const processButton = document.getElementById('process-transfer-btn');
+            
+            function updateButtonState() {
+                processButton.disabled = !confirmCheckbox.checked;
+            }
+            
+            confirmCheckbox.addEventListener('change', updateButtonState);
+            
+            // Initial state
+            updateButtonState();
+        });
+    </script>
+</body>
+</html>

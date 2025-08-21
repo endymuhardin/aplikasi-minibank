@@ -14,6 +14,7 @@ import id.ac.tazkia.minibank.config.ParallelSeleniumManager;
 import id.ac.tazkia.minibank.config.PostgresTestContainersConfiguration;
 import id.ac.tazkia.minibank.config.ApplicationReadinessService;
 import id.ac.tazkia.minibank.functional.web.helper.LoginHelper;
+import id.ac.tazkia.minibank.util.ParallelTestDataContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -51,6 +52,7 @@ public abstract class BaseSeleniumTest extends AbstractSeleniumTestBase
     
     @BeforeEach
     void setupSeleniumTest(TestInfo testInfo) throws Exception {
+        ParallelTestDataContext.initialize();
         synchronized (seleniumLock) {
             activeSeleniumTests++;
             log.info("Parallel Selenium test starting: {} [Active: {}, Thread: {}]", 
@@ -88,6 +90,7 @@ public abstract class BaseSeleniumTest extends AbstractSeleniumTestBase
     
     @AfterEach
     protected void cleanupSeleniumTest(TestInfo testInfo) {
+        ParallelTestDataContext.cleanup();
         String threadName = Thread.currentThread().getName();
         
         try {
