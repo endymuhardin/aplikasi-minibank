@@ -81,38 +81,11 @@ public class DashboardPage {
     
     public boolean isOnDashboardPage() {
         try {
-            // Wait for successful login redirect to dashboard with longer timeout
-            wait.until(ExpectedConditions.or(
-                ExpectedConditions.urlContains("/dashboard"),
-                ExpectedConditions.presenceOfElementLocated(By.id("userMenuButton")),
-                ExpectedConditions.presenceOfElementLocated(By.id("page-title"))
-            ));
-            
-            String currentUrl = driver.getCurrentUrl();
-            System.out.println("Current URL : " + currentUrl);
-            
-            // Check if we're on the dashboard URL
-            boolean isOnDashboardUrl = currentUrl.contains("/dashboard");
-            
-            // Also verify that key dashboard elements are present
-            boolean hasSidebar = driver.findElements(By.id("sidebar-nav")).size() > 0;
-            boolean hasUserMenu = driver.findElements(By.id("userMenuButton")).size() > 0;
-            boolean hasPageTitle = driver.findElements(By.id("page-title")).size() > 0;
-            
-            // More flexible check - URL or key elements present
-            boolean hasRequiredElements = hasSidebar || hasUserMenu || hasPageTitle;
-            
-            log.info("Dashboard check - URL contains /dashboard: {}, hasSidebar: {}, hasUserMenu: {}, hasPageTitle: {}", 
-                isOnDashboardUrl, hasSidebar, hasUserMenu, hasPageTitle);
-            
-            return isOnDashboardUrl && hasRequiredElements;
+            wait.until(ExpectedConditions.urlContains("/dashboard"));
+            return driver.getCurrentUrl().contains("/dashboard") && driver.findElements(By.id("userMenuButton")).size() > 0;
         } catch (Exception e) {
-            String errorDetails = String.format(
-                "❌ FAIL-FAST: Cannot verify dashboard page status. URL: '%s', Page title: '%s', Error: %s",
-                driver.getCurrentUrl(), driver.getTitle(), e.getMessage()
-            );
-            log.error(errorDetails, e);
-            throw new AssertionError(errorDetails, e);
+            log.warn("isOnDashboardPage check failed: {}", e.getMessage());
+            return false;
         }
     }
     

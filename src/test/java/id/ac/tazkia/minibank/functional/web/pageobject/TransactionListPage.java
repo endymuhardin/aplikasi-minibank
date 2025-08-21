@@ -18,6 +18,9 @@ public class TransactionListPage extends BasePage {
     @FindBy(id = "cash-deposit-button")
     private WebElement cashDepositButton;
     
+    @FindBy(id = "transfer-button")
+    private WebElement transferButton;
+    
     @FindBy(id = "cash-withdrawal-button")
     private WebElement cashWithdrawalButton;
     
@@ -62,6 +65,12 @@ public class TransactionListPage extends BasePage {
     public AccountSelectionPage clickCashWithdrawalButton() {
         scrollToElementAndClick(cashWithdrawalButton);
         waitForUrlToContain("/transaction/cash-withdrawal");
+        return new AccountSelectionPage(driver, baseUrl);
+    }
+    
+    public AccountSelectionPage clickTransferButton() {
+        scrollToElementAndClick(transferButton);
+        waitForUrlToContain("/transaction/transfer");
         return new AccountSelectionPage(driver, baseUrl);
     }
     

@@ -60,7 +60,8 @@ public class AccountSelectionPage extends BasePage {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("page-title")));
         wait.until(ExpectedConditions.or(
             ExpectedConditions.textToBePresentInElement(pageTitle, "Setoran Tunai - Pilih Rekening"),
-            ExpectedConditions.textToBePresentInElement(pageTitle, "Penarikan Tunai - Pilih Rekening")
+            ExpectedConditions.textToBePresentInElement(pageTitle, "Penarikan Tunai - Pilih Rekening"),
+            ExpectedConditions.textToBePresentInElement(pageTitle, "Transfer Dana - Pilih Rekening Pengirim")
         ));
         waitForPageToLoad();
     }
@@ -70,7 +71,8 @@ public class AccountSelectionPage extends BasePage {
             waitForPageLoad();
             String titleText = pageTitle.getText();
             return titleText.contains("Setoran Tunai - Pilih Rekening") || 
-                   titleText.contains("Penarikan Tunai - Pilih Rekening");
+                   titleText.contains("Penarikan Tunai - Pilih Rekening") ||
+                   titleText.contains("Transfer Dana - Pilih Rekening Pengirim");
         } catch (Exception e) {
             log.debug("Failed to verify account selection page: {}", e.getMessage());
             return false;
@@ -341,6 +343,40 @@ public class AccountSelectionPage extends BasePage {
             return getErrorMessage();
         }
         return "";
+    }
+    
+    // Transfer-specific methods
+    public void openTransferAccountSelection() {
+        driver.get(baseUrl + "/transaction/transfer");
+        waitForPageLoad();
+    }
+    
+    public boolean isTransferType() {
+        try {
+            return pageTitle.getText().contains("Transfer Dana");
+        } catch (Exception e) {
+            log.debug("Failed to check transfer type: {}", e.getMessage());
+            return false;
+        }
+    }
+    
+    public TransferFormPage selectAccountForTransfer(String accountNumber) {
+        log.info("Selecting account for transfer: {}", accountNumber);
+        for (WebElement accountCard : accountCards) {
+            try {
+                WebElement accountNumberElement = accountCard.findElement(By.id("account-number"));
+                if (accountNumberElement.getText().equals(accountNumber)) {
+                    // Click the entire account card (which has onclick="selectAccount(accountId)")
+                    scrollToElementAndClick(accountCard);
+                    waitForPageToLoad();
+                    return new TransferFormPage(driver, baseUrl);
+                }
+            } catch (Exception e) {
+                log.debug("Error checking account card for transfer selection: {}", e.getMessage());
+                continue;
+            }
+        }
+        throw new RuntimeException("Account with number " + accountNumber + " not found for transfer");
     }
     
     // Note: Using className locators for balance and status since account IDs come from fixtures

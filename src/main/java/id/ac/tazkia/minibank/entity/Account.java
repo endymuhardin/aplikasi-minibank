@@ -116,6 +116,35 @@ public class Account {
         this.closedDate = LocalDate.now();
     }
     
+    public void transferOut(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be positive");
+        }
+        if (this.status == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Cannot transfer from a closed account");
+        }
+        if (!this.isActive()) {
+            throw new IllegalStateException("Account must be active to transfer funds");
+        }
+        if (this.balance.compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance for transfer");
+        }
+        this.balance = this.balance.subtract(amount);
+    }
+    
+    public void transferIn(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be positive");
+        }
+        if (this.status == AccountStatus.CLOSED) {
+            throw new IllegalStateException("Cannot transfer to a closed account");
+        }
+        if (!this.isActive()) {
+            throw new IllegalStateException("Account must be active to receive transfers");
+        }
+        this.balance = this.balance.add(amount);
+    }
+    
     // Enums
     public enum AccountStatus {
         ACTIVE, INACTIVE, CLOSED, FROZEN
