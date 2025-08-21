@@ -38,13 +38,13 @@ public class SecurityConfig {
         
         // Custom query to get user credentials
         manager.setUsersByUsernameQuery(
-            "SELECT u.username, COALESCE(up.password_hash, '') as password, " +
+            "SELECT u.username, up.password_hash as password, " +
             "CASE WHEN u.is_active = true " +
             "AND (u.is_locked = false OR u.locked_until IS NULL OR u.locked_until < NOW()) " +
-            "AND (up.is_active = true OR up.is_active IS NULL) " +
+            "AND up.is_active = true " +
             "AND (up.password_expires_at IS NULL OR up.password_expires_at > NOW()) " +
             "THEN true ELSE false END as enabled " +
-            "FROM users u LEFT JOIN user_passwords up ON u.id = up.id_users " +
+            "FROM users u INNER JOIN user_passwords up ON u.id = up.id_users " +
             "WHERE u.username = ?"
         );
         

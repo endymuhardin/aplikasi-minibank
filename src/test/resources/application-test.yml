@@ -1,3 +1,15 @@
+# Database connection pool configuration for tests
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      max-lifetime: 1800000  # 30 min in ms
+      idle-timeout: 300000   # 5 min
+      connection-timeout: 30000  # 30 sec
+      leak-detection-threshold: 60000  # 60 sec
+      connection-test-query: SELECT 1
+
 test:
   selenium:
     container:
