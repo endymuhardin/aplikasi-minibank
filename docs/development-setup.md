@@ -344,3 +344,17 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 - **Version conflicts**: Gunakan `sdk current` dan `nvm current` untuk check active versions
 - **Path issues**: SDKMAN dan NVM otomatis manage PATH, hindari manual PATH modification
 - **Shell conflicts**: Pastikan menggunakan shell yang benar (bash/zsh)
+
+## Remote Build System
+
+Untuk build dan testing di VPS remote (berguna untuk resource-intensive builds), gunakan:
+
+```bash
+# Start remote build
+./devops/start-remote-build.sh
+
+# Monitor build progress
+./devops/check-remote-build.sh
+```
+
+📖 **Dokumentasi lengkap**: [Remote Build Guide](./remote-build-guide.md)
