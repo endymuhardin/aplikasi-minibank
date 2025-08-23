@@ -75,6 +75,7 @@ Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices
 - [🏗️ Praktik Teknis](./docs/technical-practices/index.md) - Arsitektur dan best practices
 - [🗃️ Dokumentasi Database](./docs/database-documentation.md) - Schema dan design database
 - [📈 Status Implementasi Fitur](./docs/feature-implementation-status.md) - Comprehensive feature status dan roadmap
+- [☁️ Remote Build Guide](./docs/remote-build-guide.md) - Panduan build dan testing di VPS remote
 
 ### Skenario Testing
 - [🧩 Skenario Testing](./docs/test-scenarios/README.md) - Comprehensive test scenarios
