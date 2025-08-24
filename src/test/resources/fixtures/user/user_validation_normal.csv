@@ -1,8 +1,0 @@
-username,email,fullName,expectedValid,testDescription
-validuser01,valid01@yopmail.com,Valid User One,true,Normal valid user
-validuser02,valid02@yopmail.com,Valid User Two,true,Normal valid user with different email
-test.user,test.user@yopmail.com,Test User With Dots,true,Username with dots
-user_123,user123@yopmail.com,User With Numbers,true,Username with numbers and underscore
-a,a@yopmail.com,Single Letter Name,true,Minimum length username
-very.long.username.that.is.still.valid,very.long@yopmail.com,Very Long Username,true,Maximum length username (50 chars)
-normaluser,normal@different-domain.com,User Different Domain,true,Different email domain

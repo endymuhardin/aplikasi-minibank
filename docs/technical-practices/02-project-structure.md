@@ -27,24 +27,19 @@ src/
 │       └── src/input.css
 └── test/
     ├── java/id/ac/tazkia/minibank/
-    │   ├── integration/                       # Integration tests
-    │   │   ├── controller/                   # Controller tests
-    │   │   ├── repository/                   # Repository tests
-    │   │   └── service/                      # Service tests
-    │   ├── functional/                       # Functional tests
-    │   │   ├── api/                         # API BDD tests (Karate)
-    │   │   └── web/                         # Selenium UI tests
-    │   ├── config/                           # Test configuration
-    │   │   ├── ParallelSeleniumManager.java # Selenium WebDriver management
-    │   │   └── SeleniumTestProperties.java  # Test properties
-    │   ├── parallel/                         # Parallel test infrastructure
-    │   └── util/                            # Test utilities
+    │   ├── config/                           # Test infrastructure configuration
+    │   │   ├── BaseIntegrationTest.java      # Schema isolation foundation
+    │   │   ├── TestSchemaInitializer.java    # ApplicationContextInitializer
+    │   │   ├── TestSchemaManager.java        # Schema management utilities
+    │   │   ├── TestDataFactory.java          # Thread-safe data generation
+    │   │   └── ThreadLocalSchemaCustomizer.java # HikariCP customization
+    │   ├── integration/                      # Schema-per-thread integration tests
+    │   │   ├── SchemaPerThreadJdbcTemplateTest.java # JDBC-level tests (8 tests)
+    │   │   ├── SchemaPerThreadJpaTest.java          # JPA-level tests (7 tests)
+    │   │   └── service/                             # Service layer tests
+    │   │       └── BranchServiceIntegrationTest.java
     └── resources/
-        ├── application-test.yml              # Test configuration
-        ├── junit-platform.properties        # JUnit 5 parallel configuration
-        ├── fixtures/                        # CSV test data
-        ├── karate/                          # Karate feature files
-        └── sql/                             # Test SQL scripts
+        └── junit-platform.properties        # JUnit 5 parallel configuration (75% factor)
 ```
 
 ### Package Naming Conventions

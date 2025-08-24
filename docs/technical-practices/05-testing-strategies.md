@@ -2,388 +2,363 @@
 
 ## 🧪 **Test Architecture Overview**
 
-### Comprehensive Testing Strategy
+### Schema-Per-Thread Integration Testing Strategy
 
-The application implements a multi-layered testing strategy with optimized Selenium test execution using TestContainers for UI automation.
+The application implements a sophisticated schema-per-thread isolation strategy for parallel integration testing using TestContainers PostgreSQL and JUnit 5 parallel execution.
 
-#### **Test Types & Infrastructure**
+#### **Test Infrastructure Architecture**
 
 ```
 src/test/java/id/ac/tazkia/minibank/
-├── unit/                              # Pure unit tests
-│   └── entity/                        # Entity business logic tests
-├── integration/                       # Integration tests with database
-│   ├── repository/                    # @DataJpaTest repository tests
-│   ├── service/                       # Service layer integration tests
-│   └── controller/                    # REST controller tests
-├── functional/                        # Feature tests (BDD style)
-│   ├── api/                          # API integration tests (Karate)
-│   └── web/                          # UI automation tests (Selenium)
-├── config/                           # Test configuration infrastructure
-│   ├── ParallelSeleniumManager.java  # Selenium WebDriver management
-│   └── SeleniumTestProperties.java   # Configuration properties
+├── config/                             # Test infrastructure configuration
+│   ├── BaseIntegrationTest.java        # Base class with @BeforeAll schema setup
+│   ├── TestSchemaInitializer.java      # ApplicationContextInitializer for schema config
+│   ├── TestSchemaManager.java          # Centralized schema management utility
+│   ├── TestDataFactory.java            # Thread-safe test data generation
+│   └── ThreadLocalSchemaCustomizer.java # HikariCP connection customization
+├── integration/                        # Schema-per-thread integration tests
+│   ├── SchemaPerThreadJdbcTemplateTest.java  # JDBC-level tests with lifecycle management
+│   ├── SchemaPerThreadJpaTest.java           # JPA-level tests with entity relationships
+│   └── service/                              # Service layer integration tests
 └── resources/
-    ├── fixtures/                     # Test data (CSV files)
-    ├── karate/                       # Karate BDD tests
-    └── sql/                         # SQL setup/cleanup scripts
+    └── junit-platform.properties       # JUnit 5 parallel execution configuration
 ```
 
-## 🚀 **Advanced Selenium Test Management**
+## 🏗️ **Core Test Infrastructure Components**
 
-### Thread-Safe Selenium WebDriver Infrastructure
-
-The application implements sophisticated Selenium test management using TestContainers with resource-aware container allocation and thread-safe WebDriver management.
-
-#### **Key Features**
-
-- **Thread-Safe WebDriver Management**: Isolated WebDriver instances per thread via ThreadLocal
-- **Resource-Aware Container Allocation**: Dynamic limits based on system CPU/memory
-- **Container Pooling**: Efficient lifecycle management with startup throttling
-- **Recording Support**: Optional MP4 test recording with configurable output
-- **Multi-Browser Support**: Optimized Chrome and Firefox configurations
-- **Memory Optimization**: Conservative resource allocation for parallel stability
-
-#### **ParallelSeleniumManager Architecture**
+### BaseIntegrationTest - Schema Isolation Foundation
 
 ```java
-@Component
-public class ParallelSeleniumManager {
-    // Thread-local storage for WebDriver instances
-    private static final ThreadLocal<WebDriverInstance> threadLocalDriver = new ThreadLocal<>();
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = {TestSchemaInitializer.class})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Testcontainers
+public abstract class BaseIntegrationTest {
+
+    @ServiceConnection
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
+            .withDatabaseName("testdb")
+            .withUsername("testuser")
+            .withPassword("testpass")
+            .withLogConsumer(new Slf4jLogConsumer(logger))
+            .withStartupTimeout(Duration.ofMinutes(5));
     
-    // Container pool management
-    private static final Map<String, BrowserWebDriverContainer<?>> containerPool = new ConcurrentHashMap<>();
-    private static final AtomicInteger containerCounter = new AtomicInteger(0);
+    protected static String schemaName;
+    protected JdbcTemplate jdbcTemplate;
     
-    // Container startup throttling
-    private static volatile Semaphore containerStartupSemaphore;
-    
-    // System property configuration
-    private static final String BROWSER_TYPE = System.getProperty("selenium.browser", "chrome");
-    private static final boolean RECORDING_ENABLED = Boolean.parseBoolean(
-        System.getProperty("selenium.recording.enabled", "false"));
-    private static final boolean HEADLESS_ENABLED = Boolean.parseBoolean(
-        System.getProperty("selenium.headless", "true"));
+    @BeforeAll
+    static void setUpSchema() {
+        // Thread-specific schema generation using TestSchemaManager
+        schemaName = TestSchemaManager.generateSchemaName();
+        
+        // Create isolated schema with direct DataSource connection
+        try (Connection connection = TestSchemaManager.createConnection()) {
+            TestSchemaManager.createSchemaIfNotExists(connection, schemaName);
+            
+            // Run Flyway migrations in isolated schema
+            Flyway flyway = TestSchemaManager.configureFlyway(connection, schemaName);
+            flyway.migrate();
+        }
+    }
 }
 ```
 
-#### **Resource Management Strategy**
+### TestSchemaManager - Centralized Schema Operations
 
 ```java
-/**
- * Conservative Container Allocation (Current Implementation)
- * --------------------------------------------------------
- * Max containers = min(processors/4, memory_GB/2, 3)
- * 
- * Example for 8-core, 16GB system:
- * - maxByProcessors = 8/4 = 2
- * - maxByMemory = 16384/2048 = 8  
- * - finalMax = min(2, 8, 3) = 2 containers
- */
-public int getEffectiveMaxContainers() {
-    if (container.maxContainers != null) {
-        return container.maxContainers;
+public class TestSchemaManager {
+    private static final AtomicLong SCHEMA_COUNTER = new AtomicLong(0);
+    
+    /**
+     * Generates unique schema name using thread name and counter
+     * Format: test_threadname_hash8chars
+     */
+    public static String generateSchemaName() {
+        String threadName = Thread.currentThread().getName().toLowerCase()
+            .replace('-', '_').replace(' ', '_');
+        String hash = Integer.toHexString((threadName + SCHEMA_COUNTER.incrementAndGet()).hashCode())
+            .substring(0, 8);
+        return "test_" + threadName + "_" + hash;
     }
     
-    int processors = Runtime.getRuntime().availableProcessors();
-    long maxMemoryMB = Runtime.getRuntime().maxMemory() / (1024 * 1024);
-    
-    int maxByProcessors = Math.max(1, processors / 4);        // Very conservative
-    int maxByMemory = Math.max(1, (int) (maxMemoryMB / 2048)); // 2GB per container
-    
-    int calculatedMax = Math.min(maxByProcessors, maxByMemory);
-    calculatedMax = Math.min(calculatedMax, 3);  // Hard cap at 3 containers
-    calculatedMax = Math.max(calculatedMax, 1);  // Ensure at least 1 container
-    
-    return calculatedMax;
+    /**
+     * Thread-safe schema creation with proper error handling
+     */
+    public static void createSchemaIfNotExists(Connection connection, String schemaName) {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("CREATE SCHEMA " + schemaName);
+        } catch (SQLException e) {
+            if (!e.getSQLState().equals("42P06")) { // Schema already exists
+                throw new RuntimeException("Failed to create schema: " + schemaName, e);
+            }
+        }
+    }
 }
 ```
 
-#### **Browser Optimization Configurations**
+### TestDataFactory - Thread-Safe Data Generation
 
 ```java
-// Chrome optimizations for parallel execution
-private static ChromeOptions createChromeOptions() {
-    ChromeOptions options = new ChromeOptions();
+public class TestDataFactory {
+    private static final ThreadLocal<Faker> FAKER = ThreadLocal.withInitial(() -> 
+        new Faker(new Locale("id", "ID")));
+    private static final AtomicLong ACCOUNT_COUNTER = new AtomicLong(8000000000L);
+    private static final AtomicLong BRANCH_COUNTER = new AtomicLong(1000);
     
-    options.addArguments(
-        // Security and stability
-        "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu",
-        "--disable-web-security", "--disable-features=VizDisplayCompositor",
-        
-        // Performance optimizations for parallel execution
-        "--disable-extensions", "--disable-plugins", 
-        "--disable-images",  // Faster page loads
-        "--disable-default-apps", "--disable-background-timer-throttling",
-        "--disable-renderer-backgrounding", "--disable-backgrounding-occluded-windows",
-        "--disable-client-side-phishing-detection", "--disable-sync",
-        
-        // Memory optimization for parallel execution
-        "--aggressive-cache-discard", "--memory-pressure-off",
-        "--max-old-space-size=256"  // Limit memory usage to 256MB
-    );
-    
-    if (HEADLESS_ENABLED) {
-        options.addArguments("--headless");
+    /**
+     * Generates thread-safe unique account numbers
+     * Format: 10-digit numbers starting from 8000000000
+     */
+    public static String generateAccountNumber() {
+        return String.valueOf(ACCOUNT_COUNTER.incrementAndGet());
     }
     
-    return options;
-}
-
-// Firefox optimizations for parallel execution  
-private static FirefoxOptions createFirefoxOptions() {
-    FirefoxOptions options = new FirefoxOptions();
+    /**
+     * Generates realistic Indonesian personal names using Faker
+     */
+    public static String generateIndonesianPersonName() {
+        return FAKER.get().name().firstName() + " " + FAKER.get().name().lastName();
+    }
     
-    options.addPreference("dom.webnotifications.enabled", false);
-    options.addPreference("media.volume_scale", "0.0");
-    options.addPreference("dom.push.enabled", false);
-    options.addPreference("dom.webdriver.enabled", false);
-    
-    // Memory optimization
-    options.addPreference("browser.cache.memory.capacity", 32768);  // 32MB cache
-    options.addPreference("browser.sessionhistory.max_total_viewers", 2);
-    
-    return options;
+    /**
+     * Generates thread markers for precise test data cleanup
+     * Format: TEST_THREADNAME
+     */
+    public static String generateThreadMarker() {
+        return "TEST_" + Thread.currentThread().getName()
+            .toUpperCase().replace('-', '_').replace(' ', '_');
+    }
 }
 ```
 
-#### **Configuration Properties**
+## ⚡ **JUnit 5 Parallel Execution Configuration**
 
-**application-test.yml:**
-```yaml
-test:
-  selenium:
-    container:
-      # Resource allocation - can be overridden via system properties
-      maxContainers: 2  # Conservative default, system will calculate if not set
-      memoryLimitMb: 1024
-      cpuQuota: 100000  # 1 full CPU core
-      sharedMemoryBytes: 1073741824  # 1GB
-      startupTimeoutSeconds: 300  # 5 minutes
-      maxStartupRetries: 1  # Fail fast - no retries
-      retryDelayMs: 0  # No delay since we don't retry
-    
-    timeouts:
-      # WebDriver timeouts in seconds
-      pageLoadTimeoutSeconds: 30
-      scriptTimeoutSeconds: 20
-      implicitWaitSeconds: 10
-      pageObjectWaitSeconds: 30
-    
-    applicationReadiness:
-      # Application startup checking
-      enabled: true
-      maxWaitTimeSeconds: 60
-      pollIntervalMs: 1000
-      httpTimeoutSeconds: 3
-```
+### junit-platform.properties
 
-#### **JUnit 5 Parallel Configuration**
-
-**src/test/resources/junit-platform.properties:**
 ```properties
-# Optimized JUnit 5 Configuration for Parallel Selenium Execution
-
-# Enable parallel execution
+# Enable JUnit 5 parallel execution
 junit.jupiter.execution.parallel.enabled=true
 junit.jupiter.execution.parallel.mode.default=concurrent
-junit.jupiter.execution.parallel.mode.classes.default=concurrent
 
-# Optimized parallel configuration for Selenium tests
+# Dynamic strategy with 75% factor for optimal resource utilization  
 junit.jupiter.execution.parallel.config.strategy=dynamic
-junit.jupiter.execution.parallel.config.dynamic.factor=1.0
-junit.jupiter.execution.parallel.config.dynamic.max-pool-size-factor=2.0
-junit.jupiter.execution.parallel.config.dynamic.core-pool-size-factor=0.5
-junit.jupiter.execution.parallel.config.dynamic.keep-alive=30s
-
-# Custom parallel configuration for different test types
-# Selenium tests: Limited by container resources
-junit.jupiter.execution.parallel.config.custom.class.selenium-tests=4
-# Repository tests: Database transaction isolated, can run in parallel  
-junit.jupiter.execution.parallel.config.custom.class.repository-tests=6
-# Integration tests: Database connection limited
-junit.jupiter.execution.parallel.config.custom.class.integration-tests=4
-# Unit tests: CPU bound, can use more threads
-junit.jupiter.execution.parallel.config.custom.class.unit-tests=dynamic
-
-# Optimized timeouts for parallel execution
-junit.jupiter.execution.timeout.default=15m
-junit.jupiter.execution.timeout.testable.method.default=8m
-junit.jupiter.execution.timeout.testable.method.selenium=10m
-junit.jupiter.execution.timeout.test.method.default=5m
-
-# Test instance lifecycle
-junit.jupiter.testinstance.lifecycle.default=per_class
+junit.jupiter.execution.parallel.config.dynamic.factor=0.75
 ```
 
-#### **Test Execution Patterns**
+This configuration enables:
+- **Concurrent execution** by default for all test classes and methods
+- **Dynamic thread allocation** based on available CPU cores (75% utilization)
+- **Thread pool management** automatically handled by JUnit 5
 
-**Running Parallel Tests:**
-```bash
-# Run all tests with parallel execution (default with junit-platform.properties)
-mvn test
+## 🧪 **Test Implementation Patterns**
 
-# Run specific test categories with parallel execution
-mvn test -Dtest="*RepositoryTest"              # Repository tests (parallel-safe)
-mvn test -Dtest="*ApiTest"                     # API integration tests  
-mvn test -Dtest="*SeleniumTest"                # UI tests (resource-limited)
+### JDBC-Level Integration Tests
 
-# Selenium-specific execution options
-mvn test -Dtest=ProductManagementSeleniumTest                           # Headless mode (default)
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false # Visible browser
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true # With recording
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox        # Firefox browser
+**SchemaPerThreadJdbcTemplateTest** demonstrates schema isolation using direct JDBC operations:
 
-# Override container limits for high-resource systems
-mvn test -Dtest=*SeleniumTest -Dtest.selenium.container.maxContainers=4
-```
-
-**Key Configuration Options:**
-```bash
-# System Properties for Test Execution
--Dselenium.headless=true|false           # Browser visibility
--Dselenium.recording.enabled=true|false  # Video recording
--Dselenium.browser=chrome|firefox        # Browser type
--Dtest.selenium.container.maxContainers=N # Override container limit
-```
-
-## 📊 **Maven Surefire Configuration**
-
-**pom.xml:**
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.0.0-M9</version>
-    <configuration>
-        <includes>
-            <include>**/*Test.java</include>
-            <include>**/*Runner.java</include>
-        </includes>
-        <!-- Parallel execution handled by JUnit 5 platform configuration -->
-    </configuration>
-</plugin>
-```
-
-## 🏗️ **Actual Test Architecture Patterns**
-
-### Repository Tests (@DataJpaTest)
 ```java
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class CustomerRepositoryTest {
+@Slf4j
+@Execution(ExecutionMode.CONCURRENT)
+class SchemaPerThreadJdbcTemplateTest extends BaseIntegrationTest {
     
-    @Autowired
-    private CustomerRepository customerRepository;
+    private String threadMarker;
     
-    @Test
-    void shouldSavePersonalCustomer() {
-        PersonalCustomer customer = new PersonalCustomer();
-        customer.setFirstName("Test");
-        customer.setLastName("Customer");
-        customer.setEmail("test@example.com");
-        // ... set required fields
+    @BeforeEach
+    void setUpTestData() {
+        threadMarker = TestDataFactory.generateThreadMarker();
         
-        Customer saved = customerRepository.save(customer);
-        assertThat(saved.getId()).isNotNull();
+        // Insert lifecycle test data
+        jdbcTemplate.update(
+            "INSERT INTO branches (branch_code, branch_name, address, city, created_by) VALUES (?, ?, ?, ?, ?)",
+            TestDataFactory.generateLifecycleCode(),
+            TestDataFactory.generateBranchName(),
+            TestDataFactory.generateIndonesianAddress(),
+            TestDataFactory.generateIndonesianCity(),
+            threadMarker
+        );
+    }
+    
+    @AfterEach
+    void cleanUpTestData() {
+        // Clean up only test data for this thread
+        int deletedRows = jdbcTemplate.update("DELETE FROM branches WHERE created_by = ?", threadMarker);
+        log.info("Cleaned up {} test data rows for thread marker {}", deletedRows, threadMarker);
     }
 }
 ```
 
-### Karate API Integration Tests  
-```java
-@Karate.Test
-class CustomerRegistrationTest {
-    // Tests defined in customer-registration.feature
-    // Supports parallel execution through JUnit 5
-}
-```
+### JPA-Level Integration Tests
 
-### Selenium UI Tests
+**SchemaPerThreadJpaTest** demonstrates schema isolation using JPA repositories with JdbcTemplate verification:
+
 ```java
-public class CustomerManagementSeleniumTest extends AbstractSeleniumTestBase {
+@Slf4j
+@Execution(ExecutionMode.CONCURRENT)
+class SchemaPerThreadJpaTest extends BaseIntegrationTest {
+    
+    @Autowired private AccountRepository accountRepository;
+    @Autowired private BranchRepository branchRepository;
+    @Autowired private CustomerRepository customerRepository;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
+    
+    private Account lifecycleAccount;
+    private String threadMarker;
+    
+    @BeforeEach
+    void setUpTestData() {
+        threadMarker = TestDataFactory.generateThreadMarker();
+        
+        // Load migration data for relationships
+        Branch migrationBranch = branchRepository.findByBranchCode("HO001")
+            .orElseThrow(() -> new IllegalStateException("Migration branch HO001 not found"));
+        Customer migrationCustomer = customerRepository.findByCustomerNumber("C1000001")
+            .orElseThrow(() -> new IllegalStateException("Migration customer C1000001 not found"));
+        Product migrationProduct = productRepository.findByProductCode("TAB001")
+            .orElseThrow(() -> new IllegalStateException("Migration product TAB001 not found"));
+        
+        // Create and persist lifecycle account via repository
+        lifecycleAccount = new Account();
+        lifecycleAccount.setBranch(migrationBranch);
+        lifecycleAccount.setCustomer(migrationCustomer);
+        lifecycleAccount.setProduct(migrationProduct);
+        lifecycleAccount.setAccountNumber(TestDataFactory.generateAccountNumber());
+        lifecycleAccount.setAccountName(TestDataFactory.generateIndonesianPersonName() + " - Account");
+        lifecycleAccount.setBalance(TestDataFactory.generateAccountBalance());
+        lifecycleAccount.setCreatedBy(threadMarker);
+        
+        lifecycleAccount = accountRepository.save(lifecycleAccount);
+    }
     
     @Test
-    void shouldCreatePersonalCustomer() {
-        WebDriver driver = ParallelSeleniumManager.getDriver();
-        String baseUrl = ParallelSeleniumManager.getBaseUrl(appPort);
+    void shouldUpdateAccountSuccessfully() {
+        // Load account via repository
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(lifecycleAccount.getAccountNumber());
+        assertTrue(accountOpt.isPresent());
         
-        // Test implementation with container-managed WebDriver
-        driver.get(baseUrl + "/customer/personal/form");
-        // ... test logic
+        Account accountToUpdate = accountOpt.get();
+        BigDecimal originalBalance = accountToUpdate.getBalance();
+        
+        // Modify and save via repository
+        String newAccountName = TestDataFactory.generateIndonesianPersonName() + " - Updated Account";
+        BigDecimal depositAmount = TestDataFactory.generateDepositAmount();
+        
+        accountToUpdate.setAccountName(newAccountName);
+        accountToUpdate.deposit(depositAmount); // Use business method
+        accountToUpdate.setUpdatedBy(threadMarker + "_UPDATED");
+        
+        Account savedAccount = accountRepository.save(accountToUpdate);
+        
+        // Verify via JdbcTemplate
+        String sql = "SELECT * FROM accounts WHERE account_number = ?";
+        Map<String, Object> result = jdbcTemplate.queryForMap(sql, lifecycleAccount.getAccountNumber());
+        
+        assertEquals(newAccountName, result.get("account_name"));
+        assertTrue(originalBalance.add(depositAmount).compareTo((BigDecimal) result.get("balance")) == 0);
+        assertEquals(threadMarker + "_UPDATED", result.get("updated_by"));
     }
 }
 ```
 
-## 📈 **Performance Benefits & Monitoring**
+## 📊 **Test Architecture Benefits**
 
-### Resource Optimization Results
-- **Container Resource Management**: Dynamic allocation based on system capabilities
-- **Memory Efficiency**: 1GB RAM + 1GB shared memory per Selenium container
-- **Browser Optimization**: Disabled images, extensions, and background processes
-- **Startup Throttling**: Semaphore-based container startup prevents resource exhaustion
+### Schema Isolation Advantages
 
-### Container Statistics
-```java
-// Available through ParallelSeleniumManager
-String stats = ParallelSeleniumManager.getContainerStatistics();
-// Output: "Active containers: 2/3, Browser: chrome, Headless: true"
-```
+1. **Complete Data Isolation**: Each test thread operates in its own PostgreSQL schema
+2. **Parallel Execution Safety**: No data conflicts between concurrent tests
+3. **Migration Data Preservation**: Flyway seed data available in every schema
+4. **Realistic Test Environment**: Full database schema with relationships
 
-## ✅ **Test Implementation Status**
+### Performance Optimization
 
-### Selenium Test Coverage (Completed)
-| Test Class | Coverage Area | Status |
-|------------|---------------|--------|
-| **LoginSeleniumTest** | Authentication & RBAC | ✅ Complete |
-| **ProductManagementSeleniumTest** | Banking Products CRUD | ✅ Complete |
-| **RbacManagementSeleniumTest** | User & Role Management | ✅ Complete |
-| **CustomerManagementSeleniumTest** | Customer Operations | ✅ Complete |
-| **PersonalAccountOpeningSeleniumTest** | Personal Account Workflows | ✅ Complete |
-| **CorporateAccountOpeningSeleniumTest** | Corporate Account Workflows | ✅ Complete |
-| **ComprehensiveAccountOpeningSeleniumTest** | End-to-End Account Opening | ✅ Complete |
-| **IslamicBankingAccountOpeningSeleniumTest** | Islamic Product Account Opening | ✅ Complete |
-| **CashDepositSeleniumTest** | Cash Deposit Transactions | ✅ Complete |
-| **CashWithdrawalSeleniumTest** | Cash Withdrawal Transactions | ✅ Complete |
-| **PassbookPrintingSeleniumTest** | Passbook & History Services | ✅ Complete |
-| **DashboardSeleniumTest** | Dashboard Navigation | ✅ Complete |
-| **BranchManagementSeleniumTest** | Branch Operations | ✅ Complete |
-| **PermissionManagementSeleniumTest** | Permission Administration | ✅ Complete |
+1. **Dynamic Thread Allocation**: JUnit 5 manages optimal thread count (75% CPU utilization)
+2. **@BeforeAll Schema Setup**: One-time schema creation per test class
+3. **Efficient Cleanup**: Thread-marker based cleanup preserves migration data
+4. **Connection Pool Management**: HikariCP with schema-specific connection customization
 
-**Total: 17 Test Classes - 100% Implementation Complete**
+## 🛠️ **Test Execution Commands**
 
-### Page Object Model (31 Page Objects)
-- **Authentication**: LoginPage, DashboardPage
-- **Customer Management**: CustomerListPage, PersonalCustomerFormPage, CorporateCustomerFormPage, CustomerViewPages
-- **Account Management**: AccountListPage, AccountOpeningFormPage, AccountSelectionPage
-- **Transactions**: CashDepositFormPage, CashWithdrawalFormPage, TransactionListPage, TransactionViewPage
-- **Products**: ProductListPage, ProductFormPage, ProductViewPage
-- **Passbook**: PassbookAccountSelectionPage, PassbookPreviewPage, PassbookPrintPage
-- **RBAC**: UserListPage, UserFormPage, RoleListPage, RoleFormPage, PermissionListPage, PermissionFormPage
-- **Navigation**: CustomerTypeSelectionPage, CustomerSelectionPage, CorporateCustomerSelectionPage
+### Standard Test Execution
 
-## 🚀 **Key Takeaways**
-
-### Parallel Test Execution Status
-- **JUnit 5 Parallel Execution**: ✅ Enabled with dynamic strategy
-- **Selenium Container Management**: ✅ Thread-safe with resource pooling  
-- **Conservative Resource Allocation**: ✅ Max 3 containers, 2GB RAM per container
-- **Browser Optimization**: ✅ Chrome/Firefox with performance tuning
-- **Recording Support**: ✅ Optional MP4 recording for debugging
-- **Complete Test Coverage**: ✅ 17 functional test classes with 31 page objects
-
-### Recommended Test Execution
 ```bash
-# Standard parallel test execution
+# Run all integration tests with parallel execution
 mvn test
 
-# Selenium tests with visible browser (for debugging)
-mvn test -Dtest="*SeleniumTest" -Dselenium.headless=false
+# Run specific test classes
+mvn test -Dtest=SchemaPerThreadJdbcTemplateTest
+mvn test -Dtest=SchemaPerThreadJpaTest
 
-# High-performance execution with recording
-mvn test -Dselenium.recording.enabled=true -Dtest.selenium.container.maxContainers=4
+# Run both schema-per-thread tests
+mvn test -Dtest=SchemaPerThreadJdbcTemplateTest,SchemaPerThreadJpaTest
+
+# Run with Maven debugging for thread analysis
+mvn test -X -Dtest=SchemaPerThread*
 ```
+
+### Performance Analysis
+
+```bash
+# Run tests with JaCoCo coverage
+mvn test jacoco:report
+
+# Extended timeout for complex tests
+mvn test -Dmaven.surefire.timeout=600
+
+# Debug mode for troubleshooting
+mvn test -Dmaven.surefire.debug
+```
+
+## ✅ **Current Test Implementation Status**
+
+### Integration Test Coverage (Implemented)
+
+| Test Class | Coverage Area | Status | Test Methods |
+|------------|---------------|--------|--------------| 
+| **BaseIntegrationTest** | Schema infrastructure foundation | ✅ Complete | Abstract base |
+| **SchemaPerThreadJdbcTemplateTest** | JDBC operations with schema isolation | ✅ Complete | 8 tests |
+| **SchemaPerThreadJpaTest** | JPA operations with relationship verification | ✅ Complete | 7 tests |
+
+### Test Infrastructure Components (Implemented)
+
+| Component | Purpose | Status |
+|-----------|---------|--------|
+| **TestSchemaManager** | Centralized schema operations | ✅ Complete |
+| **TestDataFactory** | Thread-safe data generation | ✅ Complete |
+| **TestSchemaInitializer** | ApplicationContext schema configuration | ✅ Complete |
+| **ThreadLocalSchemaCustomizer** | HikariCP connection customization | ✅ Complete |
+
+### Verification Results
+
+- ✅ **Parallel Execution**: All tests pass concurrently with proper isolation
+- ✅ **Schema Isolation**: Each thread operates in unique PostgreSQL schema  
+- ✅ **Migration Integration**: Flyway seed data available in all test schemas
+- ✅ **Data Cleanup**: Thread-marker based cleanup preserves migration data
+- ✅ **JPA-JDBC Integration**: Repository operations verified via JdbcTemplate queries
+
+## 🎯 **Testing Best Practices Implemented**
+
+### Thread Safety
+
+1. **ThreadLocal Faker instances** for locale-specific test data
+2. **AtomicLong counters** for unique business key generation
+3. **Thread-specific schema names** preventing cross-thread contamination
+4. **Thread markers** for precise test data identification and cleanup
+
+### Data Management
+
+1. **Migration data reuse** - Tests leverage Flyway seed data (branches, customers, products)
+2. **Realistic test data** - Indonesian banking data using Faker localization
+3. **Proper entity relationships** - Foreign key integrity maintained in test data
+4. **Business method usage** - Tests use entity business logic (account.deposit(), account.withdraw())
+
+### Performance Optimization
+
+1. **@BeforeAll schema setup** - One-time overhead per test class
+2. **Efficient cleanup** - Only test data removed, migration data preserved
+3. **Connection pooling** - HikariCP optimized for concurrent schema access
+4. **Resource management** - TestContainers lifecycle properly managed
 
 ---
 
-*This documentation reflects the actual implementation as of the current codebase state, focusing on the sophisticated Selenium test management infrastructure with TestContainers and JUnit 5 parallel execution capabilities.*
+*This documentation reflects the actual implemented test architecture focusing on schema-per-thread isolation using TestContainers PostgreSQL, JUnit 5 parallel execution, and comprehensive integration testing patterns.*

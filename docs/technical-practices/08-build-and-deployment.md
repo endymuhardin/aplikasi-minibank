@@ -11,7 +11,7 @@ mvn spring-boot:run                 # Run application
 # Test execution patterns
 mvn test -Dtest=AccountRepositoryTest                          # Single test class
 mvn test -Dtest=AccountRepositoryTest#shouldFindByCustomerId   # Single test method
-mvn test -Dtest="*Selenium*"                                  # Pattern matching
+mvn test -Dtest="SchemaPerThread*"                            # Schema isolation tests
 ```
 
 ### 2. Frontend Build Process
@@ -31,11 +31,13 @@ docker compose down -v             # Reset database (removes volume)
 docker exec -it aplikasi-minibank-postgres-1 psql -U minibank -d pgminibank
 ```
 
-### 4. Testing with Different Configurations
+### 4. Integration Testing
 ```bash
-# Selenium testing with various options
-mvn test -Dtest=ProductManagementSeleniumTest                                    # Default (headless)
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false         # Visible browser
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true # With recording
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox        # Different browser
+# Schema-per-thread integration tests
+mvn test -Dtest=SchemaPerThreadJdbcTemplateTest    # JDBC-level database tests (8 tests)
+mvn test -Dtest=SchemaPerThreadJpaTest            # JPA-level entity tests (7 tests)
+mvn test -Dtest=SchemaPerThread*                  # Run both test classes
+
+# Test with coverage
+mvn test jacoco:report -Dtest=SchemaPerThread*    # Integration tests with coverage
 ```

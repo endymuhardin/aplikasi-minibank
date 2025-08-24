@@ -1,7 +1,0 @@
-username,fullName,email,searchTerm,shouldFind
-john_doe,John Doe,john.doe@test.com,john,true
-jane_smith,Jane Smith,jane.smith@test.com,jane,true
-bob_wilson,Bob Wilson,bob.wilson@test.com,wilson,true
-alice_brown,Alice Brown,alice.brown@test.com,alice.brown@test.com,true
-charlie_davis,Charlie Davis,charlie.davis@test.com,xyz,false
-david_miller,David Miller,david.miller@test.com,DAVID,true

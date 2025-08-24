@@ -1,8 +1,0 @@
-testCase,customerNumber,companyName,contactPersonName,email,phone,expectedError
-Empty Customer Number,,Tech Solutions,Contact Person,valid@example.com,081234567890,Customer number is required
-Empty Company Name,VALID001,,Contact Person,valid@example.com,081234567890,Company name is required
-Empty Email,VALID002,Tech Solutions,Contact Person,,081234567890,Email is required
-Empty Phone,VALID003,Tech Solutions,Contact Person,valid@example.com,,Phone is required
-Invalid Email,VALID004,Tech Solutions,Contact Person,invalid-email,081234567890,Invalid email format
-Too Long Company Name,VALID005,PT. Very Long Company Name That Exceeds The Maximum Allowed Length Of Two Hundred Characters In The Database Schema And Should Trigger A Validation Error When RegisteringXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,Contact Person,valid@example.com,081234567890,Company name too long
-Too Long Email,VALID006,Tech Solutions,Contact Person,verylongemailthatexceedsonehundredcharacterslimitintheschemaXXXXXXXXXXXXXXXXX@verylongdomainname.comX,081234567890,Email too long

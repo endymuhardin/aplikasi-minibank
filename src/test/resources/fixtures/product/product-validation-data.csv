@@ -1,7 +1,0 @@
-testCase,productCode,productName,productType,expectedError
-Empty Product Code,,Test Product,SAVINGS,Product code is required
-Empty Product Name,VAL001,,SAVINGS,Product name is required
-Empty Product Type,VAL002,Test Product,,Product type is required
-Invalid Profit Sharing Ratio High,VAL003,Test Product,SAVINGS,Profit sharing ratio must be between 0 and 1
-Long Product Code,VERYLONGPRODUCTCODETHATEXCEEDSTHELIMIT123456,Test Product,SAVINGS,Product code too long
-Long Product Name,VAL004,This is a very long product name that exceeds the maximum allowed length for product names in the database schema and should trigger validation error,SAVINGS,Product name too long

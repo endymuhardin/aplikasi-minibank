@@ -1,6 +1,0 @@
-username,fullName,isActive,isLocked,lockedUntilOffset,expectedNonLocked
-active_user,Active User,true,false,,true
-inactive_user,Inactive User,false,false,,true
-locked_user,Locked User,true,true,60,false
-expired_lock_user,Expired Lock User,true,true,-60,true
-temp_locked_user,Temp Locked User,true,true,5,false
