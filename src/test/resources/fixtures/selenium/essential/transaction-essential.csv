@@ -1,0 +1,4 @@
+amount,description,referenceNumber,createdBy,transactionType
+50000,Setoran tunai essential test,REF-TEST-001,Test Teller,deposit
+25000,Test cash deposit transaction,REF-TEST-002,System Test,deposit
+100000,Essential deposit test amount,REF-TEST-003,Test Admin,deposit

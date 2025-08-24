@@ -1,0 +1,5 @@
+username,password,role,description,filterType,filterValue
+admin,minibank123,ADMIN,System Administrator,search,deposit
+manager1,minibank123,MANAGER,Branch Manager,search,withdrawal
+teller1,minibank123,TELLER,Bank Teller,search,transfer
+cs1,minibank123,CUSTOMER_SERVICE,Customer Service,search,transaction
