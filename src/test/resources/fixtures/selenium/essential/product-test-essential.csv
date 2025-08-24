@@ -1,0 +1,4 @@
+productCode,productName,productType,productCategory,description
+TEST001,Essential Test Savings,TABUNGAN_WADIAH,Retail Banking,Test savings product for essential testing
+TEST002,Essential Test Deposit,DEPOSITO_MUDHARABAH,Investment,Test deposit product for essential testing
+TEST003,Essential Test Financing,PEMBIAYAAN_MURABAHAH,Financing,Test financing product for essential testing
