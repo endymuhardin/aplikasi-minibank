@@ -2,7 +2,7 @@
 
 Based on commit history analysis, here are critical lessons learned and common pitfalls to avoid:
 
-### Selenium Testing Lessons
+### UI Testing Lessons (Future Implementation)
 
 #### 1. **AVOID Thread.sleep() in Selenium Tests**
 ❌ **Wrong:**

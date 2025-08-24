@@ -1,7 +1,0 @@
-roleCode,roleName,permissionCode,resource,action,hasPermission
-BRANCH_MANAGER,Branch Manager,USER_READ,USER,READ,true
-BRANCH_MANAGER,Branch Manager,USER_WRITE,USER,WRITE,true
-CS,Customer Service,PRODUCT_READ,PRODUCT,READ,true
-CS,Customer Service,PRODUCT_WRITE,PRODUCT,WRITE,false
-TELLER,Teller,TRANSACTION_READ,TRANSACTION,READ,true
-TELLER,Teller,TRANSACTION_WRITE,TRANSACTION,WRITE,true

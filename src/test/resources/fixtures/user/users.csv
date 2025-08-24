@@ -1,9 +1,0 @@
-username,email,fullName,isActive,isLocked,failedLoginAttempts,createdBy
-system_admin,system.admin@yopmail.com,System Administrator,true,false,0,SYSTEM
-branch_manager_01,bm01@yopmail.com,John Branch Manager,true,false,0,ADMIN
-teller_01,teller01@yopmail.com,Jane Teller,true,false,0,ADMIN
-teller_02,teller02@yopmail.com,Bob Teller,true,false,0,ADMIN
-cs_01,cs01@yopmail.com,Alice Customer Service,true,false,0,ADMIN
-cs_02,cs02@yopmail.com,Carol Customer Service,true,false,0,ADMIN
-inactive_user,inactive@yopmail.com,Inactive Test User,false,false,3,ADMIN
-locked_user,locked@yopmail.com,Locked Test User,true,true,5,ADMIN

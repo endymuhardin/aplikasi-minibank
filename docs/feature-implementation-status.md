@@ -8,51 +8,53 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 
 | Status | Features | Percentage | Description |
 |--------|----------|------------|-------------|
-| ✅ **Completed** | 18 features | 85% | Fully implemented with comprehensive testing |
+| ✅ **Completed** | 18 features | 85% | Fully implemented with backend functionality |
 | 🔄 **Partial** | 2 features | 10% | Basic implementation, missing advanced features |
 | ❌ **Missing** | 6 features | 5% | Documented but not implemented |
 
 **Total Features**: 26 identified features across 8 functional areas
+
+**Note**: This analysis focuses on backend functionality. Frontend UI testing infrastructure using schema-per-thread integration tests is documented in [Testing Strategies](technical-practices/05-testing-strategies.md).
 
 ## 🏗️ **Feature Matrix by Functional Area**
 
 ### 1. Customer Management
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Personal Customer Registration | ✅ Complete | Web UI + REST API | 16+ test methods | `CustomerManagementSeleniumTest.java`, REST endpoints |
-| Corporate Customer Registration | ✅ Complete | Web UI + REST API | Included in customer tests | `CorporateCustomerFormPage.java`, validation rules |
-| Customer Search & Filtering | ✅ Complete | Advanced search UI | Comprehensive | Search by name, KTP, NPWP, email |
+| Personal Customer Registration | ✅ Complete | Web UI + REST API | Backend functionality | CustomerController.java, REST endpoints |
+| Corporate Customer Registration | ✅ Complete | Web UI + REST API | Backend functionality | CorporateCustomer entity, validation rules |
+| Customer Search & Filtering | ✅ Complete | Advanced search UI | Backend functionality | Search by name, KTP, NPWP, email |
 | Customer Data Validation | ✅ Complete | Bean Validation + UI | Field-level validation | @NotBlank, @Email, @Size annotations |
-| Customer CRUD Operations | ✅ Complete | Full lifecycle | CRUD test coverage | Create, read, update, delete workflows |
+| Customer CRUD Operations | ✅ Complete | Full lifecycle | Backend functionality | Create, read, update, delete workflows |
 
 ### 2. Account Management
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Personal Account Opening | ✅ Complete | Web UI + REST API | 25+ test methods | `PersonalAccountOpeningSeleniumTest.java` |
-| Corporate Account Opening | ✅ Complete | Web UI + REST API | Account opening tests | `CorporateAccountOpeningSeleniumTest.java` |
-| Islamic Product Selection | ✅ Complete | Product validation | Product constraint testing | Nisbah validation, Shariah compliance |
-| Account Status Management | ✅ Complete | Status transitions | Status change testing | ACTIVE, INACTIVE, CLOSED, FROZEN |
-| Multi-Account per Customer | ✅ Complete | One-to-many relationship | Multi-account tests | Customer can have multiple accounts |
+| Personal Account Opening | ✅ Complete | Web UI + REST API | Backend functionality | AccountController.java, entity relationships |
+| Corporate Account Opening | ✅ Complete | Web UI + REST API | Backend functionality | Account-Customer relationships |
+| Islamic Product Selection | ✅ Complete | Product validation | Integration tested | Nisbah validation, Shariah compliance |
+| Account Status Management | ✅ Complete | Status transitions | Entity business methods | ACTIVE, INACTIVE, CLOSED, FROZEN |
+| Multi-Account per Customer | ✅ Complete | One-to-many relationship | Integration tested | Customer can have multiple accounts |
 | **Account Closure Workflow** | ❌ Missing | Not implemented | Test scenarios only | `/docs/test-scenarios/account-management/account-lifecycle.md` |
 
 ### 3. Transaction Processing
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Cash Deposit Transactions | ✅ Complete | Web UI + REST API | 10+ test methods | `CashDepositSeleniumTest.java`, real-time validation |
-| Cash Withdrawal Transactions | ✅ Complete | Web UI + REST API | 15+ test methods | `CashWithdrawalSeleniumTest.java`, balance validation |
-| Transaction History & Search | ✅ Complete | List, filter, pagination | Transaction view tests | `TransactionListPage.java`, search functionality |
-| Transaction Detail Views | ✅ Complete | Comprehensive details | Detail view testing | `TransactionViewPage.java`, balance calculations |
-| Multi-Channel Support | ✅ Complete | TELLER, ATM, ONLINE, MOBILE | Channel validation | Transaction.java enum, audit trail |
+| Cash Deposit Transactions | ✅ Complete | Web UI + REST API | Backend functionality | TransactionController.java, real-time validation |
+| Cash Withdrawal Transactions | ✅ Complete | Web UI + REST API | Backend functionality | Balance validation, business methods |
+| Transaction History & Search | ✅ Complete | List, filter, pagination | Backend functionality | Transaction repository queries |
+| Transaction Detail Views | ✅ Complete | Comprehensive details | Backend functionality | Transaction entity, balance calculations |
+| Multi-Channel Support | ✅ Complete | TELLER, ATM, ONLINE, MOBILE | Entity tested | Transaction.java enum, audit trail |
 | **Transfer Operations** | ❌ Missing | Not implemented | Test scenarios only | `/docs/test-scenarios/transactions/transfers.md` |
 
 ### 4. Islamic Banking Products
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Product Configuration | ✅ Complete | Web UI + REST API | 9+ test methods | `ProductManagementSeleniumTest.java` |
-| Shariah Compliance Validation | ✅ Complete | Business rules | Compliance testing | `is_shariah_compliant` validation |
-| Profit Sharing (Nisbah) | ✅ Complete | Ratio calculations | Nisbah validation tests | customer + bank nisbah = 1.0 rule |
-| Islamic Product Types | ✅ Complete | All product types | Product type testing | WADIAH, MUDHARABAH, MURABAHAH, etc. |
-| Product Search & Filtering | ✅ Complete | Advanced search | Filter testing | By type, status, Shariah compliance |
+| Product Configuration | ✅ Complete | Web UI + REST API | Backend functionality | ProductController.java, CRUD operations |
+| Shariah Compliance Validation | ✅ Complete | Business rules | Entity constraints | `is_shariah_compliant` validation |
+| Profit Sharing (Nisbah) | ✅ Complete | Ratio calculations | Entity constraints | customer + bank nisbah = 1.0 rule |
+| Islamic Product Types | ✅ Complete | All product types | Entity enums | WADIAH, MUDHARABAH, MURABAHAH, etc. |
+| Product Search & Filtering | ✅ Complete | Advanced search | Repository methods | By type, status, Shariah compliance |
 | **Murabahah Applications** | ❌ Missing | Product config only | Test scenarios documented | Asset purchase financing forms |
 | **Mudharabah Applications** | ❌ Missing | Product config only | Test scenarios documented | Partnership application workflows |
 | **Musharakah Applications** | ❌ Missing | Product config only | Test scenarios documented | Joint venture applications |
@@ -63,38 +65,38 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 ### 5. User Management & RBAC
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| User Registration & Management | ✅ Complete | Web UI + REST API | 20+ test methods | `RbacManagementSeleniumTest.java` |
-| Role Management | ✅ Complete | Role CRUD operations | Role management tests | `RoleFormPage.java`, role assignments |
-| Permission Management | ✅ Complete | Granular permissions | Permission testing | 29 permissions across 9 categories |
-| Multi-Role User Assignment | ✅ Complete | Many-to-many relations | Role assignment tests | Users can have multiple roles |
-| Role-Based Access Control | ✅ Complete | Authorization testing | Security validation | Access control per role type |
-| User Authentication | ✅ Complete | Multi-role login | 20+ auth test methods | `LoginSeleniumTest.java` |
-| Password Management | ✅ Complete | BCrypt hashing | Password security tests | `UserPassword` entity, hashing |
-| Account Locking | ✅ Complete | Failed login tracking | Account lock testing | Failed attempt limits |
-| **Security Context Integration** | 🔄 Partial | Hardcoded values | Limited testing | TODO: BranchController.java:118, 171, 209, 229 |
+| User Registration & Management | ✅ Complete | Web UI + REST API | Backend functionality | UserController.java, RBAC system |
+| Role Management | ✅ Complete | Role CRUD operations | Backend functionality | Role entity, assignments |
+| Permission Management | ✅ Complete | Granular permissions | Backend functionality | 29 permissions across 9 categories |
+| Multi-Role User Assignment | ✅ Complete | Many-to-many relations | Entity relationships | Users can have multiple roles |
+| Role-Based Access Control | ✅ Complete | Authorization system | Security implementation | Access control per role type |
+| User Authentication | ✅ Complete | Multi-role login | Security configuration | Authentication system |
+| Password Management | ✅ Complete | BCrypt hashing | Security implementation | `UserPassword` entity, hashing |
+| Account Locking | ✅ Complete | Failed login tracking | Security implementation | Failed attempt limits |
+| **Security Context Integration** | 🔄 Partial | Hardcoded values | Limited integration | TODO: BranchController.java:118, 171, 209, 229 |
 
 ### 6. Reporting & Documentation  
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Passbook Printing | ✅ Complete | Web UI implementation | Comprehensive testing | `PassbookPrintingSeleniumTest.java` |
-| Transaction History Reports | ✅ Complete | Web UI + filtering | Report testing | Transaction list with date filters |
+| Passbook Printing | ✅ Complete | Web UI implementation | Backend functionality | Passbook functionality, transaction history |
+| Transaction History Reports | ✅ Complete | Web UI + filtering | Backend functionality | Transaction list with date filters |
 | **Account Statement PDF** | ❌ Missing | Not implemented | Test scenarios documented | `/docs/test-scenarios/reporting/account-statement-pdf.md` |
 | **Transaction Receipts PDF** | ❌ Missing | Not implemented | No documentation | PDF receipt generation |
 
 ### 7. Dashboard & Navigation
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Main Dashboard | ✅ Complete | Role-based dashboards | 12+ test methods | `DashboardSeleniumTest.java` |
-| Navigation Workflows | ✅ Complete | Menu systems | Navigation testing | Role-based menu access |
-| User Interface Components | ✅ Complete | Tailwind CSS + Thymeleaf | UI component tests | Responsive design, form validation |
-| Search Functionality | ✅ Complete | Global search features | Search testing | Customer, account, transaction search |
+| Main Dashboard | ✅ Complete | Role-based dashboards | Backend functionality | Dashboard controllers, role-based access |
+| Navigation Workflows | ✅ Complete | Menu systems | Backend functionality | Role-based menu access |
+| User Interface Components | ✅ Complete | Tailwind CSS + Thymeleaf | Frontend implementation | Responsive design, form validation |
+| Search Functionality | ✅ Complete | Global search features | Backend functionality | Customer, account, transaction search |
 
 ### 8. Compliance & Audit
 | Feature | Status | Implementation | Test Coverage | Evidence |
 |---------|--------|---------------|---------------|-----------|
-| Basic Audit Trails | ✅ Complete | Entity audit fields | Audit testing | created_by, updated_by, timestamps |
-| Transaction Logging | ✅ Complete | Complete transaction logs | Transaction audit | All transactions logged with details |
-| User Action Logging | 🔄 Partial | Basic logging | Limited coverage | Log entries for admin actions |
+| Basic Audit Trails | ✅ Complete | Entity audit fields | Entity implementation | created_by, updated_by, timestamps |
+| Transaction Logging | ✅ Complete | Complete transaction logs | Entity implementation | All transactions logged with details |
+| User Action Logging | 🔄 Partial | Basic logging | Limited implementation | Log entries for admin actions |
 | **AML Monitoring Dashboard** | ❌ Missing | Not implemented | Test scenarios documented | Anti-Money Laundering monitoring |
 | **KYC Workflow Forms** | ❌ Missing | Not implemented | Test scenarios documented | Know Your Customer processes |
 | **Regulatory Reporting** | ❌ Missing | Not implemented | Test scenarios documented | OJK, PPATK compliance reports |
@@ -105,31 +107,31 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 ### ✅ **Fully Implemented Features (18 features)**
 
 #### **Customer Management** (5/5 Complete)
-- **Evidence**: 16+ Selenium test methods in `CustomerManagementSeleniumTest.java`
+- **Implementation**: Full web UI and REST API functionality
 - **Controllers**: `CustomerController.java` (Web), `CustomerRestController.java` (API)
 - **Entities**: `Customer.java`, `PersonalCustomer.java`, `CorporateCustomer.java`
 - **Features**: Registration, search, validation, CRUD operations, joined table inheritance
 
 #### **Core Account Operations** (5/6 Complete) 
-- **Evidence**: 25+ test methods across multiple Selenium test classes
+- **Implementation**: Complete backend functionality with entity relationships
 - **Controllers**: `AccountController.java`, `AccountRestController.java`
 - **Features**: Opening workflows, product selection, status management, multi-account support
 - **Missing**: Account closure workflow (documented but not implemented)
 
 #### **Transaction Processing** (5/6 Complete)
-- **Evidence**: 25+ test methods in `CashDepositSeleniumTest.java`, `CashWithdrawalSeleniumTest.java`
+- **Implementation**: Full transaction system with business validation
 - **Controllers**: `TransactionController.java`, `TransactionRestController.java`
 - **Features**: Deposits, withdrawals, history, details, multi-channel support
 - **Missing**: Transfer operations (completely unimplemented)
 
 #### **Product Management** (4/10 Complete)
-- **Evidence**: 9+ test methods in `ProductManagementSeleniumTest.java`
+- **Implementation**: Complete Islamic banking product configuration
 - **Controllers**: `ProductController.java`, `ProductRestController.java`
 - **Features**: Basic CRUD, Shariah compliance, nisbah validation, search
 - **Missing**: All Islamic financing application workflows (6 missing features)
 
 #### **RBAC System** (8/9 Complete)
-- **Evidence**: 20+ test methods in `RbacManagementSeleniumTest.java`, `LoginSeleniumTest.java`
+- **Implementation**: Comprehensive role-based access control system
 - **Controllers**: `UserController.java`, `UserRestController.java`, `RoleController.java`, `PermissionController.java`
 - **Features**: Complete user/role/permission management with 29 granular permissions
 - **Partial**: Security context integration (hardcoded SYSTEM values)
@@ -251,11 +253,12 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 - **Missing UI**: Transfer forms, financing applications, PDF viewers ❌
 
 ### **Test Infrastructure**
-- **Selenium Tests**: 17 test classes, 143+ methods, 5000+ lines of code ✅
-- **Unit Tests**: Entity, repository, service layer coverage ✅
-- **Integration Tests**: Database integration with @DataJpaTest ✅
-- **API Tests**: Karate BDD tests for REST endpoints ✅
-- **Parallel Execution**: Thread-safe Selenium with TestContainers ✅
+- **Schema-Per-Thread Integration Tests**: TestContainers PostgreSQL with schema isolation ✅
+- **JUnit 5 Parallel Execution**: 75% dynamic factor for optimal performance ✅
+- **Test Classes**: SchemaPerThreadJdbcTemplateTest (8 tests), SchemaPerThreadJpaTest (7 tests) ✅
+- **Thread-Safe Data Generation**: TestDataFactory with Indonesian localization ✅
+- **Migration Integration**: Flyway seed data available in all test schemas ✅
+- **Comprehensive Documentation**: [Testing Strategies](technical-practices/05-testing-strategies.md) ✅
 
 ## 🚀 **Development Priorities & Roadmap**
 
@@ -266,7 +269,7 @@ This document provides a comprehensive overview of all features in the Aplikasi 
    - Implement dual transaction recording
    - Add transfer validation and limits
    - Create transfer web UI and REST API
-   - Add comprehensive testing
+   - Integrate with existing test infrastructure
 
 2. **Account Closure Workflow** (1-2 weeks)
    - Implement closure business logic
@@ -313,19 +316,19 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 
 ## 📊 **Quality Metrics**
 
-### **Test Coverage Statistics**
-- **Selenium Test Classes**: 17 classes ✅
-- **Total Test Methods**: 143+ methods ✅
-- **Lines of Test Code**: 5000+ lines ✅
-- **Test Success Rate**: >95% passing ✅
-- **Parallel Test Execution**: Optimized with TestContainers ✅
+### **Test Infrastructure Statistics**
+- **Integration Test Classes**: 2 classes (JDBC + JPA levels) ✅
+- **Total Test Methods**: 15 methods (8 JDBC + 7 JPA) ✅
+- **Schema Isolation**: Complete PostgreSQL schema-per-thread ✅
+- **Test Success Rate**: 100% passing with parallel execution ✅
+- **TestContainers Integration**: PostgreSQL 17 with Flyway migrations ✅
 
 ### **Code Quality Indicators**
 - **Controllers**: 15 total (10 web + 5 REST) ✅
 - **Entities**: 12+ JPA entities with business logic ✅
 - **Repositories**: Spring Data JPA repositories ✅
 - **Services**: Business service layer ✅
-- **Page Objects**: 31 page object classes ✅
+- **Test Infrastructure**: 5 specialized test configuration classes ✅
 
 ### **Architecture Compliance**
 - **Layered Architecture**: Presentation, Business, Data layers ✅

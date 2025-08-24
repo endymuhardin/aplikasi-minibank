@@ -23,13 +23,17 @@ public class CustomerService {
 ### 2. Test Execution Monitoring
 ```java
 @Slf4j
-public class BaseSeleniumTest {
+public class BaseIntegrationTest {
     
-    @BeforeEach
-    void ensureAuthentication() {
-        String testClass = this.getClass().getSimpleName();
-        log.info("✅ LOGIN HELPER READY: {} initialized successfully", testClass);
-        log.info("🔑 AUTHENTICATION: {} performing authentication", testClass);
+    @BeforeAll
+    static void setUpSchema() {
+        schemaName = TestSchemaManager.generateSchemaName();
+        log.info("BaseIntegrationTest setUpSchema: Generated schema {} for thread {}", 
+                schemaName, Thread.currentThread().getName());
+        
+        // Schema creation and migration setup...
+        
+        log.info("BaseIntegrationTest setUpSchema: Flyway migration completed for schema {}", schemaName);
     }
 }
 ```

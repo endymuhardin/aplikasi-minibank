@@ -1,9 +1,0 @@
-amount,description,expectedResult
-10000,Minimum deposit amount,SUCCESS
-25000,Regular small deposit,SUCCESS
-50000,Medium deposit amount,SUCCESS
-100000,Large deposit amount,SUCCESS
-250000,Very large deposit,SUCCESS
-500000,Maximum test amount,SUCCESS
-10000.50,Deposit with cents,SUCCESS
-999999.99,Near maximum amount,SUCCESS

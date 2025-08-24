@@ -1,6 +1,0 @@
-testCase,accountId,amount,description,referenceNumber,createdBy
-Withdrawal from personal savings account,ACC0000001,500.00,Cash withdrawal,REF001,teller01
-Withdrawal from corporate checking account,ACC0000002,2500.50,ATM withdrawal,REF002,teller02
-Large withdrawal,ACC0000002,25000.00,Large cash withdrawal,REF003,manager01
-Withdrawal with no reference,ACC0000003,750.25,Counter withdrawal,,teller01
-Withdrawal minimal amount,ACC0000001,0.01,Test minimal withdrawal,REF004,teller03

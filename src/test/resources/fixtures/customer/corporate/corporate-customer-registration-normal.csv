@@ -1,3 +1,0 @@
-testCase,customerNumber,companyName,companyRegistrationNumber,taxIdentificationNumber,email,phoneNumber,address,city,postalCode,country
-corporate_basic,C2000999,PT. Test Company,1234567890123456,01.234.567.8-901.000,info@testcompany.com,02123456789,Jl. Corporate No. 789,Jakarta,12950,Indonesia
-corporate_csv_based,C2000777,PT. Teknologi Maju,1234567890123456,01.234.567.8-901.000,info.test@teknologimaju.com,02123456789,Jl. HR Rasuna Said No. 789,Jakarta,12950,Indonesia

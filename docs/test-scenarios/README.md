@@ -3,32 +3,21 @@
 ## Overview
 Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank Islam. Semua test scenarios telah disesuaikan dengan actual database schema, entity validation rules, existing seed data, CSV fixtures, dan Selenium test patterns yang ada di codebase.
 
-## ✅ **ACTUAL IMPLEMENTATION STATUS (Updated 2025-08-17)**
+## Test Scenarios Overview
 
-**Test Coverage Summary:**
-- **13 Selenium Test Classes** dengan 128+ test methods (4,552+ lines of code)
-- **Comprehensive UI Testing** untuk semua implemented features
-- **API Integration Testing** dengan Karate BDD untuk REST endpoints
-- **Repository Tests** dengan @DataJpaTest untuk database operations
-- **Unit Tests** untuk entity business logic dan service layers
-
-**Implemented & Tested Features:**
-- ✅ **Customer Management** - Full CRUD, search, validation (16+ test methods dalam CustomerManagementSeleniumTest)
-- ✅ **Product Management** - Islamic banking products, CRUD operations (9+ test methods dalam ProductManagementSeleniumTest)
-- ✅ **Account Opening** - Personal & Corporate, Islamic banking compliance (25+ test methods across multiple test classes)
-- ✅ **Cash Deposit Transactions** - Complete Web UI workflow (10+ test methods dalam CashDepositSeleniumTest)
-- ✅ **Cash Withdrawal Transactions** - ✅ **NEWLY IMPLEMENTED** - Complete Web UI dengan real-time validation (15+ test methods dalam CashWithdrawalSeleniumTest)
-- ✅ **Passbook Printing** - Complete Web UI implementation dengan transaction history (comprehensive Selenium testing)
-- ✅ **RBAC Management** - Users, roles, permissions (10+ test methods dalam RbacManagementSeleniumTest)
-- ✅ **Authentication & Authorization** - Multi-role login, security testing (10+ test methods dalam LoginSeleniumTest)
-- ✅ **Dashboard & Navigation** - UI navigation workflows (12+ test methods dalam DashboardSeleniumTest)
-
-**Missing Features (Documentation vs Reality):**
-- ✅ **Cash Withdrawal Web UI** - ✅ **NEWLY IMPLEMENTED** - Complete Web UI workflow dengan Selenium testing (15+ test methods)
-- ✅ **Passbook Printing** - ✅ **COMPLETED** - Full Web UI implementation dengan Selenium testing
-- ❌ **Transfer Operations** - Not implemented (API atau Web UI)
-- ❌ **Islamic Financing Application UI** - Products configured, application forms not implemented
-- ❌ **Account Statement PDF** - Not implemented
+**Test Coverage Areas:**
+- **Customer Management** - Full CRUD, search, validation scenarios
+- **Product Management** - Islamic banking products, CRUD operations
+- **Account Opening** - Personal & Corporate, Islamic banking compliance
+- **Cash Deposit Transactions** - Complete Web UI workflow scenarios
+- **Cash Withdrawal Transactions** - Complete Web UI dengan real-time validation
+- **Transfer Operations** - Transfer antar rekening scenarios
+- **Passbook Printing** - Transaction history and printing scenarios
+- **RBAC Management** - Users, roles, permissions management
+- **Authentication & Authorization** - Multi-role login, security scenarios
+- **Dashboard & Navigation** - UI navigation workflow scenarios
+- **Islamic Financing Applications** - Murabahah, Mudharabah, Musharakah scenarios
+- **Account Statement PDF** - PDF generation scenarios
 
 ## Folder Structure
 
@@ -57,21 +46,21 @@ docs/test-scenarios/
 ## Comprehensive Coverage
 
 ### 1. Core Banking Operations
-- **Account Management** - ✅ **COMPLETED** - Account opening, lifecycle management, status changes
-- **Transaction Processing** - ✅ **MOSTLY IMPLEMENTED** - Cash deposits (Web UI ✅), withdrawals (✅ **NEW: Web UI ✅**), transfers (not implemented)
-- **Account Statements** - ❌ **NOT IMPLEMENTED** - PDF generation dengan flexible printer support
-- **Customer Management** - ✅ **COMPLETED** - Personal & Corporate customers dengan Islamic banking
+- **Account Management** - Account opening, lifecycle management, status changes
+- **Transaction Processing** - Cash deposits, withdrawals, transfers
+- **Account Statements** - PDF generation dengan flexible printer support
+- **Customer Management** - Personal & Corporate customers dengan Islamic banking
 
 ### 2. Islamic Banking Features
-- **Islamic Financing Products** - ✅ **COMPLETED** - Murabahah, Mudharabah, Musharakah (Product configuration only, no Web UI for applications)
-- **Asset-Based Financing** - ✅ **COMPLETED** - Ijarah (leasing), Salam (forward sale), Istisna (manufacturing) (Product configuration only)
-- **Profit-Loss Sharing** - ✅ **COMPLETED** - Authentic Mudharabah and Musharakah partnerships (nisbah calculations)
-- **Shariah Compliance** - ✅ **COMPLETED** - Complete compliance validation and audit trails
+- **Islamic Financing Products** - Murabahah, Mudharabah, Musharakah applications
+- **Asset-Based Financing** - Ijarah (leasing), Salam (forward sale), Istisna (manufacturing)
+- **Profit-Loss Sharing** - Authentic Mudharabah and Musharakah partnerships (nisbah calculations)
+- **Shariah Compliance** - Complete compliance validation and audit trails
 
 ### 3. Administrative Functions  
-- **Product Management** - ✅ **COMPLETED** - CRUD operations untuk Islamic banking products
-- **RBAC Management** - ✅ **COMPLETED** - User, role, dan permission management
-- **Audit & Compliance** - 🔄 **PARTIALLY IMPLEMENTED** - Basic audit trails (no regulatory reporting UI)
+- **Product Management** - CRUD operations untuk Islamic banking products
+- **RBAC Management** - User, role, dan permission management
+- **Audit & Compliance** - Basic audit trails and regulatory reporting UI
 
 ### 4. System Integration & Compliance
 - **Database Schema Compliance** - Semua test data sesuai migration files
@@ -86,20 +75,20 @@ docs/test-scenarios/
 Semua test scenarios telah divalidasi terhadap:
 
 ### Migration Files Validation
-- ✅ **V001__create_bank_schema.sql** - Core banking entities
-- ✅ **V002__insert_initial_data.sql** - Islamic banking products dan sample customers
-- ✅ **V003__create_user_permission_schema.sql** - RBAC system
-- ✅ **V004__insert_roles_permissions_data.sql** - Users, roles, permissions dengan seed data
-- ✅ Field names, data types, constraints, dan business rules
+- **V001__create_bank_schema.sql** - Core banking entities
+- **V002__insert_initial_data.sql** - Islamic banking products dan sample customers
+- **V003__create_user_permission_schema.sql** - RBAC system
+- **V004__insert_roles_permissions_data.sql** - Users, roles, permissions dengan seed data
+- Field names, data types, constraints, dan business rules
 
 ### Entity Classes Validation
-- ✅ **Customer.java** - Base customer dengan joined inheritance
-- ✅ **PersonalCustomer.java/CorporateCustomer.java** - Customer type specific fields
-- ✅ **Account.java** - Account entity dengan business methods
-- ✅ **Transaction.java** - Transaction entity dengan enums dan channels
-- ✅ **Product.java** - Islamic banking products dengan profit sharing
-- ✅ **User.java/Role.java/Permission.java** - RBAC entities
-- ✅ Bean Validation annotations dan business constraints
+- **Customer.java** - Base customer dengan joined inheritance
+- **PersonalCustomer.java/CorporateCustomer.java** - Customer type specific fields
+- **Account.java** - Account entity dengan business methods
+- **Transaction.java** - Transaction entity dengan enums dan channels
+- **Product.java** - Islamic banking products dengan profit sharing
+- **User.java/Role.java/Permission.java** - RBAC entities
+- Bean Validation annotations dan business constraints
 
 ### Seed Data Integration
 All test scenarios reference actual seed data:
@@ -360,77 +349,66 @@ GET  /api/aml/status/{customerId}    # AML compliance status
 
 ---
 
-**Last Updated**: 2025-08-18 ✅ **UPDATED: Added cash withdrawal Web UI implementation**
+**Last Updated**: 2025-08-24
 **Schema Version**: V004 (current migration)  
-**Test Coverage**: 8 major functional areas dengan 165+ comprehensive test cases (✅ **+15 withdrawal test cases**)
-**Integration**: Full Selenium, CSV fixtures, dan seed data alignment  
+**Test Coverage**: 8 major functional areas dengan comprehensive test scenarios
+**Integration**: CSV fixtures dan seed data alignment  
 **Compliance**: Islamic banking requirements, Indonesian banking regulations, audit trails  
-**NEW**: Cash withdrawal Web UI dengan real-time JavaScript validation dan comprehensive Selenium testing  
 
-## Test Scenario Summary
+## Test Scenario Categories
 
-### ✅ **IMPLEMENTED & FULLY TESTED Features:**
-1. **Account Management** (25+ actual test cases)
-   - ✅ Account opening (Personal & Corporate customers)
-   - ✅ Islamic banking product selection and validation
-   - ✅ Account list, search, filter functionality
-   - ✅ Multi-account support per customer
-   - ✅ Comprehensive field validation and business rules
+### 1. Account Management Test Scenarios
+   - Account opening (Personal & Corporate customers)
+   - Islamic banking product selection and validation
+   - Account list, search, filter functionality
+   - Multi-account support per customer
+   - Comprehensive field validation and business rules
 
-2. **Customer Management** (16+ actual test cases)
-   - ✅ Personal customer CRUD operations
-   - ✅ Corporate customer management dengan legal validation
-   - ✅ Customer search, filter, pagination
-   - ✅ Customer data validation dan field constraints
+### 2. Customer Management Test Scenarios
+   - Personal customer CRUD operations
+   - Corporate customer management dengan legal validation
+   - Customer search, filter, pagination
+   - Customer data validation dan field constraints
 
-3. **Product Management** (9+ actual test cases)
-   - ✅ Islamic banking product CRUD operations
-   - ✅ Profit sharing ratio management (nisbah validation)
-   - ✅ Product search, filter, activation/deactivation
-   - ✅ Shariah compliance settings
+### 3. Product Management Test Scenarios
+   - Islamic banking product CRUD operations
+   - Profit sharing ratio management (nisbah validation)
+   - Product search, filter, activation/deactivation
+   - Shariah compliance settings
 
-4. **Transaction Processing** (25+ actual test cases - MOSTLY COMPLETE)
-   - ✅ Cash deposits dengan complete Web UI workflow (10+ test methods)
-   - ✅ **Cash withdrawals dengan complete Web UI workflow** - ✅ **NEWLY IMPLEMENTED** (15+ test methods)
-   - ✅ Transaction list, search, filter by type
-   - ✅ Transaction detail view dengan balance calculations
-   - ✅ **Real-time JavaScript validation** untuk withdrawal amounts dan balance warnings
-   - ❌ Transfer operations (not implemented)
+### 4. Transaction Processing Test Scenarios
+   - Cash deposits workflow scenarios
+   - Cash withdrawals dengan real-time validation
+   - Transaction list, search, filter by type
+   - Transaction detail view dengan balance calculations
+   - Transfer operations scenarios
 
-5. **RBAC Management** (20+ actual test cases)
-   - ✅ User creation, editing, activation/deactivation
-   - ✅ Role management dan permission assignments
-   - ✅ Multi-role user assignments
-   - ✅ Permission management dan granular access control
-   - ✅ Security testing dan authorization validation
+### 5. RBAC Management Test Scenarios
+   - User creation, editing, activation/deactivation
+   - Role management dan permission assignments
+   - Multi-role user assignments
+   - Permission management dan granular access control
+   - Security testing dan authorization validation
 
-6. **Authentication & Navigation** (20+ actual test cases)
-   - ✅ Multi-role login testing (Admin, Manager, Teller, CS)
-   - ✅ Dashboard navigation workflows
-   - ✅ Security testing dan unauthorized access prevention
-   - ✅ Session management dan logout functionality
+### 6. Authentication & Navigation Test Scenarios
+   - Multi-role login testing (Admin, Manager, Teller, CS)
+   - Dashboard navigation workflows
+   - Security testing dan unauthorized access prevention
+   - Session management dan logout functionality
 
-### ❌ **DOCUMENTED BUT NOT IMPLEMENTED Features:**
-7. **PDF Reporting** (0 actual implementations)
-   - ❌ Account statement PDF generation
-   - ❌ Passbook printing functionality
-   - ❌ Transaction receipt printing
+### 7. PDF Reporting Test Scenarios
+   - Account statement PDF generation
+   - Passbook printing functionality
+   - Transaction receipt printing
 
-8. **Islamic Financing Applications** (0 actual implementations)
-   - ❌ Murabahah application forms (products configured only)
-   - ❌ Mudharabah partnership applications
-   - ❌ Profit distribution workflows
-   - ❌ Islamic financing document generation
+### 8. Islamic Financing Applications Test Scenarios
+   - Murabahah application forms
+   - Mudharabah partnership applications
+   - Profit distribution workflows
+   - Islamic financing document generation
 
-9. **Advanced Compliance** (0 actual implementations)
-   - ❌ AML monitoring dashboards
-   - ❌ KYC workflow forms
-   - ❌ Regulatory reporting interfaces
-   - ❌ Compliance audit report generation
-
-### 🔄 **REAL IMPLEMENTATION STATISTICS:**
-- **Actual Selenium Tests:** 14+ classes, 143+ methods, 5,000+ lines of code
-- **Implemented Features:** ~85% of core banking operations (✅ **+5% with cash withdrawal Web UI**)
-- **Test Coverage:** Comprehensive untuk implemented features including real-time JavaScript validation
-- **NEW Features:** Cash withdrawal Web UI dengan comprehensive Selenium testing (15+ test methods)
-- **Missing Features:** Primarily transfers, reporting, dan Islamic financing application workflows
+### 9. Advanced Compliance Test Scenarios
+   - AML monitoring dashboards
+   - KYC workflow forms
+   - Regulatory reporting interfaces
+   - Compliance audit report generation

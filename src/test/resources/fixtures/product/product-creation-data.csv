@@ -1,8 +1,0 @@
-productCode,productName,productType,productCategory,description,profitSharingRatio,isActive,isDefault,minimumOpeningBalance,minimumBalance
-TAB001,Tabungan Wadiah Basic,TABUNGAN_WADIAH,Tabungan Syariah,Basic Islamic savings account for personal customers,0.0125,true,false,100000,50000
-TAB002,Tabungan Mudharabah Premium,TABUNGAN_MUDHARABAH,Tabungan Syariah,Premium Islamic savings account with profit sharing,0.025,true,false,1000000,500000
-CHK001,Basic Checking,CHECKING,Personal Banking,Basic checking account for daily transactions,0.0,true,true,50000,25000
-CHK002,Business Checking,CHECKING,Business Banking,Checking account for business customers,0.005,true,false,500000,100000
-DEP001,Deposito Mudharabah,DEPOSITO_MUDHARABAH,Deposito Syariah,Islamic time deposit with profit sharing,0.045,true,false,10000000,10000000
-PEM001,Pembiayaan Murabahah,PEMBIAYAAN_MURABAHAH,Pembiayaan Syariah,Islamic financing for personal customers,0.12,true,false,0,0
-TAB003,Tabungan Syariah Gold,TABUNGAN_MUDHARABAH,Tabungan Syariah,Premium Islamic savings with special benefits,0.18,true,false,500000,100000
