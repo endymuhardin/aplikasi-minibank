@@ -1,10 +1,11 @@
-package id.ac.tazkia.minibank.selenium;
+package id.ac.tazkia.minibank.selenium.comprehensive.authentication;
 
 import id.ac.tazkia.minibank.config.BaseSeleniumTest;
 import id.ac.tazkia.minibank.selenium.pages.DashboardPage;
 import id.ac.tazkia.minibank.selenium.pages.LoginPage;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -14,8 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@DisplayName("Login Functionality Selenium Tests")
-class LoginSeleniumTest extends BaseSeleniumTest {
+@Tag("comprehensive")
+@DisplayName("Login Comprehensive Tests")
+class LoginComprehensiveTest extends BaseSeleniumTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/selenium/login-credentials.csv", numLinesToSkip = 1)
