@@ -47,10 +47,10 @@ public class CustomerManagementPage {
     private WebElement errorMessage;
     
     // Customer type selection elements
-    @FindBy(xpath = "//a[@href='/customer/create/personal']")
+    @FindBy(id = "create-personal-customer-link")
     private WebElement createPersonalCustomerLink;
     
-    @FindBy(xpath = "//a[@href='/customer/create/corporate']")
+    @FindBy(id = "create-corporate-customer-link")
     private WebElement createCorporateCustomerLink;
     
     public CustomerManagementPage(WebDriver driver) {

@@ -39,8 +39,8 @@ class UserManagementEssentialTest extends BaseSeleniumTest {
         loginPage.navigateTo(baseUrl);
         loginPage.loginWith(username, password);
         
-        // Only ADMIN and MANAGER roles have access to user management
-        boolean hasUserManagementAccess = expectedRole.equals("ADMIN") || expectedRole.equals("MANAGER");
+        // Only BRANCH_MANAGER role has access to user management
+        boolean hasUserManagementAccess = expectedRole.equals("BRANCH_MANAGER");
         
         if (hasUserManagementAccess) {
             // Navigate to user management

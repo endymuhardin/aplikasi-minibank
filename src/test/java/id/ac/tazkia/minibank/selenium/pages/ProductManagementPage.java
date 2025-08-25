@@ -367,9 +367,14 @@ public class ProductManagementPage {
                 log.debug("Clicked legacy submit button");
             }
         } catch (Exception e) {
-            // If both fail, try JavaScript click
-            driver.findElement(org.openqa.selenium.By.xpath("//button[@type='submit' or @id='submit-btn']")).click();
-            log.debug("Clicked submit button using JavaScript");
+            // If both fail, try direct ID search
+            try {
+                WebElement submitBtn = driver.findElement(org.openqa.selenium.By.id("submit-btn"));
+                submitBtn.click();
+                log.debug("Clicked submit button using direct ID search");
+            } catch (Exception e2) {
+                log.error("Could not find submit button: {}", e2.getMessage());
+            }
         }
         return this;
     }
@@ -380,7 +385,7 @@ public class ProductManagementPage {
     public boolean isProductVisible(String productCode) {
         try {
             WebElement productRow = driver.findElement(
-                org.openqa.selenium.By.xpath("//td[text()='" + productCode + "']")
+                org.openqa.selenium.By.id("product-code-" + productCode)
             );
             return productRow.isDisplayed();
         } catch (Exception e) {
@@ -442,12 +447,19 @@ public class ProductManagementPage {
      */
     public boolean hasValidationErrors() {
         try {
-            // Look for validation error elements
-            return driver.getPageSource().contains("border-red-300") ||
-                   driver.getPageSource().contains("text-red-600") ||
-                   driver.findElements(org.openqa.selenium.By.className("text-red-600")).size() > 0;
+            // Check if validation alert container is visible
+            WebElement validationAlert = driver.findElement(org.openqa.selenium.By.id("validation-alert"));
+            return validationAlert.isDisplayed() && !validationAlert.getAttribute("class").contains("hidden");
         } catch (Exception e) {
-            return false;
+            // Fallback: check for individual error elements that have IDs
+            try {
+                return driver.findElement(org.openqa.selenium.By.id("productCode-error")).isDisplayed() ||
+                       driver.findElement(org.openqa.selenium.By.id("productName-error")).isDisplayed() ||
+                       driver.findElement(org.openqa.selenium.By.id("productType-error")).isDisplayed() ||
+                       driver.findElement(org.openqa.selenium.By.id("productCategory-error")).isDisplayed();
+            } catch (Exception e2) {
+                return false;
+            }
         }
     }
     

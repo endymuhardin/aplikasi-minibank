@@ -77,16 +77,16 @@ public class UserPage {
     private WebElement errorMessage;
     
     // Validation errors
-    @FindBy(className = "username-error")
+    @FindBy(id = "username-error")
     private WebElement usernameError;
     
-    @FindBy(className = "fullname-error")
+    @FindBy(id = "fullname-error")
     private WebElement fullNameError;
     
-    @FindBy(className = "email-error")
+    @FindBy(id = "email-error")
     private WebElement emailError;
     
-    @FindBy(className = "branch-error")
+    @FindBy(id = "branch-error")
     private WebElement branchError;
     
     // Pagination elements
@@ -96,7 +96,7 @@ public class UserPage {
     @FindBy(id = "next-page-btn")
     private WebElement nextPageButton;
     
-    @FindBy(className = "current-page")
+    @FindBy(id = "current-page-indicator")
     private WebElement currentPageIndicator;
     
     public UserPage(WebDriver driver) {

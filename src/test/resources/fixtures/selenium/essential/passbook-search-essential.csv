@@ -1,0 +1,6 @@
+searchTerm,expectedResults,description
+ACC,Found accounts,Search by account number prefix
+Tabungan,Found accounts,Search by product type
+Ahmad,Found customer accounts,Search by customer name
+Personal,Found personal accounts,Search by account type
+NONEXISTENT999,No accounts found,Search for non-existent account

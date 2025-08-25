@@ -72,7 +72,7 @@
                     <tr th:if="${permissions.empty}">
                         <td colspan="5" class="px-6 py-4 text-center text-gray-500" id="no-permissions-message">No permissions found</td>
                     </tr>
-                    <tr th:each="permission : ${permissions.content}" class="permission-row" th:data-permission-id="${permission.id}">
+                    <tr th:each="permission : ${permissions.content}" class="permission-row" th:data-permission-id="${permission.id}" th:id="'permission-row-' + ${permission.permissionCode}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900" th:text="${permission.permissionCode}" th:id="'permission-code-' + ${permission.permissionCode}"></div>
                         </td>

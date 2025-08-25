@@ -44,7 +44,13 @@ INSERT INTO permissions (permission_code, permission_name, permission_category, 
 ('USER_VIEW', 'View Users', 'USER', 'View system users', 'SYSTEM'),
 ('USER_CREATE', 'Create User', 'USER', 'Create new system users', 'SYSTEM'),
 ('USER_UPDATE', 'Update User', 'USER', 'Update user information', 'SYSTEM'),
-('USER_DEACTIVATE', 'Deactivate User', 'USER', 'Deactivate system users', 'SYSTEM');
+('USER_DEACTIVATE', 'Deactivate User', 'USER', 'Deactivate system users', 'SYSTEM'),
+
+-- Branch management permissions
+('BRANCH_VIEW', 'View Branch', 'BRANCH', 'View branch information', 'SYSTEM'),
+('BRANCH_CREATE', 'Create Branch', 'BRANCH', 'Create new branches', 'SYSTEM'),
+('BRANCH_UPDATE', 'Update Branch', 'BRANCH', 'Update branch information', 'SYSTEM'),
+('BRANCH_DELETE', 'Delete Branch', 'BRANCH', 'Delete branches', 'SYSTEM');
 
 -- Grant permissions to Customer Service role
 INSERT INTO role_permissions (id_roles, id_permissions, granted_by)

@@ -8,7 +8,7 @@
 <body>
     <div layout:fragment="content">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-bsi-darker" 
+            <h1 id="page-title" class="text-3xl font-bold text-bsi-darker" 
                 th:text="${role.id != null} ? 'Edit Role' : 'Create Role'">Role Form</h1>
             <a th:href="@{/rbac/roles/list}" 
                class="bg-bsi-light-gray hover:bg-bsi-gray text-white font-bold py-2 px-4 rounded"

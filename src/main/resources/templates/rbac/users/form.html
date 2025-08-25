@@ -8,7 +8,7 @@
 <body>
     <div layout:fragment="content">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-bsi-darker" 
+            <h1 id="page-title" class="text-3xl font-bold text-bsi-darker" 
                 th:text="${user.id != null} ? 'Edit User' : 'Create User'">User Form</h1>
             <a th:href="@{/rbac/users/list}" 
                class="bg-bsi-light-gray hover:bg-bsi-gray text-white font-bold py-2 px-4 rounded"
@@ -42,7 +42,8 @@
                                required>
                         <p th:if="${#fields.hasErrors('username')}" 
                            th:errors="*{username}" 
-                           class="mt-1 text-sm text-bsi-secondary username-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary username-error"
+                           id="username-error"></p>
                     </div>
 
                     <!-- Full Name -->
@@ -56,7 +57,8 @@
                                required>
                         <p th:if="${#fields.hasErrors('fullName')}" 
                            th:errors="*{fullName}" 
-                           class="mt-1 text-sm text-bsi-secondary fullname-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary fullname-error"
+                           id="fullname-error"></p>
                     </div>
 
                     <!-- Email -->
@@ -70,7 +72,8 @@
                                required>
                         <p th:if="${#fields.hasErrors('email')}" 
                            th:errors="*{email}" 
-                           class="mt-1 text-sm text-bsi-secondary email-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary email-error"
+                           id="email-error"></p>
                     </div>
 
                     <!-- Branch Selection -->
@@ -90,7 +93,8 @@
                         </select>
                         <p th:if="${#fields.hasErrors('branch')}" 
                            th:errors="*{branch}" 
-                           class="mt-1 text-sm text-bsi-secondary branch-error"></p>
+                           class="mt-1 text-sm text-bsi-secondary branch-error"
+                           id="branch-error"></p>
                         <p class="mt-1 text-sm text-gray-500">Select the branch where this user will be assigned</p>
                     </div>
 
