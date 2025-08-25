@@ -4,9 +4,16 @@
 Dokumen ini berisi skenario test untuk fitur audit and compliance dalam aplikasi minibank Islam. Audit dan compliance mencakup regulatory reporting, audit trail, transaction monitoring, AML (Anti-Money Laundering), KYC (Know Your Customer), dan Shariah compliance monitoring.
 
 ## Implementation Status
-**✅ Implemented**: Basic audit fields (created_by, created_date, updated_by, updated_date)
-**🔄 Partially Implemented**: RBAC system dengan user permissions, transaction logging
-**❌ Not Implemented**: Complete audit trail system, regulatory reporting, AML monitoring
+**✅ IMPLEMENTED**: 
+- **Comprehensive Audit Fields**: AuditorAwareImpl with automatic created_by/updated_by population
+- **Complete RBAC System**: 29 granular permissions across 9 categories
+- **Transaction Logging**: Complete transaction audit trail with balance tracking
+- **User Activity Tracking**: User authentication and role-based access logging
+
+**❌ NOT IMPLEMENTED**: 
+- **Advanced Compliance Features**: AML monitoring dashboard, KYC workflow forms
+- **Regulatory Reporting**: OJK, PPATK compliance report generation
+- **Suspicious Activity Monitoring**: Automated transaction pattern analysis
 
 ## Preconditions
 - Database PostgreSQL berjalan dengan audit triggers
