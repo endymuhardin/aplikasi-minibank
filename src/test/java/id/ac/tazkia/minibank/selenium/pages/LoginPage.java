@@ -49,9 +49,11 @@ public class LoginPage {
      */
     public LoginPage navigateTo(String baseUrl) {
         String loginUrl = baseUrl + "/login";
-        log.info("Navigating to login page: {}", loginUrl);
+        log.info("🌐 NAVIGATE → Login Page: {}", loginUrl);
         driver.get(loginUrl);
         waitForPageLoad();
+        log.info("✅ LOGIN PAGE LOADED - Current URL: {} | Title: {}", 
+                driver.getCurrentUrl(), driver.getTitle());
         return this;
     }
     
@@ -59,10 +61,11 @@ public class LoginPage {
      * Wait for login page to load completely
      */
     public LoginPage waitForPageLoad() {
+        log.debug("⏳ WAITING → Login page elements to load...");
         wait.until(ExpectedConditions.visibilityOf(usernameField));
         wait.until(ExpectedConditions.visibilityOf(passwordField));
         wait.until(ExpectedConditions.elementToBeClickable(loginButton));
-        log.debug("Login page loaded successfully");
+        log.debug("✅ LOGIN ELEMENTS LOADED - Username field, password field, and login button ready");
         return this;
     }
     
@@ -70,10 +73,11 @@ public class LoginPage {
      * Enter username
      */
     public LoginPage enterUsername(String username) {
+        log.debug("📝 ACTION → Entering username: {}", username);
         wait.until(ExpectedConditions.visibilityOf(usernameField));
         usernameField.clear();
         usernameField.sendKeys(username);
-        log.debug("Entered username: {}", username);
+        log.debug("✅ USERNAME ENTERED");
         return this;
     }
     
@@ -81,10 +85,11 @@ public class LoginPage {
      * Enter password
      */
     public LoginPage enterPassword(String password) {
+        log.debug("🔒 ACTION → Entering password");
         wait.until(ExpectedConditions.visibilityOf(passwordField));
         passwordField.clear();
         passwordField.sendKeys(password);
-        log.debug("Entered password");
+        log.debug("✅ PASSWORD ENTERED");
         return this;
     }
     
@@ -92,9 +97,10 @@ public class LoginPage {
      * Click login button
      */
     public LoginPage clickLogin() {
+        log.info("🖱️ ACTION → Clicking login button");
         wait.until(ExpectedConditions.elementToBeClickable(loginButton));
         loginButton.click();
-        log.debug("Clicked login button");
+        log.info("✅ LOGIN BUTTON CLICKED - Waiting for authentication...");
         return this;
     }
     
@@ -102,11 +108,13 @@ public class LoginPage {
      * Complete login process with username and password
      */
     public DashboardPage loginWith(String username, String password) {
+        log.info("🔐 LOGIN FLOW START → User: {} | Current URL: {}", username, driver.getCurrentUrl());
+        
         enterUsername(username);
         enterPassword(password);
         clickLogin();
         
-        log.info("Attempting login with username: {}", username);
+        log.info("⏳ AUTHENTICATION → Waiting for login response...");
         
         // Wait for either dashboard or error message
         try {
@@ -115,15 +123,18 @@ public class LoginPage {
                 isErrorMessageVisible()
             );
             
-            if (driver.getCurrentUrl().contains("/dashboard")) {
-                log.info("Login successful, redirected to dashboard");
+            String currentUrl = driver.getCurrentUrl();
+            if (currentUrl.contains("/dashboard")) {
+                log.info("🎉 LOGIN SUCCESS → Redirected to dashboard: {} | Title: {}", currentUrl, driver.getTitle());
                 return new DashboardPage(driver);
             } else {
-                log.warn("Login failed, error message displayed");
-                throw new RuntimeException("Login failed: " + getErrorMessage());
+                String errorMsg = getErrorMessage();
+                log.warn("❌ LOGIN FAILED → Error: {} | Current URL: {}", errorMsg, currentUrl);
+                throw new RuntimeException("Login failed: " + errorMsg);
             }
         } catch (Exception e) {
-            log.error("Login process failed: {}", e.getMessage());
+            log.error("💥 LOGIN ERROR → Exception during authentication: {} | Current URL: {}", 
+                    e.getMessage(), driver.getCurrentUrl());
             throw new RuntimeException("Login process failed", e);
         }
     }

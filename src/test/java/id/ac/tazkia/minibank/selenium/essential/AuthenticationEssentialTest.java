@@ -23,19 +23,24 @@ class AuthenticationEssentialTest extends BaseSeleniumTest {
     @CsvFileSource(resources = "/fixtures/selenium/essential/login-credentials-essential.csv", numLinesToSkip = 1)
     @DisplayName("Should login successfully for all user roles")
     void shouldLoginSuccessfullyForAllRoles(String username, String password, String expectedRole, String roleDescription) {
-        log.info("Essential Test: Login for {}: {} with role {}", roleDescription, username, expectedRole);
+        log.info("🎯 TEST START → Login Authentication Test | User: {} ({}) | Role: {} | Schema: {}", 
+                username, roleDescription, expectedRole, schemaName);
         
         // Navigate to login page
+        log.info("🌐 STEP 1/4 → Navigating to login page");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateTo(baseUrl);
         
         // Verify login form is accessible
+        log.info("🔍 STEP 2/4 → Verifying login form visibility");
         assertTrue(loginPage.isLoginFormVisible(), "Login form should be visible");
         
         // Perform login
+        log.info("🔐 STEP 3/4 → Performing login with credentials");
         DashboardPage dashboardPage = loginPage.loginWith(username, password);
         
         // Verify successful login
+        log.info("🔍 STEP 4/4 → Verifying dashboard access and role permissions");
         assertTrue(dashboardPage.isDashboardLoaded(), 
                 "Dashboard should load successfully after login");
         assertEquals("Dashboard", dashboardPage.getPageTitle(), 
@@ -44,18 +49,21 @@ class AuthenticationEssentialTest extends BaseSeleniumTest {
         // Verify role-specific dashboard elements
         verifyRoleBasedDashboardAccess(dashboardPage, expectedRole, roleDescription);
         
-        log.info("✅ Essential login test passed for {}", roleDescription);
+        log.info("🎉 TEST PASSED → Essential login test completed successfully for {} | Role: {}", 
+                roleDescription, expectedRole);
     }
 
     @Test
     @DisplayName("Should handle invalid login credentials gracefully")
     void shouldHandleInvalidLoginGracefully() {
-        log.info("Essential Test: Invalid login handling");
+        log.info("🎯 TEST START → Invalid Login Handling Test | Schema: {}", schemaName);
         
+        log.info("🌐 STEP 1/3 → Navigating to login page");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateTo(baseUrl);
         
         // Attempt login with invalid credentials
+        log.info("🗛️ STEP 2/3 → Attempting login with invalid credentials");
         loginPage.enterUsername("invalid-user");
         loginPage.enterPassword("wrong-password");
         loginPage.clickLogin();
@@ -68,16 +76,19 @@ class AuthenticationEssentialTest extends BaseSeleniumTest {
         }
         
         // Verify not redirected to dashboard
-        assertFalse(driver.getCurrentUrl().contains("/dashboard"), 
+        log.info("🔍 STEP 3/3 → Verifying invalid login is properly rejected");
+        String currentUrl = driver.getCurrentUrl();
+        assertFalse(currentUrl.contains("/dashboard"), 
                 "Should not redirect to dashboard with invalid credentials");
+        log.info("✅ SECURITY CHECK PASSED - No dashboard redirect | Current URL: {}", currentUrl);
         
         // Check for error message if available
         if (loginPage.isErrorMessageVisible()) {
-            assertFalse(loginPage.getErrorMessage().isEmpty(), 
-                    "Error message should not be empty");
-            log.info("✅ Error message displayed: {}", loginPage.getErrorMessage());
+            String errorMsg = loginPage.getErrorMessage();
+            assertFalse(errorMsg.isEmpty(), "Error message should not be empty");
+            log.info("🎉 TEST PASSED → Error message displayed: '{}'", errorMsg);
         } else {
-            log.info("✅ Login blocked without explicit error message");
+            log.info("🎉 TEST PASSED → Login blocked without explicit error message (acceptable)");
         }
     }
 

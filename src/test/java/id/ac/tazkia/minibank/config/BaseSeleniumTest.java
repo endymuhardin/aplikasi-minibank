@@ -55,8 +55,8 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
             SeleniumContainerFactory.logVncInformation(seleniumContainer);
         }
         
-        log.info("BaseSeleniumTest setUpSelenium: Selenium test starting on {} with schema {} | headless: {}", 
-                baseUrl, schemaName, headless);
+        log.info("🔧 Selenium Setup Complete - URL: {} | Schema: {} | Thread: {} | Headless: {}", 
+                baseUrl, schemaName, Thread.currentThread().getName(), headless);
     }
 
     @AfterEach
