@@ -27,6 +27,8 @@ src/test/java/id/ac/tazkia/minibank/
 | Controller | Essential Test | Coverage Type |
 |------------|---------------|---------------|
 | AccountController | AccountOpeningEssentialTest | Account opening, selection, form submission |
+| AccountController | **AccountClosureEssentialTest** | **Account closure workflow, validation** |
+| AccountController | **StatementPdfEssentialTest** | **PDF statement generation, date ranges** |
 | AuthenticationController | AuthenticationEssentialTest | Login/logout flows, session management |
 | BranchController | BranchManagementEssentialTest | Branch CRUD operations |
 | CustomerController | CustomerManagementEssentialTest | Personal/corporate customer registration |
@@ -138,6 +140,49 @@ TAB_TEST_001,Test Savings Account,TABUNGAN_WADIAH,Success,Valid product creation
 DEP_TEST_001,Test Deposit,DEPOSITO_MUDHARABAH,Success,Islamic deposit product
 ```
 
+### Latest Essential Tests Added
+
+#### AccountClosureEssentialTest
+Comprehensive testing of account closure workflow:
+
+```java
+@ParameterizedTest
+@CsvFileSource(resources = "/fixtures/selenium/essential/account-closure-essential.csv")
+void shouldValidateAccountClosureFormElements(String accountNumber, String closureReason, 
+                                            String expectedResult, String testDescription) {
+    // Tests account closure form validation, balance checks, confirmation workflow
+}
+```
+
+**Test Coverage:**
+- Multi-role access verification (8 test methods)
+- Account closure form display and validation
+- Balance validation and confirmation workflow
+- Security permissions and navigation flow
+
+#### StatementPdfEssentialTest
+Comprehensive testing of PDF statement generation:
+
+```java
+@ParameterizedTest
+@CsvFileSource(resources = "/fixtures/selenium/essential/account-statement-pdf-essential.csv")
+void shouldValidatePdfGenerationParameters(String accountNumber, String startDate, 
+                                         String endDate, String expectedResult, String testDescription) {
+    // Tests PDF generation form, date validation, download workflow
+}
+```
+
+**Test Coverage:**
+- PDF form validation and date range handling (8 test methods)
+- Account information display verification
+- PDF generation workflow integration
+- Multi-role access and permissions testing
+
+**Supporting Infrastructure:**
+- **AccountManagementPage**: Page Object for account closure operations
+- **AccountStatementPage**: Page Object for PDF statement functionality
+- **CSV Fixtures**: Data-driven test scenarios for both features
+
 ## Selenium WebDriver Testing
 
 ### Configuration
@@ -236,6 +281,8 @@ Data-driven test cases in `/src/test/resources/fixtures/`:
 fixtures/
 ├── selenium/
 │   └── essential/        # Essential test data
+│       ├── account-closure-essential.csv      # NEW: Account closure test scenarios
+│       └── account-statement-pdf-essential.csv # NEW: PDF statement test scenarios
 ├── customer/            # Customer test data
 ├── account/             # Account test data
 └── transaction/         # Transaction test data
@@ -277,6 +324,8 @@ mvn test -Dtest=*EssentialTest          # Essential E2E tests
 mvn test -Dtest=CustomerManagementEssentialTest
 mvn test -Dtest=ProductManagementEssentialTest
 mvn test -Dtest=TransactionEssentialTest
+mvn test -Dtest=AccountClosureEssentialTest      # NEW: Account closure workflow
+mvn test -Dtest=StatementPdfEssentialTest        # NEW: PDF statement generation
 
 # Specific test method
 mvn test -Dtest=AccountOpeningEssentialTest#testPersonalAccountOpening
@@ -351,11 +400,13 @@ ls target/test-recordings/
 ## Test Metrics
 
 ### Current Coverage Status
-- **10 Essential Tests**: Complete E2E coverage for all web controllers
+- **12 Essential Tests**: Complete E2E coverage including account closure and PDF statements
 - **38 Templates**: Configured with consistent test IDs
 - **15+ Integration Tests**: Repository and service layer
 - **20+ Unit Tests**: Entity business logic
 - **50+ Karate Scenarios**: API feature testing
+- **NEW**: AccountClosureEssentialTest (8 test methods)
+- **NEW**: StatementPdfEssentialTest (8 test methods)
 
 ### Success Criteria
 | Metric | Target | Current |
@@ -368,4 +419,4 @@ ls target/test-recordings/
 
 ---
 
-*Last Updated: After implementing comprehensive essential test coverage and template standardization for robust Selenium testing.*
+*Last Updated: After adding AccountClosureEssentialTest and StatementPdfEssentialTest for complete feature coverage.*

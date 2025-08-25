@@ -128,16 +128,17 @@ mvn spring-boot:run
 |-----------|----------|--------|-------------|
 | **Unit Tests** | ✅ Complete | 🟢 Active | Entity, Repository, Service layer tests |
 | **Integration Tests (Karate)** | ✅ Complete | 🟢 Active | API endpoint testing with BDD scenarios |
-| **Selenium UI Tests** | ✅ Complete | 🟢 Active | 17 comprehensive UI test classes |
+| **Selenium UI Tests** | ✅ Complete | 🟢 Active | 12 essential test classes with comprehensive coverage |
 | **Parallel Test Execution** | ✅ Implemented | 🟢 Optimized | Thread-safe Selenium with TestContainers |
 
 ### 🎯 Selenium Test Coverage
 - **Login & Authentication** - Login flows and RBAC validation
 - **Customer Management** - Personal/Corporate customer CRUD operations  
-- **Account Management** - Account opening, status management, comprehensive workflows
+- **Account Management** - Account opening, status management, **account closure workflows**
 - **Transaction Processing** - Cash deposits, withdrawals, transfers
 - **Islamic Banking Products** - Product management and configuration
 - **Passbook Services** - Passbook printing and transaction history
+- **PDF Statement Generation** - **Account statement PDF generation and download** 
 - **User & Permission Management** - RBAC administration, role assignments
 - **Dashboard & Navigation** - Main dashboard and navigation flows
 
@@ -166,11 +167,13 @@ mvn test -Dtest=CustomerRegistrationTest
 
 #### Selenium UI Tests
 ```bash
-# Run headless (default)
-mvn test -Dtest=ProductManagementSeleniumTest
+# Run specific essential tests
+mvn test -Dtest=CustomerManagementEssentialTest
+mvn test -Dtest=AccountClosureEssentialTest        # NEW: Account closure testing
+mvn test -Dtest=StatementPdfEssentialTest         # NEW: PDF statement testing
 
 # Run with visible browser (debugging)
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
+mvn test -Dtest=*EssentialTest -Dselenium.headless=false
 
 # Run with recording enabled
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
