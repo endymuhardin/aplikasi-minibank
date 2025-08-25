@@ -66,24 +66,37 @@ public class AccountManagementPage {
 
     public void navigateToAccountList(String baseUrl) {
         String accountListUrl = baseUrl + "/account/list";
-        log.info("Navigating to account list: {}", accountListUrl);
+        log.info("🌐 NAVIGATE → Account List Page: {}", accountListUrl);
         driver.get(accountListUrl);
         waitForPageLoad();
+        log.info("✅ ACCOUNT LIST PAGE LOADED - Current URL: {} | Title: {}", 
+                driver.getCurrentUrl(), driver.getTitle());
     }
 
     public void navigateToAccountClosure(String baseUrl, String accountId) {
         String closureUrl = baseUrl + "/account/" + accountId + "/close";
-        log.info("Navigating to account closure: {}", closureUrl);
+        log.info("🌐 NAVIGATE → Account Closure Page: {} | Account ID: {}", closureUrl, accountId);
         driver.get(closureUrl);
         waitForPageLoad();
+        log.info("✅ ACCOUNT CLOSURE PAGE LOADED - Current URL: {} | Title: {}", 
+                driver.getCurrentUrl(), driver.getTitle());
     }
 
     public boolean isAccountListPageLoaded() {
         try {
             wait.until(ExpectedConditions.visibilityOf(pageTitle));
-            return pageTitle.getText().contains("Account Management");
+            String title = pageTitle.getText();
+            boolean loaded = title.contains("Account Management");
+            
+            if (loaded) {
+                log.info("✅ PAGE VERIFICATION SUCCESS - Account List Page loaded | Title: '{}'", title);
+            } else {
+                log.warn("❌ PAGE VERIFICATION FAILED - Expected 'Account Management', got: '{}'", title);
+            }
+            
+            return loaded;
         } catch (Exception e) {
-            log.warn("Account list page not loaded properly: {}", e.getMessage());
+            log.warn("💥 PAGE CHECK ERROR - Account list page load failed: {}", e.getMessage());
             return false;
         }
     }
@@ -116,14 +129,16 @@ public class AccountManagementPage {
     }
 
     public void clickCloseAccountLink(String accountNumber) {
-        log.info("Looking for close link for account: {}", accountNumber);
+        log.info("🔍 SEARCH → Looking for close link for account: {}", accountNumber);
         try {
             WebElement closeLink = wait.until(ExpectedConditions.elementToBeClickable(
                 By.id("close-account-" + accountNumber)));
+            log.info("🖱️ ACTION → Clicking close account link for: {}", accountNumber);
             closeLink.click();
-            log.info("Clicked close account link for: {}", accountNumber);
+            log.info("✅ NAVIGATION → Close account link clicked | Account: {} | New URL: {}", 
+                    accountNumber, driver.getCurrentUrl());
         } catch (Exception e) {
-            log.error("Failed to click close account link: {}", e.getMessage());
+            log.error("💥 CLICK ERROR → Failed to click close account link for {}: {}", accountNumber, e.getMessage());
             throw new RuntimeException("Could not click close account link for " + accountNumber);
         }
     }
@@ -161,38 +176,40 @@ public class AccountManagementPage {
     }
 
     public void fillClosureReason(String reason) {
-        log.info("Filling closure reason: {}", reason);
+        log.info("📝 FORM ACTION → Filling closure reason: {}", reason);
         reasonTextarea.clear();
         reasonTextarea.sendKeys(reason);
+        log.info("✅ FORM FILLED - Closure reason entered successfully");
     }
 
     public void confirmAccountClosure() {
-        log.info("Confirming account closure");
+        log.info("☑️ FORM ACTION → Confirming account closure");
         try {
             wait.until(ExpectedConditions.elementToBeClickable(confirmCheckbox));
             confirmCheckbox.click();
-            log.info("Confirmation checkbox checked");
+            log.info("✅ CONFIRMATION CHECKED - Account closure confirmation checkbox selected");
         } catch (Exception e) {
-            log.error("Failed to confirm account closure: {}", e.getMessage());
+            log.error("💥 FORM ERROR → Failed to confirm account closure: {}", e.getMessage());
             throw new RuntimeException("Could not confirm account closure");
         }
     }
 
     public void clickCloseAccount() {
-        log.info("Clicking close account button");
+        log.info("🖱️ SUBMIT ACTION → Clicking close account button");
         try {
             wait.until(ExpectedConditions.elementToBeClickable(closeAccountButton));
             closeAccountButton.click();
-            log.info("Close account button clicked");
+            log.info("✅ FORM SUBMITTED - Close account button clicked | Processing closure request...");
         } catch (Exception e) {
-            log.error("Failed to click close account button: {}", e.getMessage());
+            log.error("💥 SUBMIT ERROR → Failed to click close account button: {}", e.getMessage());
             throw new RuntimeException("Could not click close account button");
         }
     }
 
     public void clickCancel() {
-        log.info("Clicking cancel button");
+        log.info("❌ ACTION → Clicking cancel button");
         cancelButton.click();
+        log.info("✅ NAVIGATION → Cancel button clicked | Returning to: {}", driver.getCurrentUrl());
     }
 
     public boolean isSuccessMessageDisplayed() {
@@ -268,10 +285,12 @@ public class AccountManagementPage {
     }
 
     private void waitForPageLoad() {
+        log.debug("⏳ WAITING → Page elements to load...");
         try {
             wait.until(ExpectedConditions.visibilityOf(pageTitle));
+            log.debug("✅ PAGE ELEMENTS LOADED - Page title visible");
         } catch (Exception e) {
-            log.warn("Page title not loaded within timeout: {}", e.getMessage());
+            log.warn("⏰ TIMEOUT WARNING → Page title not loaded within timeout: {}", e.getMessage());
         }
     }
 }

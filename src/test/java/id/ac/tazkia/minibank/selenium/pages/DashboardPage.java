@@ -79,9 +79,11 @@ public class DashboardPage {
      * Wait for dashboard page to load completely
      */
     public DashboardPage waitForPageLoad() {
+        log.debug("⏳ WAITING → Dashboard page elements to load...");
         wait.until(ExpectedConditions.visibilityOf(dashboardContent));
         wait.until(ExpectedConditions.visibilityOf(pageTitle));
-        log.debug("Dashboard page loaded successfully");
+        log.info("✅ DASHBOARD LOADED - Title: {} | URL: {}", 
+                pageTitle.getText(), driver.getCurrentUrl());
         return this;
     }
     
@@ -91,10 +93,19 @@ public class DashboardPage {
     public boolean isDashboardLoaded() {
         try {
             waitForPageLoad();
-            return pageTitle.getText().equals("Dashboard") && 
-                   driver.getCurrentUrl().contains("/dashboard");
+            String title = pageTitle.getText();
+            String url = driver.getCurrentUrl();
+            boolean loaded = title.equals("Dashboard") && url.contains("/dashboard");
+            
+            if (loaded) {
+                log.info("✅ DASHBOARD VERIFICATION SUCCESS - Title: '{}' | URL contains /dashboard", title);
+            } else {
+                log.warn("❌ DASHBOARD VERIFICATION FAILED - Title: '{}' | URL: {}", title, url);
+            }
+            
+            return loaded;
         } catch (Exception e) {
-            log.debug("Dashboard not loaded: {}", e.getMessage());
+            log.warn("💥 DASHBOARD CHECK ERROR - {}", e.getMessage());
             return false;
         }
     }
@@ -211,17 +222,24 @@ public class DashboardPage {
      */
     public boolean verifyAdminRoleElements() {
         waitForPageLoad();
-        log.info("Verifying admin role elements");
+        log.info("🔍 ROLE CHECK → Verifying ADMIN role permissions");
         
         boolean hasProductManagement = isProductManagementVisible();
         boolean hasUserManagement = isUserManagementVisible();
         boolean hasCreateUser = isCreateUserButtonVisible();
         boolean hasSystemConfig = isSystemConfigLinkVisible();
         
-        log.debug("Admin elements - Product: {}, User: {}, CreateUser: {}, SystemConfig: {}", 
-                hasProductManagement, hasUserManagement, hasCreateUser, hasSystemConfig);
+        log.info("📋 ADMIN PERMISSIONS - Product: {} | User: {} | CreateUser: {} | SystemConfig: {}", 
+                hasProductManagement ? "✅" : "❌", 
+                hasUserManagement ? "✅" : "❌",
+                hasCreateUser ? "✅" : "❌", 
+                hasSystemConfig ? "✅" : "❌");
         
-        return hasProductManagement && hasUserManagement && hasCreateUser && hasSystemConfig;
+        boolean result = hasProductManagement && hasUserManagement && hasCreateUser && hasSystemConfig;
+        log.info("🎯 ADMIN VERIFICATION {} - All required elements: {}", 
+                result ? "PASSED" : "FAILED", result ? "✅" : "❌");
+        
+        return result;
     }
     
     /**
@@ -229,16 +247,22 @@ public class DashboardPage {
      */
     public boolean verifyManagerRoleElements() {
         waitForPageLoad();
-        log.info("Verifying manager role elements");
+        log.info("🔍 ROLE CHECK → Verifying MANAGER role permissions");
         
         boolean hasProductManagement = isProductManagementVisible();
         boolean hasUserManagement = isUserManagementVisible();
         boolean hasCreateProduct = isCreateProductButtonVisible();
         
-        log.debug("Manager elements - Product: {}, User: {}, CreateProduct: {}", 
-                hasProductManagement, hasUserManagement, hasCreateProduct);
+        log.info("📋 MANAGER PERMISSIONS - Product: {} | User: {} | CreateProduct: {}", 
+                hasProductManagement ? "✅" : "❌", 
+                hasUserManagement ? "✅" : "❌",
+                hasCreateProduct ? "✅" : "❌");
         
-        return hasProductManagement && hasUserManagement && hasCreateProduct;
+        boolean result = hasProductManagement && hasUserManagement && hasCreateProduct;
+        log.info("🎯 MANAGER VERIFICATION {} - All required elements: {}", 
+                result ? "PASSED" : "FAILED", result ? "✅" : "❌");
+        
+        return result;
     }
     
     /**
@@ -246,18 +270,22 @@ public class DashboardPage {
      */
     public boolean verifyCustomerServiceRoleElements() {
         waitForPageLoad();
-        log.info("Verifying customer service role elements");
+        log.info("🔍 ROLE CHECK → Verifying CUSTOMER SERVICE role permissions");
         
         // Customer Service should see product and account management capabilities
         // but NOT transaction processing (that's for Tellers)
         boolean hasProductView = isProductManagementVisible();
         boolean cannotProcessTransaction = !isProcessTransactionButtonVisible();
         
-        log.debug("CS elements - ProductView: {}, NoTransactionButton: {}", 
-                hasProductView, cannotProcessTransaction);
+        log.info("📋 CS PERMISSIONS - ProductView: {} | NoTransactionButton: {} (correct)", 
+                hasProductView ? "✅" : "❌",
+                cannotProcessTransaction ? "✅" : "❌");
         
-        // CS should be able to view products but not process transactions
-        return hasProductView && cannotProcessTransaction;
+        boolean result = hasProductView && cannotProcessTransaction;
+        log.info("🎯 CS VERIFICATION {} - Can view products but cannot process transactions: {}", 
+                result ? "PASSED" : "FAILED", result ? "✅" : "❌");
+        
+        return result;
     }
     
     /**
@@ -265,24 +293,30 @@ public class DashboardPage {
      */
     public boolean verifyTellerRoleElements() {
         waitForPageLoad();
-        log.info("Verifying teller role elements");
+        log.info("🔍 ROLE CHECK → Verifying TELLER role permissions");
         
         boolean hasProcessTransaction = isProcessTransactionButtonVisible();
         boolean hasAccountLookup = isAccountLookupButtonVisible();
         
-        log.debug("Teller elements - ProcessTransaction: {}, AccountLookup: {}", 
-                hasProcessTransaction, hasAccountLookup);
+        log.info("📋 TELLER PERMISSIONS - ProcessTransaction: {} | AccountLookup: {}", 
+                hasProcessTransaction ? "✅" : "❌",
+                hasAccountLookup ? "✅" : "❌");
         
-        return hasProcessTransaction && hasAccountLookup;
+        boolean result = hasProcessTransaction && hasAccountLookup;
+        log.info("🎯 TELLER VERIFICATION {} - Transaction processing capabilities: {}", 
+                result ? "PASSED" : "FAILED", result ? "✅" : "❌");
+        
+        return result;
     }
     
     /**
      * Click product management link
      */
     public DashboardPage clickProductManagement() {
+        log.info("🖱️ ACTION → Clicking Product Management link");
         wait.until(ExpectedConditions.elementToBeClickable(productManagementLink));
         productManagementLink.click();
-        log.debug("Clicked product management link");
+        log.info("✅ NAVIGATION → Product Management link clicked | New URL: {}", driver.getCurrentUrl());
         return this;
     }
     
@@ -290,9 +324,10 @@ public class DashboardPage {
      * Click user management link
      */
     public DashboardPage clickUserManagement() {
+        log.info("🖱️ ACTION → Clicking User Management link");
         wait.until(ExpectedConditions.elementToBeClickable(userManagementLink));
         userManagementLink.click();
-        log.debug("Clicked user management link");
+        log.info("✅ NAVIGATION → User Management link clicked | New URL: {}", driver.getCurrentUrl());
         return this;
     }
 }

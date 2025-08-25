@@ -24,9 +24,11 @@ class AccountClosureEssentialTest extends BaseSeleniumTest {
     @CsvFileSource(resources = "/fixtures/selenium/essential/login-credentials-essential.csv", numLinesToSkip = 1)
     @DisplayName("Should load account management page successfully for all user roles")
     void shouldLoadAccountManagementPageForAllRoles(String username, String password, String expectedRole, String roleDescription) {
-        log.info("Essential Test: Account management page access for {}: {} with role {}", roleDescription, username, expectedRole);
+        log.info("🎯 TEST START → Account Management Access Test | User: {} ({}) | Role: {} | Schema: {}", 
+                username, roleDescription, expectedRole, schemaName);
         
         // Login first
+        log.info("🔐 STEP 1/3 → Performing login authentication");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateTo(baseUrl);
         DashboardPage dashboardPage = loginPage.loginWith(username, password);
@@ -34,10 +36,12 @@ class AccountClosureEssentialTest extends BaseSeleniumTest {
         assertTrue(dashboardPage.isDashboardLoaded(), "Dashboard should be loaded first");
         
         // Navigate to account list
+        log.info("🌐 STEP 2/3 → Navigating to account management page");
         AccountManagementPage accountPage = new AccountManagementPage(driver);
         accountPage.navigateToAccountList(baseUrl);
         
         // Verify account list page loads successfully
+        log.info("🔍 STEP 3/3 → Verifying account management page access");
         assertTrue(accountPage.isAccountListPageLoaded(), 
                 "Account list page should load successfully for " + roleDescription);
         
@@ -47,15 +51,17 @@ class AccountClosureEssentialTest extends BaseSeleniumTest {
                     "Open account button should be visible for " + roleDescription);
         }
         
-        log.info("✅ Account management page loaded successfully for {}", roleDescription);
+        log.info("🎉 TEST PASSED → Account management page access verified for {} | Role: {}", 
+                roleDescription, expectedRole);
     }
 
     @Test
     @DisplayName("Should display account closure form correctly")
     void shouldDisplayAccountClosureFormCorrectly() {
-        log.info("Essential Test: Account closure form display");
+        log.info("🎯 TEST START → Account Closure Form Display Test | Schema: {}", schemaName);
         
         // Login as admin (has full access)
+        log.info("🔐 STEP 1/4 → Logging in as admin user");
         LoginPage loginPage = new LoginPage(driver);
         loginPage.navigateTo(baseUrl);
         DashboardPage dashboardPage = loginPage.loginWith("admin", "minibank123");
@@ -65,24 +71,26 @@ class AccountClosureEssentialTest extends BaseSeleniumTest {
         AccountManagementPage accountPage = new AccountManagementPage(driver);
         
         // First navigate to account list to get an account
+        log.info("🌐 STEP 2/4 → Navigating to account list page");
         accountPage.navigateToAccountList(baseUrl);
         assertTrue(accountPage.isAccountListPageLoaded(), "Account list should be loaded");
         
         // Check if we have accounts to test with
+        log.info("🔍 STEP 3/4 → Checking for available accounts in table");
         if (accountPage.hasAccountsInTable()) {
             // Try to navigate to closure form using a dummy account ID
-            // In real scenario, we'd get this from the account list
+            log.info("🌐 STEP 4/4 → Testing navigation to account closure form");
             String dummyAccountId = "550e8400-e29b-41d4-a716-446655440001";
             accountPage.navigateToAccountClosure(baseUrl, dummyAccountId);
             
             // The page should either load the closure form or show an error
-            // We're mainly testing the navigation and page structure
-            assertTrue(driver.getCurrentUrl().contains("/close"), 
+            String currentUrl = driver.getCurrentUrl();
+            assertTrue(currentUrl.contains("/close"), 
                     "URL should contain closure endpoint");
             
-            log.info("✅ Account closure navigation structure verified");
+            log.info("🎉 TEST PASSED → Account closure navigation structure verified | URL: {}", currentUrl);
         } else {
-            log.info("✅ No accounts available for closure test - navigation verified");
+            log.info("🎉 TEST PASSED → No accounts available for closure test - navigation path verified");
         }
     }
 
