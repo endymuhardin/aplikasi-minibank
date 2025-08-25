@@ -163,7 +163,7 @@
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-900" th:text="${product.id != null ? 'Edit Product' : 'Create Product'}"></h1>
+                        <h1 id="page-title" class="text-3xl font-bold text-gray-900" th:text="${product.id != null ? 'Edit Product' : 'Create Product'}"></h1>
                         <p class="mt-1 text-base font-semibold text-gray-700">Configure banking product settings and parameters</p>
                     </div>
                     <a th:href="@{/product/list}" 
