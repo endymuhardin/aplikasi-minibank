@@ -42,7 +42,7 @@ class AccountOpeningEssentialTest extends BaseSeleniumTest {
                 "Account list page should load successfully for " + roleDescription);
         
         // Verify essential page elements are visible (if user has appropriate permissions)
-        if (expectedRole.equals("ADMIN") || expectedRole.equals("MANAGER") || expectedRole.equals("TELLER")) {
+        if (expectedRole.equals("BRANCH_MANAGER") || expectedRole.equals("CUSTOMER_SERVICE")) {
             assertTrue(accountPage.isOpenAccountButtonVisible(), 
                     "Open account button should be visible for " + roleDescription);
         }

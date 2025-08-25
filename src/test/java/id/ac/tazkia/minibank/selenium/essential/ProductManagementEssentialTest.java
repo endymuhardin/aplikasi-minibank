@@ -42,7 +42,7 @@ class ProductManagementEssentialTest extends BaseSeleniumTest {
                 "Product management page should load successfully for " + roleDescription);
         
         // Verify essential page elements are visible (if user has appropriate permissions)
-        if (expectedRole.equals("ADMIN") || expectedRole.equals("MANAGER")) {
+        if (expectedRole.equals("BRANCH_MANAGER")) {
             assertTrue(productPage.isCreateProductButtonVisible(), 
                     "Create product button should be visible for " + roleDescription);
         }

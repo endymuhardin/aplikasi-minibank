@@ -1,0 +1,6 @@
+searchTerm,expectedResults,description
+HO,Found branches,Search by branch code prefix
+Jakarta,Found branches,Search by city
+Kantor,Found branches,Search by branch name
+NONEXISTENT999,No branches found,Search for non-existent branch
+Surabaya,Found branches,Search by specific city

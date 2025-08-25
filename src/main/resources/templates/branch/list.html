@@ -10,7 +10,7 @@
         <div class="bg-white shadow rounded-lg mb-6">
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold text-gray-900">Branch Management</h1>
+                    <h1 id="page-title" class="text-2xl font-bold text-gray-900">Branch Management</h1>
                     <a th:href="@{/branch/create}" 
                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-bsi-primary hover:bg-bsi-teal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bsi-primary"
                        id="create-branch-btn">
@@ -109,7 +109,8 @@
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <a th:href="@{/branch/list(sortBy='branchCode', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, status=${status}, city=${city})}" 
-                                       class="group inline-flex items-center hover:text-gray-900">
+                                       class="group inline-flex items-center hover:text-gray-900"
+                                       id="sort-code">
                                         Code
                                         <span class="ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500">
                                             <svg th:if="${sortBy == 'branchCode' && sortDir == 'asc'}" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -126,7 +127,8 @@
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <a th:href="@{/branch/list(sortBy='branchName', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'}, search=${search}, status=${status}, city=${city})}" 
-                                       class="group inline-flex items-center hover:text-gray-900">
+                                       class="group inline-flex items-center hover:text-gray-900"
+                                       id="sort-name">
                                         Name
                                         <span class="ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500">
                                             <svg th:if="${sortBy == 'branchName' && sortDir == 'asc'}" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

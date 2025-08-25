@@ -8,7 +8,7 @@
 <body>
     <div layout:fragment="content">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-bsi-darker">Role Management</h1>
+            <h1 id="page-title" class="text-3xl font-bold text-bsi-darker">Role Management</h1>
             <a th:href="@{/rbac/roles/create}" 
                class="bg-bsi-primary hover:bg-bsi-teal text-white font-bold py-2 px-4 rounded"
                id="create-role-btn">
@@ -45,7 +45,7 @@
                     <tr th:if="${roles.empty}">
                         <td colspan="6" class="px-6 py-4 text-center text-gray-500" id="no-roles-message">No roles found</td>
                     </tr>
-                    <tr th:each="role : ${roles.content}" class="role-row" th:data-role-id="${role.id}">
+                    <tr th:each="role : ${roles.content}" class="role-row" th:data-role-id="${role.id}" th:id="'role-row-' + ${role.roleCode}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div id="role-code-${role.roleCode}" class="text-sm font-medium text-gray-900" th:text="${role.roleCode}" th:id="'role-code-' + ${role.roleCode}"></div>
                         </td>

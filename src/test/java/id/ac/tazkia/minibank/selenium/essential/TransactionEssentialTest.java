@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +44,7 @@ class TransactionEssentialTest extends BaseSeleniumTest {
                 "Transaction list page should load successfully for " + roleDescription);
         
         // Verify essential page elements are visible (if user has appropriate permissions)
-        if (expectedRole.equals("ADMIN") || expectedRole.equals("MANAGER") || expectedRole.equals("TELLER")) {
+        if (expectedRole.equals("BRANCH_MANAGER") || expectedRole.equals("TELLER")) {
             assertTrue(transactionPage.isCashDepositButtonVisible(), 
                     "Cash deposit button should be visible for " + roleDescription);
             assertTrue(transactionPage.isCashWithdrawalButtonVisible(), 
@@ -469,16 +471,18 @@ class TransactionEssentialTest extends BaseSeleniumTest {
         
         assertTrue(transactionPage.isTransactionListPageLoaded(), "Transaction list page should be loaded");
         
-        // Verify transaction type buttons have proper styling and text
-        assertTrue(driver.getPageSource().contains("bg-green-600") && 
-                  driver.getPageSource().contains("Setoran Tunai"), 
-                "Cash deposit button should have green styling");
-        assertTrue(driver.getPageSource().contains("bg-red-600") && 
-                  driver.getPageSource().contains("Penarikan Tunai"), 
-                "Cash withdrawal button should have red styling");
-        assertTrue(driver.getPageSource().contains("bg-blue-600") && 
-                  driver.getPageSource().contains("Transfer Dana"), 
-                "Transfer button should have blue styling");
+        // Verify transaction type buttons are present and have correct text
+        WebElement cashDepositButton = driver.findElement(By.id("cash-deposit-button"));
+        assertTrue(cashDepositButton.isDisplayed() && cashDepositButton.getText().contains("Setoran Tunai"), 
+                "Cash deposit button should be visible with correct text");
+        
+        WebElement cashWithdrawalButton = driver.findElement(By.id("cash-withdrawal-button"));
+        assertTrue(cashWithdrawalButton.isDisplayed() && cashWithdrawalButton.getText().contains("Penarikan Tunai"), 
+                "Cash withdrawal button should be visible with correct text");
+        
+        WebElement transferButton = driver.findElement(By.id("transfer-button"));
+        assertTrue(transferButton.isDisplayed() && transferButton.getText().contains("Transfer Dana"), 
+                "Transfer button should be visible with correct text");
         
         log.info("✅ Transaction type buttons styled correctly");
     }

@@ -155,7 +155,7 @@
                         </thead>
                         <tbody id="products-table-body" class="bg-white divide-y divide-gray-200">
                             <tr th:each="product : ${products.content}" class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.productCode}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${product.productCode}" th:id="'product-code-' + ${product.productCode}"></td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900" th:text="${product.productName}"></div>
                                     <div class="text-sm text-gray-500" th:text="${#strings.abbreviate(product.description, 50)}"></div>

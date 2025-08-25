@@ -147,7 +147,8 @@
                 
                 <!-- Current page indicator -->
                 <span class="px-3 py-2 bg-bsi-primary text-white rounded current-page" 
-                      th:text="${users.number + 1}"></span>
+                      th:text="${users.number + 1}"
+                      id="current-page-indicator"></span>
                 
                 <!-- Next -->
                 <a th:if="${users.hasNext()}" 
