@@ -146,11 +146,19 @@
                                 <div class="text-xs text-gray-500" th:if="${transaction.createdBy}" th:text="${'Oleh: ' + transaction.createdBy}">By: teller1</div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-center">
-                                <a th:href="@{/transaction/view/{id}(id=${transaction.id})}" 
-                                   th:id="${'view-detail-' + iterStat.index}"
-                                   class="text-blue-600 hover:text-blue-900 text-sm">
-                                    Lihat Detail
-                                </a>
+                                <div class="flex flex-col space-y-1">
+                                    <a th:href="@{/transaction/view/{id}(id=${transaction.id})}" 
+                                       th:id="${'view-detail-' + iterStat.index}"
+                                       class="text-blue-600 hover:text-blue-900 text-sm">
+                                        Lihat Detail
+                                    </a>
+                                    <a th:href="@{/transaction/receipt/{id}(id=${transaction.id})}" 
+                                       th:id="${'download-receipt-' + iterStat.index}"
+                                       class="text-green-600 hover:text-green-900 text-sm"
+                                       title="Download PDF Receipt">
+                                        📄 Struk PDF
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

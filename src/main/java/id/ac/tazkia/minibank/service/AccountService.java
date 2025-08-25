@@ -226,7 +226,7 @@ public class AccountService {
         account.setAccountName(accountRequest.getAccountName());
         account.setBalance(BigDecimal.ZERO); // Start with zero balance
         account.setStatus(Account.AccountStatus.ACTIVE);
-        account.setCreatedBy(accountRequest.getCreatedBy() != null ? accountRequest.getCreatedBy() : "SYSTEM");
+        // AuditorAware will automatically set createdBy
         
         return account;
     }
@@ -248,7 +248,7 @@ public class AccountService {
         transaction.setChannel(Transaction.TransactionChannel.TELLER);
         transaction.setTransactionDate(LocalDateTime.now());
         transaction.setProcessedDate(LocalDateTime.now());
-        transaction.setCreatedBy(createdBy != null ? createdBy : "SYSTEM");
+        // AuditorAware will automatically set createdBy
         
         transactionRepository.save(transaction);
         log.info("Initial deposit transaction created: {} for amount: {}", transactionNumber, amount);

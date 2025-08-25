@@ -115,7 +115,7 @@ public class BranchController {
         }
         
         try {
-            branch.setCreatedBy("SYSTEM"); // TODO: Get from security context
+            // AuditorAware will automatically set createdBy
             branchRepository.save(branch);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Branch created successfully");
             return REDIRECT_BRANCH_LIST;
@@ -168,7 +168,7 @@ public class BranchController {
         
         try {
             branch.setId(id); // Ensure ID is set
-            branch.setUpdatedBy("SYSTEM"); // TODO: Get from security context
+            // AuditorAware will automatically set updatedBy
             branchRepository.save(branch);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Branch updated successfully");
             return REDIRECT_BRANCH_LIST;
@@ -206,7 +206,7 @@ public class BranchController {
                 }
                 
                 branch.setStatus(Branch.BranchStatus.INACTIVE);
-                branch.setUpdatedBy("SYSTEM"); // TODO: Get from security context
+                // AuditorAware will automatically set updatedBy
                 branchRepository.save(branch);
                 redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Branch deactivated successfully");
             } else {
@@ -226,7 +226,7 @@ public class BranchController {
             if (branchOpt.isPresent()) {
                 Branch branch = branchOpt.get();
                 branch.setStatus(Branch.BranchStatus.ACTIVE);
-                branch.setUpdatedBy("SYSTEM"); // TODO: Get from security context
+                // AuditorAware will automatically set updatedBy
                 branchRepository.save(branch);
                 redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Branch activated successfully");
             } else {

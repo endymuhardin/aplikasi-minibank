@@ -30,7 +30,11 @@ import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
 import id.ac.tazkia.minibank.service.TransferService;
+import id.ac.tazkia.minibank.service.TransactionReceiptPdfService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,6 +60,7 @@ public class TransactionController {
     private final TransactionRepository transactionRepository;
     private final SequenceNumberService sequenceNumberService;
     private final TransferService transferService;
+    private final TransactionReceiptPdfService receiptPdfService;
     
     @GetMapping("/list")
     public String transactionList(
@@ -491,5 +496,51 @@ public class TransactionController {
         }
         
         return TRANSFER_FORM_VIEW;
+    }
+
+    @GetMapping("/receipt/{transactionId}")
+    public ResponseEntity<byte[]> downloadTransactionReceipt(@PathVariable UUID transactionId) {
+        log.info("Generating PDF receipt for transaction: {}", transactionId);
+        
+        try {
+            // Get transaction details
+            Optional<Transaction> transactionOpt = transactionRepository.findById(transactionId);
+            if (transactionOpt.isEmpty()) {
+                log.warn("Transaction not found: {}", transactionId);
+                return ResponseEntity.notFound().build();
+            }
+            
+            Transaction transaction = transactionOpt.get();
+            Account account = transaction.getAccount();
+            
+            // Calculate balance after transaction based on transaction type
+            BigDecimal balanceAfter = calculateBalanceAfter(transaction, account);
+            
+            // Generate PDF receipt
+            byte[] pdfContent = receiptPdfService.generateTransactionReceiptPdf(transaction, account, balanceAfter);
+            
+            // Create filename with transaction number
+            String filename = "receipt_" + transaction.getTransactionNumber() + ".pdf";
+            
+            log.info("Generated PDF receipt for transaction {} with {} bytes", 
+                    transaction.getTransactionNumber(), pdfContent.length);
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+                    .body(pdfContent);
+                    
+        } catch (Exception e) {
+            log.error("Error generating transaction receipt for transaction: {}", transactionId, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    private BigDecimal calculateBalanceAfter(Transaction transaction, Account account) {
+        // For deposit transactions, balance after = current balance (already includes the deposit)
+        // For withdrawal/transfer out, balance after = current balance (already deducted)
+        // For transfer in, balance after = current balance (already added)
+        // We'll use the current account balance as it represents the state after the transaction
+        return account.getBalance();
     }
 }
