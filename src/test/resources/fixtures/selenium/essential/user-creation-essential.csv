@@ -1,0 +1,5 @@
+username,fullName,email,branchName,description
+testuser1,Test User One,testuser1@minibank.test,Main Branch,Basic user creation test
+testuser2,Test User Two,testuser2@minibank.test,Main Branch,Second user creation test
+newstaff,New Staff Member,newstaff@minibank.test,Main Branch,New staff user creation
+essentialtest,Essential Test User,essentialtest@minibank.test,Main Branch,Essential test user creation
