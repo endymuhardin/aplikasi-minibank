@@ -2,7 +2,6 @@ package id.ac.tazkia.minibank.config;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -68,17 +67,6 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
                 log.debug("WebDriver quit successfully");
             } catch (Exception e) {
                 log.warn("BaseSeleniumTest tearDownSelenium: Error closing driver: {}", e.getMessage());
-            }
-        }
-        
-        // Allow time for recording to finalize if enabled
-        boolean recording = Boolean.parseBoolean(System.getProperty("selenium.recording.enabled", "false"));
-        if (recording) {
-            try {
-                log.info("Recording enabled - allowing time for video finalization...");
-                Thread.sleep(3000); // Give recording time to finalize
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
         }
         

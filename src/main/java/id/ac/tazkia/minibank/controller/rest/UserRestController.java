@@ -31,7 +31,6 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 public class UserRestController {
     
-    private static final String SYSTEM_USER = "system";
     
     private final UserRepository userRepository;
     private final UserPasswordRepository userPasswordRepository;
@@ -76,8 +75,7 @@ public class UserRestController {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
-        user.setCreatedBy(SYSTEM_USER);
-        user.setUpdatedBy(SYSTEM_USER);
+        // AuditorAware will automatically set createdBy and updatedBy
         
         // Handle branch assignment
         if (request.getBranch() != null && request.getBranch().getId() != null) {
@@ -98,7 +96,7 @@ public class UserRestController {
             UserPassword userPassword = new UserPassword();
             userPassword.setUser(savedUser);
             userPassword.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-            userPassword.setCreatedBy(SYSTEM_USER);
+            // AuditorAware will automatically set createdBy
             userPasswordRepository.save(userPassword);
         }
 
@@ -175,7 +173,7 @@ public class UserRestController {
                     user.setUsername(request.getUsername());
                     user.setEmail(request.getEmail());
                     user.setFullName(request.getFullName());
-                    user.setUpdatedBy(SYSTEM_USER);
+                    // AuditorAware will automatically set updatedBy
                     
                     User updatedUser = userRepository.save(user);
                     return ResponseEntity.ok(new UserResponse(updatedUser));
@@ -188,7 +186,7 @@ public class UserRestController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setIsActive(true);
-                    user.setUpdatedBy(SYSTEM_USER);
+                    // AuditorAware will automatically set updatedBy
                     User updatedUser = userRepository.save(user);
                     return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
@@ -200,7 +198,7 @@ public class UserRestController {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setIsActive(false);
-                    user.setUpdatedBy(SYSTEM_USER);
+                    // AuditorAware will automatically set updatedBy
                     User updatedUser = userRepository.save(user);
                     return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
@@ -213,7 +211,7 @@ public class UserRestController {
                 .map(user -> {
                     user.resetFailedLoginAttempts();
                     user.setIsLocked(false);
-                    user.setUpdatedBy(SYSTEM_USER);
+                    // AuditorAware will automatically set updatedBy
                     User updatedUser = userRepository.save(user);
                     return ResponseEntity.ok(new UserResponse(updatedUser));
                 })
@@ -243,7 +241,7 @@ public class UserRestController {
                     UserPassword userPassword = new UserPassword();
                     userPassword.setUser(user);
                     userPassword.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-                    userPassword.setCreatedBy(SYSTEM_USER);
+                    // AuditorAware will automatically set createdBy
                     userPasswordRepository.save(userPassword);
 
                     Map<String, String> response = new HashMap<>();

@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
     
     private static final String REDIRECT_USERS_LIST = "redirect:/rbac/users/list";
-    private static final String SYSTEM_USER = "system";
     private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
     private static final String ERROR_MESSAGE_ATTR = "errorMessage";
     private static final String USER_NOT_FOUND_MSG = "User not found";
@@ -112,8 +111,7 @@ public class UserController {
         }
         
         try {
-            user.setCreatedBy(SYSTEM_USER);
-            user.setUpdatedBy(SYSTEM_USER);
+            // AuditorAware will automatically set createdBy and updatedBy
             userRepository.save(user);
             
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User created successfully. You can set a password from the user details page.");
@@ -174,7 +172,7 @@ public class UserController {
             existing.setEmail(user.getEmail());
             existing.setFullName(user.getFullName());
             existing.setIsActive(user.getIsActive());
-            existing.setUpdatedBy(SYSTEM_USER);
+            // AuditorAware will automatically set updatedBy
             
             userRepository.save(existing);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User updated successfully");
@@ -240,7 +238,7 @@ public class UserController {
             UserRole userRole = new UserRole();
             userRole.setUser(user);
             userRole.setRole(role);
-            userRole.setAssignedBy(SYSTEM_USER);
+            // AuditorAware will automatically set assignedBy
             userRoleRepository.save(userRole);
             
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Role assigned successfully");
@@ -274,7 +272,7 @@ public class UserController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 user.setIsActive(true);
-                user.setUpdatedBy(SYSTEM_USER);
+                // AuditorAware will automatically set updatedBy
                 userRepository.save(user);
                 redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User activated successfully");
             } else {
@@ -294,7 +292,7 @@ public class UserController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 user.setIsActive(false);
-                user.setUpdatedBy(SYSTEM_USER);
+                // AuditorAware will automatically set updatedBy
                 userRepository.save(user);
                 redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "User deactivated successfully");
             } else {
@@ -378,7 +376,7 @@ public class UserController {
                 id.ac.tazkia.minibank.entity.UserPassword userPassword = new id.ac.tazkia.minibank.entity.UserPassword();
                 userPassword.setUser(user);
                 userPassword.setPasswordHash(passwordEncoder.encode(password));
-                userPassword.setCreatedBy(SYSTEM_USER);
+                // AuditorAware will automatically set createdBy
                 userPasswordRepository.save(userPassword);
             }
             

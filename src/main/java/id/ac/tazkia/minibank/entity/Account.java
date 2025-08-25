@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +19,7 @@ import java.util.UUID;
 @Table(name = "accounts")
 @Data
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Account {
     
     @Id
@@ -58,6 +62,7 @@ public class Account {
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
     
+    @CreatedBy
     @Column(name = "created_by", length = 100)
     private String createdBy;
     
@@ -65,6 +70,7 @@ public class Account {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
     
+    @LastModifiedBy
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
     

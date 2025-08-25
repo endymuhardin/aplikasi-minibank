@@ -108,7 +108,7 @@ public class SeleniumContainerFactory {
                 log.info("   Address: {}", vncAddress);
                 log.info("   Password: secret (default VNC password)");
                 log.info("   You can connect using any VNC client to view the browser");
-                log.info("   Example: open vnc://{} (macOS) or use TigerVNC/RealVNC", vncAddress);
+                log.info("   Example: open {} (macOS) or use TigerVNC/RealVNC", vncAddress);
                 log.info("   Note: If 'secret' doesn't work, try no password or 'noVNC'");
                 log.info("═══════════════════════════════════════════════════════════");
             }
