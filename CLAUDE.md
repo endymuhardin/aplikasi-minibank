@@ -182,6 +182,8 @@ id.ac.tazkia.minibank/
 
 ## Testing Architecture
 
+> **📖 For comprehensive testing documentation, see [docs/TESTING.md](docs/TESTING.md)**
+
 ### Test Structure
 ```
 src/test/java/id/ac/tazkia/minibank/
@@ -191,6 +193,7 @@ src/test/java/id/ac/tazkia/minibank/
 │   ├── repository/                     # @DataJpaTest repository tests
 │   ├── service/                       # Service layer integration tests
 │   └── controller/                    # REST controller tests
+├── selenium/essential/                 # Critical E2E Selenium tests
 └── feature/                           # Feature tests (BDD style)
     ├── customer/registration/         # Customer registration features
     ├── account/opening/               # Account opening features
@@ -199,16 +202,12 @@ src/test/java/id/ac/tazkia/minibank/
 ```
 
 ### Testing Approaches
-- **@DataJpaTest**: Repository integration tests with real database
-- **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files in `src/test/resources/fixtures/`
-- **Entity Unit Tests**: Pure unit tests for business logic in entity classes
-- **Karate BDD Tests**: Feature-driven API integration testing in `src/test/resources/karate/`
-- **Spring Boot Test**: Full application context testing with `@SpringBootTest`
-
-### Test Data Management
-- **CSV Fixtures**: Test data in `src/test/resources/fixtures/` organized by domain
-- **SQL Setup/Cleanup**: Database setup/teardown scripts for integration tests
-- **Karate Background**: Shared test data setup using Background sections
+- **Schema-per-thread isolation**: Each test thread gets unique PostgreSQL schema
+- **@DataJpaTest**: Repository integration tests with TestContainers
+- **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files
+- **Selenium Essential Tests**: E2E tests with Page Object Model
+- **Karate BDD Tests**: Feature-driven API integration testing
+- **Spring Boot Test**: Full application context testing
 
 ## Development Workflow
 
