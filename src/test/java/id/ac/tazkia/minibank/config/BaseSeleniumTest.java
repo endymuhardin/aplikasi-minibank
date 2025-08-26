@@ -26,10 +26,11 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
 
     @BeforeEach
     void setUpSelenium() {
-        // Start Selenium container if not already running
+        // Start Selenium container if needed (moved to @BeforeEach to ensure proper execution order)
         if (seleniumContainer == null || !seleniumContainer.isRunning()) {
             seleniumContainer = SeleniumContainerFactory.createSeleniumContainer();
             seleniumContainer.start();
+            log.info("🚀 Started Selenium container for test class {}", this.getClass().getSimpleName());
         }
         
         ChromeOptions options = new ChromeOptions();
@@ -37,10 +38,13 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
         // Configure Chrome options based on system properties
         boolean headless = Boolean.parseBoolean(System.getProperty("selenium.headless", "true"));
         
-        // Add Chrome-specific options
+        // Add Chrome-specific options for better performance and stability
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-gpu");
+        options.addArguments("--disable-extensions");
+        options.addArguments("--disable-web-security");
+        options.addArguments("--disable-features=VizDisplayCompositor");
         
         if (headless) {
             options.addArguments("--headless");
@@ -55,7 +59,7 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
             SeleniumContainerFactory.logVncInformation(seleniumContainer);
         }
         
-        log.info("🔧 Selenium Setup Complete - URL: {} | Schema: {} | Thread: {} | Headless: {}", 
+        log.debug("🔧 Selenium Setup Complete - URL: {} | Schema: {} | Thread: {} | Headless: {}", 
                 baseUrl, schemaName, Thread.currentThread().getName(), headless);
     }
 
