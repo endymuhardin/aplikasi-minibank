@@ -47,7 +47,7 @@
 		<thymeleaf.layout.dialect>3.4.0</thymeleaf.layout.dialect>
 		<karate.version>1.4.1</karate.version>
 		<jacoco.version>0.8.12</jacoco.version>
-		<maven.surefire.version>3.0.0-M9</maven.surefire.version>
+		<maven.surefire.version>3.2.5</maven.surefire.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -261,9 +261,15 @@
 								<selenium.headless>${selenium.headless}</selenium.headless>
 								<selenium.recording.enabled>${selenium.recording.enabled}</selenium.recording.enabled>
 								<selenium.browser>${selenium.browser}</selenium.browser>
+								<junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
+								<junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
+								<junit.jupiter.execution.parallel.config.strategy>fixed</junit.jupiter.execution.parallel.config.strategy>
+								<junit.jupiter.execution.parallel.config.fixed.parallelism>2</junit.jupiter.execution.parallel.config.fixed.parallelism>
 							</systemPropertyVariables>
 							<parallel>classes</parallel>
 							<threadCount>2</threadCount>
+							<perCoreThreadCount>false</perCoreThreadCount>
+							<useUnlimitedThreads>false</useUnlimitedThreads>
 							<forkCount>1</forkCount>
 							<reuseForks>true</reuseForks>
 							<argLine>-Xmx1g -XX:+UseG1GC</argLine>
@@ -278,6 +284,9 @@
 			<id>sequential</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>!test.profile</name>
+				</property>
 			</activation>
 			<properties>
 				<test.profile>sequential</test.profile>
