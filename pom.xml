@@ -231,19 +231,17 @@
 	</build>
 
 	<profiles>
-		<!-- Profile for M1 Mac local development -->
+		<!-- Parallel execution profile -->
 		<profile>
-			<id>local-m1</id>
+			<id>parallel</id>
 			<activation>
 				<property>
 					<name>test.profile</name>
-					<value>local-m1</value>
+					<value>parallel</value>
 				</property>
 			</activation>
 			<properties>
-				<test.profile>local-m1</test.profile>
-				<maven.test.parallel>classes</maven.test.parallel>
-				<maven.test.parallel.threads>2</maven.test.parallel.threads>
+				<test.profile>parallel</test.profile>
 				<selenium.headless>true</selenium.headless>
 				<selenium.recording.enabled>false</selenium.recording.enabled>
 				<selenium.browser>chrome</selenium.browser>
@@ -259,13 +257,13 @@
 								<include>**/*Runner.java</include>
 							</includes>
 							<systemPropertyVariables>
-								<test.profile>local-m1</test.profile>
+								<test.profile>parallel</test.profile>
 								<selenium.headless>${selenium.headless}</selenium.headless>
 								<selenium.recording.enabled>${selenium.recording.enabled}</selenium.recording.enabled>
 								<selenium.browser>${selenium.browser}</selenium.browser>
 							</systemPropertyVariables>
-							<parallel>${maven.test.parallel}</parallel>
-							<threadCount>${maven.test.parallel.threads}</threadCount>
+							<parallel>classes</parallel>
+							<threadCount>2</threadCount>
 							<forkCount>1</forkCount>
 							<reuseForks>true</reuseForks>
 							<argLine>-Xmx1g -XX:+UseG1GC</argLine>
@@ -275,60 +273,14 @@
 			</build>
 		</profile>
 
-		<!-- Profile for remote build server -->
+		<!-- Sequential execution profile (default) -->
 		<profile>
-			<id>remote</id>
-			<activation>
-				<property>
-					<name>test.profile</name>
-					<value>remote</value>
-				</property>
-			</activation>
-			<properties>
-				<test.profile>remote</test.profile>
-				<maven.test.parallel>all</maven.test.parallel>
-				<maven.test.parallel.threads>2</maven.test.parallel.threads>
-				<selenium.headless>false</selenium.headless>
-				<selenium.recording.enabled>true</selenium.recording.enabled>
-				<selenium.browser>chrome</selenium.browser>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<configuration>
-							<includes>
-								<include>**/*Test.java</include>
-								<include>**/*Runner.java</include>
-							</includes>
-							<systemPropertyVariables>
-								<test.profile>remote</test.profile>
-								<selenium.headless>${selenium.headless}</selenium.headless>
-								<selenium.recording.enabled>${selenium.recording.enabled}</selenium.recording.enabled>
-								<selenium.browser>${selenium.browser}</selenium.browser>
-							</systemPropertyVariables>
-							<parallel>${maven.test.parallel}</parallel>
-							<threadCount>${maven.test.parallel.threads}</threadCount>
-							<forkCount>1</forkCount>
-							<reuseForks>true</reuseForks>
-							<argLine>-Xmx1g -XX:+UseG1GC -XX:MaxGCPauseMillis=100</argLine>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<!-- Default profile for local x86_64 development -->
-		<profile>
-			<id>local-default</id>
+			<id>sequential</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<test.profile>local-default</test.profile>
-				<maven.test.parallel>classes</maven.test.parallel>
-				<maven.test.parallel.threads>2</maven.test.parallel.threads>
+				<test.profile>sequential</test.profile>
 				<selenium.headless>true</selenium.headless>
 				<selenium.recording.enabled>false</selenium.recording.enabled>
 				<selenium.browser>chrome</selenium.browser>
@@ -344,13 +296,12 @@
 								<include>**/*Runner.java</include>
 							</includes>
 							<systemPropertyVariables>
-								<test.profile>local-default</test.profile>
+								<test.profile>sequential</test.profile>
 								<selenium.headless>${selenium.headless}</selenium.headless>
 								<selenium.recording.enabled>${selenium.recording.enabled}</selenium.recording.enabled>
 								<selenium.browser>${selenium.browser}</selenium.browser>
 							</systemPropertyVariables>
-							<parallel>${maven.test.parallel}</parallel>
-							<threadCount>${maven.test.parallel.threads}</threadCount>
+							<!-- No parallel execution -->
 							<forkCount>1</forkCount>
 							<reuseForks>true</reuseForks>
 							<argLine>-Xmx1g -XX:+UseG1GC</argLine>

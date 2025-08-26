@@ -43,20 +43,81 @@ For detailed documentation on remote builds, see:
 ### First Time (Fresh Setup)
 ```bash
 # From project root
-./spawn-build-server.sh --ssh-key YOUR_KEY    # Create & build (8-10 min setup)
+./spawn-build-server.sh --ssh-key YOUR_KEY    # Create & build (8-10 min setup, sequential mode default)
 ./check-remote-build.sh                       # Monitor progress
 ./destroy-build-session.sh                    # Destroy (create snapshot: Y)
 ```
 
 ### Subsequent Builds (Using Snapshots)
 ```bash
-./spawn-build-server.sh --ssh-key YOUR_KEY --use-latest-snapshot  # Fast setup (30s)
+./spawn-build-server.sh --ssh-key YOUR_KEY --use-latest-snapshot  # Fast setup (30s, sequential mode)
 ./check-remote-build.sh                                           # Monitor
 ./destroy-build-session.sh                                        # Destroy
 ```
 
 ### Existing Server
 ```bash
-./start-remote-build.sh     # Build on existing server
+./start-remote-build.sh     # Build on existing server (sequential mode default)
 ./check-remote-build.sh     # Monitor
+```
+
+### Test Execution Profiles
+
+The scripts support two test execution modes:
+
+#### Sequential Mode (Default)
+- Single-threaded test execution
+- More predictable and easier for debugging
+- Better for environments with limited resources
+- Default behavior - no extra flags needed
+
+```bash
+# Sequential execution (explicit)
+./start-remote-build.sh --sequential
+
+# Sequential with specific tests
+./start-remote-build.sh --test "*Integration*"
+```
+
+#### Parallel Mode
+- Multi-threaded execution at class level (2 threads)
+- Faster execution for larger test suites
+- Requires more memory and CPU resources
+
+```bash
+# Parallel execution
+./start-remote-build.sh --parallel
+
+# Parallel with specific tests  
+./start-remote-build.sh --parallel --test "*Unit*"
+
+# Parallel execution from fresh server
+./spawn-build-server.sh --ssh-key YOUR_KEY --parallel
+```
+
+### Additional Build Options
+
+Both `start-remote-build.sh` and `spawn-build-server.sh` support additional build customization:
+
+```bash
+# Skip all tests
+./start-remote-build.sh --skip-tests
+
+# Run only unit tests  
+./start-remote-build.sh --unit-tests-only
+
+# Run only integration tests
+./start-remote-build.sh --integration-tests-only
+
+# Run specific test class
+./start-remote-build.sh --test "AccountServiceTest"
+
+# Run tests matching pattern
+./start-remote-build.sh --test "*Selenium*"
+
+# Custom Maven goals
+./start-remote-build.sh --goals "clean compile test"
+
+# Combine options (parallel with specific tests)
+./start-remote-build.sh --parallel --unit-tests-only
 ```
