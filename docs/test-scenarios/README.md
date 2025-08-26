@@ -160,7 +160,7 @@ Test scenarios menggunakan existing CSV fixtures untuk data-driven testing:
 
 ## Selenium Test Pattern Integration
 
-Test scenarios follow existing Selenium test patterns:
+Test scenarios follow existing Selenium test patterns documented in [Selenium Testing Documentation](../selenium-testing-documentation.md):
 
 ### Base Test Structure
 ```java

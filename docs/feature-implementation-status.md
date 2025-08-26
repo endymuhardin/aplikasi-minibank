@@ -201,18 +201,20 @@ This document provides a comprehensive overview of all features in the Aplikasi 
 - **Implemented Endpoints**: 15+ REST endpoints across 5 controllers ✅
 - **Customer APIs**: Registration, retrieval, search ✅
 - **Account APIs**: Opening, balance inquiry ✅
-- **Transaction APIs**: Deposit, withdrawal ✅
+- **Transaction APIs**: Deposit, withdrawal, transfers ✅
 - **User/RBAC APIs**: Complete user management ✅
-- **Missing APIs**: Transfer operations, financing applications ❌
-- **PDF APIs**: Transaction receipt download endpoints ✅
+- **Transfer APIs**: Complete transfer validation and processing ✅
+- **Missing APIs**: Islamic financing applications only ❌
+- **PDF APIs**: Transaction receipt and statement download endpoints ✅
 
 ### **Web UI Implementation**
 - **Page Objects**: 31 page object classes for Selenium testing ✅
 - **Controllers**: 10 web controllers implemented ✅
 - **Templates**: Thymeleaf templates with Tailwind CSS ✅  
 - **JavaScript Validation**: Real-time validation implemented ✅
-- **Missing UI**: Transfer forms, financing applications ❌
-- **PDF Generation**: Transaction receipts ✅
+- **Transfer Forms**: Complete UI implementation with confirmation workflow ✅
+- **Missing UI**: Islamic financing application forms only ❌
+- **PDF Generation**: Transaction receipts and account statements ✅
 
 ### **Test Infrastructure**
 - **Schema-Per-Thread Integration Tests**: TestContainers PostgreSQL with schema isolation ✅
@@ -319,8 +321,9 @@ The project demonstrates enterprise-level development practices and is **product
 
 ---
 
-**Document Version**: 2.4  
+**Document Version**: 2.5  
 **Last Updated**: 2025-08-26  
 **Total Features Analyzed**: 55 across 8 functional areas  
 **Implementation Status**: 76% Complete (42/55 features implemented)  
+**New in v2.5**: Corrected Web UI Implementation and REST API Coverage sections - Transfer operations are fully implemented with complete UI forms and API endpoints
 **New in v2.4**: Corrected test scenario status markers - Transfer Operations and Account Closure are fully implemented, not missing
