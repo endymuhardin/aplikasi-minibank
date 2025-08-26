@@ -299,9 +299,12 @@ public class UserPage {
      */
     public String getUserStatus(String username) {
         try {
-            WebElement statusElement = driver.findElement(
+            // Wait for element to be present and have non-empty text
+            WebElement statusElement = wait.until(ExpectedConditions.presenceOfElementLocated(
                 org.openqa.selenium.By.id("status-user-" + username)
-            );
+            ));
+            // Additional wait for text to appear
+            wait.until(driver -> !statusElement.getText().trim().isEmpty());
             return statusElement.getText();
         } catch (Exception e) {
             return "";
@@ -317,6 +320,20 @@ public class UserPage {
                 org.openqa.selenium.By.id("locked-user-" + username)
             );
             return lockedElement.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Check if a specific action button exists for a user
+     */
+    public boolean hasActionButton(String username, String action) {
+        try {
+            WebElement actionButton = driver.findElement(
+                org.openqa.selenium.By.id(action + "-user-" + username)
+            );
+            return actionButton.isDisplayed();
         } catch (Exception e) {
             return false;
         }
