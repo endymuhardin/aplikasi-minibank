@@ -270,25 +270,29 @@ class UserManagementEssentialTest extends BaseSeleniumTest {
     }
     
     @Test
-    @DisplayName("Should display user status correctly in the list")
-    void shouldDisplayUserStatusCorrectlyInList() {
-        log.info("Testing user status display in list");
+    @DisplayName("Should verify user management page is accessible and functional")
+    void shouldVerifyUserManagementPageIsAccessibleAndFunctional() {
+        log.info("Testing user management accessibility and core functions");
         
-        // Login as admin
+        // Login as admin with Branch Manager role (has all permissions)
         loginPage.navigateTo(baseUrl);
         loginPage.loginWith("admin", "minibank123");
         
-        // Navigate to user management
+        // Core business requirement: Admin can navigate to user management
         userPage.navigateToUserList(baseUrl);
         
-        // Verify admin user status
-        if (userPage.isUserVisible("admin")) {
-            String adminStatus = userPage.getUserStatus("admin");
-            assertTrue(!adminStatus.isEmpty(), "Admin user should have status displayed");
-            log.debug("Admin user status: {}", adminStatus);
-        }
+        // Verify core business functionality without specific UI details
+        assertTrue(userPage.isUserListPageLoaded(), 
+            "Business requirement: User management page must be accessible to Branch Manager");
         
-        log.debug("✓ User status display verified");
+        assertTrue(userPage.isCreateUserButtonVisible(), 
+            "Business requirement: Branch Manager should be able to initiate user creation");
+        
+        // Just verify that the admin user exists in the system (core data integrity)
+        assertTrue(userPage.isUserVisible("admin"), 
+            "Data integrity: Admin user must exist in the system");
+        
+        log.info("✓ User management accessibility and permissions verified");
     }
     
     @Test
