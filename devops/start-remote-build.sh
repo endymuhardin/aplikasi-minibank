@@ -5,7 +5,7 @@ set -euo pipefail
 # Sync project → Run Maven build (async)
 # ────────────────────────────────
 
-# Default Maven options
+# Default Maven options (sequential profile is default)
 DEFAULT_MAVEN_GOALS="clean verify"
 DEFAULT_MAVEN_OPTS="-T1C -DskipTests=false"
 
@@ -13,6 +13,7 @@ DEFAULT_MAVEN_OPTS="-T1C -DskipTests=false"
 MAVEN_GOALS="$DEFAULT_MAVEN_GOALS"
 MAVEN_OPTS="$DEFAULT_MAVEN_OPTS"
 TEST_PATTERN=""
+TEST_PROFILE=""
 
 # Function to show help
 show_help() {
@@ -28,10 +29,12 @@ OPTIONS:
     --skip-tests           Skip all tests (overrides -DskipTests=false)
     --unit-tests-only      Run only unit tests (surefire plugin)
     --integration-tests-only Run only integration tests (failsafe plugin)
+    --parallel             Use parallel execution profile (2 threads at class level)
+    --sequential           Use sequential execution profile (default, single threaded)
     -h, --help             Show this help
 
 EXAMPLES:
-    # Default build with all tests
+    # Default build with all tests (sequential mode)
     $0
 
     # Run specific test class
@@ -48,6 +51,15 @@ EXAMPLES:
 
     # Skip all tests
     $0 --skip-tests
+
+    # Use parallel execution (2 threads at class level)
+    $0 --parallel
+
+    # Force sequential execution (explicit)
+    $0 --sequential
+
+    # Parallel execution with specific tests
+    $0 --parallel --test "*Integration*"
 
     # Custom Maven goals
     $0 --goals "clean compile test"
@@ -83,6 +95,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --integration-tests-only)
             MAVEN_GOALS="clean verify -DskipUnitTests=true"
+            shift
+            ;;
+        --parallel)
+            TEST_PROFILE="parallel"
+            shift
+            ;;
+        --sequential)
+            TEST_PROFILE="sequential"
             shift
             ;;
         -h|--help)
@@ -131,6 +151,11 @@ echo "⚡ Starting Maven build on VPS $DROPLET_IP (in background)..."
 
 # Build the Maven command
 MAVEN_CMD="mvn $MAVEN_GOALS $MAVEN_OPTS"
+
+# Add test profile if specified
+if [[ -n "$TEST_PROFILE" ]]; then
+    MAVEN_CMD="$MAVEN_CMD -Dtest.profile=$TEST_PROFILE"
+fi
 
 # Add test pattern if specified
 if [[ -n "$TEST_PATTERN" ]]; then

@@ -14,21 +14,17 @@ public class SeleniumContainerFactory {
     private static final String SELENIARM_CHROME_IMAGE = "seleniarm/standalone-chromium:latest";
     
     /**
-     * Creates appropriate Selenium container based on system architecture and profile
+     * Creates appropriate Selenium container based on system architecture
      */
     public static BrowserWebDriverContainer<?> createSeleniumContainer() {
-        String testProfile = System.getProperty("test.profile", "local-m1");
+        String testProfile = System.getProperty("test.profile", "sequential");
         String architecture = System.getProperty("os.arch", "unknown").toLowerCase();
         boolean headless = Boolean.parseBoolean(System.getProperty("selenium.headless", "true"));
         boolean recording = Boolean.parseBoolean(System.getProperty("selenium.recording.enabled", "false"));
         
         BrowserWebDriverContainer<?> container;
         
-        if ("remote".equals(testProfile)) {
-            // Remote build server - use full resource configuration
-            container = createRemoteContainer();
-        } else if ("local-m1".equals(testProfile) || 
-                   (architecture.contains("aarch64") || architecture.contains("arm64"))) {
+        if (architecture.contains("aarch64") || architecture.contains("arm64")) {
             // M1/M2 Mac (ARM64) - use Seleniarm for better performance
             container = createArmContainer();
         } else {
@@ -39,15 +35,6 @@ public class SeleniumContainerFactory {
         return configureContainer(container, testProfile, headless, recording);
     }
     
-    private static BrowserWebDriverContainer<?> createRemoteContainer() {
-        log.info("Creating Selenium container for remote build server");
-        return new BrowserWebDriverContainer<>(DockerImageName.parse(SELENIUM_CHROME_IMAGE))
-                .withAccessToHost(true)
-                .withSharedMemorySize(2147483648L) // 2GB shared memory
-                .withEnv("JAVA_OPTS", "-Xmx1g")
-                .withEnv("SE_NODE_MAX_INSTANCES", "4")
-                .withEnv("SE_NODE_MAX_SESSIONS", "4");
-    }
     
     private static BrowserWebDriverContainer<?> createArmContainer() {
         log.info("Creating Seleniarm container for ARM64 architecture");
@@ -55,10 +42,8 @@ public class SeleniumContainerFactory {
                 .asCompatibleSubstituteFor("selenium/standalone-chrome");
         return new BrowserWebDriverContainer<>(armImage)
                 .withAccessToHost(true)
-                .withSharedMemorySize(512000000L) // 512MB shared memory
-                .withEnv("JAVA_OPTS", "-Xmx512m")
-                .withEnv("SE_NODE_MAX_INSTANCES", "1")
-                .withEnv("SE_NODE_MAX_SESSIONS", "1");
+                .withSharedMemorySize(1073741824L) // 1GB shared memory
+                .withEnv("JAVA_OPTS", "-Xmx768m");
     }
     
     private static BrowserWebDriverContainer<?> createStandardContainer() {
@@ -66,9 +51,7 @@ public class SeleniumContainerFactory {
         return new BrowserWebDriverContainer<>(DockerImageName.parse(SELENIUM_CHROME_IMAGE))
                 .withAccessToHost(true)
                 .withSharedMemorySize(1073741824L) // 1GB shared memory
-                .withEnv("JAVA_OPTS", "-Xmx768m")
-                .withEnv("SE_NODE_MAX_INSTANCES", "1")
-                .withEnv("SE_NODE_MAX_SESSIONS", "1");
+                .withEnv("JAVA_OPTS", "-Xmx768m");
     }
     
     private static BrowserWebDriverContainer<?> configureContainer(BrowserWebDriverContainer<?> container, 

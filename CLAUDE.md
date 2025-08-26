@@ -24,7 +24,7 @@ npm run watch
 
 ### Testing
 ```bash
-# Run all tests
+# Run all tests (sequential by default)
 mvn test
 
 # Run tests with coverage report
@@ -56,7 +56,40 @@ mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox
 
 # Combined options for debugging
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
+
+# Test Execution Profiles
+# Sequential execution (default - single threaded, easier debugging)
+mvn test
+
+# Parallel execution (2 threads at class level, faster execution)
+mvn test -Dtest.profile=parallel
 ```
+
+## Test Configuration
+
+### Test Execution Profiles
+
+The application uses **2 simplified test profiles**:
+
+| Profile | Default | Usage | Execution | Purpose |
+|---------|---------|-------|-----------|---------|
+| **sequential** | ✅ Yes | `mvn test` | Single-threaded | Debugging, stability |
+| **parallel** | ❌ No | `mvn test -Dtest.profile=parallel` | 2 threads (classes) | Faster execution |
+
+### Selenium Configuration
+
+| Setting | Default | Override Example |
+|---------|---------|------------------|
+| **Browser** | Chrome | `-Dselenium.browser=firefox` |
+| **Headless** | true | `-Dselenium.headless=false` |
+| **Recording** | false | `-Dselenium.recording.enabled=true` |
+
+### Container Selection
+
+- **ARM64 (M1/M2 Mac)**: `seleniarm/standalone-chromium:latest`
+- **x86_64 (Intel/AMD)**: `selenium/standalone-chrome:4.15.0`
+
+Architecture detection is automatic - no manual configuration needed.
 
 ### Database Operations
 ```bash

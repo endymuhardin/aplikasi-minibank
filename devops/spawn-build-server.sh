@@ -13,12 +13,13 @@ DEFAULT_SSH_KEY_NAME=""
 USE_SNAPSHOT=false
 SNAPSHOT_ID=""
 
-# Maven build options
+# Maven build options (sequential profile is default)
 DEFAULT_MAVEN_GOALS="clean verify"
 DEFAULT_MAVEN_OPTS="-T1C -DskipTests=false"
 MAVEN_GOALS="$DEFAULT_MAVEN_GOALS"
 MAVEN_OPTS="$DEFAULT_MAVEN_OPTS"
 TEST_PATTERN=""
+TEST_PROFILE=""
 
 # Parse command line arguments
 REGION="${REGION:-$DEFAULT_REGION}"
@@ -47,6 +48,8 @@ OPTIONS:
     --skip-tests           Skip all tests
     --unit-tests-only      Run only unit tests
     --integration-tests-only Run only integration tests
+    --parallel             Use parallel execution profile (2 threads at class level)
+    --sequential           Use sequential execution profile (default, single threaded)
     
     -h, --help              Show this help
 
@@ -77,6 +80,12 @@ EXAMPLES:
     
     # Run only unit tests
     $0 -k my-key --unit-tests-only
+    
+    # Use parallel execution (2 threads at class level)
+    $0 -k my-key --parallel
+    
+    # Use sequential execution (explicit)
+    $0 -k my-key --sequential
     
     # Skip all tests
     $0 -k my-key --skip-tests
@@ -144,6 +153,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --integration-tests-only)
             MAVEN_GOALS="clean verify -DskipUnitTests=true"
+            shift
+            ;;
+        --parallel)
+            TEST_PROFILE="parallel"
+            shift
+            ;;
+        --sequential)
+            TEST_PROFILE="sequential"
             shift
             ;;
         -h|--help)
@@ -497,6 +514,11 @@ echo "⚡ Starting Maven build on droplet (in background)..."
 
 # Build the Maven command
 MAVEN_CMD="mvn $MAVEN_GOALS $MAVEN_OPTS"
+
+# Add test profile if specified
+if [[ -n "$TEST_PROFILE" ]]; then
+    MAVEN_CMD="$MAVEN_CMD -Dtest.profile=$TEST_PROFILE"
+fi
 
 # Add test pattern if specified
 if [[ -n "$TEST_PATTERN" ]]; then
