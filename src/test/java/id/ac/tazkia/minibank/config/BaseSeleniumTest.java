@@ -53,6 +53,10 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
         }
         
         driver = new RemoteWebDriver(seleniumContainer.getSeleniumAddress(), options);
+        
+        // Maximize browser window to prevent responsive design issues
+        driver.manage().window().maximize();
+        
         org.testcontainers.Testcontainers.exposeHostPorts(serverPort);
         baseUrl = "http://host.testcontainers.internal:" + serverPort;
         

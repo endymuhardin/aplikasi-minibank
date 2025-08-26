@@ -300,25 +300,28 @@ class UserManagementEssentialTest extends BaseSeleniumTest {
     void shouldShowAppropriateActionButtonsForEachUser() {
         log.info("Testing action buttons display for users");
         
-        // Login as admin
+        // Login as admin (Branch Manager role)
         loginPage.navigateTo(baseUrl);
         loginPage.loginWith("admin", "minibank123");
         
         // Navigate to user management
         userPage.navigateToUserList(baseUrl);
         
-        // Verify admin user has view and edit actions
-        if (userPage.isUserVisible("admin")) {
-            // Try to click view - this should work without error
-            assertDoesNotThrow(() -> {
-                userPage.clickViewUser("admin");
-                // Verify we can navigate to view page
-                assertTrue(userPage.isUserViewPageLoaded() || userPage.isUserListPageLoaded(), 
-                          "Should navigate to view page or stay on list");
-            }, "View user action should work");
-        }
+        // Verify users are displayed in the table
+        assertTrue(userPage.areUsersDisplayed(), "Users table should be displayed");
         
-        log.debug("✓ Action buttons display verified");
+        // Business requirement: Branch Manager should be able to view ANY user's details
+        boolean hasAnyViewButton = userPage.hasAnyViewButton();
+        assertTrue(hasAnyViewButton, "At least one view user button must be present for Branch Manager role");
+        
+        // Test clicking the first available view button to verify functionality
+        boolean viewActionWorked = userPage.clickFirstAvailableViewButton();
+        assertTrue(viewActionWorked, "View user action must be functional");
+        
+        // Verify we navigated to a user view page
+        assertTrue(userPage.isUserViewPageLoaded(), "Must navigate to user view page when clicking view button");
+        
+        log.debug("✓ Action buttons display and functionality verified");
     }
     
     @Test
@@ -411,4 +414,5 @@ class UserManagementEssentialTest extends BaseSeleniumTest {
         
         log.debug("✓ Complete user management workflow verified");
     }
+    
 }
