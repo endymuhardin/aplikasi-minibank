@@ -43,7 +43,22 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.flyway.enabled", () -> "false"); // We'll run Flyway manually per schema
+        registry.add("spring.flyway.enabled", () -> "false");
+        
+        // Add a unique property per test class to prevent Spring context caching conflicts
+        String testClassName = getTestClassName();
+        registry.add("test.class.identifier", () -> testClassName);
+    }
+    
+    private static String getTestClassName() {
+        // Get the actual test class name from stack trace
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            String className = element.getClassName();
+            if (className.contains("selenium.essential")) {
+                return className.substring(className.lastIndexOf('.') + 1);
+            }
+        }
+        return "unknown-" + System.currentTimeMillis();
     }
     
     @BeforeAll
@@ -51,12 +66,15 @@ public abstract class BaseIntegrationTest {
         // Generate unique schema name for this test class
         schemaName = generateUniqueSchemaName();
         
+        // Set schema as system property to ensure unique Spring context per test class
+        System.setProperty("test.schema.name." + this.getClass().getSimpleName(), schemaName);
+        
         // Create schema and run Flyway migration
         try {
             // Create the schema
             jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + schemaName);
-            log.info("BaseIntegrationTest setUpSchema: Created schema {} for thread {}", 
-                    schemaName, Thread.currentThread().getName());
+            log.info("BaseIntegrationTest setUpSchema: Created schema {} for test class {} on thread {}", 
+                    schemaName, this.getClass().getSimpleName(), Thread.currentThread().getName());
             
             // Run Flyway migration for this schema
             Flyway flyway = Flyway.configure()
