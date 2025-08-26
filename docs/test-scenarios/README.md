@@ -1,5 +1,7 @@
 # Test Scenarios Documentation
 
+> **Note**: For comprehensive testing guide including infrastructure, configuration, and execution, see [TESTING.md](../TESTING.md). This document focuses specifically on detailed test scenarios.
+
 ## Overview
 Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank Islam. Semua test scenarios telah disesuaikan dengan actual database schema, entity validation rules, existing seed data, CSV fixtures, dan Selenium test patterns yang ada di codebase.
 

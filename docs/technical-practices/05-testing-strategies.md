@@ -1,5 +1,7 @@
 # Testing Strategies
 
+> **Note**: The comprehensive testing documentation has been consolidated into [TESTING.md](../TESTING.md). This document provides a technical overview of testing strategies from an architectural perspective.
+
 ## 🧪 **Test Architecture Overview**
 
 ### Schema-Per-Thread Integration Testing Strategy
