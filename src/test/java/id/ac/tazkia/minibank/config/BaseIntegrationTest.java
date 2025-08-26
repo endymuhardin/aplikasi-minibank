@@ -3,64 +3,64 @@ package id.ac.tazkia.minibank.config;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest
-@Testcontainers
-@ContextConfiguration(initializers = TestSchemaInitializer.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseIntegrationTest {
     
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
+    protected static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
     
+    static {
+        postgres.start();
+    }
+    
+    protected String schemaName;
+    
     @Autowired
     protected JdbcTemplate jdbcTemplate;
     
-    @Autowired
+    @Autowired  
     protected DataSource dataSource;
     
-    protected static String schemaName;
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.flyway.enabled", () -> "false"); // We'll run Flyway manually per schema
+    }
     
     @BeforeAll
-    static void setUpSchema() throws Exception {
-        // Generate unique schema name using centralized utility
-        schemaName = TestSchemaManager.generateSchemaName();
-        log.info("BaseIntegrationTest setUpSchema: Generated schema {} for thread {}", 
-                schemaName, Thread.currentThread().getName());
+    void setUpSchema() throws Exception {
+        // Generate unique schema name for this test class
+        schemaName = generateUniqueSchemaName();
         
-        // Create datasource to create schema and run Flyway
+        // Create schema and run Flyway migration
         try {
-            com.zaxxer.hikari.HikariConfig config = new com.zaxxer.hikari.HikariConfig();
-            config.setJdbcUrl(TestSchemaManager.getJdbcUrl());
-            config.setUsername(TestSchemaManager.getUsername());
-            config.setPassword(TestSchemaManager.getPassword());
-            
-            javax.sql.DataSource setupDataSource = new com.zaxxer.hikari.HikariDataSource(config);
-            org.springframework.jdbc.core.JdbcTemplate setupJdbcTemplate = new org.springframework.jdbc.core.JdbcTemplate(setupDataSource);
-            
             // Create the schema
-            setupJdbcTemplate.execute("CREATE SCHEMA " + schemaName);
-            log.info("BaseIntegrationTest setUpSchema: Created schema {}", schemaName);
+            jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS " + schemaName);
+            log.info("BaseIntegrationTest setUpSchema: Created schema {} for thread {}", 
+                    schemaName, Thread.currentThread().getName());
             
-            // Run Flyway migration
-            Flyway schemaFlyway = Flyway.configure()
-                    .dataSource(setupDataSource)
+            // Run Flyway migration for this schema
+            Flyway flyway = Flyway.configure()
+                    .dataSource(dataSource)
                     .schemas(schemaName)
                     .defaultSchema(schemaName)
                     .locations("classpath:db/migration")
@@ -68,16 +68,29 @@ public abstract class BaseIntegrationTest {
                     .validateOnMigrate(false)
                     .load();
             
-            schemaFlyway.migrate();
+            flyway.migrate();
             log.info("BaseIntegrationTest setUpSchema: Flyway migration completed for schema {}", schemaName);
             
-            // Close the setup datasource
-            ((com.zaxxer.hikari.HikariDataSource) setupDataSource).close();
+            // Set search path for this thread
+            jdbcTemplate.execute("SET search_path TO " + schemaName);
             
         } catch (Exception e) {
             log.error("BaseIntegrationTest setUpSchema: Schema setup failed for schema {}: {}", schemaName, e.getMessage());
             throw e;
         }
+    }
+    
+    private String generateUniqueSchemaName() {
+        String className = this.getClass().getSimpleName().toLowerCase();
+        String uniqueId = java.util.UUID.randomUUID().toString().replace("-", "_").substring(0, 8);
+        String schemaName = "test_" + className + "_" + uniqueId;
+        
+        // Ensure schema name is not too long for PostgreSQL (max 63 chars)
+        if (schemaName.length() > 60) {
+            schemaName = "test_" + uniqueId + "_" + String.valueOf(Math.abs(className.hashCode()));
+        }
+        
+        return schemaName;
     }
     
     @BeforeEach

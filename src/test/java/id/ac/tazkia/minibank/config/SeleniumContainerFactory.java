@@ -67,8 +67,8 @@ public class SeleniumContainerFactory {
                 .withAccessToHost(true)
                 .withSharedMemorySize(1073741824L) // 1GB shared memory
                 .withEnv("JAVA_OPTS", "-Xmx768m")
-                .withEnv("SE_NODE_MAX_INSTANCES", "2")
-                .withEnv("SE_NODE_MAX_SESSIONS", "2");
+                .withEnv("SE_NODE_MAX_INSTANCES", "1")
+                .withEnv("SE_NODE_MAX_SESSIONS", "1");
     }
     
     private static BrowserWebDriverContainer<?> configureContainer(BrowserWebDriverContainer<?> container, 

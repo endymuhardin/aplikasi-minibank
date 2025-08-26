@@ -17,31 +17,55 @@ public class TestSchemaInitializer implements ApplicationContextInitializer<Conf
     
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        // Generate schema name using centralized utility
-        String schemaName = TestSchemaManager.generateSchemaName();
+        // Get container details from system properties (set by BaseIntegrationTest)
+        String jdbcUrl = System.getProperty("test.postgres.jdbcUrl");
+        String username = System.getProperty("test.postgres.username");
+        String password = System.getProperty("test.postgres.password");
+        String schemaName = System.getProperty("test.schema.name");
+        
+        // If not set via system properties, generate them (fallback)
+        if (schemaName == null) {
+            schemaName = generateUniqueSchemaName();
+            System.setProperty("test.schema.name", schemaName);
+        }
         
         currentSchema.set(schemaName);
         // Also store in thread-safe map for parallel execution
         threadSchemaMap.put(Thread.currentThread().getName(), schemaName);
 
-        // Get PostgreSQL container details using centralized utility
-        String jdbcUrl = TestSchemaManager.getJdbcUrl();
-        String username = TestSchemaManager.getUsername();
-        String password = TestSchemaManager.getPassword();
+        // Only configure if we have valid connection details
+        if (jdbcUrl != null && username != null && password != null) {
+            TestPropertyValues.of(
+                "spring.datasource.url=" + jdbcUrl,
+                "spring.datasource.username=" + username,
+                "spring.datasource.password=" + password,
+                "spring.datasource.hikari.connection-customizer-class-name=id.ac.tazkia.minibank.config.ThreadLocalSchemaCustomizer",
+                "spring.flyway.enabled=true",
+                "spring.flyway.schemas=" + schemaName,
+                "spring.flyway.locations=classpath:db/migration",
+                "test.schema.name=" + schemaName
+            ).applyTo(applicationContext);
+            
+            log.info("Configured schema {} for thread {} with URL: {}?currentSchema={}", 
+                    schemaName, Thread.currentThread().getName(), jdbcUrl, schemaName);
+        } else {
+            log.warn("TestSchemaInitializer: No container details found, using fallback configuration");
+        }
+    }
+    
+    private String generateUniqueSchemaName() {
+        String threadName = Thread.currentThread().getName()
+                .replaceAll("[^a-zA-Z0-9]", "_")
+                .toLowerCase();
+        String uniqueId = UUID.randomUUID().toString().replace("-", "_").substring(0, 8);
+        String schemaName = "test_" + threadName + "_" + uniqueId;
         
-        TestPropertyValues.of(
-            "spring.datasource.url=" + jdbcUrl,
-            "spring.datasource.username=" + username,
-            "spring.datasource.password=" + password,
-            "spring.datasource.hikari.connection-customizer-class-name=id.ac.tazkia.minibank.config.ThreadLocalSchemaCustomizer",
-            "spring.flyway.enabled=true",
-            "spring.flyway.schemas=" + schemaName,
-            "spring.flyway.locations=classpath:db/migration",
-            "test.schema.name=" + schemaName
-        ).applyTo(applicationContext);
+        // Ensure schema name is not too long for PostgreSQL (max 63 chars)
+        if (schemaName.length() > 60) {
+            schemaName = "test_" + uniqueId + "_" + String.valueOf(Math.abs(threadName.hashCode()));
+        }
         
-        log.info("Configured schema {} for thread {} with URL: {}?currentSchema={}", 
-                schemaName, Thread.currentThread().getName(), jdbcUrl, schemaName);
+        return schemaName;
     }
     
     public static String getCurrentSchema() {
