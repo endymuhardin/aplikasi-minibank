@@ -146,6 +146,9 @@ public class UserPage {
         // Don't wait for createUserButton as it's role-dependent
         // Instead, wait for the search field which should always be present
         wait.until(ExpectedConditions.visibilityOf(searchInput));
+        
+        // Also wait for the users table to be visible (ensure data is loaded)
+        wait.until(ExpectedConditions.visibilityOf(usersTable));
         log.debug("User list page loaded successfully");
         return this;
     }
@@ -687,6 +690,57 @@ public class UserPage {
                    !fullNameInput.getAttribute("value").isEmpty() &&
                    !emailInput.getAttribute("value").isEmpty();
         } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Check if ANY view button exists on the page
+     * Note: Using element existence rather than visibility due to rendering timing issues
+     */
+    public boolean hasAnyViewButton() {
+        try {
+            // Wait for the table to be present first
+            wait.until(ExpectedConditions.visibilityOf(usersTable));
+            
+            // Find view buttons using ID pattern
+            var viewButtons = driver.findElements(org.openqa.selenium.By.cssSelector("a[id*='view-user-']"));
+            log.info("Found {} view buttons on the page", viewButtons.size());
+            
+            // Return true if any buttons exist (workaround for visibility issues)
+            return !viewButtons.isEmpty();
+        } catch (Exception e) {
+            log.error("Error checking for view buttons: {}", e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Click the first available view button
+     * Note: Attempts to click first button regardless of visibility due to rendering issues
+     */
+    public boolean clickFirstAvailableViewButton() {
+        try {
+            // Find view buttons using ID pattern
+            var viewButtons = driver.findElements(org.openqa.selenium.By.cssSelector("a[id*='view-user-']"));
+            
+            if (!viewButtons.isEmpty()) {
+                WebElement button = viewButtons.get(0);
+                String buttonId = button.getAttribute("id");
+                log.info("Attempting to click first view button: {}", buttonId);
+                
+                // Scroll element into view and click
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", button);
+                Thread.sleep(500); // Brief wait for scroll
+                
+                button.click();
+                return true;
+            }
+            log.warn("No view buttons found on page");
+            return false;
+        } catch (Exception e) {
+            log.error("Error clicking view button: {}", e.getMessage());
             return false;
         }
     }
