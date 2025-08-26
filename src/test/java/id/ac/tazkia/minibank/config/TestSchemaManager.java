@@ -4,30 +4,38 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @UtilityClass
 @Slf4j
 public class TestSchemaManager {
     
+    private static final AtomicLong SCHEMA_COUNTER = new AtomicLong(System.currentTimeMillis() % 100000);
+    private static final ConcurrentHashMap<String, String> THREAD_SCHEMA_MAP = new ConcurrentHashMap<>();
+    
     /**
-     * Generates a unique schema name for test execution based on thread name and UUID
+     * Gets or generates a unique schema name for the current thread.
+     * Each thread gets exactly one schema name that is reused for all calls from that thread.
      * @return unique schema name safe for PostgreSQL (max 63 chars)
      */
     public static String generateSchemaName() {
-        String threadName = Thread.currentThread().getName()
-                .replaceAll("[^a-zA-Z0-9]", "_")
-                .toLowerCase();
-        String uniqueId = UUID.randomUUID().toString().replace("-", "_").substring(0, 8);
-        String schemaName = "test_" + threadName + "_" + uniqueId;
+        String threadName = Thread.currentThread().getName();
         
-        // Ensure schema name is not too long for PostgreSQL (max 63 chars)
-        if (schemaName.length() > 60) {
-            schemaName = "test_" + uniqueId + "_" + String.valueOf(Math.abs(threadName.hashCode()));
-        }
-        
-        log.debug("Generated schema name: {} for thread: {}", schemaName, Thread.currentThread().getName());
-        return schemaName;
+        // Return existing schema for this thread if already generated
+        return THREAD_SCHEMA_MAP.computeIfAbsent(threadName, key -> {
+            String normalizedThreadName = key.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+            long uniqueId = SCHEMA_COUNTER.incrementAndGet();
+            String schemaName = "test_" + normalizedThreadName + "_" + uniqueId;
+            
+            // Ensure schema name is not too long for PostgreSQL (max 63 chars)
+            if (schemaName.length() > 60) {
+                schemaName = "test_" + uniqueId + "_" + String.valueOf(Math.abs(normalizedThreadName.hashCode()));
+            }
+            
+            log.info("Generated schema name: {} for thread: {}", schemaName, key);
+            return schemaName;
+        });
     }
     
     /**
