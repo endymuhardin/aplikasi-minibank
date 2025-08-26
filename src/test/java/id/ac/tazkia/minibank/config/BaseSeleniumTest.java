@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.config;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.WebDriver;
@@ -7,31 +8,30 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.BrowserWebDriverContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = TestSchemaInitializer.class)
 public abstract class BaseSeleniumTest extends BaseIntegrationTest {
 
     @LocalServerPort
     protected int serverPort;
 
-    @Container
-    protected static BrowserWebDriverContainer<?> seleniumContainer = 
-        SeleniumContainerFactory.createSeleniumContainer();
+    protected BrowserWebDriverContainer<?> seleniumContainer;
 
     protected WebDriver driver;
     protected String baseUrl;
 
     @BeforeEach
     void setUpSelenium() {
+        // Start Selenium container if not already running
+        if (seleniumContainer == null || !seleniumContainer.isRunning()) {
+            seleniumContainer = SeleniumContainerFactory.createSeleniumContainer();
+            seleniumContainer.start();
+        }
+        
         ChromeOptions options = new ChromeOptions();
         
         // Configure Chrome options based on system properties
@@ -71,5 +71,17 @@ public abstract class BaseSeleniumTest extends BaseIntegrationTest {
         }
         
         log.debug("BaseSeleniumTest tearDownSelenium: Cleanup completed for schema {}", schemaName);
+    }
+    
+    @AfterAll
+    void tearDownSeleniumContainer() {
+        if (seleniumContainer != null && seleniumContainer.isRunning()) {
+            try {
+                seleniumContainer.stop();
+                log.info("BaseSeleniumTest tearDownSeleniumContainer: Stopped Selenium container for schema {}", schemaName);
+            } catch (Exception e) {
+                log.warn("BaseSeleniumTest tearDownSeleniumContainer: Error stopping container: {}", e.getMessage());
+            }
+        }
     }
 }
