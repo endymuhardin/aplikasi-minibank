@@ -57,6 +57,30 @@ mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox
 # Combined options for debugging
 mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
 
+# Run Playwright tests (all scenarios - success and alternate)
+mvn test -Dtest.type=playwright
+
+# Run Playwright success scenario tests only
+mvn test -Dtest.type=playwright-success
+
+# Run Playwright alternate scenario tests only (negative cases)
+mvn test -Dtest.type=playwright-alternate
+
+# Run specific Playwright test class
+mvn test -Dtest.type=playwright -Dtest=ProductManagementSuccessTest
+
+# Run Playwright tests with visible browser window (for debugging)
+mvn test -Dtest.type=playwright -Dplaywright.headless=false
+
+# Run Playwright tests with Firefox instead of Chromium
+mvn test -Dtest.type=playwright -Dplaywright.browser=firefox
+
+# Run Playwright tests with WebKit (Safari engine)
+mvn test -Dtest.type=playwright -Dplaywright.browser=webkit
+
+# Combined options for Playwright debugging
+mvn test -Dtest.type=playwright-success -Dplaywright.headless=false -Dplaywright.browser=chromium
+
 # Test Execution Profiles
 # Sequential execution (default - single threaded, easier debugging)
 mvn test
@@ -83,6 +107,22 @@ The application uses **2 simplified test profiles**:
 | **Browser** | Chrome | `-Dselenium.browser=firefox` |
 | **Headless** | true | `-Dselenium.headless=false` |
 | **Recording** | false | `-Dselenium.recording.enabled=true` |
+
+### Playwright Configuration
+
+| Setting | Default | Override Example |
+|---------|---------|------------------|
+| **Browser** | Chromium | `-Dplaywright.browser=firefox` |
+| **Headless** | true | `-Dplaywright.headless=false` |
+| **Test Type** | All | `-Dtest.type=playwright-success` |
+
+### Playwright Test Types
+
+| Type | Purpose | Command |
+|------|---------|---------|
+| **playwright** | All scenarios (success + alternate) | `mvn test -Dtest.type=playwright` |
+| **playwright-success** | Success scenarios (happy paths) | `mvn test -Dtest.type=playwright-success` |
+| **playwright-alternate** | Alternate scenarios (edge cases, errors) | `mvn test -Dtest.type=playwright-alternate` |
 
 ### Container Selection
 
@@ -194,11 +234,16 @@ src/test/java/id/ac/tazkia/minibank/
 │   ├── service/                       # Service layer integration tests
 │   └── controller/                    # REST controller tests
 ├── selenium/essential/                 # Critical E2E Selenium tests
-└── feature/                           # Feature tests (BDD style)
-    ├── customer/registration/         # Customer registration features
-    ├── account/opening/               # Account opening features
-    ├── transaction/deposit/           # Transaction features
-    └── user/                          # User management features
+├── feature/                           # Feature tests (BDD style)
+│   ├── customer/registration/         # Customer registration features
+│   ├── account/opening/               # Account opening features
+│   ├── transaction/deposit/           # Transaction features
+│   └── user/                          # User management features
+└── playwright/                        # Playwright E2E tests (separate structure)
+    ├── success/                       # Success scenario tests (happy paths)
+    ├── alternate/                     # Alternate scenario tests (edge cases, errors)
+    ├── pages/                         # Page Object Model classes
+    └── config/                        # Base test configuration
 ```
 
 ### Testing Approaches
@@ -206,6 +251,12 @@ src/test/java/id/ac/tazkia/minibank/
 - **@DataJpaTest**: Repository integration tests with TestContainers
 - **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files
 - **Selenium Essential Tests**: E2E tests with Page Object Model
+- **Playwright E2E Tests**: Modern browser automation with Page Object Model
+  - **Success Scenarios**: Happy path testing with positive flows
+  - **Alternate Scenarios**: Edge cases, error handling, and security testing
+  - **Cross-browser Support**: Chromium, Firefox, WebKit (Safari engine)
+  - **ID-based Element Selection**: Uses element IDs exclusively for stability
+  - **No Thread Sleep**: Uses proper wait conditions for reliable tests
 - **Karate BDD Tests**: Feature-driven API integration testing
 - **Spring Boot Test**: Full application context testing
 
