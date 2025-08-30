@@ -1,0 +1,6 @@
+productCode,productName,productType,description,riskLevel
+TWB001,Tabungan Wadiah Basic,TABUNGAN_WADIAH,Basic savings account with Wadiah principle,LOW
+TMD001,Tabungan Mudharabah Premium,TABUNGAN_MUDHARABAH,Premium savings with profit sharing,MEDIUM
+DMD001,Deposito Mudharabah 6M,DEPOSITO_MUDHARABAH,6-month fixed deposit with profit sharing,MEDIUM
+PMR001,Pembiayaan Murabahah KPR,PEMBIAYAAN_MURABAHAH,Islamic home financing,HIGH
+PMD001,Pembiayaan Mudharabah Modal,PEMBIAYAAN_MUDHARABAH,Business capital financing,HIGH

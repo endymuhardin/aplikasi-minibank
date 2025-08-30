@@ -43,7 +43,7 @@ void shouldThrowExceptionWhenAmountIsNegative()
 void shouldSaveAndFindAccountFromCsv()
 void shouldFindAccountsByCustomer()
 
-// Selenium test naming: should[UserAction][Expected Result]
+// Playwright test naming: should[UserAction][Expected Result]
 void shouldLoginSuccessfullyWithValidCredentials()
 void shouldDisplayErrorMessageWithInvalidCredentials()
 ```

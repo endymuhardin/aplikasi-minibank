@@ -24,8 +24,8 @@ spring.datasource.url=jdbc:postgresql://localhost:2345/pgminibank
 spring.datasource.username=minibank
 spring.datasource.password=${DB_PASSWORD:minibank1234}
 
-# Selenium Test Configuration
-selenium.recording.enabled=false
+# Playwright Test Configuration
+playwright.recording.enabled=false
 ```
 
 ### 3. Frontend Build Configuration

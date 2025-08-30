@@ -5,7 +5,7 @@
 - **Java 21** (menggunakan SDKMAN)
 - **Maven 3.6+** (atau gunakan Maven wrapper `./mvnw`)
 - **Node.js 18+** (menggunakan NVM)
-- **Docker Desktop** (untuk database dan Selenium tests)
+- **Docker Desktop** (untuk database dan functional tests)
 - **Git** (untuk version control)
 
 ### Windows Setup ###

@@ -4,7 +4,7 @@ Based on commit history analysis, here are critical lessons learned and common p
 
 ### UI Testing Lessons (Future Implementation)
 
-#### 1. **AVOID Thread.sleep() in Selenium Tests**
+#### 1. **AVOID Thread.sleep() in Functional Tests**
 ❌ **Wrong:**
 ```java
 // Bad practice - leads to flaky tests
@@ -17,13 +17,12 @@ try {
 
 ✅ **Correct:**
 ```java
-// Use WebDriverWait with ExpectedConditions
-WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-wait.until(ExpectedConditions.presenceOfElementLocated(By.id("elementId")));
-wait.until(ExpectedConditions.elementToBeClickable(By.id("buttonId")));
+// Use Playwright waitFor methods (in functional tests)
+page.locator("#elementId").waitFor();
+page.locator("#buttonId").waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE));
 ```
 
-**Lesson:** Thread.sleep() causes brittle tests that fail randomly. Always use explicit waits with ExpectedConditions.
+**Lesson:** Thread.sleep() causes brittle tests that fail randomly. Always use Playwright's built-in wait mechanisms.
 
 #### 2. **Use ID Attributes as Primary Locators**
 ❌ **Wrong:**
@@ -65,23 +64,25 @@ alert.accept(); // or alert.dismiss()
 ❌ **Wrong:**
 ```java
 // Small browser window may hide responsive elements
-WebDriver driver = new ChromeDriver();
+Browser browser = playwright.chromium().launch();
+Page page = browser.newPage();
 // Elements may be hidden on mobile breakpoints
 ```
 
 ✅ **Correct:**
 ```java
 // Ensure full desktop view
-WebDriver driver = new ChromeDriver();
+Browser browser = playwright.chromium().launch();
+Page page = browser.newPage();
 driver.manage().window().maximize();
 ```
 
 **Lesson:** Commit `5fb61c7` fixed test failures by maximizing browser window to prevent responsive design issues.
 
-#### 5. **Optimize WebDriver Initialization**
+#### 5. **Optimize Browser Initialization in Functional Tests**
 ❌ **Wrong:**
 ```java
-// Initializing WebDriver for every test method
+// Initializing Browser for every test method
 @BeforeEach
 void setUp() {
     driver = new ChromeDriver(); // Very expensive operation
@@ -90,14 +91,14 @@ void setUp() {
 
 ✅ **Correct:**
 ```java
-// Shared WebDriver instance per test class
+// Shared Browser instance per test class
 @BeforeAll
 static void setUpClass() {
-    setupWebDriverOnce(); // Initialize once per class
+    setupBrowserOnce(); // Initialize once per class
 }
 ```
 
-**Lesson:** Commit `3e4acf5` optimized test performance by sharing WebDriver instances, reducing container startup overhead.
+**Lesson:** Commit `3e4acf5` optimized test performance by sharing Browser instances, reducing startup overhead.
 
 #### 6. **Comprehensive Logging for Debugging**
 ❌ **Wrong:**
@@ -371,7 +372,7 @@ void setUp() {
 // Manual initialization with proper dependencies
 @BeforeEach
 void setUp() {
-    setupWebDriverOnce(); // Explicit dependency management
+    setupBrowserOnce(); // Explicit dependency management
     ensureAuthentication();
 }
 ```
@@ -407,7 +408,7 @@ ChromeOptions options = new ChromeOptions();
 ```java
 // Conditional headless mode
 ChromeOptions options = new ChromeOptions();
-if (!"false".equals(System.getProperty("selenium.headless", "true"))) {
+if (!"false".equals(System.getProperty("playwright.headless", "true"))) {
     options.addArguments("--headless");
 }
 ```

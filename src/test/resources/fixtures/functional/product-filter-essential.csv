@@ -1,0 +1,6 @@
+username,password,role,roleDescription,filterType,filterValue
+admin,minibank123,BRANCH_MANAGER,Branch Manager,search,Wadiah
+manager1,minibank123,BRANCH_MANAGER,Branch Manager 1,search,Mudharabah
+teller1,minibank123,TELLER,Teller 1,search,Deposito
+cs1,minibank123,CUSTOMER_SERVICE,Customer Service 1,type,TABUNGAN_WADIAH
+admin,minibank123,BRANCH_MANAGER,Branch Manager,category,Islamic

@@ -1,5 +1,0 @@
-username,password,role,description,searchTerm,expectedResultType
-admin,minibank123,ADMIN,System Administrator,john,customer
-manager1,minibank123,MANAGER,Branch Manager,PERSONAL,filter
-teller1,minibank123,TELLER,Bank Teller,CORPORATE,filter
-cs1,minibank123,CUSTOMER_SERVICE,Customer Service,,list

@@ -40,7 +40,7 @@ DEP001,Deposito Mudharabah,DEPOSITO_MUDHARABAH,Deposito Syariah,Islamic time dep
 - User: Branch Manager (has PRODUCT_VIEW permission)
 - Expected Products: 5 products dari seed data
 
-**Steps** (sesuai ProductManagementSeleniumTest):
+**Steps** (sesuai ProductManagementFunctionalTest):
 1. Login sebagai Branch Manager
 2. Navigasi ke Product List page (/product/list)
 3. Verify product list loaded dengan pagination
@@ -577,9 +577,9 @@ GROUP BY p.id, p.product_code
 ORDER BY p.product_code;
 ```
 
-## Selenium Test Integration
+## Functional Test Integration
 
-### Page Object Model (sesuai ProductManagementSeleniumTest)
+### Page Object Model (sesuai ProductManagementFunctionalTest)
 ```java
 // ProductListPage elements
 @FindBy(id = "product-table")
