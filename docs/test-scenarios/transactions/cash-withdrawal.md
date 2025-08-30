@@ -704,11 +704,11 @@ void shouldValidateWithdrawalErrors(String accountId, BigDecimal amount, String 
 - **Daily Limits**: Multiple withdrawals testing daily limits
 - **Edge Cases**: Minimum balance constraints, large amounts
 
-## ✅ **NEW: Comprehensive Selenium Testing**
+## ✅ **NEW: Comprehensive Playwright Testing**
 
-### Web UI Automation Tests (CashWithdrawalSeleniumTest)
+### Web UI Automation Tests (CashWithdrawalPlaywrightTest)
 
-The cash withdrawal functionality now includes comprehensive Selenium tests following technical practices and lessons learned:
+The cash withdrawal functionality now includes comprehensive Playwright tests following technical practices and lessons learned:
 
 #### Test Coverage (15+ Test Methods):
 1. **Navigation Workflow Testing**
@@ -758,25 +758,25 @@ The cash withdrawal functionality now includes comprehensive Selenium tests foll
 - ✅ **Error Handling:** Client-side and server-side validation testing
 - ✅ **Multi-role Testing:** Teller and Manager permission validation
 
-#### Selenium Test Commands:
+#### Playwright Test Commands:
 ```bash
-# Run Cash Withdrawal Selenium tests (headless mode)
-mvn test -Dtest=CashWithdrawalSeleniumTest
+# Run Cash Withdrawal Playwright tests (headless mode)
+mvn test -Dtest=CashWithdrawalPlaywrightTest
 
 # Run with visible browser for debugging
-mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.headless=false
+mvn test -Dtest=CashWithdrawalPlaywrightTest -Dplaywright.headless=false
 
 # Run with recording enabled for monitoring
-mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.recording.enabled=true
+mvn test -Dtest=CashWithdrawalPlaywrightTest -Dplaywright.recording.enabled=true
 
 # Run specific test method
-mvn test -Dtest=CashWithdrawalSeleniumTest#shouldProcessCashWithdrawalSuccessfully
+mvn test -Dtest=CashWithdrawalPlaywrightTest#shouldProcessCashWithdrawalSuccessfully
 
 # Run with Firefox browser
-mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.browser=firefox
+mvn test -Dtest=CashWithdrawalPlaywrightTest -Dplaywright.browser=firefox
 
 # Combined debugging options
-mvn test -Dtest=CashWithdrawalSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
+mvn test -Dtest=CashWithdrawalPlaywrightTest -Dplaywright.headless=false -Dplaywright.recording.enabled=true
 ```
 
 #### Test Data Integration:

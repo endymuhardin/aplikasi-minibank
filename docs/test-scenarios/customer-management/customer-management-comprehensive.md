@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines comprehensive test scenarios for the Customer Management module, covering both Personal and Corporate customer types. The scenarios are designed to work with existing seed data, test fixtures, and Selenium tests.
+This document outlines comprehensive test scenarios for the Customer Management module, covering both Personal and Corporate customer types. The scenarios are designed to work with existing seed data, test fixtures, and Playwright tests.
 
 ## Test Data Sources
 
@@ -19,7 +19,7 @@ Pre-loaded customers available for testing:
 - C1000003: PT. Teknologi Maju (Reg: 1234567890123456)
 
 ### Test SQL Setup Data
-Additional test customers for Selenium testing:
+Additional test customers for functional testing:
 
 **Personal Test Customers:**
 - EDIT001: John Doe (editable test customer)
@@ -520,27 +520,27 @@ city: Jakarta
 
 ## Test Execution Notes
 
-### Selenium Test Configuration
+### Functional Test Configuration
 
 **Browser Support:**
 - Chrome (default)
-- Firefox (use `-Dselenium.browser=firefox`)
+- Firefox (use `-Dplaywright.browser=firefox`)
 
 **Execution Modes:**
 - Headless (default, fastest)
-- Visible mode (debugging: `-Dselenium.headless=false`)
-- Recording mode (debugging: `-Dselenium.recording.enabled=true`)
+- Visible mode (debugging: `-Dplaywright.headless=false`)
+- Recording mode (debugging: `-Dplaywright.recording.enabled=true`)
 
 **Commands:**
 ```bash
 # Run all customer management tests
-mvn test -Dtest=CustomerManagementSeleniumTest
+mvn test -Dtest=CustomerManagementFunctionalTest
 
 # Run with visible browser for debugging
-mvn test -Dtest=CustomerManagementSeleniumTest -Dselenium.headless=false
+mvn test -Dtest=CustomerManagementFunctionalTest -Dplaywright.headless=false
 
 # Run specific test method
-mvn test -Dtest=CustomerManagementSeleniumTest#shouldCreatePersonalCustomer
+mvn test -Dtest=CustomerManagementFunctionalTest#shouldCreatePersonalCustomer
 ```
 
 ### Database Setup
@@ -570,7 +570,7 @@ mvn test -Dtest=CustomerManagementSeleniumTest#shouldCreatePersonalCustomer
 
 ## Test Coverage Summary
 
-| Feature | Unit Tests | Integration Tests | Selenium Tests | API Tests |
+| Feature | Unit Tests | Integration Tests | Functional Tests | API Tests |
 |---------|------------|-------------------|----------------|-----------|
 | Customer Creation | ✓ | ✓ | ✓ | ✓ |
 | Customer Validation | ✓ | ✓ | ✓ | ✓ |
@@ -586,5 +586,5 @@ mvn test -Dtest=CustomerManagementSeleniumTest#shouldCreatePersonalCustomer
 1. **Test Data Updates:** When adding new test customers, update both CSV fixtures and SQL setup files
 2. **Schema Changes:** Update validation tests when database schema changes
 3. **Permission Changes:** Update RBAC tests when role permissions change
-4. **UI Changes:** Update Selenium page objects when UI elements change
+4. **UI Changes:** Update functional test page objects when UI elements change
 5. **Business Rules:** Update validation tests when business logic changes

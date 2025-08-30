@@ -42,44 +42,29 @@ mvn test -Dtest=DepositTest
 # Run single Karate test method
 mvn test -Dtest=DepositTest#testDeposit
 
-# Run Selenium tests (default: headless mode, no recording)
-mvn test -Dtest=ProductManagementSeleniumTest
+# Run functional tests (all scenarios - success and alternate)
+mvn test -Dtest=**/functional/**/*Test
 
-# Run Selenium tests with visible browser window (for debugging)
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false
+# Run functional success scenario tests only
+mvn test -Dtest=**/functional/success/*Test
 
-# Run Selenium tests with recording enabled
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
+# Run functional alternate scenario tests only (negative cases)
+mvn test -Dtest=**/functional/alternate/*Test
 
-# Run Selenium tests with Firefox instead of Chrome
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.browser=firefox
+# Run specific functional test class
+mvn test -Dtest=**/functional/**/ProductManagementSuccessTest
 
-# Combined options for debugging
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.headless=false -Dselenium.recording.enabled=true
+# Run functional tests with visible browser window (for debugging)
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.headless=false
 
-# Run Playwright tests (all scenarios - success and alternate)
-mvn test -Dtest.type=playwright
+# Run functional tests with Firefox instead of Chromium
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=firefox
 
-# Run Playwright success scenario tests only
-mvn test -Dtest.type=playwright-success
+# Run functional tests with WebKit (Safari engine)
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=webkit
 
-# Run Playwright alternate scenario tests only (negative cases)
-mvn test -Dtest.type=playwright-alternate
-
-# Run specific Playwright test class
-mvn test -Dtest.type=playwright -Dtest=ProductManagementSuccessTest
-
-# Run Playwright tests with visible browser window (for debugging)
-mvn test -Dtest.type=playwright -Dplaywright.headless=false
-
-# Run Playwright tests with Firefox instead of Chromium
-mvn test -Dtest.type=playwright -Dplaywright.browser=firefox
-
-# Run Playwright tests with WebKit (Safari engine)
-mvn test -Dtest.type=playwright -Dplaywright.browser=webkit
-
-# Combined options for Playwright debugging
-mvn test -Dtest.type=playwright-success -Dplaywright.headless=false -Dplaywright.browser=chromium
+# Combined options for functional debugging
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.browser=chromium
 
 # Test Execution Profiles
 # Sequential execution (default - single threaded, easier debugging)
@@ -100,36 +85,21 @@ The application uses **2 simplified test profiles**:
 | **sequential** | ✅ Yes | `mvn test` | Single-threaded | Debugging, stability |
 | **parallel** | ❌ No | `mvn test -Dtest.profile=parallel` | 2 threads (classes) | Faster execution |
 
-### Selenium Configuration
-
-| Setting | Default | Override Example |
-|---------|---------|------------------|
-| **Browser** | Chrome | `-Dselenium.browser=firefox` |
-| **Headless** | true | `-Dselenium.headless=false` |
-| **Recording** | false | `-Dselenium.recording.enabled=true` |
-
-### Playwright Configuration
+### Functional Test Configuration
 
 | Setting | Default | Override Example |
 |---------|---------|------------------|
 | **Browser** | Chromium | `-Dplaywright.browser=firefox` |
 | **Headless** | true | `-Dplaywright.headless=false` |
-| **Test Type** | All | `-Dtest.type=playwright-success` |
+| **Test Pattern** | All | `-Dtest=**/functional/success/*Test` |
 
-### Playwright Test Types
+### Functional Test Types
 
 | Type | Purpose | Command |
 |------|---------|---------|
-| **playwright** | All scenarios (success + alternate) | `mvn test -Dtest.type=playwright` |
-| **playwright-success** | Success scenarios (happy paths) | `mvn test -Dtest.type=playwright-success` |
-| **playwright-alternate** | Alternate scenarios (edge cases, errors) | `mvn test -Dtest.type=playwright-alternate` |
-
-### Container Selection
-
-- **ARM64 (M1/M2 Mac)**: `seleniarm/standalone-chromium:latest`
-- **x86_64 (Intel/AMD)**: `selenium/standalone-chrome:4.15.0`
-
-Architecture detection is automatic - no manual configuration needed.
+| **functional** | All scenarios (success + alternate) | `mvn test -Dtest=**/functional/**/*Test` |
+| **functional-success** | Success scenarios (happy paths) | `mvn test -Dtest=**/functional/success/*Test` |
+| **functional-alternate** | Alternate scenarios (edge cases, errors) | `mvn test -Dtest=**/functional/alternate/*Test` |
 
 ### Database Operations
 ```bash
@@ -233,13 +203,12 @@ src/test/java/id/ac/tazkia/minibank/
 │   ├── repository/                     # @DataJpaTest repository tests
 │   ├── service/                       # Service layer integration tests
 │   └── controller/                    # REST controller tests
-├── selenium/essential/                 # Critical E2E Selenium tests
 ├── feature/                           # Feature tests (BDD style)
 │   ├── customer/registration/         # Customer registration features
 │   ├── account/opening/               # Account opening features
 │   ├── transaction/deposit/           # Transaction features
 │   └── user/                          # User management features
-└── playwright/                        # Playwright E2E tests (separate structure)
+└── functional/                        # Functional E2E tests using Playwright (separate structure)
     ├── success/                       # Success scenario tests (happy paths)
     ├── alternate/                     # Alternate scenario tests (edge cases, errors)
     ├── pages/                         # Page Object Model classes
@@ -250,8 +219,7 @@ src/test/java/id/ac/tazkia/minibank/
 - **Schema-per-thread isolation**: Each test thread gets unique PostgreSQL schema
 - **@DataJpaTest**: Repository integration tests with TestContainers
 - **@ParameterizedTest + @CsvFileSource**: Data-driven testing using CSV files
-- **Selenium Essential Tests**: E2E tests with Page Object Model
-- **Playwright E2E Tests**: Modern browser automation with Page Object Model
+- **Functional E2E Tests**: Modern browser automation using Playwright with Page Object Model
   - **Success Scenarios**: Happy path testing with positive flows
   - **Alternate Scenarios**: Edge cases, error handling, and security testing
   - **Cross-browser Support**: Chromium, Firefox, WebKit (Safari engine)

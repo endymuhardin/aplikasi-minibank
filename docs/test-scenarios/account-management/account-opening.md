@@ -11,8 +11,8 @@ Dokumen ini berisi skenario test untuk fitur pembukaan rekening dalam aplikasi m
 
 ## Test Coverage Status
 
-✅ **FULLY AUTOMATED** - All test scenarios below are covered by Selenium tests  
-📁 **Test Classes**: `PersonalAccountOpeningSeleniumTest`, `CorporateAccountOpeningSeleniumTest`, `IslamicBankingAccountOpeningSeleniumTest`, `ComprehensiveAccountOpeningSeleniumTest`
+✅ **FULLY AUTOMATED** - All test scenarios below are covered by functional tests  
+📁 **Test Classes**: `PersonalAccountOpeningFunctionalTest`, `CorporateAccountOpeningFunctionalTest`, `IslamicBankingAccountOpeningFunctionalTest`, `ComprehensiveAccountOpeningFunctionalTest`
 
 ### Test Execution Commands
 ```bash
@@ -20,17 +20,17 @@ Dokumen ini berisi skenario test untuk fitur pembukaan rekening dalam aplikasi m
 mvn test -Dtest="*AccountOpening*"
 
 # Run specific test categories
-mvn test -Dtest=PersonalAccountOpeningSeleniumTest          # Personal customer tests
-mvn test -Dtest=CorporateAccountOpeningSeleniumTest         # Corporate customer tests  
-mvn test -Dtest=IslamicBankingAccountOpeningSeleniumTest     # Islamic banking tests
-mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & validation
+mvn test -Dtest=**/functional/**/PersonalAccountOpeningFunctionalTest          # Personal customer tests
+mvn test -Dtest=**/functional/**/CorporateAccountOpeningFunctionalTest         # Corporate customer tests  
+mvn test -Dtest=**/functional/**/IslamicBankingAccountOpeningFunctionalTest     # Islamic banking tests
+mvn test -Dtest=**/functional/**/ComprehensiveAccountOpeningFunctionalTest      # Edge cases & validation
 ```
 
 ## Test Cases
 
 ### TC-AO-001: Pembukaan Rekening Personal - Happy Path ✅
-**📋 Coverage**: `PersonalAccountOpeningSeleniumTest.shouldSuccessfullyOpenPersonalAccountWithValidData()`  
-**🎭 Also covered by**: `IslamicBankingAccountOpeningSeleniumTest.shouldOpenTabunganWadiahAccountSuccessfully()`
+**📋 Coverage**: `PersonalAccountOpeningFunctionalTest.shouldSuccessfullyOpenPersonalAccountWithValidData()`  
+**🎭 Also covered by**: `IslamicBankingAccountOpeningFunctionalTest.shouldOpenTabunganWadiahAccountSuccessfully()`
 **Deskripsi**: Membuka rekening TABUNGAN_WADIAH untuk nasabah personal dengan data valid
 
 **Test Data**:
@@ -79,7 +79,7 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Notifikasi sukses ditampilkan
 
 ### TC-AO-002: Pembukaan Rekening Corporate - Happy Path ✅
-**📋 Coverage**: `CorporateAccountOpeningSeleniumTest.shouldSuccessfullyOpenCorporateAccountWithValidData()`
+**📋 Coverage**: `CorporateAccountOpeningFunctionalTest.shouldSuccessfullyOpenCorporateAccountWithValidData()`
 **Deskripsi**: Membuka rekening TABUNGAN_MUDHARABAH untuk nasabah korporat
 
 **Test Data**:
@@ -125,8 +125,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Notifikasi sukses ditampilkan
 
 ### TC-AO-003: Pembukaan Rekening DEPOSITO_MUDHARABAH ✅
-**📋 Coverage**: `IslamicBankingAccountOpeningSeleniumTest.shouldOpenDepositoMudharabahWithTermDeposit()`  
-**🎭 Also covered by**: `ComprehensiveAccountOpeningSeleniumTest.shouldOpenDepositoMudharabahAccountWithProfitSharing()`
+**📋 Coverage**: `IslamicBankingAccountOpeningFunctionalTest.shouldOpenDepositoMudharabahWithTermDeposit()`  
+**🎭 Also covered by**: `ComprehensiveAccountOpeningFunctionalTest.shouldOpenDepositoMudharabahAccountWithProfitSharing()`
 **Deskripsi**: Membuka rekening deposito dengan profit sharing
 
 **Test Data**:
@@ -155,8 +155,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Constraint check: nisbah_customer + nisbah_bank = 1.0
 
 ### TC-AO-004: Validation - Personal Customer Data Invalid ✅
-**📋 Coverage**: `PersonalAccountOpeningSeleniumTest.shouldShowValidationErrorForMissingRequiredFields()`  
-**🎭 Also covered by**: `ComprehensiveAccountOpeningSeleniumTest.shouldValidateSpecificFieldConstraints()`
+**📋 Coverage**: `PersonalAccountOpeningFunctionalTest.shouldShowValidationErrorForMissingRequiredFields()`  
+**🎭 Also covered by**: `ComprehensiveAccountOpeningFunctionalTest.shouldValidateSpecificFieldConstraints()`
 **Deskripsi**: Validasi form pembukaan rekening dengan data tidak valid
 
 **Test Data**:
@@ -188,8 +188,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Data tidak tersimpan ke database
 
 ### TC-AO-005: Validation - Corporate Customer Data Invalid ✅
-**📋 Coverage**: `CorporateAccountOpeningSeleniumTest.shouldShowValidationErrorForMissingRequiredCorporateFields()`  
-**🎭 Also covered by**: `ComprehensiveAccountOpeningSeleniumTest.shouldValidateCorporateCustomerFieldLengths()`
+**📋 Coverage**: `CorporateAccountOpeningFunctionalTest.shouldShowValidationErrorForMissingRequiredCorporateFields()`  
+**🎭 Also covered by**: `ComprehensiveAccountOpeningFunctionalTest.shouldValidateCorporateCustomerFieldLengths()`
 **Deskripsi**: Validasi form corporate customer dengan data tidak valid
 
 **Test Data**:
@@ -214,8 +214,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
   - "Contact person name must not exceed 100 characters"
 
 ### TC-AO-006: Validation - Minimum Opening Balance ✅
-**📋 Coverage**: `PersonalAccountOpeningSeleniumTest.shouldShowValidationErrorForInsufficientInitialDeposit()`  
-**🎭 Also covered by**: `CorporateAccountOpeningSeleniumTest.shouldShowValidationErrorForInsufficientCorporateDeposit()`, `IslamicBankingAccountOpeningSeleniumTest.shouldEnforceIslamicProductMinimumBalances()`
+**📋 Coverage**: `PersonalAccountOpeningFunctionalTest.shouldShowValidationErrorForInsufficientInitialDeposit()`  
+**🎭 Also covered by**: `CorporateAccountOpeningFunctionalTest.shouldShowValidationErrorForInsufficientCorporateDeposit()`, `IslamicBankingAccountOpeningFunctionalTest.shouldEnforceIslamicProductMinimumBalances()`
 **Deskripsi**: Validasi setoran awal tidak memenuhi minimum
 
 **Test Data**:
@@ -236,7 +236,7 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Data tidak tersimpan
 
 ### TC-AO-007: Validation - Customer Number Duplicate ✅
-**📋 Coverage**: `ComprehensiveAccountOpeningSeleniumTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()` (covered via database integrity validation)
+**📋 Coverage**: `ComprehensiveAccountOpeningFunctionalTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()` (covered via database integrity validation)
 **Deskripsi**: Validasi customer_number yang sudah ada
 
 **Test Data**:
@@ -253,8 +253,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Rollback transaksi
 
 ### TC-AO-008: Pembukaan Rekening untuk Existing Customer ✅
-**📋 Coverage**: `ComprehensiveAccountOpeningSeleniumTest.shouldAllowMultipleAccountsForSameCustomer()`  
-**🎭 Also covered by**: `IslamicBankingAccountOpeningSeleniumTest.shouldAllowMultipleIslamicAccountsForSameCustomer()`
+**📋 Coverage**: `ComprehensiveAccountOpeningFunctionalTest.shouldAllowMultipleAccountsForSameCustomer()`  
+**🎭 Also covered by**: `IslamicBankingAccountOpeningFunctionalTest.shouldAllowMultipleIslamicAccountsForSameCustomer()`
 **Deskripsi**: Membuka rekening kedua untuk customer yang sudah ada
 
 **Test Data**:
@@ -279,8 +279,8 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Balance account baru = 200,000
 
 ### TC-AO-009: Business Rule - Nisbah Validation for MUDHARABAH ✅
-**📋 Coverage**: `ComprehensiveAccountOpeningSeleniumTest.shouldValidateNisbahSumForMudharabahProducts()`  
-**🎭 Also covered by**: `IslamicBankingAccountOpeningSeleniumTest.shouldOpenTabunganMudharabahWithProfitSharing()`, `IslamicBankingAccountOpeningSeleniumTest.shouldOpenDepositoMudharabahWithTermDeposit()`
+**📋 Coverage**: `ComprehensiveAccountOpeningFunctionalTest.shouldValidateNisbahSumForMudharabahProducts()`  
+**🎭 Also covered by**: `IslamicBankingAccountOpeningFunctionalTest.shouldOpenTabunganMudharabahWithProfitSharing()`, `IslamicBankingAccountOpeningFunctionalTest.shouldOpenDepositoMudharabahWithTermDeposit()`
 **Deskripsi**: Validasi business rule untuk profit sharing products
 
 **Test Data**:
@@ -298,7 +298,7 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 - Transaksi di-rollback
 
 ### TC-AO-010: Security Test - Unauthorized Access ✅
-**📋 Coverage**: `ComprehensiveAccountOpeningSeleniumTest.shouldRequireProperAuthenticationForAccountOpening()`
+**📋 Coverage**: `ComprehensiveAccountOpeningFunctionalTest.shouldRequireProperAuthenticationForAccountOpening()`
 **Deskripsi**: Validasi akses pembukaan rekening oleh user yang tidak berwenang
 
 **Test Data**:
@@ -317,31 +317,31 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 ## Additional Test Coverage
 
 ### ✅ Islamic Banking Specific Tests
-- **TABUNGAN_WADIAH**: `IslamicBankingAccountOpeningSeleniumTest.shouldOpenTabunganWadiahAccountSuccessfully()`
-- **TABUNGAN_MUDHARABAH**: `IslamicBankingAccountOpeningSeleniumTest.shouldOpenTabunganMudharabahWithProfitSharing()`
-- **Product Selection**: `IslamicBankingAccountOpeningSeleniumTest.shouldDisplayOnlyIslamicBankingProducts()`
-- **Cross-Product Support**: `IslamicBankingAccountOpeningSeleniumTest.shouldAllowMultipleIslamicAccountsForSameCustomer()`
+- **TABUNGAN_WADIAH**: `IslamicBankingAccountOpeningFunctionalTest.shouldOpenTabunganWadiahAccountSuccessfully()`
+- **TABUNGAN_MUDHARABAH**: `IslamicBankingAccountOpeningFunctionalTest.shouldOpenTabunganMudharabahWithProfitSharing()`
+- **Product Selection**: `IslamicBankingAccountOpeningFunctionalTest.shouldDisplayOnlyIslamicBankingProducts()`
+- **Cross-Product Support**: `IslamicBankingAccountOpeningFunctionalTest.shouldAllowMultipleIslamicAccountsForSameCustomer()`
 
 ### ✅ Corporate Banking Specific Tests
-- **Corporate Customer Selection**: `CorporateAccountOpeningSeleniumTest.shouldDisplayOnlyCorporateCustomersForSelection()`
-- **Corporate Product Information**: `CorporateAccountOpeningSeleniumTest.shouldDisplayCorporateProductInformationWhenSelected()`
-- **Corporate Minimum Deposits**: `CorporateAccountOpeningSeleniumTest.shouldEnforceCorporateMinimumDepositRequirements()`
-- **Corporate Navigation**: `CorporateAccountOpeningSeleniumTest.shouldAllowNavigationBackToCorporateCustomerSelection()`
+- **Corporate Customer Selection**: `CorporateAccountOpeningFunctionalTest.shouldDisplayOnlyCorporateCustomersForSelection()`
+- **Corporate Product Information**: `CorporateAccountOpeningFunctionalTest.shouldDisplayCorporateProductInformationWhenSelected()`
+- **Corporate Minimum Deposits**: `CorporateAccountOpeningFunctionalTest.shouldEnforceCorporateMinimumDepositRequirements()`
+- **Corporate Navigation**: `CorporateAccountOpeningFunctionalTest.shouldAllowNavigationBackToCorporateCustomerSelection()`
 
 ### ✅ Comprehensive Edge Cases
-- **Database Integrity**: `ComprehensiveAccountOpeningSeleniumTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()`
-- **Field Validation**: `ComprehensiveAccountOpeningSeleniumTest.shouldValidateSpecificFieldConstraints()` (CSV-driven)
-- **Islamic Product Information**: `ComprehensiveAccountOpeningSeleniumTest.shouldDisplayIslamicBankingProductInformation()`
+- **Database Integrity**: `ComprehensiveAccountOpeningFunctionalTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()`
+- **Field Validation**: `ComprehensiveAccountOpeningFunctionalTest.shouldValidateSpecificFieldConstraints()` (CSV-driven)
+- **Islamic Product Information**: `ComprehensiveAccountOpeningFunctionalTest.shouldDisplayIslamicBankingProductInformation()`
 
 ### ✅ Navigation & UX Tests
-- **Personal Navigation**: `PersonalAccountOpeningSeleniumTest.shouldAllowNavigationBackToCustomerSelection()`
-- **Corporate Navigation**: `CorporateAccountOpeningSeleniumTest.shouldAllowCancellingCorporateAccountOpening()`
+- **Personal Navigation**: `PersonalAccountOpeningFunctionalTest.shouldAllowNavigationBackToCustomerSelection()`
+- **Corporate Navigation**: `CorporateAccountOpeningFunctionalTest.shouldAllowCancellingCorporateAccountOpening()`
 - **Product Information Display**: Multiple test methods across all classes
 
 ### ✅ CSV-Driven Data Tests
-- **Personal Accounts**: `PersonalAccountOpeningSeleniumTest.shouldOpenPersonalAccountsFromCsvData()`
-- **Corporate Accounts**: `CorporateAccountOpeningSeleniumTest.shouldOpenCorporateAccountsFromCsvData()`
-- **Field Validation**: `ComprehensiveAccountOpeningSeleniumTest.shouldValidateSpecificFieldConstraints()`
+- **Personal Accounts**: `PersonalAccountOpeningFunctionalTest.shouldOpenPersonalAccountsFromCsvData()`
+- **Corporate Accounts**: `CorporateAccountOpeningFunctionalTest.shouldOpenCorporateAccountsFromCsvData()`
+- **Field Validation**: `ComprehensiveAccountOpeningFunctionalTest.shouldValidateSpecificFieldConstraints()`
 
 ## Performance Test Cases
 
@@ -367,10 +367,10 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 **✅ All 10 primary test cases (TC-AO-001 through TC-AO-010) are fully covered**
 
 **Test Class Distribution:**
-- 🏠 **PersonalAccountOpeningSeleniumTest**: 10 test methods (core personal account scenarios)
-- 🏢 **CorporateAccountOpeningSeleniumTest**: 14 test methods (corporate-specific scenarios)  
-- 🕌 **IslamicBankingAccountOpeningSeleniumTest**: 7 test methods (Islamic banking compliance)
-- 🔧 **ComprehensiveAccountOpeningSeleniumTest**: 9 test methods (edge cases & validation)
+- 🏠 **PersonalAccountOpeningFunctionalTest**: 10 test methods (core personal account scenarios)
+- 🏢 **CorporateAccountOpeningFunctionalTest**: 14 test methods (corporate-specific scenarios)  
+- 🕌 **IslamicBankingAccountOpeningFunctionalTest**: 7 test methods (Islamic banking compliance)
+- 🔧 **ComprehensiveAccountOpeningFunctionalTest**: 9 test methods (edge cases & validation)
 
 **Total: 40+ automated test methods covering all documented scenarios**
 
@@ -387,7 +387,7 @@ mvn test -Dtest=ComprehensiveAccountOpeningSeleniumTest      # Edge cases & vali
 ## Database Validation
 
 ### Validasi Data Integrity ✅
-**📋 Automated in**: `ComprehensiveAccountOpeningSeleniumTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()`
+**📋 Automated in**: `ComprehensiveAccountOpeningFunctionalTest.shouldMaintainDatabaseIntegrityAfterAccountOpening()`
 
 Setelah setiap test case, validasi:
 

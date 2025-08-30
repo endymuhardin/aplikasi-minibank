@@ -1,6 +1,0 @@
-roleCode,roleName,description,expectedResult,testDescription
-TEST_ROLE1,Test Role 1,Test role for automation,Success,Valid role creation
-TEST_ROLE2,Test Role 2,Another test role,Success,Second valid role
-CUSTOMER_SERVICE,Customer Service,Duplicate role test,Error,Duplicate role code should fail
-,Empty Code Role,Role without code,Error,Empty role code should fail
-TEST_ROLE3,,Role without name,Error,Empty role name should fail

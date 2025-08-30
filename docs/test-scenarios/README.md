@@ -3,7 +3,7 @@
 > **Note**: For comprehensive testing guide including infrastructure, configuration, and execution, see [TESTING.md](../TESTING.md). This document focuses specifically on detailed test scenarios.
 
 ## Overview
-Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank Islam. Semua test scenarios telah disesuaikan dengan actual database schema, entity validation rules, existing seed data, CSV fixtures, dan Selenium test patterns yang ada di codebase.
+Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank Islam. Semua test scenarios telah disesuaikan dengan actual database schema, entity validation rules, existing seed data, CSV fixtures, dan Playwright test patterns yang ada di codebase.
 
 ## Test Scenarios Overview
 
@@ -67,7 +67,7 @@ docs/test-scenarios/
 ### 4. System Integration & Compliance
 - **Database Schema Compliance** - Semua test data sesuai migration files
 - **Entity Validation** - Bean validation annotations (@NotBlank, @Email, @Size)
-- **Selenium Test Integration** - Page Object Model dan test data fixtures
+- **Functional Test Integration** - Page Object Model dan test data fixtures using Playwright
 - **CSV Test Data** - Integration dengan existing fixtures
 - **Seed Data Synchronization** - Test scenarios menggunakan actual seed data
 - **Regulatory Compliance** - Indonesian banking regulations (BI, OJK, PPATK)
@@ -156,18 +156,18 @@ Test scenarios menggunakan existing CSV fixtures untuk data-driven testing:
 - `role_permissions.csv` - Role-permission mappings
 - `user_authentication_scenarios.csv` - Login test scenarios
 
-### Selenium Integration Data
-- `login_test_data.csv` - Login scenarios untuk Selenium tests
+### Functional Test Integration Data
+- `login_test_data.csv` - Login scenarios untuk functional tests
 - `dashboard_navigation_data.csv` - Navigation test data
 
-## Selenium Test Pattern Integration
+## Functional Test Pattern Integration
 
-Test scenarios follow existing Selenium test patterns documented in [Selenium Testing Documentation](../selenium-testing-documentation.md):
+Test scenarios follow existing functional test patterns using Playwright:
 
 ### Base Test Structure
 ```java
-// Menggunakan existing BaseSeleniumTest infrastructure
-public class FeatureSeleniumTest extends BaseSeleniumTest {
+// Menggunakan existing BasePlaywrightTest infrastructure
+public class FeaturePlaywrightTest extends BasePlaywrightTest {
     @Override
     protected void performInitialLogin() {
         loginHelper.loginAsManager(); // atau loginAsCustomerService(), loginAsTeller()
@@ -320,7 +320,7 @@ GET  /api/aml/status/{customerId}    # AML compliance status
 - **Schema Changes**: Update test scenarios ketika database schema changes
 - **Seed Data Updates**: Maintain alignment dengan migration files
 - **CSV Fixtures**: Keep test data current dengan business requirements
-- **Selenium Elements**: Update page objects ketika UI changes
+- **Functional Test Elements**: Update page objects ketika UI changes
 
 ### Test Data Management
 - **Isolation**: Each test suite uses independent test data

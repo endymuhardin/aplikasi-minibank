@@ -10,9 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Thread-safe test data factory for generating realistic test data in parallel execution.
- * Uses atomic counters and ThreadLocalRandom to ensure uniqueness and proper randomization
- * across parallel test threads.
+ * Test data factory for generating realistic test data.
+ * Uses atomic counters and ThreadLocalRandom to ensure uniqueness and proper randomization.
  */
 @UtilityClass
 @Slf4j
@@ -24,7 +23,7 @@ public class TestDataFactory {
     private static final AtomicLong accountNumberCounter = new AtomicLong(ThreadLocalRandom.current().nextLong(1000000000L, 9999999999L));
     private static final AtomicLong transactionCounter = new AtomicLong(ThreadLocalRandom.current().nextLong(1000000L, 9999999L));
     
-    // Thread-local Faker instances for better performance in parallel execution
+    // Thread-local Faker instance for better performance
     private static final ThreadLocal<Faker> faker = ThreadLocal.withInitial(() -> new Faker(Locale.forLanguageTag("id-ID")));
     
     /**
@@ -74,15 +73,6 @@ public class TestDataFactory {
         return "LF" + String.format("%04d", ThreadLocalRandom.current().nextInt(1000, 9999));
     }
     
-    /**
-     * Generates thread marker for test data cleanup
-     * Format: TEST_ + uppercased thread name with special chars replaced
-     */
-    public static String generateThreadMarker() {
-        return "TEST_" + Thread.currentThread().getName()
-                .replaceAll("[^a-zA-Z0-9]", "_")
-                .toUpperCase();
-    }
     
     // === BRANCH DATA GENERATION ===
     
@@ -308,29 +298,4 @@ public class TestDataFactory {
         return channels[ThreadLocalRandom.current().nextInt(channels.length)];
     }
     
-    // === LOGGING AND DEBUGGING ===
-    
-    /**
-     * Logs generation statistics for debugging parallel execution
-     */
-    public static void logGenerationStats() {
-        log.info("TestDataFactory Stats - Thread: {} | Branch: {} | Customer: {} | Account: {} | Transaction: {}",
-                Thread.currentThread().getName(),
-                branchCodeCounter.get(),
-                customerCodeCounter.get(), 
-                accountNumberCounter.get(),
-                transactionCounter.get());
-    }
-    
-    /**
-     * Resets all counters (useful for test isolation if needed)
-     * WARNING: Only call this in single-threaded test setup
-     */
-    public static void resetCounters() {
-        branchCodeCounter.set(ThreadLocalRandom.current().nextLong(1000, 9999));
-        customerCodeCounter.set(ThreadLocalRandom.current().nextLong(100000, 999999));
-        accountNumberCounter.set(ThreadLocalRandom.current().nextLong(1000000000L, 9999999999L));
-        transactionCounter.set(ThreadLocalRandom.current().nextLong(1000000L, 9999999L));
-        log.debug("TestDataFactory: Reset all counters");
-    }
 }

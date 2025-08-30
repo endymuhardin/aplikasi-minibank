@@ -28,18 +28,15 @@ src/
 └── test/
     ├── java/id/ac/tazkia/minibank/
     │   ├── config/                           # Test infrastructure configuration
-    │   │   ├── BaseIntegrationTest.java      # Schema isolation foundation
-    │   │   ├── TestSchemaInitializer.java    # ApplicationContextInitializer
-    │   │   ├── TestSchemaManager.java        # Schema management utilities
-    │   │   ├── TestDataFactory.java          # Thread-safe data generation
-    │   │   └── ThreadLocalSchemaCustomizer.java # HikariCP customization
-    │   ├── integration/                      # Schema-per-thread integration tests
-    │   │   ├── SchemaPerThreadJdbcTemplateTest.java # JDBC-level tests (8 tests)
-    │   │   ├── SchemaPerThreadJpaTest.java          # JPA-level tests (7 tests)
-    │   │   └── service/                             # Service layer tests
+    │   │   ├── BaseIntegrationTest.java      # Database test foundation
+    │   │   ├── BasePlaywrightTest.java       # Functional test foundation
+    │   │   └── TestDataFactory.java          # Test data generation utilities
+    │   ├── integration/                      # Database integration tests
+    │   │   ├── repository/                   # Repository tests with @DataJpaTest
+    │   │   └── service/                      # Service layer integration tests
     │   │       └── BranchServiceIntegrationTest.java
     └── resources/
-        └── junit-platform.properties        # JUnit 5 parallel configuration (75% factor)
+        └── application-test.properties      # Test-specific application configuration
 ```
 
 ### Package Naming Conventions

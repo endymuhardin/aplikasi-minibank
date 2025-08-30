@@ -1,6 +1,0 @@
-branchCode,branchName,managerName,city,status,isMainBranch,expectedResult,description
-TST001,Test Branch Jakarta,Test Manager,Jakarta,ACTIVE,false,Success,Valid branch creation
-TST002,Test Branch Surabaya,Test Manager 2,Surabaya,ACTIVE,false,Success,Second valid branch
-HO001,Jakarta Pusat,Manager Name,Jakarta,ACTIVE,false,Error,Duplicate branch code should fail
-,Missing Branch Name,Manager,Jakarta,ACTIVE,false,Error,Empty branch code should fail
-TST003,,Manager,Bandung,ACTIVE,false,Error,Empty branch name should fail

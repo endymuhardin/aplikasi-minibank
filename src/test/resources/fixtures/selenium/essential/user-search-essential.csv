@@ -1,6 +1,0 @@
-searchTerm,expectedResults,description
-admin,Found admin user,Search for admin user
-manager,Found manager users,Search for manager users
-teller,Found teller users,Search for teller users
-cs,Found customer service users,Search for customer service users
-nonexistent,No users found,Search for non-existent user

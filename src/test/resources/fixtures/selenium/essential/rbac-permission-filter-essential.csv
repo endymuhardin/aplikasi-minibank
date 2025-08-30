@@ -1,8 +1,0 @@
-category,expectedResults,description
-CUSTOMER,Found permissions,Filter by customer category
-ACCOUNT,Found permissions,Filter by account category
-TRANSACTION,Found permissions,Filter by transaction category
-USER,Found permissions,Filter by user category
-REPORT,Found permissions,Filter by report category
-AUDIT,Found permissions,Filter by audit category
-NONEXISTENT,No permissions found,Filter by non-existent category

@@ -1,6 +1,0 @@
-accountNumber,closureReason,expectedResult,testDescription
-ACC8000000001,Customer requested closure,Success,Valid account closure with zero balance
-ACC8000000002,Account no longer needed,Success,Business account closure
-ACC8000000003,Switching to different bank,Success,Personal account closure
-ACC8000000004,Consolidating accounts,Success,Multiple account consolidation
-ACC8000000005,,Success,Account closure without reason

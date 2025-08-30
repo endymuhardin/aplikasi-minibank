@@ -24,7 +24,7 @@
 - **Spring Boot Test** (Integration testing)
 - **TestContainers** (Container-based testing)
 - **Karate 1.4.1** (BDD API testing)
-- **Selenium** (Web UI testing)
+- **Playwright** (Web UI testing)
 - **JaCoCo 0.8.12** (Code coverage)
 - **OpenCSV 5.9** (CSV test data)
 - **Apache Commons Lang3 3.12.0** (Utility functions)

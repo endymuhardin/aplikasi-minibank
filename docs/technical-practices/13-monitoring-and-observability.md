@@ -26,10 +26,8 @@ public class CustomerService {
 public class BaseIntegrationTest {
     
     @BeforeAll
-    static void setUpSchema() {
-        schemaName = TestSchemaManager.generateSchemaName();
-        log.info("BaseIntegrationTest setUpSchema: Generated schema {} for thread {}", 
-                schemaName, Thread.currentThread().getName());
+    static void setUpDatabase() {
+        log.info("BaseIntegrationTest setUpDatabase: Initializing test database");
         
         // Schema creation and migration setup...
         

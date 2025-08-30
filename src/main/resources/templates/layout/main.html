@@ -92,7 +92,7 @@
                     <div class="h-8 w-8 rounded-full bg-bsi-primary flex items-center justify-center">
                         <span class="text-white text-sm font-semibold" sec:authentication="name" th:text="${#authentication != null and #authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</span>
                     </div>
-                    <div class="text-left hidden md:block">
+                    <div id="user-info" class="text-left hidden md:block">
                         <p id="header-username" class="text-gray-700 font-medium text-sm" sec:authentication="principal.username" data-testid="current-username">Username</p>
                         <p id="header-role" class="text-gray-500 text-xs" th:text="${currentUserRoleName ?: 'User'}">User</p>
                     </div>

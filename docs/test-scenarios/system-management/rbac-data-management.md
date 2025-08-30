@@ -8,7 +8,7 @@ Dokumen ini berisi skenario test untuk Role-Based Access Control (RBAC) data man
 - Aplikasi Spring Boot aktif
 - User sudah login sebagai Branch Manager atau System Administrator
 - RBAC seed data tersedia dari migration files
-- Selenium test infrastructure configured
+- Functional test infrastructure configured
 
 ## Existing Seed Data Reference
 
@@ -49,7 +49,7 @@ CONFIG_VIEW,CONFIG_UPDATE
 ### TC-RBAC-001: View User List - Happy Path
 **Deskripsi**: Menampilkan daftar semua system users dengan role information
 
-**Test Data** (sesuai RbacManagementSeleniumTest):
+**Test Data** (sesuai RbacManagementFunctionalTest):
 - User: Branch Manager (has USER_VIEW permission)
 - Expected Users: 9 users dari seed data (admin, manager1-2, teller1-3, cs1-3)
 
@@ -646,9 +646,9 @@ curl -X GET "http://localhost:8080/api/audit/rbac?from=2024-01-01&to=2024-01-31"
   -H "Authorization: Bearer <token>"
 ```
 
-## Selenium Test Integration
+## Functional Test Integration
 
-### Page Object Model (sesuai RbacManagementSeleniumTest)
+### Page Object Model (sesuai RbacManagementFunctionalTest)
 ```java
 // UserListPage elements
 @FindBy(id = "user-table")
@@ -714,7 +714,7 @@ void shouldVerifyRolePermissions(String roleCode, String permissionCode, String 
 
 ### Login Helper Integration (sesuai existing pattern)
 ```java
-// RbacManagementSeleniumTest login pattern
+// RbacManagementFunctionalTest login pattern
 @Override
 protected void performInitialLogin() {
     // Login sebagai Manager yang has full USER dan ROLE permissions
@@ -785,7 +785,7 @@ GROUP BY id_users, id_roles
 HAVING COUNT(*) > 1;
 ```
 
-## Integration dengan Existing Selenium Tests
+## Integration dengan Existing Functional Tests
 
 ### SQL Test Data Setup (sesuai @Sql annotations)
 ```java
@@ -796,7 +796,7 @@ HAVING COUNT(*) > 1;
 ```
 
 ### Dependency pada Existing Test Infrastructure
-- **BaseSeleniumTest**: Extends untuk common setup
+- **BasePlaywrightTest**: Extends untuk common setup
 - **LoginHelper**: Uses existing login automation
 - **CSV Fixtures**: Leverages existing test data files
 - **Page Object Model**: Follows established patterns
