@@ -223,7 +223,44 @@ aplikasi-minibank/
 │       ├── karate/                       # Karate BDD tests
 │       └── sql/                          # SQL setup/cleanup scripts
 └── docs/                                 # Project documentation
+    ├── user-manual/                        # Auto-generated user manuals
+    ├── TESTING.md                         # Testing guide
+    └── GITHUB_PAGES_SETUP.md              # GitHub Pages configuration
 ```
+
+## 📚 Documentation
+
+### User Manual Generation
+
+This project includes automated Indonesian user manual generation using Playwright:
+
+```bash
+# Generate complete user documentation
+./scripts/generate-user-manual.sh --fast
+
+# View generated documentation
+open docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md
+```
+
+### GitHub Pages Deployment
+
+Documentation is automatically deployed to GitHub Pages on every push to main:
+
+- **Live Documentation**: `https://<username>.github.io/<repository>/`
+- **Setup Guide**: See `docs/GITHUB_PAGES_SETUP.md`
+- **Features**: 
+  - ✅ Auto-generated screenshots from Playwright tests
+  - ✅ Step-by-step video tutorials
+  - ✅ Professional Indonesian banking documentation
+  - ✅ Mobile-responsive web interface
+
+### Workflow Overview
+
+1. **Push to Main** → Triggers GitHub Actions
+2. **Run Tests** → Execute Playwright documentation tests
+3. **Capture Media** → Screenshots & videos of CS workflow
+4. **Generate Manual** → Indonesian user manual with proper terminology
+5. **Deploy Pages** → Publish to GitHub Pages for public access
 
 ## 🤝 Contributing
 
