@@ -25,14 +25,6 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <!-- Validation errors -->
-            <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <div class="font-medium mb-2">Harap perbaiki kesalahan berikut:</div>
-                <ul class="list-disc list-inside space-y-1">
-                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
-                </ul>
-            </div>
-
             <!-- Account Information Section -->
             <div class="bg-gray-50 rounded-lg p-4 mb-6">
                 <h2 id="account-info-title" class="text-lg font-semibold text-gray-800 mb-3">Informasi Rekening</h2>
@@ -64,6 +56,14 @@
             <!-- Cash Withdrawal Form -->
             <form th:action="@{/transaction/cash-withdrawal}" th:object="${withdrawalRequest}" method="post" class="space-y-6">
                 <input type="hidden" th:field="*{accountId}">
+                
+                <!-- Validation errors -->
+                <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <div class="font-medium mb-2">Harap perbaiki kesalahan berikut:</div>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                    </ul>
+                </div>
                 
                 <!-- Amount -->
                 <div>

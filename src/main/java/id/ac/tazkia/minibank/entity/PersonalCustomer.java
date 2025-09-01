@@ -41,6 +41,26 @@ public class PersonalCustomer extends Customer {
     @Column(name = "identity_type", nullable = false, length = 20)
     private IdentityType identityType;
     
+    @Size(max = 100, message = "Birth place must not exceed 100 characters")
+    @Column(name = "birth_place", length = 100)
+    private String birthPlace;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 10)
+    private Gender gender;
+    
+    @Size(max = 100, message = "Mother name must not exceed 100 characters")
+    @Column(name = "mother_name", length = 100)
+    private String motherName;
+    
+    @Size(max = 100, message = "Province must not exceed 100 characters")
+    @Column(name = "province", length = 100)
+    private String province;
+    
+    public enum Gender {
+        MALE, FEMALE
+    }
+    
     @Override
     public CustomerType getCustomerType() {
         return CustomerType.PERSONAL;

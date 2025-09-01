@@ -1,0 +1,9 @@
+accountIdentifier,amount,description,channel,expectedResult
+A2000001,500000,Cash Deposit - Branch,TELLER,SUCCESS
+A2000001,250000,ATM Cash Deposit,ATM,SUCCESS
+A2000002,300000,Online Transfer Deposit,ONLINE,SUCCESS
+A2000002,100000,Mobile Banking Deposit,MOBILE,SUCCESS
+A2000003,200000,Personal Cash Deposit,TELLER,SUCCESS
+A2000004,150000,Inter-bank Transfer,TRANSFER,SUCCESS
+A2000005,750000,Corporate Cash Deposit,TELLER,SUCCESS
+A2000005,1000000,Corporate Transfer,TRANSFER,SUCCESS

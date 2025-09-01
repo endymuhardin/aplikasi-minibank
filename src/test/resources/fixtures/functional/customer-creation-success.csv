@@ -1,0 +1,7 @@
+customerType,name,identityNumber,identityType,birthDate,birthPlace,gender,motherName,email,phone,address,city,province,postalCode,companyName,npwp,sib
+PERSONAL,Budi Santoso,3271081503900001,KTP,1990-03-15,Jakarta,MALE,Siti Aminah,budi.santoso@email.com,081234567890,Jl. Merdeka No. 123,Jakarta Selatan,DKI Jakarta,12345,,,
+PERSONAL,Dewi Lestari,3271082207950002,KTP,1995-07-22,Bandung,FEMALE,Ratna Sari,dewi.lestari@email.com,081234567891,Jl. Sudirman No. 456,Jakarta Pusat,DKI Jakarta,10110,,,
+PERSONAL,Ahmad Fauzi,3271081010880003,KTP,1988-10-10,Surabaya,MALE,Fatimah,ahmad.fauzi@email.com,081234567892,Jl. Gatot Subroto No. 789,Jakarta Timur,DKI Jakarta,13450,,,
+CORPORATE,,,,,,,,,pt.teknologi@email.com,021-5551234,Jl. TB Simatupang No. 100,Jakarta Selatan,DKI Jakarta,12560,PT. Teknologi Inovatif,01.234.567.8-901.001,12345678901234
+CORPORATE,,,,,,,,,cv.maju@email.com,021-5551235,Jl. Kuningan No. 200,Jakarta Selatan,DKI Jakarta,12940,CV. Maju Bersama,01.234.567.8-901.002,12345678901235
+CORPORATE,,,,,,,,,pt.global@email.com,021-5551236,Jl. Rasuna Said No. 300,Jakarta Pusat,DKI Jakarta,10350,PT. Global Sejahtera,01.234.567.8-901.003,12345678901236

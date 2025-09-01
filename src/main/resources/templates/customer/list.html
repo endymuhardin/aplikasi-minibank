@@ -82,20 +82,20 @@
                     </thead>
                     <tbody id="search-results" class="bg-white divide-y divide-gray-200">
                         <tr th:each="customer : ${customers.content}" th:id="'customer-' + ${customer.customerNumber}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerNumber}">
+                            <td th:id="'customer-number-' + ${customer.customerNumber}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerNumber}">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.displayName}">
+                            <td th:id="'customer-name-' + ${customer.customerNumber}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.displayName}">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.email}">
+                            <td th:id="'customer-email-' + ${customer.customerNumber}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.email}">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerType}">
+                            <td th:id="'customer-type-' + ${customer.customerNumber}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${customer.customerType}">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm status">
                                 <span th:id="'status-' + ${customer.customerNumber}"
                                       th:class="${customer.status == T(id.ac.tazkia.minibank.entity.Customer$CustomerStatus).ACTIVE ? 'text-green-600' : 'text-red-600'}"
                                       th:text="${customer.status == T(id.ac.tazkia.minibank.entity.Customer$CustomerStatus).ACTIVE ? 'Active' : 'Inactive'}"></span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td th:id="'customer-actions-' + ${customer.customerNumber}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <div class="flex space-x-2">
                                     <a th:id="'view-' + ${customer.customerNumber}"
                                        th:href="@{/customer/view/{id}(id=${customer.id})}" 
@@ -125,8 +125,8 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr th:if="${customers.content.empty}">
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <tr id="no-customers-row" th:if="${customers.content.empty}">
+                            <td id="no-customers-message" colspan="6" class="px-6 py-4 text-center text-gray-500">
                                 No customers found.
                             </td>
                         </tr>

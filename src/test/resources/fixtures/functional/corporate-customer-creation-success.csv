@@ -1,0 +1,4 @@
+companyName,companyRegistrationNumber,taxIdentificationNumber,contactPersonName,contactPersonTitle,email,phone,address,city,postalCode,country
+PT. Teknologi Inovatif,12345678901234,01.234.567.8-901.001,John Doe,Director,pt.teknologi@email.com,021-5551234,Jl. TB Simatupang No. 100,Jakarta Selatan,12560,Indonesia
+CV. Maju Bersama,12345678901235,01.234.567.8-901.002,Jane Smith,Manager,cv.maju@email.com,021-5551235,Jl. Kuningan No. 200,Jakarta Selatan,12940,Indonesia
+PT. Global Sejahtera,12345678901236,01.234.567.8-901.003,Robert Johnson,CEO,pt.global@email.com,021-5551236,Jl. Rasuna Said No. 300,Jakarta Pusat,10350,Indonesia

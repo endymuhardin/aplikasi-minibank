@@ -1,0 +1,4 @@
+name,identityNumber,identityType,birthDate,birthPlace,gender,motherName,email,phone,address,city,province,postalCode
+Budi Santoso,3271081503900001,KTP,1990-03-15,Jakarta,MALE,Siti Aminah,budi.santoso@email.com,081234567890,Jl. Merdeka No. 123,Jakarta Selatan,DKI Jakarta,12345
+Dewi Lestari,3271082207950002,KTP,1995-07-22,Bandung,FEMALE,Ratna Sari,dewi.lestari@email.com,081234567891,Jl. Sudirman No. 456,Jakarta Pusat,DKI Jakarta,10110
+Ahmad Fauzi,3271081010880003,KTP,1988-10-10,Surabaya,MALE,Fatimah,ahmad.fauzi@email.com,081234567892,Jl. Gatot Subroto No. 789,Jakarta Timur,DKI Jakarta,13450

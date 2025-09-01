@@ -92,7 +92,7 @@
                                     th:class="${transactionType == 'withdrawal'} ? 'px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors' : 
                                               (${transactionType == 'transfer'} ? 'px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors' : 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors')"
                                     th:data-account-id="${account.id}"
-                                    onclick="selectAccountFromButton(this)"
+                                    onclick="selectAccountFromButton(this)">
                                 Pilih Rekening
                             </button>
                         </div>
@@ -140,30 +140,30 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script th:inline="javascript">
-        const transactionType = /*[[${transactionType}]]*/ 'deposit';
         
-        function selectAccount(accountId) {
-            if (transactionType === 'withdrawal') {
-                window.location.href = '/transaction/cash-withdrawal/' + accountId;
-            } else if (transactionType === 'transfer') {
-                window.location.href = '/transaction/transfer/' + accountId;
-            } else {
-                window.location.href = '/transaction/cash-deposit/' + accountId;
+        <script th:inline="javascript">
+            const transactionType = /*[[${transactionType}]]*/ 'deposit';
+            
+            function selectAccount(accountId) {
+                if (transactionType === 'withdrawal') {
+                    window.location.href = '/transaction/cash-withdrawal/' + accountId;
+                } else if (transactionType === 'transfer') {
+                    window.location.href = '/transaction/transfer/' + accountId;
+                } else {
+                    window.location.href = '/transaction/cash-deposit/' + accountId;
+                }
             }
-        }
-        
-        function selectAccountFromCard(cardElement) {
-            const accountId = cardElement.getAttribute('data-account-id');
-            selectAccount(accountId);
-        }
-        
-        function selectAccountFromButton(buttonElement) {
-            const accountId = buttonElement.getAttribute('data-account-id');
-            selectAccount(accountId);
-        }
-    </script>
+            
+            function selectAccountFromCard(cardElement) {
+                const accountId = cardElement.getAttribute('data-account-id');
+                selectAccount(accountId);
+            }
+            
+            function selectAccountFromButton(buttonElement) {
+                const accountId = buttonElement.getAttribute('data-account-id');
+                selectAccount(accountId);
+            }
+        </script>
+    </div>
 </body>
 </html>

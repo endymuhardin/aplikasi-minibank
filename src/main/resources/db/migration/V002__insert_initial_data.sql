@@ -11,7 +11,7 @@ INSERT INTO branches (
 
 -- Initialize sequence numbers
 INSERT INTO sequence_numbers (sequence_name, last_number, prefix) VALUES 
-    ('CUSTOMER_NUMBER', 1000000, 'C'),
+    ('CUSTOMER_NUMBER', 1000010, 'C'),
     ('ACCOUNT_NUMBER', 2000000, 'A'),
     ('TRANSACTION_NUMBER', 3000000, 'T');
 
@@ -103,24 +103,39 @@ INSERT INTO products (
  50, 3000,
  true, true,
  25, 'PERSONAL',
- 'KTP, NPWP, Slip Gaji, Rekening Koran', CURRENT_DATE, 'SYSTEM');
+ 'KTP, NPWP, Slip Gaji, Rekening Koran', CURRENT_DATE, 'SYSTEM'),
+
+-- Giro Wadiah Corporate
+('GIR001', 'Giro Wadiah Corporate', 'TABUNGAN_WADIAH', 'Giro Syariah',
+ 'Rekening giro dengan akad wadiah untuk kebutuhan operasional perusahaan',
+ true, false, 'IDR',
+ 1000000, 500000, NULL,
+ 50000000, 500,
+ 0.0250, 'WADIAH', 'MONTHLY',
+ NULL, NULL, true,
+ 15000, 2500, 5000,
+ 25000, 0,
+ 50, 5000,
+ false, true,
+ NULL, 'CORPORATE',
+ 'Akta Pendirian, SIUP, TDP, NPWP, Surat Kuasa', CURRENT_DATE, 'SYSTEM');
 
 -- Sample personal customers data - first insert into base customers table
 INSERT INTO customers (
     id, customer_type, customer_number, id_branches, email, phone_number, 
-    address, city, postal_code, created_by
+    address, city, postal_code, status, created_by
 ) VALUES 
 (gen_random_uuid(), 'PERSONAL', 'C1000001', '01234567-8901-2345-6789-012345678901', 'ahmad.suharto@email.com', '081234567890', 
- 'Jl. Sudirman No. 123', 'Jakarta', '10220', 'SYSTEM'),
+ 'Jl. Sudirman No. 123', 'Jakarta', '10220', 'ACTIVE', 'SYSTEM'),
 
 (gen_random_uuid(), 'PERSONAL', 'C1000002', '01234567-8901-2345-6789-012345678902', 'siti.nurhaliza@email.com', '081234567891', 
- 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'SYSTEM'),
+ 'Jl. Thamrin No. 456', 'Jakarta', '10230', 'ACTIVE', 'SYSTEM'),
 
 (gen_random_uuid(), 'PERSONAL', 'C1000004', '01234567-8901-2345-6789-012345678903', 'budi.santoso@email.com', '081234567892', 
- 'Jl. Gatot Subroto No. 321', 'Jakarta', '12930', 'SYSTEM'),
+ 'Jl. Gatot Subroto No. 321', 'Jakarta', '12930', 'ACTIVE', 'SYSTEM'),
 
 (gen_random_uuid(), 'PERSONAL', 'C1000006', '01234567-8901-2345-6789-012345678904', 'dewi.lestari@email.com', '081234567893', 
- 'Jl. MH Thamrin No. 654', 'Jakarta', '10350', 'SYSTEM');
+ 'Jl. MH Thamrin No. 654', 'Jakarta', '10350', 'ACTIVE', 'SYSTEM');
 
 -- Insert personal customer specific data
 INSERT INTO personal_customers (
@@ -134,13 +149,56 @@ INSERT INTO personal_customers (
 -- Sample corporate customers data - first insert into base customers table  
 INSERT INTO customers (
     id, customer_type, customer_number, id_branches, email, phone_number, 
-    address, city, postal_code, created_by
+    address, city, postal_code, status, created_by
 ) VALUES 
 (gen_random_uuid(), 'CORPORATE', 'C1000003', '01234567-8901-2345-6789-012345678901', 'info@teknologimaju.com', '02123456789', 
- 'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'SYSTEM');
+ 'Jl. HR Rasuna Said No. 789', 'Jakarta', '12950', 'ACTIVE', 'SYSTEM');
 
 -- Insert corporate customer specific data
 INSERT INTO corporate_customers (
     id, company_name, company_registration_number, tax_identification_number
 ) VALUES 
 ((SELECT id FROM customers WHERE customer_number = 'C1000003'), 'PT. Teknologi Maju', '1234567890123456', '01.234.567.8-901.000');
+
+-- Sample accounts for testing
+INSERT INTO accounts (
+    id, account_number, account_name, id_customers, id_products, id_branches, 
+    balance, status, opened_date, created_by
+) VALUES 
+-- Personal customers accounts
+(gen_random_uuid(), 'A2000001', 'Ahmad Suharto - Tabungan Wadiah', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000001'), 
+ (SELECT id FROM products WHERE product_code = 'TAB001'),
+ '01234567-8901-2345-6789-012345678901',
+ 1000000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM'),
+
+(gen_random_uuid(), 'A2000002', 'Siti Nurhaliza - Tabungan Mudharabah', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000002'), 
+ (SELECT id FROM products WHERE product_code = 'TAB002'),
+ '01234567-8901-2345-6789-012345678902',
+ 2500000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM'),
+
+(gen_random_uuid(), 'A2000003', 'Budi Santoso - Tabungan Wadiah', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000004'), 
+ (SELECT id FROM products WHERE product_code = 'TAB001'),
+ '01234567-8901-2345-6789-012345678903',
+ 750000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM'),
+
+(gen_random_uuid(), 'A2000004', 'Dewi Lestari - Tabungan Mudharabah', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000006'), 
+ (SELECT id FROM products WHERE product_code = 'TAB002'),
+ '01234567-8901-2345-6789-012345678904',
+ 3200000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM'),
+
+-- Corporate customer accounts
+(gen_random_uuid(), 'A2000005', 'PT. Teknologi Maju - Giro Wadiah Corporate', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000003'), 
+ (SELECT id FROM products WHERE product_code = 'GIR001'),
+ '01234567-8901-2345-6789-012345678901',
+ 5000000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM'),
+ 
+(gen_random_uuid(), 'A2000006', 'PT. Teknologi Maju - Pembiayaan Murabahah', 
+ (SELECT id FROM customers WHERE customer_number = 'C1000003'), 
+ (SELECT id FROM products WHERE product_code = 'PEM001'),
+ '01234567-8901-2345-6789-012345678901',
+ 10000000.00, 'ACTIVE', CURRENT_DATE, 'SYSTEM');

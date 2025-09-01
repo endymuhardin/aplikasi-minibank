@@ -56,10 +56,10 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 ### Development & Testing
 - **Docker Compose** - Development environment
 - **JUnit 5** - Unit testing framework
-- **Karate 1.4.1** - API integration testing
-- **Selenium** - Web UI testing
-- **JaCoCo 0.8.12** - Code coverage
 - **TestContainers** - Integration testing with containers
+- **Playwright** - Modern web UI automation with cross-browser support
+- **Karate 1.4.1** - API integration testing (planned)
+- **JaCoCo 0.8.12** - Code coverage analysis
 
 ### Build & CI/CD
 - **Maven 3.8+** - Build tool
@@ -125,24 +125,29 @@ mvn spring-boot:run
 
 ## 🧪 Testing Status & Coverage
 
-### ✅ Test Implementation Progress
+### ✅ Test Implementation Progress  
 | Test Type | Coverage | Status | Test Classes |
 |-----------|----------|--------|-------------|
-| **Unit Tests** | ✅ Complete | 🟢 Active | Entity, Repository, Service layer tests |
-| **Integration Tests (Karate)** | ✅ Complete | 🟢 Active | API endpoint testing with BDD scenarios |
-| **Selenium UI Tests** | ✅ Complete | 🟢 Active | 12 essential test classes with comprehensive coverage |
-| **Parallel Test Execution** | ✅ Implemented | 🟢 Optimized | Thread-safe Selenium with TestContainers |
+| **Unit Tests** | 🚧 Planned | 🟡 Pending | Entity, Repository, Service layer tests |
+| **Integration Tests** | 🚧 Planned | 🟡 Pending | Database integration and business logic tests |
+| **Playwright Functional Tests** | ✅ P0 Complete | 🟢 Active | 3 critical success scenario test classes |
+| **API Integration Tests (Karate)** | 🚧 Planned | 🟡 Pending | API endpoint testing with BDD scenarios |
 
-### 🎯 Selenium Test Coverage
-- **Login & Authentication** - Login flows and RBAC validation
-- **Customer Management** - Personal/Corporate customer CRUD operations  
-- **Account Management** - Account opening, status management, **account closure workflows**
-- **Transaction Processing** - Cash deposits, withdrawals, transfers
-- **Islamic Banking Products** - Product management and configuration
-- **Passbook Services** - Passbook printing and transaction history
-- **PDF Statement Generation** - **Account statement PDF generation and download** 
-- **User & Permission Management** - RBAC administration, role assignments
-- **Dashboard & Navigation** - Main dashboard and navigation flows
+### 🎯 Playwright Test Coverage (Phase 1 Complete - Enhanced)
+#### ✅ **P0 Critical Success Scenarios - IMPLEMENTED & ENHANCED**
+- **CustomerManagementSuccessTest** - 13 test methods covering customer CRUD operations, search functionality, navigation workflows, and comprehensive form testing with separated CSV fixtures
+- **AccountOpeningSuccessTest** - 10 test methods for account opening workflows and Islamic banking compliance
+- **TransactionSuccessTest** - 11 test methods for transaction processing, multi-channel support, and balance validation
+
+**Total**: 34 test methods across 3 test classes with improved reliability, enhanced element locators, and proper setup/cleanup
+
+#### 🚧 **Planned Implementation (Phase 2+)**
+- **Account Opening Workflows** - Complete account creation flows for Islamic banking products
+- **Transaction Processing** - End-to-end cash deposits, withdrawals, transfers  
+- **RBAC Management** - User management, role assignments, permissions
+- **Customer Management** - Complete CRUD operations for personal/corporate customers
+- **Islamic Banking Products** - Product management and nisbah configuration
+- **PDF Generation** - Statement and receipt generation workflows
 
 ### Running Tests
 
@@ -158,30 +163,40 @@ mvn test jacoco:report
 mvn test -Dtest=AccountRepositoryTest
 ```
 
-#### Integration Tests (Karate)
+#### Playwright Functional Tests
+```bash
+# Run all Playwright functional tests
+mvn test -Dtest=**/functional/**/*Test
+
+# Run specific success scenario tests  
+mvn test -Dtest=CustomerManagementSuccessTest
+mvn test -Dtest=AccountOpeningSuccessTest
+mvn test -Dtest=TransactionSuccessTest
+
+# Run with visible browser (debugging)
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false
+
+# Run with video recording enabled
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true
+
+# Run with slow motion for better observation
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.slowmo=500
+
+# Ultimate debugging: visible + slow + recorded
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.slowmo=1000 -Dplaywright.record=true
+
+# Cross-browser testing
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=firefox
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=webkit
+```
+
+#### API Integration Tests (Planned)
 ```bash
 # Run API integration tests
 mvn test -Dtest=DepositTest
 
-# Run customer registration tests
+# Run customer registration tests  
 mvn test -Dtest=CustomerRegistrationTest
-```
-
-#### Selenium UI Tests
-```bash
-# Run specific essential tests
-mvn test -Dtest=CustomerManagementEssentialTest
-mvn test -Dtest=AccountClosureEssentialTest        # NEW: Account closure testing
-mvn test -Dtest=StatementPdfEssentialTest         # NEW: PDF statement testing
-
-# Run with visible browser (debugging)
-mvn test -Dtest=*EssentialTest -Dselenium.headless=false
-
-# Run with recording enabled
-mvn test -Dtest=ProductManagementSeleniumTest -Dselenium.recording.enabled=true
-
-# Run parallel tests with optimized containers
-mvn test -Dtest=*SeleniumTest
 ```
 
 ## 🏗️ Project Structure

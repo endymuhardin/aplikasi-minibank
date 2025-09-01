@@ -114,6 +114,7 @@ public class TransactionController {
         
         model.addAttribute("accounts", accounts);
         model.addAttribute("search", search);
+        model.addAttribute("transactionType", "deposit");
         return "transaction/select-account";
     }
     

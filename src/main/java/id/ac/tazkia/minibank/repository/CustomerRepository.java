@@ -19,13 +19,24 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     
     Optional<Customer> findByEmail(String email);
     
+    // Simple search by customer number or email (works for all customer types)
     @Query("SELECT c FROM Customer c WHERE " +
-           "(:searchTerm IS NULL OR " +
            "LOWER(c.customerNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(c.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+           "LOWER(c.email) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Customer> findCustomersWithSearchTerm(@Param("searchTerm") String searchTerm);
     
-    // Pageable search methods for web interface
+    // Enhanced search for web interface - includes customer number, email, and personal/corporate customer names
+    @Query("SELECT DISTINCT c FROM Customer c " +
+           "LEFT JOIN PersonalCustomer pc ON c.id = pc.id " +
+           "LEFT JOIN CorporateCustomer cc ON c.id = cc.id " +
+           "WHERE LOWER(c.customerNumber) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(c.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(CONCAT(pc.firstName, ' ', pc.lastName)) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(pc.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(pc.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(cc.companyName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    Page<Customer> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+    
     Page<Customer> findByCustomerNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
         String customerNumber, String email, Pageable pageable);
     

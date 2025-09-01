@@ -1,0 +1,3 @@
+accountIdentifier,amount,description,channel,expectedResult
+A2000005,750000,Corporate Cash Deposit,TELLER,SUCCESS
+A2000005,1000000,Corporate Transfer,TRANSFER,SUCCESS

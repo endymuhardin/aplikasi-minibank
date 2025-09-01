@@ -52,7 +52,7 @@ mvn test -Dtest=**/functional/success/*Test
 mvn test -Dtest=**/functional/alternate/*Test
 
 # Run specific functional test class
-mvn test -Dtest=**/functional/**/ProductManagementSuccessTest
+mvn test -Dtest=**/functional/**/CustomerManagementSuccessTest
 
 # Run functional tests with visible browser window (for debugging)
 mvn test -Dtest=**/functional/**/*Test -Dplaywright.headless=false
@@ -63,8 +63,23 @@ mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=firefox
 # Run functional tests with WebKit (Safari engine)
 mvn test -Dtest=**/functional/**/*Test -Dplaywright.browser=webkit
 
+# Run functional tests with video recording enabled
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true
+
+# Run functional tests with custom recording directory
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true -Dplaywright.record.dir=test-recordings
+
 # Combined options for functional debugging
 mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.browser=chromium
+
+# Combined options with recording for debugging
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.record=true
+
+# Run tests with slow motion for better observation (500ms delay between actions)
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.slowmo=500
+
+# Ultimate debugging setup: visible, slow, recorded
+mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.slowmo=1000 -Dplaywright.record=true
 
 # Test Execution Profiles
 # Sequential execution (default - single threaded, easier debugging)
@@ -91,6 +106,9 @@ The application uses **2 simplified test profiles**:
 |---------|---------|------------------|
 | **Browser** | Chromium | `-Dplaywright.browser=firefox` |
 | **Headless** | true | `-Dplaywright.headless=false` |
+| **Slow Motion** | 0ms | `-Dplaywright.slowmo=500` |
+| **Recording** | false | `-Dplaywright.record=true` |
+| **Recording Directory** | target/playwright-recordings | `-Dplaywright.record.dir=test-recordings` |
 | **Test Pattern** | All | `-Dtest=**/functional/success/*Test` |
 
 ### Functional Test Types
@@ -100,6 +118,16 @@ The application uses **2 simplified test profiles**:
 | **functional** | All scenarios (success + alternate) | `mvn test -Dtest=**/functional/**/*Test` |
 | **functional-success** | Success scenarios (happy paths) | `mvn test -Dtest=**/functional/success/*Test` |
 | **functional-alternate** | Alternate scenarios (edge cases, errors) | `mvn test -Dtest=**/functional/alternate/*Test` |
+
+### Debugging Features
+
+| Feature | Purpose | Usage |
+|---------|---------|-------|
+| **Visible Browser** | Watch test execution in real browser | `-Dplaywright.headless=false` |
+| **Slow Motion** | Slow down actions for better observation | `-Dplaywright.slowmo=500` (500ms delay) |
+| **Video Recording** | Record test execution for analysis | `-Dplaywright.record=true` |
+| **Custom Recording Dir** | Specify recording output directory | `-Dplaywright.record.dir=my-recordings` |
+| **Cross-Browser Testing** | Test on different browser engines | `-Dplaywright.browser=firefox` or `webkit` |
 
 ### Database Operations
 ```bash
