@@ -1,5 +1,9 @@
 package id.ac.tazkia.minibank.util;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -11,7 +15,7 @@ import java.util.stream.Collectors;
  * Generator for Indonesian user manual documentation based on Playwright test screenshots and videos.
  * 
  * This utility creates comprehensive user manuals by analyzing generated screenshots and videos
- * from documentation tests and producing markdown-formatted guides in Indonesian.
+ * from documentation tests and producing markdown-formatted guides in Indonesian using Mustache templates.
  */
 public class UserManualGenerator {
     
@@ -23,11 +27,13 @@ public class UserManualGenerator {
     private final Path screenshotPath;
     private final Path videoPath;
     private final Path outputPath;
+    private final MustacheFactory mustacheFactory;
     
     public UserManualGenerator() {
         this.screenshotPath = Paths.get(SCREENSHOT_DIR);
         this.videoPath = Paths.get(VIDEO_DIR);
         this.outputPath = Paths.get(OUTPUT_DIR);
+        this.mustacheFactory = new DefaultMustacheFactory();
     }
     
     public static void main(String[] args) {
@@ -54,8 +60,8 @@ public class UserManualGenerator {
         // Copy screenshots and videos to output directory for simpler paths
         copyMediaFiles(media);
         
-        // Generate markdown content
-        String markdown = generateMarkdownContent(media);
+        // Generate markdown content using Mustache template
+        String markdown = generateMarkdownFromTemplate(media);
         
         // Write to file
         Path outputFilePath = outputPath.resolve(OUTPUT_FILE);
@@ -118,116 +124,43 @@ public class UserManualGenerator {
         return new MediaFiles(screenshots, videos);
     }
     
-    private String generateMarkdownContent(MediaFiles media) {
-        StringBuilder markdown = new StringBuilder();
+    private String generateMarkdownFromTemplate(MediaFiles media) {
+        try {
+            Mustache template = mustacheFactory.compile("templates/user-manual/panduan-template.mustache");
+            
+            Map<String, Object> templateData = createTemplateData(media);
+            
+            StringWriter writer = new StringWriter();
+            template.execute(writer, templateData);
+            
+            return writer.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating markdown from template", e);
+        }
+    }
+    
+    private Map<String, Object> createTemplateData(MediaFiles media) {
+        Map<String, Object> data = new HashMap<>();
         
-        markdown.append(generateHeader());
-        markdown.append(generateTableOfContents());
-        markdown.append(generateOverview());
-        markdown.append(generatePrerequisites());
-        markdown.append(generateSteps(media.screenshots));
-        markdown.append(generateVideoSection(media.videos));
-        markdown.append(generateTipsSection());
-        markdown.append(generateTroubleshootingSection());
-        markdown.append(generateFooter());
+        // Basic info
+        data.put("dateCreated", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"))));
         
-        return markdown.toString();
-    }
-    
-    private String generateHeader() {
-        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy", 
-            new Locale("id", "ID")));
+        // Steps data
+        data.put("steps", createStepsData(media.screenshots));
         
-        return String.format("""
-# Panduan Pembukaan Rekening Nasabah Personal untuk Customer Service
-
-**Aplikasi Minibank - Sistem Perbankan Syariah**
-
----
-
-**Tanggal Pembuatan:** %s  
-**Versi:** 1.0  
-**Target Pengguna:** Customer Service (CS)  
-**Status:** Aktif  
-
----
-
-""", today);
-    }
-    
-    private String generateTableOfContents() {
-        return """
-## Daftar Isi
-
-1. [Gambaran Umum](#gambaran-umum)
-2. [Prasyarat](#prasyarat)
-3. [Langkah-langkah Detail](#langkah-langkah-detail)
-   1. [Langkah 1: Login ke Sistem](#langkah-1-login-ke-sistem)
-   2. [Langkah 2: Navigasi ke Menu Customer Management](#langkah-2-navigasi-ke-menu-customer-management)
-   3. [Langkah 3: Memulai Pembuatan Nasabah Baru](#langkah-3-memulai-pembuatan-nasabah-baru)
-   4. [Langkah 4: Mengisi Informasi Pribadi](#langkah-4-mengisi-informasi-pribadi)
-   5. [Langkah 5: Mengisi Informasi Kontak](#langkah-5-mengisi-informasi-kontak)
-   6. [Langkah 6: Menyimpan dan Verifikasi](#langkah-6-menyimpan-dan-verifikasi)
-   7. [Langkah 7: Navigasi ke Pembukaan Rekening](#langkah-7-navigasi-ke-pembukaan-rekening)
-   8. [Langkah 8: Menyelesaikan Proses Pembukaan Rekening](#langkah-8-menyelesaikan-proses-pembukaan-rekening)
-4. [Video Tutorial](#video-tutorial)
-5. [Tips dan Catatan Penting](#tips-dan-catatan-penting)
-6. [Pemecahan Masalah Umum](#pemecahan-masalah-umum)
-
----
-
-""";
-    }
-    
-    private String generateOverview() {
-        return """
-## Gambaran Umum
-
-Panduan ini menjelaskan langkah-langkah lengkap untuk membuka rekening nasabah personal menggunakan aplikasi Minibank. Panduan ini ditujukan khusus untuk petugas Customer Service (CS) yang bertugas melayani nasabah dalam proses pembukaan rekening.
-
-**Target Pengguna:** Customer Service (CS)
-**Sistem:** Aplikasi Minibank Syariah
-**Browser:** Chromium, Firefox, atau WebKit
-**Waktu Estimasi:** 5-10 menit per nasabah
-
----
-
-""";
-    }
-    
-    private String generatePrerequisites() {
-        return """
-## Prasyarat
-
-Sebelum memulai proses pembukaan rekening, pastikan:
-
-1. **Akses Sistem**
-   - Memiliki username dan password CS yang valid
-   - Koneksi internet stabil
-   - Browser web yang didukung (Chrome, Firefox, Safari)
-
-2. **Dokumen Nasabah**
-   - KTP/Passport asli dan fotokopi
-   - NPWP (jika ada)
-   - Dokumen pendukung lainnya sesuai kebijakan bank
-
-3. **Informasi Yang Diperlukan**
-   - Data pribadi lengkap nasabah
-   - Alamat domisili terkini
-   - Nomor telepon yang aktif
-   - Alamat email (opsional)
-   - Setoran awal minimum
-
----
-
-""";
-    }
-    
-    private String generateSteps(List<Path> screenshots) {
-        StringBuilder steps = new StringBuilder();
-        steps.append("## Langkah-langkah Detail\n\n");
+        // Video data
+        data.put("hasVideos", !media.videos.isEmpty());
+        if (!media.videos.isEmpty()) {
+            data.put("videos", createVideosData(media.videos));
+        }
         
-        // Define the steps with better screenshot mapping
+        return data;
+    }
+    
+    private List<Map<String, Object>> createStepsData(List<Path> screenshots) {
+        List<Map<String, Object>> steps = new ArrayList<>();
+        
+        // Define the steps data
         String[][] stepData = {
             {"Login ke Sistem", "Masuk ke aplikasi Minibank menggunakan kredensial CS", "step_1", "_01_|_02_|_03_|_04_|_05_",
              "1. Buka halaman login aplikasi Minibank\n" +
@@ -291,54 +224,61 @@ Sebelum memulai proses pembukaan rekening, pastikan:
         };
         
         for (int i = 0; i < stepData.length; i++) {
-            int stepNum = i + 1;
-            String title = stepData[i][0];
-            String description = stepData[i][1];
-            String stepKey = stepData[i][2];
-            String screenshotPattern = stepData[i][3];
-            String details = stepData[i][4];
-            
-            steps.append(String.format("### Langkah %d: %s\n\n", stepNum, title));
-            steps.append(String.format("**Deskripsi:** %s\n\n", description));
+            Map<String, Object> step = new HashMap<>();
+            step.put("stepNumber", i + 1);
+            step.put("title", stepData[i][0]);
+            step.put("description", stepData[i][1]);
+            step.put("details", stepData[i][4]);
+            step.put("isLastStep", i == stepData.length - 1);
+            step.put("anchorTitle", stepData[i][0].toLowerCase().replaceAll(" ", "-").replaceAll("[^a-z0-9-]", ""));
             
             // Filter screenshots based on the pattern
-            List<Path> stepScreenshots = new ArrayList<>();
+            List<Map<String, Object>> stepScreenshots = new ArrayList<>();
+            String screenshotPattern = stepData[i][3];
             String[] patterns = screenshotPattern.split("\\|");
             for (Path screenshot : screenshots) {
                 String filename = screenshot.getFileName().toString();
                 for (String pattern : patterns) {
                     if (filename.contains(pattern)) {
-                        stepScreenshots.add(screenshot);
+                        Map<String, Object> screenshotData = new HashMap<>();
+                        screenshotData.put("filename", filename);
+                        screenshotData.put("altText", getAltTextForScreenshot(filename, stepData[i][0]));
+                        stepScreenshots.add(screenshotData);
                         break;
                     }
                 }
             }
             
             // Sort screenshots to ensure proper order
-            stepScreenshots.sort((a, b) -> a.getFileName().toString().compareTo(b.getFileName().toString()));
+            stepScreenshots.sort((a, b) -> ((String)a.get("filename")).compareTo((String)b.get("filename")));
             
-            if (!stepScreenshots.isEmpty()) {
-                steps.append("**Screenshot:**\n\n");
-                for (Path screenshot : stepScreenshots) {
-                    // Use simple relative path since files are copied to same directory structure
-                    String filename = screenshot.getFileName().toString();
-                    String altText = getAltTextForScreenshot(filename, title);
-                    steps.append(String.format("![%s](screenshots/%s)\n\n", altText, filename));
-                }
-            }
-            
-            steps.append("**Detail Langkah:**\n\n");
-            steps.append(details);
-            steps.append("\n\n");
-            
-            if (stepNum < stepData.length) {
-                steps.append("---\n\n");
-            }
+            step.put("screenshots", stepScreenshots);
+            steps.add(step);
         }
         
-        steps.append("---\n\n");
-        return steps.toString();
+        return steps;
     }
+    
+    private List<Map<String, Object>> createVideosData(List<Path> videos) {
+        List<Map<String, Object>> videosList = new ArrayList<>();
+        
+        for (Path video : videos) {
+            Map<String, Object> videoData = new HashMap<>();
+            String filename = video.getFileName().toString();
+            String filenameWithoutExtension = filename.replace(".webm", "");
+            String readableTitle = makeVideoTitleReadable(filenameWithoutExtension);
+            
+            videoData.put("filename", filename);
+            videoData.put("title", readableTitle);
+            videosList.add(videoData);
+        }
+        
+        return videosList;
+    }
+    
+    
+    
+    
     
     private String getAltTextForScreenshot(String filename, String stepTitle) {
         // Extract description from filename
@@ -374,174 +314,27 @@ Sebelum memulai proses pembukaan rekening, pastikan:
         return stepTitle;
     }
     
-    private String generateVideoSection(List<Path> videos) {
-        StringBuilder videoSection = new StringBuilder();
-        videoSection.append("## Video Tutorial\n\n");
-        
-        if (!videos.isEmpty()) {
-            videoSection.append("Berikut adalah video tutorial yang menunjukkan seluruh proses pembukaan rekening nasabah personal:\n\n");
-            
-            for (int i = 0; i < videos.size(); i++) {
-                Path video = videos.get(i);
-                String filename = video.getFileName().toString();
-                String filenameWithoutExtension = filename.replace(".webm", "");
-                String readableTitle = makeVideoTitleReadable(filenameWithoutExtension);
-                
-                videoSection.append(String.format("### %s\n\n", readableTitle));
-                // Use simple relative path to videos directory since files are copied there
-                videoSection.append(String.format("**File:** [%s](videos/%s)\n\n", filename, filename));
-                videoSection.append("> **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.\n\n");
-            }
-        } else {
-            videoSection.append("Video tutorial belum tersedia. Silakan jalankan test dokumentasi terlebih dahulu:\n\n");
-            videoSection.append("```bash\n");
-            videoSection.append("mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \\\n");
-            videoSection.append("  -Dplaywright.headless=false \\\n");
-            videoSection.append("  -Dplaywright.slowmo=2000 \\\n");
-            videoSection.append("  -Dplaywright.record=true\n");
-            videoSection.append("```\n\n");
-        }
-        
-        videoSection.append("---\n\n");
-        return videoSection.toString();
-    }
     
-    private String generateTipsSection() {
-        return """
-## Tips dan Catatan Penting
-
-**Tips untuk Customer Service:**
-
-1. **Verifikasi Data**
-   - Selalu cocokkan data dengan dokumen asli
-   - Pastikan ejaan nama sesuai dokumen identitas
-   - Verifikasi nomor telepon dengan menghubungi nasabah
-
-2. **Keamanan**
-   - Jangan simpan informasi sensitif di tempat yang tidak aman
-   - Selalu logout setelah selesai melayani nasabah
-   - Laporkan aktivitas mencurigakan kepada supervisor
-
-3. **Efisiensi**
-   - Siapkan semua dokumen sebelum mulai input
-   - Gunakan shortcut keyboard untuk mempercepat proses
-   - Manfaatkan fitur auto-complete jika tersedia
-
-4. **Customer Service Excellence**
-   - Jelaskan setiap langkah kepada nasabah
-   - Berikan informasi tentang produk yang dipilih
-   - Pastikan nasabah memahami fitur dan ketentuan rekening
-
----
-
-""";
-    }
     
-    private String generateTroubleshootingSection() {
-        return """
-## Pemecahan Masalah Umum
-
-**Masalah yang Sering Terjadi:**
-
-1. **Login Gagal**
-   - Pastikan username dan password benar
-   - Periksa caps lock dan layout keyboard
-   - Hubungi IT jika terus gagal login
-
-2. **Form Tidak Bisa Disimpan**
-   - Periksa field yang wajib diisi (biasanya ditandai *)
-   - Pastikan format tanggal dan nomor sudah benar
-   - Refresh halaman dan coba lagi
-
-3. **Nomor Rekening Tidak Ter-generate**
-   - Pastikan semua data nasabah sudah tersimpan
-   - Periksa koneksi internet
-   - Hubungi supervisor jika masalah berlanjut
-
-4. **Error Saat Upload Dokumen**
-   - Pastikan format file sesuai (JPG, PNG, PDF)
-   - Periksa ukuran file tidak melebihi limit
-   - Scan ulang dokumen jika perlu
-
-**Kontak Dukungan:**
-- IT Help Desk: ext. 123
-- Supervisor CS: ext. 456
-- Manager Operasional: ext. 789
-
----
-
-""";
-    }
     
-    private String generateFooter() {
-        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy", 
-            new Locale("id", "ID")));
-        
-        return String.format("""
-## Informasi Dokumen
-
-**Dibuat oleh:** Sistem Aplikasi Minibank  
-**Tanggal:** %s  
-**Versi:** 1.0  
-**Format:** Markdown (.md)  
-
-**Hak Cipta:** © 2025 Aplikasi Minibank - Sistem Perbankan Syariah  
-
----
-
-*Panduan ini dibuat secara otomatis menggunakan Playwright Test Framework dan Java. Untuk pembaruan atau perbaikan, hubungi tim IT atau maintainer sistem.*
-
-**Generator:** UserManualGenerator.java  
-**Framework:** Playwright + Java  
-**Template:** Indonesian Banking Documentation Standard  
-""", today);
-    }
     
     private void generateIndexFile() throws IOException {
-        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy", 
-            new Locale("id", "ID")));
-        
-        String indexContent = String.format("""
-# Dokumentasi Pengguna Aplikasi Minibank
-
-## Panduan Yang Tersedia
-
-1. **[Panduan Pembukaan Rekening Nasabah Personal](%s)**
-   - Target: Customer Service (CS)
-   - Proses: Pembukaan rekening nasabah personal
-   - Format: Panduan lengkap dengan screenshot dan video
-
-## Cara Menggunakan Panduan
-
-1. Buka file panduan yang sesuai dengan kebutuhan Anda
-2. Ikuti langkah-langkah secara berurutan
-3. Lihat screenshot untuk referensi visual
-4. Tonton video tutorial jika tersedia
-5. Gunakan bagian troubleshooting jika mengalami masalah
-
-## Pembaruan Panduan
-
-Panduan ini dibuat secara otomatis dari test dokumentasi. Untuk memperbarui:
-
-```bash
-# 1. Jalankan test dokumentasi
-mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \\
-  -Dplaywright.headless=false \\
-  -Dplaywright.slowmo=2000 \\
-  -Dplaywright.record=true
-
-# 2. Generate ulang panduan
-mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
-```
-
----
-
-*Dibuat pada: %s*
-""", OUTPUT_FILE, today);
-        
-        Path indexPath = outputPath.resolve("README.md");
-        Files.write(indexPath, indexContent.getBytes("UTF-8"));
-        System.out.println("📋 Index file dibuat: " + indexPath.toAbsolutePath());
+        try {
+            Mustache indexTemplate = mustacheFactory.compile("templates/user-manual/index-template.mustache");
+            
+            Map<String, Object> indexData = new HashMap<>();
+            indexData.put("dateCreated", LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"))));
+            indexData.put("guideFilename", OUTPUT_FILE);
+            
+            StringWriter writer = new StringWriter();
+            indexTemplate.execute(writer, indexData);
+            
+            Path indexPath = outputPath.resolve("README.md");
+            Files.write(indexPath, writer.toString().getBytes("UTF-8"));
+            System.out.println("📋 Index file dibuat: " + indexPath.toAbsolutePath());
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating index file from template", e);
+        }
     }
     
     private String makeVideoTitleReadable(String filename) {

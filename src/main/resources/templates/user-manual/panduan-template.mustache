@@ -1,0 +1,189 @@
+# Panduan Pembukaan Rekening Nasabah Personal untuk Customer Service
+
+**Aplikasi Minibank - Sistem Perbankan Syariah**
+
+---
+
+**Tanggal Pembuatan:** {{dateCreated}}  
+**Versi:** 1.0  
+**Target Pengguna:** Customer Service (CS)  
+**Status:** Aktif  
+
+---
+
+## Daftar Isi
+
+1. [Gambaran Umum](#gambaran-umum)
+2. [Prasyarat](#prasyarat)
+3. [Langkah-langkah Detail](#langkah-langkah-detail)
+{{#steps}}
+   {{stepNumber}}. [Langkah {{stepNumber}}: {{title}}](#langkah-{{stepNumber}}-{{anchorTitle}})
+{{/steps}}
+4. [Video Tutorial](#video-tutorial)
+5. [Tips dan Catatan Penting](#tips-dan-catatan-penting)
+6. [Pemecahan Masalah Umum](#pemecahan-masalah-umum)
+
+---
+
+## Gambaran Umum
+
+Panduan ini menjelaskan langkah-langkah lengkap untuk membuka rekening nasabah personal menggunakan aplikasi Minibank. Panduan ini ditujukan khusus untuk petugas Customer Service (CS) yang bertugas melayani nasabah dalam proses pembukaan rekening.
+
+**Target Pengguna:** Customer Service (CS)
+**Sistem:** Aplikasi Minibank Syariah
+**Browser:** Chromium, Firefox, atau WebKit
+**Waktu Estimasi:** 5-10 menit per nasabah
+
+---
+
+## Prasyarat
+
+Sebelum memulai proses pembukaan rekening, pastikan:
+
+1. **Akses Sistem**
+   - Memiliki username dan password CS yang valid
+   - Koneksi internet stabil
+   - Browser web yang didukung (Chrome, Firefox, Safari)
+
+2. **Dokumen Nasabah**
+   - KTP/Passport asli dan fotokopi
+   - NPWP (jika ada)
+   - Dokumen pendukung lainnya sesuai kebijakan bank
+
+3. **Informasi Yang Diperlukan**
+   - Data pribadi lengkap nasabah
+   - Alamat domisili terkini
+   - Nomor telepon yang aktif
+   - Alamat email (opsional)
+   - Setoran awal minimum
+
+---
+
+## Langkah-langkah Detail
+
+{{#steps}}
+### Langkah {{stepNumber}}: {{title}}
+
+**Deskripsi:** {{description}}
+
+{{#screenshots}}
+**Screenshot:**
+
+{{#.}}
+![{{altText}}](screenshots/{{filename}})
+
+{{/.}}
+{{/screenshots}}
+
+**Detail Langkah:**
+
+{{{details}}}
+
+{{^isLastStep}}
+---
+
+{{/isLastStep}}
+{{/steps}}
+
+---
+
+## Video Tutorial
+
+{{#hasVideos}}
+Berikut adalah video tutorial yang menunjukkan seluruh proses pembukaan rekening nasabah personal:
+
+{{#videos}}
+### {{title}}
+
+**File:** [{{filename}}](videos/{{filename}})
+
+> **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
+
+{{/videos}}
+{{/hasVideos}}
+{{^hasVideos}}
+Video tutorial belum tersedia. Silakan jalankan test dokumentasi terlebih dahulu:
+
+```bash
+mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+  -Dplaywright.headless=false \
+  -Dplaywright.slowmo=2000 \
+  -Dplaywright.record=true
+```
+{{/hasVideos}}
+
+---
+
+## Tips dan Catatan Penting
+
+**Tips untuk Customer Service:**
+
+1. **Verifikasi Data**
+   - Selalu cocokkan data dengan dokumen asli
+   - Pastikan ejaan nama sesuai dokumen identitas
+   - Verifikasi nomor telepon dengan menghubungi nasabah
+
+2. **Keamanan**
+   - Jangan simpan informasi sensitif di tempat yang tidak aman
+   - Selalu logout setelah selesai melayani nasabah
+   - Laporkan aktivitas mencurigakan kepada supervisor
+
+3. **Efisiensi**
+   - Siapkan semua dokumen sebelum mulai input
+   - Gunakan shortcut keyboard untuk mempercepat proses
+   - Manfaatkan fitur auto-complete jika tersedia
+
+4. **Customer Service Excellence**
+   - Jelaskan setiap langkah kepada nasabah
+   - Berikan informasi tentang produk yang dipilih
+   - Pastikan nasabah memahami fitur dan ketentuan rekening
+
+---
+
+## Pemecahan Masalah Umum
+
+**Masalah yang Sering Terjadi:**
+
+1. **Login Gagal**
+   - Pastikan username dan password benar
+   - Periksa caps lock dan layout keyboard
+   - Hubungi IT jika terus gagal login
+
+2. **Form Tidak Bisa Disimpan**
+   - Periksa field yang wajib diisi (biasanya ditandai *)
+   - Pastikan format tanggal dan nomor sudah benar
+   - Refresh halaman dan coba lagi
+
+3. **Nomor Rekening Tidak Ter-generate**
+   - Pastikan semua data nasabah sudah tersimpan
+   - Periksa koneksi internet
+   - Hubungi supervisor jika masalah berlanjut
+
+4. **Error Saat Upload Dokumen**
+   - Pastikan format file sesuai (JPG, PNG, PDF)
+   - Periksa ukuran file tidak melebihi limit
+   - Scan ulang dokumen jika perlu
+
+**Kontak Dukungan:**
+- IT Help Desk: ext. 123
+- Supervisor CS: ext. 456
+- Manager Operasional: ext. 789
+
+---
+
+## Informasi Dokumen
+
+**Dibuat oleh:** Sistem Aplikasi Minibank  
+**Tanggal:** {{dateCreated}}  
+**Versi:** 1.0  
+**Format:** Markdown (.md)  
+
+**Hak Cipta:** © 2025 Aplikasi Minibank - Sistem Perbankan Syariah  
+
+---
+
+*Panduan ini dibuat secara otomatis menggunakan Playwright Test Framework dan Java. Untuk pembaruan atau perbaikan, hubungi tim IT atau maintainer sistem.*
+
+**Generator:** UserManualGenerator.java  
+**Framework:** Playwright + Java + Mustache Templates  
+**Template:** Indonesian Banking Documentation Standard  
