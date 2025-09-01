@@ -76,28 +76,31 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
         
-    - name: Set up Node.js for Playwright
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install Playwright and documentation dependencies
+    - name: Install system dependencies
       run: |
         # Update package lists
         sudo apt-get update
         
-        # Install basic dependencies
+        # Install basic dependencies and updated package names for Ubuntu 24.04
         sudo apt-get install -y \
           xvfb \
           pandoc \
           wget \
-          unzip
+          unzip \
+          fonts-liberation \
+          libasound2t64 \
+          libatk-bridge2.0-0 \
+          libatk1.0-0 \
+          libdrm2 \
+          libxcomposite1 \
+          libxdamage1 \
+          libxrandr2 \
+          libxss1 \
+          libgtk-3-0 \
+          libgbm1 \
+          xdg-utils
         
-        # Install Playwright dependencies using npx (more reliable)
-        npx --yes playwright@1.40.0 install-deps chromium
-        
-        # Verify installation
-        echo "✅ Playwright dependencies installed successfully"
+        echo "✅ System dependencies installed successfully"
         
     - name: Compile application
       run: mvn -B compile --file pom.xml
@@ -105,12 +108,31 @@ jobs:
     - name: Generate Playwright documentation with headless mode
       run: |
         echo "🚀 Generating user documentation with Playwright..."
+        # Set up virtual display for headless browser testing
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        
+        # Wait for Xvfb to start
+        sleep 3
+        
+        # Check available browsers and system info
+        echo "📋 System information:"
+        uname -a
+        echo "🖥️ Display: $DISPLAY"
+        ps aux | grep Xvfb || echo "Xvfb not running"
+        
         # Run documentation test in headless mode for CI
+        echo "🧪 Starting Playwright test..."
         mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
           -Dplaywright.headless=true \
           -Dplaywright.slowmo=1000 \
           -Dplaywright.record=true \
-          -Dplaywright.browser=chromium
+          -Dplaywright.browser=chromium \
+          -X || {
+            echo "❌ Test failed, checking logs..."
+            find target -name "*.log" -type f -exec echo "=== {} ===" \; -exec cat {} \; 2>/dev/null || true
+            exit 1
+          }
           
     - name: Generate user manual from screenshots and videos
       run: |
