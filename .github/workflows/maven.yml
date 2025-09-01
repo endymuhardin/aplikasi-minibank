@@ -162,20 +162,19 @@ jobs:
         # Copy documentation to pages directory
         cp -r docs/user-manual/* pages/
         
-        # Create main index.html that redirects to the user manual
+        # Create main index.html with delayed redirect and better UX
         cat > pages/index.html << 'EOF'
         <!DOCTYPE html>
         <html lang="id">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="refresh" content="0; url=panduan-pembukaan-rekening-nasabah-personal.html">
             <title>Aplikasi Minibank - Dokumentasi Pengguna</title>
             <style>
                 body { 
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
                     text-align: center; 
-                    padding: 50px; 
+                    padding: 20px; 
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
                     min-height: 100vh;
@@ -190,6 +189,8 @@ jobs:
                     border-radius: 15px;
                     backdrop-filter: blur(10px);
                     border: 1px solid rgba(255,255,255,0.2);
+                    max-width: 600px;
+                    width: 90%;
                 }
                 h1 { 
                     margin-bottom: 20px; 
@@ -198,7 +199,7 @@ jobs:
                 }
                 p { 
                     font-size: 1.2em; 
-                    margin-bottom: 30px;
+                    margin-bottom: 20px;
                 }
                 .redirect-link {
                     display: inline-block;
@@ -210,42 +211,199 @@ jobs:
                     border: 2px solid rgba(255,255,255,0.3);
                     transition: all 0.3s ease;
                     font-weight: bold;
+                    margin: 10px;
                 }
                 .redirect-link:hover {
                     background: rgba(255,255,255,0.3);
                     transform: translateY(-2px);
                     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
                 }
+                .countdown {
+                    font-size: 0.9em;
+                    opacity: 0.8;
+                    margin-top: 20px;
+                }
+                #countdown-timer {
+                    font-weight: bold;
+                    color: #ffeb3b;
+                }
         EOF
         
-        # Add current timestamp
-        echo "                .timestamp { font-size: 0.9em; margin-top: 30px; opacity: 0.8; }" >> pages/index.html
-        echo "            </style>" >> pages/index.html
-        echo "        </head>" >> pages/index.html
-        echo "        <body>" >> pages/index.html
-        echo "            <div class=\"container\">" >> pages/index.html
-        echo "                <h1>🏦 Aplikasi Minibank</h1>" >> pages/index.html
-        echo "                <p>Dokumentasi Pengguna - Sistem Perbankan Syariah</p>" >> pages/index.html
-        echo "                <p>Anda akan dialihkan ke panduan pengguna...</p>" >> pages/index.html
-        echo "                <a href=\"panduan-pembukaan-rekening-nasabah-personal.html\" class=\"redirect-link\">Buka Panduan Pengguna</a>" >> pages/index.html
-        echo "                <div class=\"timestamp\">📅 Diperbarui: $(date '+%d %B %Y %H:%M WIB')</div>" >> pages/index.html
-        echo "            </div>" >> pages/index.html
-        echo "        </body>" >> pages/index.html
-        echo "        </html>" >> pages/index.html
+        # Complete the index.html with JavaScript countdown and better content
+        cat >> pages/index.html << 'EOF'
+                .timestamp { font-size: 0.9em; margin-top: 30px; opacity: 0.8; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🏦 Aplikasi Minibank</h1>
+                <p>Dokumentasi Pengguna - Sistem Perbankan Syariah</p>
+                <p>Panduan lengkap untuk Customer Service (CS) dalam proses pembukaan rekening nasabah personal</p>
+                
+                <a href="panduan-pembukaan-rekening-nasabah-personal.html" class="redirect-link">📚 Buka Panduan Pengguna</a>
+                <a href="README.html" class="redirect-link">📋 Lihat Daftar Panduan</a>
+                
+                <div class="countdown">
+                    Otomatis menuju panduan dalam <span id="countdown-timer">10</span> detik
+                    <br><small>Klik tombol di atas untuk langsung membuka</small>
+                </div>
+EOF
         
-        # Convert markdown to HTML for better web display
+        # Add timestamp
+        echo "                <div class=\"timestamp\">📅 Diperbarui: $(date '+%d %B %Y %H:%M WIB')</div>" >> pages/index.html
+        
+        # Add JavaScript for countdown
+        cat >> pages/index.html << 'EOF'
+            </div>
+            
+            <script>
+                let countdown = 10;
+                const timer = document.getElementById('countdown-timer');
+                
+                const interval = setInterval(() => {
+                    countdown--;
+                    timer.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        window.location.href = 'panduan-pembukaan-rekening-nasabah-personal.html';
+                    }
+                }, 1000);
+                
+                // Allow users to cancel auto-redirect by interacting with the page
+                document.addEventListener('click', () => {
+                    clearInterval(interval);
+                    timer.parentElement.innerHTML = 'Otomatis redirect dibatalkan - klik tombol untuk navigasi manual';
+                });
+            </script>
+        </body>
+        </html>
+EOF
+        
+        # Convert markdown to HTML for better web display with responsive images
         if command -v pandoc > /dev/null; then
             echo "🔄 Converting Markdown to HTML..."
+            
+            # Create custom CSS for responsive images and better styling
+            cat > pages/custom-styles.css << 'CSS_EOF'
+/* Custom styles for user manual */
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 20px; 
+}
+
+/* Responsive images */
+img { 
+    max-width: 100%; 
+    height: auto; 
+    margin: 15px 0; 
+    border: 2px solid #e9ecef; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Limit image width on larger screens */
+@media (min-width: 768px) {
+    img {
+        max-width: 80%;
+    }
+}
+
+@media (min-width: 992px) {
+    img {
+        max-width: 70%;
+    }
+}
+
+/* Better spacing for screenshots */
+p:has(img) {
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Style for code blocks */
+pre { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 5px; 
+    overflow-x: auto;
+    border-left: 4px solid #007bff;
+}
+
+code {
+    background: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+/* Table of contents styling */
+.toc { 
+    background: #f8f9fa; 
+    padding: 20px; 
+    border-radius: 5px; 
+    margin-bottom: 30px; 
+    border: 1px solid #dee2e6;
+}
+
+/* Header styling */
+h1, h2, h3 {
+    color: #495057;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+h1 { border-bottom: 2px solid #007bff; padding-bottom: 0.5rem; }
+h2 { border-bottom: 1px solid #dee2e6; padding-bottom: 0.3rem; }
+
+/* Step sections */
+h3 {
+    background: #e3f2fd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border-left: 4px solid #2196f3;
+}
+
+/* Alert boxes */
+blockquote {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+/* Video links */
+a[href$=".webm"] {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+a[href$=".webm"]:hover {
+    background: #218838;
+}
+CSS_EOF
+
             pandoc pages/panduan-pembukaan-rekening-nasabah-personal.md \
               -o pages/panduan-pembukaan-rekening-nasabah-personal.html \
               --standalone \
               --css=https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css \
+              --css=custom-styles.css \
               --metadata title="Panduan Pembukaan Rekening Nasabah Personal" \
               --toc \
               --toc-depth=3
         else
             echo "⚠️ Pandoc not available, keeping Markdown format"
-            # Create a simple HTML wrapper for the markdown
+            # Create a simple HTML wrapper for the markdown with responsive images
             cat > pages/panduan-pembukaan-rekening-nasabah-personal.html << 'EOF'
         <!DOCTYPE html>
         <html lang="id">
@@ -257,9 +415,41 @@ jobs:
             <style>
                 body { padding: 20px 0; }
                 .container { max-width: 1200px; }
-                img { max-width: 100%; height: auto; margin: 10px 0; border: 1px solid #dee2e6; border-radius: 5px; }
-                pre { background: #f8f9fa; padding: 15px; border-radius: 5px; }
-                .toc { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 30px; }
+                
+                /* Responsive images */
+                img { 
+                    max-width: 100%; 
+                    height: auto; 
+                    margin: 15px auto; 
+                    border: 2px solid #dee2e6; 
+                    border-radius: 8px;
+                    display: block;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+                
+                @media (min-width: 768px) {
+                    img { max-width: 80%; }
+                }
+                
+                @media (min-width: 992px) {
+                    img { max-width: 70%; }
+                }
+                
+                pre { 
+                    background: #f8f9fa; 
+                    padding: 15px; 
+                    border-radius: 5px; 
+                    border-left: 4px solid #007bff;
+                }
+                
+                .toc { 
+                    background: #f8f9fa; 
+                    padding: 20px; 
+                    border-radius: 5px; 
+                    margin-bottom: 30px; 
+                }
+                
+                iframe { border: 1px solid #dee2e6; border-radius: 5px; }
             </style>
         </head>
         <body>
@@ -271,10 +461,10 @@ jobs:
                             Panduan ini dibuat secara otomatis menggunakan Playwright dan GitHub Actions.
                             <a href="README.html" class="alert-link">Lihat daftar panduan lainnya</a>
                         </div>
-                        <iframe src="panduan-pembukaan-rekening-nasabah-personal.md" width="100%" height="800" style="border: none;"></iframe>
+                        <iframe src="panduan-pembukaan-rekening-nasabah-personal.md" width="100%" height="800" style="border: 1px solid #dee2e6; border-radius: 5px;"></iframe>
                         <div class="mt-3">
                             <a href="panduan-pembukaan-rekening-nasabah-personal.md" class="btn btn-outline-primary" target="_blank">📄 Lihat file Markdown asli</a>
-                            <a href="README.md" class="btn btn-outline-secondary" target="_blank">📋 Kembali ke daftar panduan</a>
+                            <a href="README.html" class="btn btn-outline-secondary" target="_blank">📋 Kembali ke daftar panduan</a>
                         </div>
                     </div>
                 </div>
