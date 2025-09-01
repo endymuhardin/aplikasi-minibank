@@ -72,15 +72,15 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Halaman login aplikasi](screenshots/2025-09-01_13-57-38-444_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_01_login_page_loaded.png)
+![Halaman login aplikasi](screenshots/2025-09-01_14-09-45-780_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_01_login_page_loaded.png)
 
-![Input username diisi](screenshots/2025-09-01_13-57-39-763_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_02_username_filled.png)
+![Input username diisi](screenshots/2025-09-01_14-09-50-045_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_02_username_filled.png)
 
-![Input password diisi](screenshots/2025-09-01_13-57-41-004_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_03_password_filled.png)
+![Input password diisi](screenshots/2025-09-01_14-09-54-257_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_03_password_filled.png)
 
-![Form login siap](screenshots/2025-09-01_13-57-41-196_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_04_ready_to_login.png)
+![Form login siap](screenshots/2025-09-01_14-09-54-438_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_04_ready_to_login.png)
 
-![Dashboard setelah login](screenshots/2025-09-01_13-57-45-934_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_05_dashboard_after_login.png)
+![Dashboard setelah login](screenshots/2025-09-01_14-10-06-315_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service_05_dashboard_after_login.png)
 
 **Detail Langkah:**
 
@@ -98,11 +98,11 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Menu navigasi dashboard](screenshots/2025-09-01_13-57-51-254_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_06_dashboard_navigation_menu.png)
+![Menu navigasi dashboard](screenshots/2025-09-01_14-10-21-137_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_06_dashboard_navigation_menu.png)
 
-![Halaman daftar nasabah](screenshots/2025-09-01_13-57-52-286_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_07_customer_list_page.png)
+![Halaman daftar nasabah](screenshots/2025-09-01_14-10-23-638_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_07_customer_list_page.png)
 
-![Tabel daftar nasabah](screenshots/2025-09-01_13-57-52-512_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_element_08_customer_table_view.png)
+![Tabel daftar nasabah](screenshots/2025-09-01_14-10-23-853_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management_element_08_customer_table_view.png)
 
 **Detail Langkah:**
 
@@ -119,13 +119,13 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Tombol tambah nasabah](screenshots/2025-09-01_13-57-57-842_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_element_09_add_customer_button.png)
+![Tombol tambah nasabah](screenshots/2025-09-01_14-10-40-983_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_element_09_add_customer_button.png)
 
-![Halaman pemilihan jenis nasabah](screenshots/2025-09-01_13-57-58-590_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_10_customer_type_selection_page.png)
+![Halaman pemilihan jenis nasabah](screenshots/2025-09-01_14-10-43-329_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_10_customer_type_selection_page.png)
 
-![Opsi nasabah personal](screenshots/2025-09-01_13-57-58-821_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_element_11_personal_customer_option.png)
+![Opsi nasabah personal](screenshots/2025-09-01_14-10-43-618_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_element_11_personal_customer_option.png)
 
-![Form nasabah personal](screenshots/2025-09-01_13-57-59-644_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_12_personal_customer_form_loaded.png)
+![Form nasabah personal](screenshots/2025-09-01_14-10-46-050_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer_12_personal_customer_form_loaded.png)
 
 **Detail Langkah:**
 
@@ -143,15 +143,15 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Form kosong siap diisi](screenshots/2025-09-01_13-58-05-395_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_13_empty_personal_form.png)
+![Form kosong siap diisi](screenshots/2025-09-01_14-11-05-105_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_13_empty_personal_form.png)
 
-![Field nama depan terisi](screenshots/2025-09-01_13-58-12-527_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_14_first_name_filled.png)
+![Field nama depan terisi](screenshots/2025-09-01_14-11-31-674_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_14_first_name_filled.png)
 
-![Informasi identitas terisi](screenshots/2025-09-01_13-58-12-643_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_16_identity_info_filled.png)
+![Informasi identitas terisi](screenshots/2025-09-01_14-11-31-781_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_16_identity_info_filled.png)
 
-![Informasi kelahiran terisi](screenshots/2025-09-01_13-58-12-744_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_17_birth_info_filled.png)
+![Informasi kelahiran terisi](screenshots/2025-09-01_14-11-31-914_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_17_birth_info_filled.png)
 
-![Nama ibu kandung terisi](screenshots/2025-09-01_13-58-12-863_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_18_mother_name_filled.png)
+![Nama ibu kandung terisi](screenshots/2025-09-01_14-11-32-049_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information_element_18_mother_name_filled.png)
 
 **Detail Langkah:**
 
@@ -172,13 +172,13 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Field email terisi](screenshots/2025-09-01_13-58-25-468_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_20_email_field_filled.png)
+![Field email terisi](screenshots/2025-09-01_14-12-16-693_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_20_email_field_filled.png)
 
-![Field telepon terisi](screenshots/2025-09-01_13-58-25-545_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_21_phone_field_filled.png)
+![Field telepon terisi](screenshots/2025-09-01_14-12-16-818_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_21_phone_field_filled.png)
 
-![Informasi alamat terisi](screenshots/2025-09-01_13-58-25-660_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_22_address_info_filled.png)
+![Informasi alamat terisi](screenshots/2025-09-01_14-12-16-950_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_element_22_address_info_filled.png)
 
-![Form lengkap terisi](screenshots/2025-09-01_13-58-25-804_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_23_complete_form_filled.png)
+![Form lengkap terisi](screenshots/2025-09-01_14-12-17-119_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information_23_complete_form_filled.png)
 
 **Detail Langkah:**
 
@@ -198,9 +198,9 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Tombol simpan siap diklik](screenshots/2025-09-01_13-58-38-542_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success_element_24_save_button_ready.png)
+![Tombol simpan siap diklik](screenshots/2025-09-01_14-13-01-861_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success_element_24_save_button_ready.png)
 
-![Hasil setelah penyimpanan](screenshots/2025-09-01_13-58-39-460_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success_25_after_save_customer.png)
+![Hasil setelah penyimpanan](screenshots/2025-09-01_14-13-04-309_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success_25_after_save_customer.png)
 
 **Detail Langkah:**
 
@@ -219,9 +219,9 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Daftar dengan nasabah baru](screenshots/2025-09-01_13-58-44-962_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary_27_customer_list_with_created_customer.png)
+![Daftar dengan nasabah baru](screenshots/2025-09-01_14-13-21-398_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary_27_customer_list_with_created_customer.png)
 
-![Tabel daftar nasabah](screenshots/2025-09-01_13-58-45-221_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary_element_28_complete_customer_table.png)
+![Tabel daftar nasabah](screenshots/2025-09-01_14-13-21-627_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary_element_28_complete_customer_table.png)
 
 **Detail Langkah:**
 
@@ -238,9 +238,9 @@ Sebelum memulai proses pembukaan rekening, pastikan:
 
 **Screenshot:**
 
-![Tutorial selesai](screenshots/2025-09-01_13-58-49-810_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary_29_tutorial_complete_dashboard.png)
+![Tutorial selesai](screenshots/2025-09-01_14-13-36-394_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary_29_tutorial_complete_dashboard.png)
 
-![Tutorial selesai](screenshots/2025-09-01_13-58-50-710_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary_30_tutorial_complete_customer_list.png)
+![Tutorial selesai](screenshots/2025-09-01_14-13-38-767_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary_30_tutorial_complete_customer_list.png)
 
 **Detail Langkah:**
 
@@ -258,49 +258,49 @@ Berikut adalah video tutorial yang menunjukkan seluruh proses pembukaan rekening
 
 ### Tutorial Pembukaan Rekening Langkah 1 login as customer service
 
-**File:** [2025-09-01_13-57-47_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service.webm](videos/2025-09-01_13-57-47_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service.webm)
+**File:** [2025-09-01_14-10-07_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service.webm](videos/2025-09-01_14-10-07_personalcustomeraccountopeningtutorialtest_tutorial_step_1_login_as_customer_service.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 2 navigate to customer management
 
-**File:** [2025-09-01_13-57-53_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management.webm](videos/2025-09-01_13-57-53_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management.webm)
+**File:** [2025-09-01_14-10-25_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management.webm](videos/2025-09-01_14-10-25_personalcustomeraccountopeningtutorialtest_tutorial_step_2_navigate_to_customer_management.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 3 start creating new personal customer
 
-**File:** [2025-09-01_13-58-00_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer.webm](videos/2025-09-01_13-58-00_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer.webm)
+**File:** [2025-09-01_14-10-47_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer.webm](videos/2025-09-01_14-10-47_personalcustomeraccountopeningtutorialtest_tutorial_step_3_start_creating_new_personal_customer.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 4 fill personal information
 
-**File:** [2025-09-01_13-58-13_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information.webm](videos/2025-09-01_13-58-13_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information.webm)
+**File:** [2025-09-01_14-11-32_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information.webm](videos/2025-09-01_14-11-32_personalcustomeraccountopeningtutorialtest_tutorial_step_4_fill_personal_information.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 5 fill contact information
 
-**File:** [2025-09-01_13-58-26_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information.webm](videos/2025-09-01_13-58-26_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information.webm)
+**File:** [2025-09-01_14-12-17_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information.webm](videos/2025-09-01_14-12-17_personalcustomeraccountopeningtutorialtest_tutorial_step_5_fill_contact_information.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 6 save customer and verify success
 
-**File:** [2025-09-01_13-58-40_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success.webm](videos/2025-09-01_13-58-40_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success.webm)
+**File:** [2025-09-01_14-13-05_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success.webm](videos/2025-09-01_14-13-05_personalcustomeraccountopeningtutorialtest_tutorial_step_6_save_customer_and_verify_success.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 7 view customer list and summary
 
-**File:** [2025-09-01_13-58-45_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary.webm](videos/2025-09-01_13-58-45_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary.webm)
+**File:** [2025-09-01_14-13-22_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary.webm](videos/2025-09-01_14-13-22_personalcustomeraccountopeningtutorialtest_tutorial_step_7_view_customer_list_and_summary.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
 ### Tutorial Pembukaan Rekening Langkah 8 tutorial complete summary
 
-**File:** [2025-09-01_13-58-51_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary.webm](videos/2025-09-01_13-58-51_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary.webm)
+**File:** [2025-09-01_14-13-40_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary.webm](videos/2025-09-01_14-13-40_personalcustomeraccountopeningtutorialtest_tutorial_step_8_tutorial_complete_summary.webm)
 
 > **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.
 
