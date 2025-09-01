@@ -2,6 +2,7 @@ package id.ac.tazkia.minibank.functional.config;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import com.microsoft.playwright.*;
 import id.ac.tazkia.minibank.config.BaseIntegrationTest;
 
 import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Base class for Playwright functional tests.
@@ -28,9 +31,15 @@ public abstract class BasePlaywrightTest extends BaseIntegrationTest {
     protected BrowserContext browserContext;
     protected Page page;
     protected String baseUrl;
+    protected String currentTestName;
+    protected String currentTestClass;
 
     @BeforeEach
-    void setUpPlaywright() {
+    void setUpPlaywright(TestInfo testInfo) {
+        // Capture test information for human-readable file names
+        currentTestName = sanitizeFileName(testInfo.getDisplayName());
+        currentTestClass = sanitizeFileName(testInfo.getTestClass().map(Class::getSimpleName).orElse("UnknownTest"));
+        
         // Ensure test data is available
         ensureTestDataExists();
         
@@ -70,7 +79,12 @@ public abstract class BasePlaywrightTest extends BaseIntegrationTest {
         // Add video recording if enabled
         if (recordVideo) {
             String recordDir = System.getProperty("playwright.record.dir", "target/playwright-recordings");
-            java.nio.file.Path recordPath = java.nio.file.Paths.get(recordDir);
+            
+            // Create human-readable directory structure
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            java.nio.file.Path recordPath = java.nio.file.Paths.get(recordDir, 
+                timestamp + "_" + currentTestClass,
+                "videos");
             
             // Ensure recording directory exists
             try {
@@ -118,24 +132,41 @@ public abstract class BasePlaywrightTest extends BaseIntegrationTest {
                 // Save video before closing context
                 if (recordVideo && page != null) {
                     try {
-                        String recordDir = System.getProperty("playwright.record.dir", "target/playwright-recordings");
-                        java.nio.file.Path videoPath = page.video().path();
-                        log.info("🎥 Video saved to: {}", videoPath.toAbsolutePath());
+                        java.nio.file.Path originalVideoPath = page.video().path();
                         
-                        // Ensure the video file exists after context close
+                        // Close context to finalize video
                         browserContext.close();
                         
-                        // Verify video file was created
-                        if (java.nio.file.Files.exists(videoPath)) {
-                            log.info("✅ Video recording confirmed: {} (size: {} bytes)", 
-                                videoPath.toAbsolutePath(), 
-                                java.nio.file.Files.size(videoPath));
+                        // Create human-readable filename and move video
+                        if (java.nio.file.Files.exists(originalVideoPath)) {
+                            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+                            String humanReadableFilename = String.format("%s_%s_%s.webm", 
+                                timestamp, currentTestClass, currentTestName);
+                            
+                            java.nio.file.Path parentDir = originalVideoPath.getParent();
+                            java.nio.file.Path newVideoPath = parentDir.resolve(humanReadableFilename);
+                            
+                            try {
+                                java.nio.file.Files.move(originalVideoPath, newVideoPath);
+                                log.info("✅ Video recording saved: {} (size: {} bytes)", 
+                                    newVideoPath.toAbsolutePath(), 
+                                    java.nio.file.Files.size(newVideoPath));
+                            } catch (Exception e) {
+                                log.warn("Failed to rename video file, keeping original: {}", originalVideoPath.toAbsolutePath());
+                                log.info("✅ Video recording confirmed: {} (size: {} bytes)", 
+                                    originalVideoPath.toAbsolutePath(), 
+                                    java.nio.file.Files.size(originalVideoPath));
+                            }
                         } else {
-                            log.warn("❌ Video file not found after recording: {}", videoPath.toAbsolutePath());
+                            log.warn("❌ Video file not found after recording: {}", originalVideoPath.toAbsolutePath());
                         }
                     } catch (Exception e) {
                         log.warn("Error handling video recording: {}", e.getMessage());
-                        browserContext.close(); // Ensure context still closes
+                        try {
+                            browserContext.close(); // Ensure context still closes
+                        } catch (Exception closeException) {
+                            log.warn("Error closing context after video error: {}", closeException.getMessage());
+                        }
                     }
                 } else {
                     browserContext.close();
@@ -334,5 +365,93 @@ public abstract class BasePlaywrightTest extends BaseIntegrationTest {
         } catch (Exception e) {
             log.warn("Could not reset sequences (may not exist yet): {}", e.getMessage());
         }
+    }
+    
+    /**
+     * Take a screenshot with human-readable filename.
+     * @param description A description of what the screenshot shows
+     * @return Path to the saved screenshot
+     */
+    public java.nio.file.Path takeScreenshot(String description) {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS"));
+            String screenshotDir = System.getProperty("playwright.screenshot.dir", "target/playwright-screenshots");
+            
+            // Create human-readable directory structure
+            java.nio.file.Path screenshotPath = java.nio.file.Paths.get(screenshotDir, 
+                timestamp.substring(0, 10) + "_" + currentTestClass,
+                "screenshots");
+            
+            // Ensure directory exists
+            java.nio.file.Files.createDirectories(screenshotPath);
+            
+            // Create filename with timestamp, test class, test name, and description
+            String filename = String.format("%s_%s_%s_%s.png", 
+                timestamp, currentTestClass, currentTestName, sanitizeFileName(description));
+            java.nio.file.Path fullPath = screenshotPath.resolve(filename);
+            
+            // Take screenshot
+            page.screenshot(new Page.ScreenshotOptions().setPath(fullPath).setFullPage(true));
+            
+            log.info("📷 Screenshot saved: {}", fullPath.toAbsolutePath());
+            return fullPath;
+            
+        } catch (Exception e) {
+            log.warn("Failed to take screenshot: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Take a screenshot of a specific element with human-readable filename.
+     * @param selector CSS selector for the element to capture
+     * @param description A description of what the screenshot shows
+     * @return Path to the saved screenshot
+     */
+    public java.nio.file.Path takeElementScreenshot(String selector, String description) {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS"));
+            String screenshotDir = System.getProperty("playwright.screenshot.dir", "target/playwright-screenshots");
+            
+            // Create human-readable directory structure
+            java.nio.file.Path screenshotPath = java.nio.file.Paths.get(screenshotDir, 
+                timestamp.substring(0, 10) + "_" + currentTestClass,
+                "screenshots");
+            
+            // Ensure directory exists
+            java.nio.file.Files.createDirectories(screenshotPath);
+            
+            // Create filename with timestamp, test class, test name, and description
+            String filename = String.format("%s_%s_%s_element_%s.png", 
+                timestamp, currentTestClass, currentTestName, sanitizeFileName(description));
+            java.nio.file.Path fullPath = screenshotPath.resolve(filename);
+            
+            // Take element screenshot
+            page.locator(selector).screenshot(new Locator.ScreenshotOptions().setPath(fullPath));
+            
+            log.info("📷 Element screenshot saved: {}", fullPath.toAbsolutePath());
+            return fullPath;
+            
+        } catch (Exception e) {
+            log.warn("Failed to take element screenshot: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Sanitize filename by removing invalid characters and replacing spaces.
+     * @param filename The original filename or description
+     * @return A safe filename for the filesystem
+     */
+    private String sanitizeFileName(String filename) {
+        if (filename == null) return "unknown";
+        
+        return filename
+            // Replace spaces and special characters with underscores or hyphens
+            .replaceAll("[\\s]+", "_")                    // Spaces to underscores
+            .replaceAll("[^a-zA-Z0-9_\\-.]", "-")         // Invalid chars to hyphens
+            .replaceAll("[-_]{2,}", "_")                  // Multiple separators to single underscore
+            .replaceAll("^[-_]+|[-_]+$", "")              // Remove leading/trailing separators
+            .toLowerCase();                               // Lowercase for consistency
     }
 }

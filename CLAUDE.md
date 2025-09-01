@@ -69,6 +69,23 @@ mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true
 # Run functional tests with custom recording directory
 mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true -Dplaywright.record.dir=test-recordings
 
+# Run documentation tutorial tests with screenshots and videos
+mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest -Dplaywright.headless=false -Dplaywright.slowmo=2000 -Dplaywright.record=true
+
+# Run tests with both screenshots and videos enabled
+mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true -Dplaywright.screenshot.dir=target/screenshots
+
+# Generate complete Indonesian user manual (runs tests + generates docs)
+bash scripts/generate-user-manual.sh
+
+# Options for user manual generation
+bash scripts/generate-user-manual.sh --visible    # Slow, shows browser (default)
+bash scripts/generate-user-manual.sh --fast       # Fast headless mode
+bash scripts/generate-user-manual.sh --help       # Show help
+
+# Generate user manual directly with Java
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+
 # Combined options for functional debugging
 mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.browser=chromium
 
@@ -109,7 +126,37 @@ The application uses **2 simplified test profiles**:
 | **Slow Motion** | 0ms | `-Dplaywright.slowmo=500` |
 | **Recording** | false | `-Dplaywright.record=true` |
 | **Recording Directory** | target/playwright-recordings | `-Dplaywright.record.dir=test-recordings` |
+| **Screenshot Directory** | target/playwright-screenshots | `-Dplaywright.screenshot.dir=target/screenshots` |
 | **Test Pattern** | All | `-Dtest=**/functional/success/*Test` |
+
+### Human-Readable File Naming ✅ NEW
+
+The enhanced Playwright framework now generates human-readable file and folder names:
+
+**Video Files:**
+- Format: `YYYY-MM-DD_HH-mm-ss_TestClass_testMethodName.webm`
+- Example: `2025-01-15_14-30-25_CustomerManagementSuccessTest_shouldCreatePersonalCustomerSuccessfully.webm`
+- Location: `target/playwright-recordings/YYYY-MM-DD_HH-mm-ss_TestClass/videos/`
+
+**Screenshot Files:**
+- Format: `YYYY-MM-DD_HH-mm-ss-SSS_TestClass_testMethodName_description.png`
+- Example: `2025-01-15_14-30-25-123_CustomerManagementSuccessTest_shouldCreatePersonalCustomerSuccessfully_customer_form_filled.png`
+- Location: `target/playwright-screenshots/YYYY-MM-DD_TestClass/screenshots/`
+
+**Directory Structure:**
+```
+target/
+├── playwright-recordings/
+│   └── 2025-01-15_14-30-25_CustomerManagementSuccessTest/
+│       └── videos/
+│           └── 2025-01-15_14-30-25_CustomerManagementSuccessTest_shouldCreatePersonalCustomerSuccessfully.webm
+└── playwright-screenshots/
+    └── 2025-01-15_CustomerManagementSuccessTest/
+        └── screenshots/
+            ├── 2025-01-15_14-30-25-123_CustomerManagementSuccessTest_step01_login_page_loaded.png
+            ├── 2025-01-15_14-30-25-456_CustomerManagementSuccessTest_step02_customer_form_filled.png
+            └── 2025-01-15_14-30-25-789_CustomerManagementSuccessTest_step03_customer_created_success.png
+```
 
 ### Functional Test Types
 
@@ -128,6 +175,53 @@ The application uses **2 simplified test profiles**:
 | **Video Recording** | Record test execution for analysis | `-Dplaywright.record=true` |
 | **Custom Recording Dir** | Specify recording output directory | `-Dplaywright.record.dir=my-recordings` |
 | **Cross-Browser Testing** | Test on different browser engines | `-Dplaywright.browser=firefox` or `webkit` |
+
+### Indonesian User Manual Generation ✅ NEW
+
+The framework now includes automated Indonesian user manual generation:
+
+**Features:**
+- **Language**: Complete Indonesian language support for banking operations
+- **Format**: Professional Markdown documentation with navigation
+- **Content**: Step-by-step tutorials with screenshots and videos
+- **Target**: Customer Service (CS) role for personal account opening
+- **Screenshots**: Automatically embedded with human-readable descriptions
+- **Videos**: Linked WebM files with descriptive titles
+
+**One-Stop Script Usage:**
+```bash
+# Complete solution: runs tests + generates documentation
+bash scripts/generate-user-manual.sh
+
+# Options
+bash scripts/generate-user-manual.sh --visible    # Shows browser execution (default)
+bash scripts/generate-user-manual.sh --fast       # Headless mode for faster execution
+bash scripts/generate-user-manual.sh --help       # Show usage help
+```
+
+**Manual Steps (if needed):**
+```bash
+# 1. Generate test screenshots and videos
+mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+  -Dplaywright.headless=false -Dplaywright.slowmo=2000 -Dplaywright.record=true
+
+# 2. Generate user manual from existing test results
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+```
+
+**Generated Files:**
+- `docs/user-manual/README.md` - Index and overview
+- `docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md` - Complete tutorial
+
+**Manual Contents:**
+1. Gambaran Umum (Overview)
+2. Prasyarat (Prerequisites) 
+3. 8 Langkah Detail (Detailed Steps) with screenshots
+4. Video Tutorial section
+5. Tips dan Catatan Penting (Important Tips)
+6. Pemecahan Masalah Umum (Common Troubleshooting)
+
+**Sample Output Size:** ~11KB Markdown with embedded screenshot references
 
 ### Database Operations
 ```bash

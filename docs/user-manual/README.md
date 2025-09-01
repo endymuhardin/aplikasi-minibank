@@ -1,0 +1,35 @@
+# Dokumentasi Pengguna Aplikasi Minibank
+
+## Panduan Yang Tersedia
+
+1. **[Panduan Pembukaan Rekening Nasabah Personal](panduan-pembukaan-rekening-nasabah-personal.md)**
+   - Target: Customer Service (CS)
+   - Proses: Pembukaan rekening nasabah personal
+   - Format: Panduan lengkap dengan screenshot dan video
+
+## Cara Menggunakan Panduan
+
+1. Buka file panduan yang sesuai dengan kebutuhan Anda
+2. Ikuti langkah-langkah secara berurutan
+3. Lihat screenshot untuk referensi visual
+4. Tonton video tutorial jika tersedia
+5. Gunakan bagian troubleshooting jika mengalami masalah
+
+## Pembaruan Panduan
+
+Panduan ini dibuat secara otomatis dari test dokumentasi. Untuk memperbarui:
+
+```bash
+# 1. Jalankan test dokumentasi
+mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+  -Dplaywright.headless=false \
+  -Dplaywright.slowmo=2000 \
+  -Dplaywright.record=true
+
+# 2. Generate ulang panduan
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+```
+
+---
+
+*Dibuat pada: 01 September 2025*
