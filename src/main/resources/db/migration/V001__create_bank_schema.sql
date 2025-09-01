@@ -56,6 +56,10 @@ CREATE TABLE personal_customers (
     date_of_birth DATE NOT NULL,
     identity_number VARCHAR(50) NOT NULL,
     identity_type VARCHAR(20) NOT NULL CHECK (identity_type IN ('KTP', 'PASSPORT', 'SIM')),
+    birth_place VARCHAR(100),
+    gender VARCHAR(10) CHECK (gender IN ('MALE', 'FEMALE')),
+    mother_name VARCHAR(100),
+    province VARCHAR(100),
     
     -- Foreign key to base customers table
     CONSTRAINT fk_personal_customers_id FOREIGN KEY (id) REFERENCES customers(id) ON DELETE CASCADE

@@ -25,13 +25,6 @@
                 <span th:text="${errorMessage}"></span>
             </div>
 
-            <!-- Validation errors -->
-            <div th:if="${#fields.hasErrors('*')}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <div class="font-medium mb-2">Harap perbaiki kesalahan berikut:</div>
-                <ul class="list-disc list-inside space-y-1">
-                    <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
-                </ul>
-            </div>
 
             <!-- Account Information Section -->
             <div class="bg-gray-50 rounded-lg p-4 mb-6">
@@ -63,6 +56,14 @@
 
             <!-- Cash Deposit Form -->
             <form th:action="@{/transaction/cash-deposit}" th:object="${depositRequest}" method="post" class="space-y-6">
+                <!-- Validation errors -->
+                <div th:if="${#fields.hasAnyErrors()}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <div class="font-medium mb-2">Harap perbaiki kesalahan berikut:</div>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
+                    </ul>
+                </div>
+                
                 <input type="hidden" th:field="*{accountId}">
                 
                 <!-- Amount -->
@@ -159,43 +160,42 @@
                     </div>
                 </div>
             </div>
+            <!-- JavaScript for balance calculation -->
+            <script th:inline="javascript">
+                // Get current balance from server
+                const currentBalance = /*[[${account.balance}]]*/ 0;
+                
+                function updateNewBalance() {
+                    const amountInput = document.getElementById('amount');
+                    const newBalanceDisplay = document.getElementById('new-balance-display');
+                    const newBalanceValue = document.getElementById('new-balance-value');
+                    
+                    const depositAmount = parseFloat(amountInput.value) || 0;
+                    
+                    if (depositAmount > 0) {
+                        const newBalance = currentBalance + depositAmount;
+                        newBalanceValue.textContent = 'IDR ' + newBalance.toLocaleString('id-ID', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                        newBalanceDisplay.classList.remove('hidden');
+                    } else {
+                        newBalanceDisplay.classList.add('hidden');
+                    }
+                }
+                
+                // Initialize on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateNewBalance();
+                    
+                    // Set default description if empty
+                    const descriptionField = document.getElementById('description');
+                    if (!descriptionField.value.trim()) {
+                        descriptionField.value = 'Setoran Tunai';
+                    }
+                });
+            </script>
         </div>
     </div>
-
-    <!-- JavaScript for balance calculation -->
-    <script th:inline="javascript">
-        // Get current balance from server
-        const currentBalance = /*[[${account.balance}]]*/ 0;
-        
-        function updateNewBalance() {
-            const amountInput = document.getElementById('amount');
-            const newBalanceDisplay = document.getElementById('new-balance-display');
-            const newBalanceValue = document.getElementById('new-balance-value');
-            
-            const depositAmount = parseFloat(amountInput.value) || 0;
-            
-            if (depositAmount > 0) {
-                const newBalance = currentBalance + depositAmount;
-                newBalanceValue.textContent = 'IDR ' + newBalance.toLocaleString('id-ID', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-                newBalanceDisplay.classList.remove('hidden');
-            } else {
-                newBalanceDisplay.classList.add('hidden');
-            }
-        }
-        
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateNewBalance();
-            
-            // Set default description if empty
-            const descriptionField = document.getElementById('description');
-            if (!descriptionField.value.trim()) {
-                descriptionField.value = 'Setoran Tunai';
-            }
-        });
-    </script>
 </body>
 </html>

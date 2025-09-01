@@ -210,7 +210,8 @@ public class DashboardPage {
             // Open user menu if it's not already open
             if (!logoutButton.isVisible()) {
                 userMenuButton.click();
-                page.waitForTimeout(200);
+                // Wait for logout button to appear in the menu
+                logoutButton.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(1000));
             }
             
             // Click logout button if visible
@@ -248,8 +249,12 @@ public class DashboardPage {
             // Open the user menu to check if logout button becomes visible
             userMenuButton.click();
             
-            // Wait a bit for menu to open and check if logout button is visible
-            page.waitForTimeout(200);
+            // Wait for menu to open and check if logout button is visible
+            try {
+                logoutButton.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.VISIBLE).setTimeout(500));
+            } catch (Exception e) {
+                // Menu might not have opened
+            }
             boolean isVisible = logoutButton.isVisible();
             
             // Close the menu by clicking outside or pressing escape

@@ -28,7 +28,12 @@ import id.ac.tazkia.minibank.entity.CorporateCustomer;
 import id.ac.tazkia.minibank.entity.Customer;
 import id.ac.tazkia.minibank.entity.PersonalCustomer;
 import id.ac.tazkia.minibank.repository.BranchRepository;
+import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
+import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
+import id.ac.tazkia.minibank.service.SequenceNumberService;
+import id.ac.tazkia.minibank.dto.PersonalCustomerCreateDto;
+import id.ac.tazkia.minibank.dto.CorporateCustomerCreateDto;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,11 +58,21 @@ public class CustomerController {
     private static final String CUSTOMER_NOT_FOUND_MSG = "Customer not found";
 
     private final CustomerRepository customerRepository;
+    private final PersonalCustomerRepository personalCustomerRepository;
+    private final CorporateCustomerRepository corporateCustomerRepository;
     private final BranchRepository branchRepository;
+    private final SequenceNumberService sequenceNumberService;
 
-    public CustomerController(CustomerRepository customerRepository, BranchRepository branchRepository) {
+    public CustomerController(CustomerRepository customerRepository, 
+                             PersonalCustomerRepository personalCustomerRepository,
+                             CorporateCustomerRepository corporateCustomerRepository,
+                             BranchRepository branchRepository,
+                             SequenceNumberService sequenceNumberService) {
         this.customerRepository = customerRepository;
+        this.personalCustomerRepository = personalCustomerRepository;
+        this.corporateCustomerRepository = corporateCustomerRepository;
         this.branchRepository = branchRepository;
+        this.sequenceNumberService = sequenceNumberService;
     }
 
     @GetMapping("/list")
@@ -72,8 +87,9 @@ public class CustomerController {
         Page<Customer> customers;
 
         if (search != null && !search.trim().isEmpty()) {
-            customers = customerRepository.findByCustomerNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                search.trim(), search.trim(), pageable);
+            // For now, use simple search by customer number or email
+            // This works for all customer types without complex JPQL
+            customers = customerRepository.findBySearchTerm(search.trim(), pageable);
         } else if (customerType != null && !customerType.trim().isEmpty()) {
             customers = customerRepository.findByCustomerType(
                 Customer.CustomerType.valueOf(customerType), pageable);
@@ -96,20 +112,18 @@ public class CustomerController {
     
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
-        model.addAttribute(CUSTOMER_ATTR, new PersonalCustomer());
-        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+        model.addAttribute(CUSTOMER_ATTR, new PersonalCustomerCreateDto());
         return PERSONAL_FORM_VIEW;
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
-        model.addAttribute(CUSTOMER_ATTR, new CorporateCustomer());
-        model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+        model.addAttribute(CUSTOMER_ATTR, new CorporateCustomerCreateDto());
         return CORPORATE_FORM_VIEW;
     }
 
     @PostMapping("/create/personal")
-    public String createPersonal(@Valid @ModelAttribute PersonalCustomer personalCustomer,
+    public String createPersonal(@Valid @ModelAttribute("customer") PersonalCustomerCreateDto personalCustomerDto,
                                 BindingResult bindingResult,
                                 RedirectAttributes redirectAttributes, 
                                 Model model) {
@@ -121,35 +135,32 @@ public class CustomerController {
                 validationErrors.add(error.getDefaultMessage());
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
-            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return PERSONAL_FORM_VIEW;
-        }
-
-        // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(personalCustomer.getCustomerNumber());
-        if (existing.isPresent()) {
-            model.addAttribute(ERROR_MESSAGE_ATTR, "Customer number already exists");
-            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+            model.addAttribute(CUSTOMER_ATTR, personalCustomerDto);
             return PERSONAL_FORM_VIEW;
         }
 
         try {
+            // Convert DTO to entity
+            PersonalCustomer personalCustomer = convertToPersonalCustomer(personalCustomerDto);
+            
+            // Auto-generate customer number
+            String customerNumber = sequenceNumberService.generateNextSequence("CUSTOMER", "C");
+            personalCustomer.setCustomerNumber(customerNumber);
+            
             customerRepository.save(personalCustomer);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Personal customer created successfully");
             return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
-            log.error("Failed to create personal customer", e);
+            log.error("Failed to create personal customer: " + e.getMessage(), e);
+            e.printStackTrace(); // Temporary debug output
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
-            model.addAttribute(CUSTOMER_ATTR, personalCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+            model.addAttribute(CUSTOMER_ATTR, personalCustomerDto);
             return PERSONAL_FORM_VIEW;
         }
     }
     
     @PostMapping("/create/corporate")
-    public String createCorporate(@Valid @ModelAttribute CorporateCustomer corporateCustomer,
+    public String createCorporate(@Valid @ModelAttribute("customer") CorporateCustomerCreateDto corporateCustomerDto,
                                  BindingResult bindingResult,
                                  RedirectAttributes redirectAttributes, 
                                  Model model) {
@@ -161,29 +172,25 @@ public class CustomerController {
                 validationErrors.add(error.getDefaultMessage());
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
-            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-            return CORPORATE_FORM_VIEW;
-        }
-
-        // Check for duplicate customer number
-        Optional<Customer> existing = customerRepository.findByCustomerNumber(corporateCustomer.getCustomerNumber());
-        if (existing.isPresent()) {
-            model.addAttribute(ERROR_MESSAGE_ATTR, "Customer number already exists");
-            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomerDto);
             return CORPORATE_FORM_VIEW;
         }
 
         try {
+            // Convert DTO to entity
+            CorporateCustomer corporateCustomer = convertToCorporateCustomer(corporateCustomerDto);
+            
+            // Auto-generate customer number
+            String customerNumber = sequenceNumberService.generateNextSequence("CUSTOMER", "C");
+            corporateCustomer.setCustomerNumber(customerNumber);
+            
             customerRepository.save(corporateCustomer);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Corporate customer created successfully");
             return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
             log.error("Failed to create corporate customer", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
-            model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
+            model.addAttribute(CUSTOMER_ATTR, corporateCustomerDto);
             return CORPORATE_FORM_VIEW;
         }
     }
@@ -223,14 +230,12 @@ public class CustomerController {
                 // Ensure we pass the PersonalCustomer object for proper field access
                 PersonalCustomer personalCustomer = (PersonalCustomer) c;
                 model.addAttribute(CUSTOMER_ATTR, personalCustomer);
-                model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-                return PERSONAL_FORM_VIEW;
+                    return PERSONAL_FORM_VIEW;
             } else if (c.getCustomerType() == Customer.CustomerType.CORPORATE) {
                 // Ensure we pass the CorporateCustomer object for proper field access
                 CorporateCustomer corporateCustomer = (CorporateCustomer) c;
                 model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
-                model.addAttribute("availableBranches", branchRepository.findActiveBranches());
-                return CORPORATE_FORM_VIEW;
+                    return CORPORATE_FORM_VIEW;
             } else {
                 redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, "Unknown customer type");
                 return CUSTOMER_LIST_REDIRECT;
@@ -270,7 +275,6 @@ public class CustomerController {
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
             model.addAttribute(CUSTOMER_ATTR, updatedCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return PERSONAL_FORM_VIEW;
         }
 
@@ -286,7 +290,6 @@ public class CustomerController {
             log.error("Failed to update personal customer", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to update customer: " + e.getMessage());
             model.addAttribute(CUSTOMER_ATTR, personalCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return PERSONAL_FORM_VIEW;
         }
     }
@@ -320,7 +323,6 @@ public class CustomerController {
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
             model.addAttribute(CUSTOMER_ATTR, updatedCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return CORPORATE_FORM_VIEW;
         }
 
@@ -336,7 +338,6 @@ public class CustomerController {
             log.error("Failed to update corporate customer", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to update customer: " + e.getMessage());
             model.addAttribute(CUSTOMER_ATTR, corporateCustomer);
-            model.addAttribute("availableBranches", branchRepository.findActiveBranches());
             return CORPORATE_FORM_VIEW;
         }
     }
@@ -367,5 +368,71 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, CUSTOMER_NOT_FOUND_MSG);
         }
         return CUSTOMER_LIST_REDIRECT;
+    }
+    
+    // DTO to Entity conversion methods
+    private PersonalCustomer convertToPersonalCustomer(PersonalCustomerCreateDto dto) {
+        PersonalCustomer customer = new PersonalCustomer();
+        
+        // Personal customer specific fields
+        customer.setFirstName(dto.getFirstName());
+        customer.setLastName(dto.getLastName());
+        customer.setDateOfBirth(dto.getDateOfBirth());
+        customer.setBirthPlace(dto.getBirthPlace());
+        if (dto.getGender() != null && !dto.getGender().trim().isEmpty()) {
+            customer.setGender(PersonalCustomer.Gender.valueOf(dto.getGender()));
+        }
+        customer.setMotherName(dto.getMotherName());
+        customer.setIdentityNumber(dto.getIdentityNumber());
+        customer.setIdentityType(Customer.IdentityType.valueOf(dto.getIdentityType()));
+        
+        // Common fields
+        customer.setEmail(dto.getEmail());
+        customer.setPhoneNumber(dto.getPhoneNumber());
+        customer.setAddress(dto.getAddress());
+        customer.setCity(dto.getCity());
+        customer.setPostalCode(dto.getPostalCode());
+        customer.setCountry(dto.getCountry());
+        
+        // Set branch - TODO: Get from logged-in user's branch when authentication is implemented
+        // For now, use the first active branch as default
+        List<Branch> activeBranches = branchRepository.findActiveBranches();
+        if (activeBranches.isEmpty()) {
+            throw new IllegalStateException("No active branches found in the system");
+        }
+        Branch branch = activeBranches.get(0);
+        customer.setBranch(branch);
+        
+        return customer;
+    }
+    
+    private CorporateCustomer convertToCorporateCustomer(CorporateCustomerCreateDto dto) {
+        CorporateCustomer customer = new CorporateCustomer();
+        
+        // Corporate customer specific fields
+        customer.setCompanyName(dto.getCompanyName());
+        customer.setCompanyRegistrationNumber(dto.getCompanyRegistrationNumber());
+        customer.setTaxIdentificationNumber(dto.getTaxIdentificationNumber());
+        customer.setContactPersonName(dto.getContactPersonName());
+        customer.setContactPersonTitle(dto.getContactPersonTitle());
+        
+        // Common fields
+        customer.setEmail(dto.getEmail());
+        customer.setPhoneNumber(dto.getPhoneNumber());
+        customer.setAddress(dto.getAddress());
+        customer.setCity(dto.getCity());
+        customer.setPostalCode(dto.getPostalCode());
+        customer.setCountry(dto.getCountry());
+        
+        // Set branch - TODO: Get from logged-in user's branch when authentication is implemented
+        // For now, use the first active branch as default
+        List<Branch> activeBranches = branchRepository.findActiveBranches();
+        if (activeBranches.isEmpty()) {
+            throw new IllegalStateException("No active branches found in the system");
+        }
+        Branch branch = activeBranches.get(0);
+        customer.setBranch(branch);
+        
+        return customer;
     }
 }

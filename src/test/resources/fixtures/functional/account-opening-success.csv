@@ -1,0 +1,7 @@
+customerIdentifier,productCode,productName,initialDeposit,accountPurpose,expectNisbah
+Ahmad Suharto,TAB001,Tabungan Wadiah Basic,100000,Personal Savings,false
+Siti Nurhaliza,TAB002,Tabungan Mudharabah Premium,1500000,Investment Savings,true
+PT. Teknologi Maju,GIR001,Giro Wadiah Corporate,5000000,Business Operations,false
+Ahmad Suharto,TAB002,Tabungan Mudharabah Premium,2000000,Investment Account,true
+Siti Nurhaliza,DEP001,Deposito Mudharabah,10000000,Fixed Deposit Investment,true
+PT. Teknologi Maju,GIR001,Giro Wadiah Corporate,10000000,Corporate Investment,false
