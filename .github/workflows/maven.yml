@@ -117,6 +117,19 @@ jobs:
         echo "📚 Generating user manual from captured media..."
         mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
         
+        echo "📂 Copying generated documentation to docs/user-manual..."
+        # Create docs/user-manual directory if it doesn't exist
+        mkdir -p docs/user-manual
+        
+        # Copy all generated content from target to docs folder
+        if [ -d "target/playwright-documentation" ]; then
+            cp -r target/playwright-documentation/* docs/user-manual/
+            echo "✅ Documentation successfully copied to docs/user-manual/"
+        else
+            echo "❌ Error: target/playwright-documentation directory not found"
+            exit 1
+        fi
+        
     - name: Prepare documentation for deployment
       run: |
         echo "📦 Preparing documentation for GitHub Pages..."

@@ -383,12 +383,13 @@ Sebelum memulai proses pembukaan rekening, pastikan:
             
             for (int i = 0; i < videos.size(); i++) {
                 Path video = videos.get(i);
-                String relativePath = outputPath.relativize(video).toString().replace('\\', '/');
-                String filename = video.getFileName().toString().replace(".webm", "");
-                String readableTitle = makeVideoTitleReadable(filename);
+                String filename = video.getFileName().toString();
+                String filenameWithoutExtension = filename.replace(".webm", "");
+                String readableTitle = makeVideoTitleReadable(filenameWithoutExtension);
                 
                 videoSection.append(String.format("### %s\n\n", readableTitle));
-                videoSection.append(String.format("**File:** [%s.webm](%s)\n\n", filename, relativePath));
+                // Use simple relative path to videos directory since files are copied there
+                videoSection.append(String.format("**File:** [%s](videos/%s)\n\n", filename, filename));
                 videoSection.append("> **Catatan:** Untuk memutar video, klik link di atas atau buka file langsung menggunakan browser yang mendukung format WebM.\n\n");
             }
         } else {

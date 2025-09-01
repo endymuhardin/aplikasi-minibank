@@ -178,6 +178,21 @@ mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator" 
 MANUAL_EXIT_CODE=$?
 
 if [ $MANUAL_EXIT_CODE -eq 0 ]; then
+    # Step 5: Copy generated documentation to docs/user-manual
+    echo "📂 Menyalin dokumentasi ke direktori docs/user-manual..."
+    
+    # Create docs/user-manual directory if it doesn't exist
+    mkdir -p docs/user-manual
+    
+    # Copy all generated content from target to docs folder
+    if [ -d "target/playwright-documentation" ]; then
+        cp -r target/playwright-documentation/* docs/user-manual/
+        echo "✅ Dokumentasi berhasil disalin ke docs/user-manual/"
+    else
+        echo "❌ Error: Direktori target/playwright-documentation tidak ditemukan"
+        exit 1
+    fi
+    
     echo ""
     echo "✅ Panduan pengguna berhasil dibuat!"
     echo ""
