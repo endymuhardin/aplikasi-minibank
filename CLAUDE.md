@@ -235,6 +235,64 @@ docker exec -it aplikasi-minibank-postgres-1 psql -U minibank -d pgminibank
 docker compose down -v
 ```
 
+### Documentation Generation
+
+```bash
+# Generate user manual documentation with Playwright screenshots/videos
+./scripts/generate-user-manual.sh --fast
+
+# Generate with visible browser (for debugging)
+./scripts/generate-user-manual.sh --visible
+
+# Show help and available options
+./scripts/generate-user-manual.sh --help
+
+# Manual steps (if needed)
+# 1. Run documentation test to generate screenshots/videos
+mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+  -Dplaywright.headless=false \
+  -Dplaywright.slowmo=2000 \
+  -Dplaywright.record=true
+
+# 2. Generate user manual from captured media
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+```
+
+### GitHub Actions & Automated Documentation
+
+The project includes automated documentation generation via GitHub Actions:
+
+```yaml
+# Workflow: .github/workflows/maven.yml
+# Triggers: Push to main branch
+# Output: GitHub Pages deployment with user documentation
+```
+
+**Automated Process:**
+1. **Build & Test**: Runs unit/integration tests with parallel execution
+2. **Documentation Generation**: 
+   - Installs Playwright dependencies in CI environment
+   - Runs PersonalCustomerAccountOpeningTutorialTest in headless mode
+   - Captures screenshots and videos of complete CS workflow
+   - Generates comprehensive Indonesian user manual
+3. **GitHub Pages Deployment**:
+   - Creates web-friendly HTML versions of documentation
+   - Deploys to GitHub Pages for public access
+   - Auto-updates on every push to main branch
+
+**Access Documentation:**
+- **Public URL**: `https://<username>.github.io/<repository>/` (after first deployment)
+- **Local Generated**: `docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md`
+- **Download Artifacts**: Available in GitHub Actions runs
+
+**Features:**
+- ✅ Automated screenshot capture with human-readable filenames
+- ✅ Video tutorial generation (WebM format)
+- ✅ Indonesian banking documentation with proper terminology
+- ✅ Professional HTML styling with Bootstrap CSS
+- ✅ Mobile-responsive design for various devices
+- ✅ Automatic timestamp updates on each deployment
+
 ## Architecture Overview
 
 This is a **Spring Boot minibank application** using layered architecture with:
