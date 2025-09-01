@@ -76,28 +76,28 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
         
+    - name: Set up Node.js for Playwright
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
     - name: Install Playwright and documentation dependencies
       run: |
-        # Install system dependencies required for Playwright browsers
+        # Update package lists
         sudo apt-get update
+        
+        # Install basic dependencies
         sudo apt-get install -y \
           xvfb \
-          fonts-liberation \
-          libasound2 \
-          libatk-bridge2.0-0 \
-          libatk1.0-0 \
-          libatspi2.0-0 \
-          libcups2 \
-          libdrm2 \
-          libgtk-3-0 \
-          libnspr4 \
-          libnss3 \
-          libx11-xcb1 \
-          libxcomposite1 \
-          libxdamage1 \
-          libxrandr2 \
-          xdg-utils \
-          pandoc
+          pandoc \
+          wget \
+          unzip
+        
+        # Install Playwright dependencies using npx (more reliable)
+        npx --yes playwright@1.40.0 install-deps chromium
+        
+        # Verify installation
+        echo "✅ Playwright dependencies installed successfully"
         
     - name: Compile application
       run: mvn -B compile --file pom.xml
