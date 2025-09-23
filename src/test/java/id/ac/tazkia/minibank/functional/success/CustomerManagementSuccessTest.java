@@ -67,7 +67,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/functional/personal-customer-creation-success.csv", numLinesToSkip = 1)
-    @DisplayName("Should successfully create personal customers")
+    @DisplayName("[CS-S-001-01] Should successfully create personal customers")
     void shouldCreatePersonalCustomerSuccessfully(
             String name, String identityNumber, String identityType,
             String birthDate, String birthPlace, String gender, String motherName,
@@ -114,7 +114,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/functional/corporate-customer-creation-success.csv", numLinesToSkip = 1)
-    @DisplayName("Should successfully create corporate customers")
+    @DisplayName("[CS-S-001-02] Should successfully create corporate customers")
     void shouldCreateCorporateCustomerSuccessfully(
             String companyName, String companyRegistrationNumber, String taxIdentificationNumber,
             String contactPersonName, String contactPersonTitle, String email, String phone, 
@@ -160,7 +160,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully search customers")
+    @DisplayName("[CS-S-001-03] Should successfully search customers")
     void shouldSearchCustomerSuccessfully() {
         log.info("Success Test: Customer search functionality");
         
@@ -246,7 +246,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully view customer details")
+    @DisplayName("[CS-S-001-04] Should successfully view customer details")
     void shouldViewCustomerDetailsSuccessfully() {
         log.info("Success Test: Viewing customer details");
         
@@ -312,7 +312,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully edit customer information")
+    @DisplayName("[CS-S-001-05] Should successfully edit customer information")
     void shouldEditCustomerInformationSuccessfully() {
         log.info("Success Test: Editing customer information");
         
@@ -412,7 +412,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully navigate between customer pages")
+    @DisplayName("[CS-S-001-06] Should successfully navigate between customer pages")
     void shouldNavigateBetweenCustomerPagesSuccessfully() {
         log.info("Success Test: Navigation between customer pages");
         
@@ -474,7 +474,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully display all customer list elements")
+    @DisplayName("[CS-S-001-07] Should successfully display all customer list elements")
     void shouldDisplayCustomerListElementsSuccessfully() {
         log.info("Success Test: Customer list page elements");
         
@@ -508,7 +508,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     
     
     @Test
-    @DisplayName("Should successfully create multiple customers in sequence")
+    @DisplayName("[CS-S-001-08] Should successfully create multiple customers in sequence")
     void shouldCreateMultipleCustomersSuccessfully() {
         log.info("Success Test: Creating multiple customers");
         
@@ -568,7 +568,7 @@ class CustomerManagementSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully view existing customers if any are present")
+    @DisplayName("[CS-S-001-09] Should successfully view existing customers if any are present")
     void shouldViewExistingCustomersSuccessfully() {
         log.info("Success Test: Viewing existing customers");
         

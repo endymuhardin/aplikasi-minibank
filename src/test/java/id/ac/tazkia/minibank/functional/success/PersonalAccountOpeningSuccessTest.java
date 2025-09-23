@@ -112,7 +112,7 @@ class PersonalAccountOpeningSuccessTest extends BasePlaywrightTest {
     
     @ParameterizedTest
     @CsvFileSource(resources = "/fixtures/functional/personal-account-opening-success.csv", numLinesToSkip = 1)
-    @DisplayName("Should successfully open various personal Islamic banking accounts")
+    @DisplayName("[CS-S-002-01] Should successfully open various personal Islamic banking accounts")
     void shouldOpenPersonalAccountSuccessfully(
             String customerIdentifier, String productCode, String productName,
             String initialDeposit, String accountPurpose, boolean expectNisbah) {
@@ -171,7 +171,7 @@ class PersonalAccountOpeningSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully open Tabungan Wadiah account with minimum deposit")
+    @DisplayName("[CS-S-002-02] Should successfully open Tabungan Wadiah account with minimum deposit")
     void shouldOpenTabunganWadiahAccountSuccessfully() {
         log.info("Personal Success Test: Opening Tabungan Wadiah account");
         
@@ -204,7 +204,7 @@ class PersonalAccountOpeningSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully open Tabungan Mudharabah account with profit sharing")
+    @DisplayName("[CS-S-002-03] Should successfully open Tabungan Mudharabah account with profit sharing")
     void shouldOpenTabunganMudharabahAccountSuccessfully() {
         log.info("Personal Success Test: Opening Tabungan Mudharabah account");
         
@@ -241,7 +241,7 @@ class PersonalAccountOpeningSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully open Deposito Mudharabah account for high-value customers")
+    @DisplayName("[CS-S-002-06] Should successfully open Deposito Mudharabah account for high-value customers")
     void shouldOpenDepositoMudharabahAccountSuccessfully() {
         log.info("Personal Success Test: Opening Deposito Mudharabah account");
         
@@ -278,7 +278,7 @@ class PersonalAccountOpeningSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully validate Islamic banking compliance for personal accounts")
+    @DisplayName("[CS-S-002-99] Should successfully validate Islamic banking compliance for personal accounts")
     void shouldValidatePersonalIslamicBankingCompliance() {
         log.info("Personal Success Test: Islamic banking compliance validation");
         
