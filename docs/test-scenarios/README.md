@@ -1,48 +1,252 @@
 # Test Scenarios Documentation
 
-> **Note**: For comprehensive testing guide including infrastructure, configuration, and execution, see [TESTING.md](../TESTING.md). This document focuses specifically on detailed test scenarios.
-
 ## Overview
-Dokumentasi ini berisi test scenarios yang komprehensif untuk aplikasi minibank Islam. Semua test scenarios telah disesuaikan dengan actual database schema, entity validation rules, existing seed data, CSV fixtures, dan Playwright test patterns yang ada di codebase.
+Comprehensive test scenarios for Islamic minibank application, organized by user role and scenario type for easy navigation and Playwright test mapping.
 
-## Test Scenarios Overview
+## Naming Convention
 
-**Test Coverage Areas:**
-- **Customer Management** - Full CRUD, search, validation scenarios
-- **Product Management** - Islamic banking products, CRUD operations
-- **Account Opening** - Personal & Corporate, Islamic banking compliance
-- **Cash Deposit Transactions** - Complete Web UI workflow scenarios
-- **Cash Withdrawal Transactions** - Complete Web UI dengan real-time validation
-- **Transfer Operations** - Transfer antar rekening scenarios
-- **Passbook Printing** - Transaction history and printing scenarios
-- **RBAC Management** - Users, roles, permissions management
-- **Authentication & Authorization** - Multi-role login, security scenarios
-- **Dashboard & Navigation** - UI navigation workflow scenarios
-- **Islamic Financing Applications** - Murabahah, Mudharabah, Musharakah scenarios
-- **Account Statement PDF** - PDF generation scenarios
+### Scenario ID Format
+```
+[ROLE]-[TYPE]-[NUMBER]-[description]
 
-## Folder Structure
+Where:
+- ROLE: CS (Customer Service), TL (Teller), BM (Branch Manager), CM (Customer Mobile), SA (System Admin)
+- TYPE: S (Success/Happy Path), A (Alternate/Negative)
+- NUMBER: Sequential 3-digit number (001, 002, etc.)
+- description: Kebab-case description
+```
+
+### Examples
+- `CS-S-001-customer-registration.md` - Customer Service success scenario for registration
+- `TL-A-001-insufficient-balance.md` - Teller alternate scenario for insufficient balance
+- `BM-S-001-product-management.md` - Branch Manager success scenario for products
+
+## Directory Structure
 
 ```
 docs/test-scenarios/
-├── README.md                           # Overview dan panduan penggunaan
-├── account-management/                 # Test scenarios untuk manajemen account
-│   ├── account-opening.md             # Pembukaan rekening baru
-│   └── account-lifecycle.md           # Complete account lifecycle management
-├── transactions/                      # Test scenarios untuk transaksi
-│   ├── cash-deposit.md               # Setoran tunai
-│   ├── cash-withdrawal.md            # Penarikan tunai
-│   └── transfers.md                  # Transfer antar rekening (future implementation)
-├── reporting/                        # Test scenarios untuk reporting
-│   └── account-statement-pdf.md      # Cetak rekening koran PDF
-├── administration/                   # Test scenarios untuk admin functions
-│   └── product-management.md         # Islamic banking product management
-├── system-management/               # Test scenarios untuk system admin
-│   └── rbac-data-management.md      # Role-based access control management
-├── islamic-financing/               # Test scenarios untuk Islamic financing
-│   └── islamic-financing-products.md # Murabahah, Mudharabah, Musharakah, Ijarah, Salam, Istisna
-└── compliance/                      # Test scenarios untuk audit dan compliance
-    └── audit-and-compliance.md      # Regulatory compliance, audit trails, AML, KYC
+├── README.md                              # Overview and navigation guide
+├── 01-customer-service/                   # Customer Service role
+│   ├── success/                          # Happy path scenarios
+│   │   ├── CS-S-001-customer-registration.md
+│   │   ├── CS-S-002-account-opening.md
+│   │   └── CS-S-003-passbook-issuance.md
+│   └── alternate/                        # Error cases & validations
+│       ├── CS-A-001-customer-validation-errors.md
+│       └── CS-A-002-account-opening-rejections.md
+│
+├── 02-teller/                            # Teller role
+│   ├── success/
+│   │   ├── TL-S-001-cash-deposit.md
+│   │   ├── TL-S-002-cash-withdrawal.md
+│   │   └── TL-S-003-transfers.md
+│   └── alternate/
+│       ├── TL-A-001-insufficient-balance.md
+│       └── TL-A-002-transaction-limits.md
+│
+├── 03-branch-manager/                    # Branch Manager role
+│   ├── success/
+│   │   ├── BM-S-001-product-management.md
+│   │   ├── BM-S-002-account-lifecycle.md
+│   │   ├── BM-S-003-report-generation.md
+│   │   └── BM-S-004-audit-compliance.md
+│   └── alternate/
+│       └── BM-A-001-product-validation-errors.md
+│
+├── 04-customer-mobile/                   # Future: Mobile banking
+│   ├── success/
+│   │   └── CM-S-001-balance-inquiry.md
+│   └── alternate/
+│       └── CM-A-001-authentication-failures.md
+│
+└── 05-system-admin/                      # System Administrator
+    └── success/
+        └── SA-S-001-rbac-management.md
+```
+
+## Test Coverage Matrix
+
+### Customer Service (CS)
+| Scenario ID | Description | Type | Priority |
+|------------|-------------|------|----------|
+| CS-S-001 | Customer Registration | Success | High |
+| CS-S-002 | Account Opening | Success | High |
+| CS-S-003 | Passbook Issuance | Success | Medium |
+| CS-A-001 | Customer Validation Errors | Alternate | High |
+| CS-A-002 | Account Opening Rejections | Alternate | High |
+
+### Teller (TL)
+| Scenario ID | Description | Type | Priority |
+|------------|-------------|------|----------|
+| TL-S-001 | Cash Deposit | Success | High |
+| TL-S-002 | Cash Withdrawal | Success | High |
+| TL-S-003 | Transfers | Success | High |
+| TL-A-001 | Insufficient Balance | Alternate | High |
+| TL-A-002 | Transaction Limits | Alternate | High |
+
+### Branch Manager (BM)
+| Scenario ID | Description | Type | Priority |
+|------------|-------------|------|----------|
+| BM-S-001 | Product Management | Success | High |
+| BM-S-002 | Account Lifecycle | Success | Medium |
+| BM-S-003 | Report Generation | Success | Medium |
+| BM-S-004 | Audit Compliance | Success | Low |
+| BM-A-001 | Product Validation Errors | Alternate | High |
+
+### Customer Mobile (CM) - Future Development
+| Scenario ID | Description | Type | Status |
+|------------|-------------|------|--------|
+| CM-S-001 | Balance Inquiry | Success | Future |
+| CM-A-001 | Authentication Failures | Alternate | Future |
+
+### System Administrator (SA)
+| Scenario ID | Description | Type | Priority |
+|------------|-------------|------|----------|
+| SA-S-001 | RBAC Management | Success | Medium |
+
+## Playwright Test Mapping
+
+### Test Class Naming Convention
+```java
+// Success scenarios
+CustomerRegistrationSuccessTest    // Maps to CS-S-001
+CashDepositSuccessTest             // Maps to TL-S-001
+ProductManagementSuccessTest       // Maps to BM-S-001
+
+// Alternate scenarios
+CustomerValidationAlternateTest    // Maps to CS-A-001
+InsufficientBalanceAlternateTest  // Maps to TL-A-001
+ProductValidationAlternateTest     // Maps to BM-A-001
+```
+
+### Test Method Naming
+```java
+@Test
+void test_CS_S_001_01_createPersonalCustomer() { }
+
+@Test
+void test_TL_A_001_02_transferExceedingBalance() { }
+```
+
+## Test Data Management
+
+### CSV Fixtures Location
+```
+src/test/resources/fixtures/
+├── customer/
+│   ├── personal-customer-data.csv
+│   └── corporate-customer-data.csv
+├── account/
+│   ├── account-opening-data.csv
+│   └── account-validation-errors.csv
+├── transaction/
+│   ├── deposit-data.csv
+│   ├── withdrawal-data.csv
+│   └── transfer-data.csv
+└── product/
+    ├── product-creation-data.csv
+    └── product-validation-errors.csv
+```
+
+## Islamic Banking Terminology
+
+### Products
+- **Tabungan Wadiah**: Safekeeping savings (no profit sharing)
+- **Tabungan Mudharabah**: Profit-sharing savings
+- **Deposito Mudharabah**: Profit-sharing time deposit
+
+### Terms
+- **Nisbah**: Profit sharing ratio (customer:bank)
+- **Akad**: Islamic contract
+- **Shariah Compliant**: Following Islamic banking principles
+
+## Execution Guidelines
+
+### Sequential Testing (Default)
+```bash
+mvn test -Dtest=**/success/*Test
+```
+
+### Parallel Testing
+```bash
+mvn test -Dtest.profile=parallel -Dtest=**/success/*Test
+```
+
+### Role-Specific Testing
+```bash
+# Customer Service tests only
+mvn test -Dtest=**/CustomerRegistration*Test,**/AccountOpening*Test
+
+# Teller tests only
+mvn test -Dtest=**/CashDeposit*Test,**/CashWithdrawal*Test,**/Transfer*Test
+
+# Branch Manager tests only
+mvn test -Dtest=**/ProductManagement*Test,**/AccountLifecycle*Test
+```
+
+### Scenario Type Testing
+```bash
+# Success scenarios only
+mvn test -Dtest=**/success/*Test
+
+# Alternate scenarios only
+mvn test -Dtest=**/alternate/*Test
+```
+
+## Test Reporting
+
+### Coverage Goals
+- Success Scenarios: 100% of happy paths
+- Alternate Scenarios: All validation rules and error cases
+- Integration: End-to-end workflows across roles
+
+### Metrics Tracked
+- Test execution time per scenario
+- Pass/fail rates by role
+- Defect density by module
+- Test coverage percentage
+
+## Maintenance
+
+### Adding New Scenarios
+1. Choose appropriate role folder (01-customer-service, 02-teller, etc.)
+2. Determine scenario type (success or alternate)
+3. Use next sequential number in naming
+4. Follow the template structure
+5. Update this README with new scenario
+
+### Scenario Template
+```markdown
+# Test Scenario: [ID] - [Title]
+
+## Scenario ID: [XX-X-XXX]
+**Role**: [Role Name]
+**Type**: [Success/Alternate]
+**Module**: [Module Name]
+**Priority**: [High/Medium/Low]
+
+## Overview
+[Brief description]
+
+## Test Cases
+
+### [ID]-01: [Test Case Name]
+**Test Data**:
+- Field1: Value1
+- Field2: Value2
+
+**Steps**:
+1. Step 1
+2. Step 2
+3. Step 3
+
+**Expected Result**:
+- Result 1
+- Result 2
+
+## Playwright Test Mapping
+- Test Class: `[TestClassName]`
+- Test Methods: `test_[ID]_01_methodName()`
 ```
 
 ## Comprehensive Coverage
