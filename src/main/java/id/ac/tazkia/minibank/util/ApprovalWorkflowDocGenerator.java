@@ -138,15 +138,19 @@ public class ApprovalWorkflowDocGenerator {
         // Table of Contents
         md.append("## Daftar Isi\n\n");
         md.append("1. [Gambaran Umum](#gambaran-umum)\n");
-        md.append("2. [Prasyarat](#prasyarat)\n");
-        md.append("3. [Alur Kerja Approval](#alur-kerja-approval)\n");
-        md.append("4. [Langkah-langkah Detail](#langkah-langkah-detail)\n");
+        md.append("2. [Proses Bisnis End-to-End](#proses-bisnis-end-to-end)\n");
+        md.append("   1. [Customer Service: Registrasi Nasabah & Pembukaan Rekening](#customer-service-registrasi-nasabah--pembukaan-rekening)\n");
+        md.append("   2. [Branch Manager: Persetujuan Nasabah & Rekening](#branch-manager-persetujuan-nasabah--rekening)\n");
+        md.append("   3. [Teller: Transaksi & Layanan](#teller-transaksi--layanan)\n");
+        md.append("3. [Prasyarat](#prasyarat)\n");
+        md.append("4. [Alur Kerja Approval](#alur-kerja-approval)\n");
+        md.append("5. [Langkah-langkah Detail](#langkah-langkah-detail)\n");
         md.append("   1. [Bagian 1: Customer Service - Membuat Nasabah Baru](#bagian-1-customer-service---membuat-nasabah-baru)\n");
         md.append("   2. [Bagian 2: Branch Manager - Review dan Approval](#bagian-2-branch-manager---review-dan-approval)\n");
-        md.append("5. [Video Tutorial](#video-tutorial)\n");
-        md.append("6. [Status Approval](#status-approval)\n");
-        md.append("7. [Tips dan Catatan Penting](#tips-dan-catatan-penting)\n");
-        md.append("8. [Pemecahan Masalah Umum](#pemecahan-masalah-umum)\n\n");
+        md.append("6. [Video Tutorial](#video-tutorial)\n");
+        md.append("7. [Status Approval](#status-approval)\n");
+        md.append("8. [Tips dan Catatan Penting](#tips-dan-catatan-penting)\n");
+        md.append("9. [Pemecahan Masalah Umum](#pemecahan-masalah-umum)\n\n");
         md.append("---\n\n");
 
         // Overview
@@ -158,6 +162,317 @@ public class ApprovalWorkflowDocGenerator {
         md.append("- ✅ Audit trail lengkap untuk setiap persetujuan\n");
         md.append("- ✅ Dual control untuk operasi penting\n\n");
         md.append("**Waktu Estimasi:** 10-15 menit per approval request\n\n");
+        md.append("---\n\n");
+
+        // End-to-End Business Process
+        md.append("## Proses Bisnis End-to-End\n\n");
+        md.append("Panduan ini menjelaskan alur bisnis lengkap dari pendaftaran nasabah hingga transaksi pertama. Sistem Minibank menggunakan **dual approval workflow** untuk memastikan keamanan dan akurasi data.\n\n");
+
+        // Customer Service Section
+        md.append("### Customer Service: Registrasi Nasabah & Pembukaan Rekening\n\n");
+        md.append("#### 1. Pilih Jenis Nasabah\n");
+        md.append("Customer Service memulai dengan memilih jenis nasabah:\n");
+        md.append("- **Personal Customer (Nasabah Perorangan)**\n");
+        md.append("  - Untuk individu\n");
+        md.append("  - Memerlukan KTP/Passport\n");
+        md.append("  - Data personal lengkap (FR.002)\n");
+        md.append("- **Corporate Customer (Nasabah Korporat)**\n");
+        md.append("  - Untuk perusahaan/badan hukum\n");
+        md.append("  - Memerlukan dokumen perusahaan\n");
+        md.append("  - Informasi PIC (Person In Charge)\n\n");
+
+        md.append("#### 2. Input Data Nasabah\n");
+        md.append("CS mengisi formulir lengkap dengan data yang diverifikasi dari dokumen:\n");
+        md.append("- **Identitas:** KTP/Passport, tanggal lahir, tempat lahir\n");
+        md.append("- **Kontak:** Email, nomor telepon, alamat lengkap\n");
+        md.append("- **Data Pribadi:** Pendidikan, agama, status pernikahan, tanggungan\n");
+        md.append("- **Pekerjaan:** Occupation, perusahaan, bidang usaha, penghasilan\n");
+        md.append("- **Tujuan:** Purpose of account opening, estimasi transaksi\n");
+        md.append("- **Compliance:** Source of funds (anti money laundering)\n\n");
+
+        md.append("#### 3. Simpan Data & Dapatkan Customer Number\n");
+        md.append("Setelah data divalidasi:\n");
+        md.append("- Sistem generate **Customer Number** otomatis (contoh: C1000001)\n");
+        md.append("- Status nasabah: **PENDING_APPROVAL** (INACTIVE)\n");
+        md.append("- Sistem membuat **ApprovalRequest** otomatis untuk Branch Manager\n");
+        md.append("- CS mendapat konfirmasi: \"Customer submitted for approval\"\n\n");
+
+        md.append("#### 4. Buka Layar Account Opening\n");
+        md.append("CS melanjutkan dengan membuka rekening untuk nasabah:\n");
+        md.append("- Navigate ke menu \"Open Account\"\n");
+        md.append("- Sistem menampilkan form pencarian customer\n\n");
+
+        md.append("#### 5. Cari & Pilih Nasabah\n");
+        md.append("CS dapat mencari nasabah dengan berbagai cara:\n");
+        md.append("- **Search by Customer Number:** Ketik nomor nasabah (C1000001)\n");
+        md.append("- **Search by Name:** Ketik nama lengkap atau sebagian nama\n");
+        md.append("- **Search by Email:** Ketik alamat email\n");
+        md.append("- Sistem menampilkan hanya nasabah dengan status **ACTIVE**\n");
+        md.append("- ⚠️ **Catatan:** Nasabah PENDING_APPROVAL tidak dapat dibuka rekeningnya\n\n");
+
+        md.append("#### 6. Pilih Jenis Rekening (Account Type)\n");
+        md.append("Sistem menampilkan produk yang tersedia berdasarkan jenis nasabah:\n");
+        md.append("- **Conventional Products:**\n");
+        md.append("  - SAVINGS (Tabungan konvensional)\n");
+        md.append("  - CHECKING (Giro konvensional)\n");
+        md.append("- **Islamic Banking Products:**\n");
+        md.append("  - TABUNGAN_WADIAH (Tabungan Syariah dengan akad Wadiah)\n");
+        md.append("  - TABUNGAN_MUDHARABAH (Tabungan Syariah dengan akad Mudharabah)\n");
+        md.append("  - DEPOSITO_MUDHARABAH (Deposito Syariah)\n\n");
+
+        md.append("#### 7. Pilih Akad Syariah (Islamic Contract)\n");
+        md.append("Akad sudah embedded dalam product type:\n");
+        md.append("- **Wadiah (Safekeeping)**\n");
+        md.append("  - Produk: TABUNGAN_WADIAH\n");
+        md.append("  - Prinsip: Titipan dengan izin penggunaan\n");
+        md.append("  - Bonus: Bank boleh memberikan bonus (tidak dijanjikan)\n");
+        md.append("  - Cocok untuk: Transaction account, liquidity management\n");
+        md.append("- **Mudharabah (Profit Sharing)**\n");
+        md.append("  - Produk: TABUNGAN_MUDHARABAH, DEPOSITO_MUDHARABAH\n");
+        md.append("  - Prinsip: Bagi hasil (profit sharing)\n");
+        md.append("  - Nisbah: Customer 60% - Bank 40% (configurable)\n");
+        md.append("  - Cocok untuk: Savings account, investment\n");
+        md.append("- **Qardh (Benevolent Loan)** - Coming soon\n\n");
+
+        md.append("#### 8. Simpan Rekening Baru\n");
+        md.append("CS melengkapi form pembukaan rekening:\n");
+        md.append("- **Account Name:** Nama untuk rekening (e.g., \"John - Savings\")\n");
+        md.append("- **Product:** Pilihan produk Islamic/conventional\n");
+        md.append("- **Initial Deposit:** Setoran awal (min. sesuai product requirement)\n");
+        md.append("- Sistem generate **Account Number** otomatis (contoh: ACC0000001)\n");
+        md.append("- Status rekening: **PENDING_APPROVAL** (INACTIVE)\n");
+        md.append("- Sistem membuat **ApprovalRequest** otomatis untuk Branch Manager\n");
+        md.append("- Initial deposit langsung masuk (balance recorded, but inactive)\n\n");
+
+        md.append("**Summary CS Flow:**\n");
+        md.append("```\n");
+        md.append("CS Login → Select Customer Type → Input Data → Save (get C1000001)\n");
+        md.append("       → Open Account → Search Customer → Select Product & Akad\n");
+        md.append("       → Initial Deposit → Save Account (get ACC0000001)\n");
+        md.append("       → Both waiting for Branch Manager approval\n");
+        md.append("```\n\n");
+        md.append("---\n\n");
+
+        // Branch Manager Section
+        md.append("### Branch Manager: Persetujuan Nasabah & Rekening\n\n");
+        md.append("#### 1. Cari Nasabah (Search Customer)\n");
+        md.append("Branch Manager login dan navigate ke **Approval Queue**:\n");
+        md.append("- Queue menampilkan semua pending approval\n");
+        md.append("- Filter by **Request Type:**\n");
+        md.append("  - CUSTOMER_CREATION: Nasabah baru\n");
+        md.append("  - ACCOUNT_OPENING: Rekening baru\n");
+        md.append("- Filter by **Entity Type:**\n");
+        md.append("  - CUSTOMER\n");
+        md.append("  - ACCOUNT\n");
+        md.append("- Search by customer number, name, atau requested date\n\n");
+
+        md.append("#### 2. Temukan Data Nasabah Baru\n");
+        md.append("Manager klik \"View Details\" pada request **CUSTOMER_CREATION**:\n");
+        md.append("- **Request Information:**\n");
+        md.append("  - Request Type: CUSTOMER_CREATION\n");
+        md.append("  - Entity Type: CUSTOMER\n");
+        md.append("  - Requested By: CS username (e.g., cs1)\n");
+        md.append("  - Requested Date: Timestamp pembuatan\n");
+        md.append("  - Request Notes: Catatan dari CS\n");
+        md.append("- **Customer Details (Complete):**\n");
+        md.append("  - Customer Number: C1000001\n");
+        md.append("  - Customer Type: PERSONAL/CORPORATE\n");
+        md.append("  - Personal data: nama, identitas, kontak\n");
+        md.append("  - Employment data: pekerjaan, penghasilan\n");
+        md.append("  - Compliance data: source of funds, account purpose\n");
+        md.append("  - All FR.002 compliant fields\n\n");
+
+        md.append("#### 3. Authorize Customer Registration\n");
+        md.append("Manager melakukan review dan approval:\n");
+        md.append("- **Review Checklist:**\n");
+        md.append("  - ✅ Data lengkap dan akurat\n");
+        md.append("  - ✅ Sesuai dengan dokumen pendukung\n");
+        md.append("  - ✅ Tidak ada red flag (data mencurigakan)\n");
+        md.append("  - ✅ Compliant dengan regulasi banking\n");
+        md.append("- **Action: Approve**\n");
+        md.append("  - Isi \"Review Notes\" (optional but recommended)\n");
+        md.append("  - Klik tombol \"Approve\"\n");
+        md.append("  - Hasil: Customer status → **APPROVED & ACTIVE**\n");
+        md.append("  - Customer dapat digunakan untuk account opening\n");
+        md.append("- **Action: Reject**\n");
+        md.append("  - **Wajib** isi \"Rejection Reason\" dengan detail\n");
+        md.append("  - Isi \"Additional Notes\" (optional)\n");
+        md.append("  - Klik tombol \"Reject\"\n");
+        md.append("  - Hasil: Customer status → **REJECTED & INACTIVE**\n");
+        md.append("  - CS dapat melihat rejection reason untuk perbaikan\n\n");
+
+        md.append("#### 4. Cari Rekening by Customer (Search Account)\n");
+        md.append("Setelah approve customer, Manager mencari account request:\n");
+        md.append("- Kembali ke **Approval Queue**\n");
+        md.append("- Filter by Request Type: **ACCOUNT_OPENING**\n");
+        md.append("- Dapat search by customer number atau account number\n");
+        md.append("- Sistem menampilkan accounts yang pending approval\n\n");
+
+        md.append("#### 5. Temukan Rekening Baru untuk Nasabah\n");
+        md.append("Manager klik \"View Details\" pada request **ACCOUNT_OPENING**:\n");
+        md.append("- **Request Information:**\n");
+        md.append("  - Request Type: ACCOUNT_OPENING\n");
+        md.append("  - Entity Type: ACCOUNT\n");
+        md.append("  - Requested By: CS username\n");
+        md.append("  - Request Notes: e.g., \"New account opening with initial deposit 1,000,000\"\n");
+        md.append("- **Account Details:**\n");
+        md.append("  - Account Number: ACC0000001\n");
+        md.append("  - Account Name: As per CS input\n");
+        md.append("  - Customer: Link to customer (C1000001)\n");
+        md.append("  - Product: Product name, type, category\n");
+        md.append("  - Product Type: TABUNGAN_WADIAH, TABUNGAN_MUDHARABAH, etc.\n");
+        md.append("  - Initial Balance: Amount from initial deposit\n");
+        md.append("  - Currency: IDR\n");
+        md.append("  - Status: PENDING_APPROVAL\n\n");
+
+        md.append("#### 6. Authorize Account Opening\n");
+        md.append("Manager melakukan review dan approval rekening:\n");
+        md.append("- **Review Checklist:**\n");
+        md.append("  - ✅ Customer sudah APPROVED & ACTIVE\n");
+        md.append("  - ✅ Product sesuai dengan customer type\n");
+        md.append("  - ✅ Initial deposit memenuhi minimum requirement\n");
+        md.append("  - ✅ Account name dan details sesuai\n");
+        md.append("- **Action: Approve**\n");
+        md.append("  - Isi \"Review Notes\"\n");
+        md.append("  - Klik tombol \"Approve\"\n");
+        md.append("  - Hasil: Account status → **APPROVED & ACTIVE**\n");
+        md.append("  - Nasabah dapat mulai bertransaksi\n");
+        md.append("- **Action: Reject**\n");
+        md.append("  - **Wajib** isi \"Rejection Reason\"\n");
+        md.append("  - Hasil: Account status → **REJECTED & INACTIVE**\n");
+        md.append("  - Initial deposit tetap recorded tapi tidak bisa digunakan\n\n");
+
+        md.append("**Summary Manager Flow:**\n");
+        md.append("```\n");
+        md.append("Manager Login → Approval Queue\n");
+        md.append("             → Search & Filter (CUSTOMER_CREATION)\n");
+        md.append("             → View Details Customer (C1000001)\n");
+        md.append("             → Approve/Reject Customer\n");
+        md.append("             → Search & Filter (ACCOUNT_OPENING)\n");
+        md.append("             → View Details Account (ACC0000001)\n");
+        md.append("             → Approve/Reject Account\n");
+        md.append("             → Customer & Account now ACTIVE\n");
+        md.append("```\n\n");
+        md.append("---\n\n");
+
+        // Teller Section
+        md.append("### Teller: Transaksi & Layanan\n\n");
+        md.append("Setelah customer dan account diapprove, Teller dapat melayani transaksi:\n\n");
+
+        md.append("#### 1. Cari Nasabah untuk Transaksi\n");
+        md.append("Teller login dan navigate ke menu transaksi:\n");
+        md.append("- **Menu:** Cash Deposit / Cash Withdrawal / Transfer\n");
+        md.append("- **Search Account:**\n");
+        md.append("  - By Account Number: ACC0000001\n");
+        md.append("  - By Account Name: Sebagian nama\n");
+        md.append("  - By Customer Number: C1000001\n");
+        md.append("- Sistem hanya menampilkan accounts dengan status **ACTIVE**\n");
+        md.append("- Sistem validasi approval_status = **APPROVED**\n\n");
+
+        md.append("#### 2. Input Transaksi Cash Deposit (Setoran Tunai)\n");
+        md.append("Teller memproses setoran tunai:\n");
+        md.append("- **Form Transaction:**\n");
+        md.append("  - Account: Selected account (auto-filled)\n");
+        md.append("  - Amount: Jumlah setoran (IDR)\n");
+        md.append("  - Description: \"Setoran Tunai\" atau custom\n");
+        md.append("  - Reference Number: Optional transaction reference\n");
+        md.append("  - Channel: TELLER (auto-filled)\n");
+        md.append("  - Created By: Teller username\n");
+        md.append("- **Process:**\n");
+        md.append("  - Sistem generate Transaction Number (e.g., TXN0000001)\n");
+        md.append("  - Record balance before and after\n");
+        md.append("  - Update account balance using `account.deposit(amount)`\n");
+        md.append("  - Create audit trail dengan timestamp\n");
+        md.append("  - Display success message dengan transaction number\n\n");
+
+        md.append("#### 3. Print Account Statement (Rekening Koran) ke PDF\n");
+        md.append("Teller dapat generate dan print rekening koran:\n");
+        md.append("- **Navigate:** Account List → Select Account → \"Statement\"\n");
+        md.append("- **Form Parameters:**\n");
+        md.append("  - Start Date: Tanggal awal periode (default: 3 bulan lalu)\n");
+        md.append("  - End Date: Tanggal akhir periode (default: hari ini)\n");
+        md.append("- **Klik:** \"Generate PDF\"\n");
+        md.append("- **Output PDF Content:**\n");
+        md.append("  - Bank letterhead dan logo\n");
+        md.append("  - Account information (number, name, type, product)\n");
+        md.append("  - Customer information\n");
+        md.append("  - Statement period\n");
+        md.append("  - Transaction table:\n");
+        md.append("    - Date | Description | Transaction Type\n");
+        md.append("    - Debit | Credit | Running Balance\n");
+        md.append("  - Opening balance dan closing balance\n");
+        md.append("  - Total debit dan total credit\n");
+        md.append("  - Generated timestamp dan user\n");
+        md.append("- **Download:** File format: `statement_ACC0000001_2025-01-01_to_2025-03-31.pdf`\n\n");
+
+        md.append("**Bonus: Transaction Receipt PDF**\n");
+        md.append("Setiap transaksi juga dapat di-print sebagai receipt:\n");
+        md.append("- Navigate ke Transaction List\n");
+        md.append("- Klik \"View\" pada transaction\n");
+        md.append("- Klik \"Download Receipt (PDF)\"\n");
+        md.append("- Professional receipt format dengan transaction details lengkap\n\n");
+
+        md.append("**Summary Teller Flow:**\n");
+        md.append("```\n");
+        md.append("Teller Login → Cash Deposit Menu\n");
+        md.append("            → Search Account (by number/name/customer)\n");
+        md.append("            → Select ACTIVE Account (ACC0000001)\n");
+        md.append("            → Input Amount & Details\n");
+        md.append("            → Process Transaction (get TXN0000001)\n");
+        md.append("            → Print Receipt PDF (optional)\n");
+        md.append("            → OR Generate Account Statement PDF\n");
+        md.append("```\n\n");
+        md.append("---\n\n");
+
+        // Complete Flow
+        md.append("### 🎯 Complete Business Flow Summary\n\n");
+        md.append("```mermaid\n");
+        md.append("sequenceDiagram\n");
+        md.append("    participant CS as Customer Service\n");
+        md.append("    participant System\n");
+        md.append("    participant Manager as Branch Manager\n");
+        md.append("    participant Teller\n");
+        md.append("    \n");
+        md.append("    Note over CS: Part 1: Customer & Account Creation\n");
+        md.append("    CS->>System: 1. Select Customer Type (Personal/Corporate)\n");
+        md.append("    CS->>System: 2. Input Customer Details (FR.002)\n");
+        md.append("    System->>System: 3. Generate Customer Number (C1000001)\n");
+        md.append("    System->>System: Save with PENDING_APPROVAL status\n");
+        md.append("    CS->>System: 4. Navigate to Account Opening\n");
+        md.append("    CS->>System: 5. Search & Select Customer\n");
+        md.append("    CS->>System: 6. Select Account Type (SAVINGS/CHECKING)\n");
+        md.append("    CS->>System: 7. Select Akad (WADIAH/MUDHARABAH)\n");
+        md.append("    System->>System: 8. Generate Account Number (ACC0000001)\n");
+        md.append("    System->>System: Save with PENDING_APPROVAL status\n");
+        md.append("    \n");
+        md.append("    Note over Manager: Part 2: Approval Process\n");
+        md.append("    Manager->>System: 1. Search Customer in Approval Queue\n");
+        md.append("    System->>Manager: 2. Display Customer Details (C1000001)\n");
+        md.append("    Manager->>System: 3. Approve Customer Registration\n");
+        md.append("    System->>System: Customer → APPROVED & ACTIVE\n");
+        md.append("    Manager->>System: 4. Search Account in Approval Queue\n");
+        md.append("    System->>Manager: 5. Display Account Details (ACC0000001)\n");
+        md.append("    Manager->>System: 6. Approve Account Opening\n");
+        md.append("    System->>System: Account → APPROVED & ACTIVE\n");
+        md.append("    \n");
+        md.append("    Note over Teller: Part 3: Transaction Processing\n");
+        md.append("    Teller->>System: 1. Search Customer/Account\n");
+        md.append("    System->>Teller: Display ACTIVE Accounts only\n");
+        md.append("    Teller->>System: 2. Input Cash Deposit Transaction\n");
+        md.append("    System->>System: Generate Transaction Number (TXN0000001)\n");
+        md.append("    System->>System: Update Balance & Create Audit Trail\n");
+        md.append("    Teller->>System: 3. Generate Account Statement PDF\n");
+        md.append("    System->>Teller: Download statement_ACC0000001.pdf\n");
+        md.append("```\n\n");
+        md.append("**🔑 Key Points:**\n");
+        md.append("1. **Customer Number** auto-generated saat CS save customer (C1000001)\n");
+        md.append("2. **Account Number** auto-generated saat CS save account (ACC0000001)\n");
+        md.append("3. **Akad Selection** embedded dalam product type (TABUNGAN_WADIAH = Wadiah akad)\n");
+        md.append("4. **Dual Approval** required: Customer approval → then Account approval\n");
+        md.append("5. **Status Flow:**\n");
+        md.append("   - Customer: PENDING_APPROVAL → APPROVED → ACTIVE (can transact)\n");
+        md.append("   - Account: PENDING_APPROVAL → APPROVED → ACTIVE (can transact)\n");
+        md.append("6. **Complete Audit Trail** for all operations with timestamp and username\n\n");
         md.append("---\n\n");
 
         // Prerequisites
