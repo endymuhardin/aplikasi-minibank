@@ -303,25 +303,21 @@ jobs:
             echo "p { margin-bottom: 1rem; }" >> pages/custom-styles.css
 
             # Create header file with Mermaid support
-            cat > pages/mermaid-header.html << 'MERMAID_EOF'
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'default',
-    securityLevel: 'loose'
-  });
-</script>
-MERMAID_EOF
+            echo '<script type="module">' > pages/mermaid-header.html
+            echo "  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';" >> pages/mermaid-header.html
+            echo '  mermaid.initialize({' >> pages/mermaid-header.html
+            echo '    startOnLoad: true,' >> pages/mermaid-header.html
+            echo "    theme: 'default'," >> pages/mermaid-header.html
+            echo "    securityLevel: 'loose'" >> pages/mermaid-header.html
+            echo '  });' >> pages/mermaid-header.html
+            echo '</script>' >> pages/mermaid-header.html
 
             # Create Lua filter for Mermaid diagrams
-            cat > pages/mermaid.lua << 'LUA_EOF'
-function CodeBlock(block)
-  if block.classes[1] == "mermaid" then
-    return pandoc.RawBlock('html', '<div class="mermaid">\n' .. block.text .. '\n</div>')
-  end
-end
-LUA_EOF
+            echo 'function CodeBlock(block)' > pages/mermaid.lua
+            echo '  if block.classes[1] == "mermaid" then' >> pages/mermaid.lua
+            echo '    return pandoc.RawBlock("html", "<div class=\"mermaid\">\\n" .. block.text .. "\\n</div>")' >> pages/mermaid.lua
+            echo '  end' >> pages/mermaid.lua
+            echo 'end' >> pages/mermaid.lua
 
             # Create HTML with Mermaid support
             pandoc pages/panduan-customer-onboarding.md \
