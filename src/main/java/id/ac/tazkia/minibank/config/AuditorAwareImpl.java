@@ -3,18 +3,19 @@ package id.ac.tazkia.minibank.config;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 /**
  * Implementation of Spring Data's AuditorAware interface to automatically
  * populate audit fields (createdBy, updatedBy) with the current user.
- * 
+ *
  * This eliminates the need for manually setting audit fields in controllers
  * and services, providing a centralized and consistent approach.
+ *
+ * Note: This class is instantiated via @Bean in JpaAuditingConfig,
+ * not via @Component annotation.
  */
-@Component
 public class AuditorAwareImpl implements AuditorAware<String> {
 
     private static final String SYSTEM_USER = "SYSTEM";

@@ -143,7 +143,7 @@ public class AccountRestController {
             account.setAccountName(request.getAccountName());
             account.setBalance(request.getInitialDeposit());
             account.setStatus(Account.AccountStatus.ACTIVE);
-            account.setCreatedBy(request.getCreatedBy());
+            // createdBy will be set automatically by JPA auditing
 
             Account savedAccount = accountRepository.save(account);
 

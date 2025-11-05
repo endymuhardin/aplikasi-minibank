@@ -27,7 +27,4 @@ public class AccountOpeningRequest {
     @NotNull(message = "Initial deposit is required")
     @DecimalMin(value = "0.01", message = "Initial deposit must be positive")
     private BigDecimal initialDeposit = BigDecimal.ZERO;
-    
-    @Size(max = 100, message = "Created by field must not exceed 100 characters")
-    private String createdBy;
 }

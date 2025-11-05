@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @RequiredArgsConstructor
 public class AccountService {
-    
+
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final TransactionRepository transactionRepository;
     private final SequenceNumberService sequenceNumberService;
     private final ApprovalService approvalService;
+    private final AuditorAware<String> auditorAware;
     
     /**
      * Opens a new account with initial deposit transaction.
@@ -77,9 +79,9 @@ public class AccountService {
         account = accountRepository.save(account);
         log.info("Account created with number: {}", accountNumber);
         
-        // Create initial deposit transaction
+        // Create initial deposit transaction (createdBy will be set automatically by JPA auditing)
         createInitialDepositTransaction(account, accountRequest.getInitialDeposit(),
-                                      accountRequest.getCreatedBy());
+                                      auditorAware.getCurrentAuditor().orElse("SYSTEM"));
 
         // Use entity business method to deposit and update balance
         account.deposit(accountRequest.getInitialDeposit());
@@ -91,10 +93,8 @@ public class AccountService {
         // Save updated account
         account = accountRepository.save(account);
 
-        // Create approval request
-        // TODO: Get actual username from security context when authentication is implemented
-        String requestedBy = accountRequest.getCreatedBy() != null ?
-            accountRequest.getCreatedBy() : "customer-service";
+        // Create approval request using current authenticated user
+        String requestedBy = auditorAware.getCurrentAuditor().orElse("SYSTEM");
         approvalService.createAccountApprovalRequest(account, requestedBy,
             "New account opening with initial deposit " + accountRequest.getInitialDeposit());
 
@@ -142,9 +142,9 @@ public class AccountService {
         account = accountRepository.save(account);
         log.info("Corporate account created with number: {}", accountNumber);
         
-        // Create initial deposit transaction
+        // Create initial deposit transaction (createdBy will be set automatically by JPA auditing)
         createInitialDepositTransaction(account, accountRequest.getInitialDeposit(),
-                                      accountRequest.getCreatedBy());
+                                      auditorAware.getCurrentAuditor().orElse("SYSTEM"));
 
         // Use entity business method to deposit and update balance
         account.deposit(accountRequest.getInitialDeposit());
@@ -156,10 +156,8 @@ public class AccountService {
         // Save updated account
         account = accountRepository.save(account);
 
-        // Create approval request
-        // TODO: Get actual username from security context when authentication is implemented
-        String requestedBy = accountRequest.getCreatedBy() != null ?
-            accountRequest.getCreatedBy() : "customer-service";
+        // Create approval request using current authenticated user
+        String requestedBy = auditorAware.getCurrentAuditor().orElse("SYSTEM");
         approvalService.createAccountApprovalRequest(account, requestedBy,
             "New corporate account opening with initial deposit " + accountRequest.getInitialDeposit());
 

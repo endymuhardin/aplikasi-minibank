@@ -8,17 +8,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Generator for Indonesian approval workflow documentation based on Playwright test screenshots.
+ * Generator for Indonesian customer onboarding documentation based on Playwright test screenshots.
  *
- * This utility creates comprehensive user manuals for the approval workflow process
- * by analyzing generated screenshots from ApprovalWorkflowTutorialTest.
+ * This utility creates comprehensive user manuals for the complete customer onboarding process
+ * by analyzing generated screenshots from ApprovalWorkflowTutorialTest (Customer Onboarding).
  */
 public class ApprovalWorkflowDocGenerator {
 
     private static final String SCREENSHOT_DIR = "target/playwright-screenshots";
     private static final String VIDEO_DIR = "target/playwright-recordings";
     private static final String DOCS_DIR = "docs/user-manual";
-    private static final String OUTPUT_FILE = "panduan-approval-workflow.md";
+    private static final String OUTPUT_FILE = "panduan-customer-onboarding.md";
 
     private final Path screenshotPath;
     private final Path videoPath;
@@ -33,7 +33,7 @@ public class ApprovalWorkflowDocGenerator {
     }
 
     public static void main(String[] args) {
-        System.out.println("🚀 Memulai pembuatan panduan Approval Workflow...");
+        System.out.println("🚀 Memulai pembuatan panduan Customer Onboarding...");
 
         try {
             ApprovalWorkflowDocGenerator generator = new ApprovalWorkflowDocGenerator();
@@ -81,7 +81,7 @@ public class ApprovalWorkflowDocGenerator {
 
         return Files.walk(screenshotPath)
             .filter(path -> path.toString().endsWith(".png"))
-            .filter(path -> path.toString().contains("approval_workflow"))
+            .filter(path -> path.toString().contains("customer_onboarding"))
             .sorted()
             .collect(Collectors.toList());
     }
@@ -93,7 +93,7 @@ public class ApprovalWorkflowDocGenerator {
 
         return Files.walk(videoPath)
             .filter(path -> path.toString().endsWith(".webm"))
-            .filter(path -> path.toString().toLowerCase().contains("approvalworkflow"))
+            .filter(path -> path.toString().toLowerCase().contains("customeronboarding"))
             .sorted()
             .collect(Collectors.toList());
     }
@@ -126,12 +126,12 @@ public class ApprovalWorkflowDocGenerator {
         StringBuilder md = new StringBuilder();
 
         // Header
-        md.append("# Panduan Approval Workflow untuk Branch Manager\n\n");
+        md.append("# Panduan Proses Onboarding Nasabah Baru\n\n");
         md.append("**Aplikasi Minibank - Sistem Perbankan Syariah**\n\n");
         md.append("---\n\n");
         md.append("**Tanggal Pembuatan:** ").append(LocalDateTime.now().format(dateFormatter)).append("  \n");
-        md.append("**Versi:** 2.0  \n");
-        md.append("**Target Pengguna:** Customer Service (CS) dan Branch Manager  \n");
+        md.append("**Versi:** 3.0  \n");
+        md.append("**Target Pengguna:** Customer Service (CS), Branch Manager, dan Teller  \n");
         md.append("**Status:** Aktif  \n\n");
         md.append("---\n\n");
 
