@@ -29,29 +29,38 @@ public abstract class Customer {
     private String customerNumber;
     
     // Common fields
+    @Size(max = 100, message = "Alias name must not exceed 100 characters")
+    @Column(name = "alias_name", length = 100)
+    private String aliasName;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     @Size(max = 100, message = "Email must not exceed 100 characters")
     @Column(name = "email", length = 100)
     private String email;
-    
+
     @NotBlank(message = "Phone number is required")
-    @Size(max = 20, message = "Phone number must not exceed 20 characters")
+    @Size(min = 10, max = 13, message = "Phone number must be between 10 and 13 digits")
+    @Pattern(regexp = "^08\\d{8,11}$", message = "Phone number must start with 08 and contain 10-13 digits")
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
-    
-    @Size(max = 255, message = "Address must not exceed 255 characters")
+
+    @NotBlank(message = "Address is required")
+    @Size(min = 10, max = 250, message = "Address must be between 10 and 250 characters")
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
-    
+
+    @NotBlank(message = "City is required")
     @Size(max = 100, message = "City must not exceed 100 characters")
     @Column(name = "city", length = 100)
     private String city;
-    
-    @Size(max = 10, message = "Postal code must not exceed 10 characters")
+
+    @NotBlank(message = "Postal code is required")
+    @Size(min = 5, max = 5, message = "Postal code must be exactly 5 digits")
+    @Pattern(regexp = "^\\d{5}$", message = "Postal code must be 5 digits")
     @Column(name = "postal_code", length = 10)
     private String postalCode;
-    
+
     @Size(max = 50, message = "Country must not exceed 50 characters")
     @Column(name = "country", length = 50)
     private String country = "Indonesia";

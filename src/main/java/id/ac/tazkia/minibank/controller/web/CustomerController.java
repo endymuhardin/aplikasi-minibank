@@ -373,8 +373,8 @@ public class CustomerController {
     // DTO to Entity conversion methods
     private PersonalCustomer convertToPersonalCustomer(PersonalCustomerCreateDto dto) {
         PersonalCustomer customer = new PersonalCustomer();
-        
-        // Personal customer specific fields
+
+        // Basic Personal Information
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
         customer.setDateOfBirth(dto.getDateOfBirth());
@@ -383,17 +383,49 @@ public class CustomerController {
             customer.setGender(PersonalCustomer.Gender.valueOf(dto.getGender()));
         }
         customer.setMotherName(dto.getMotherName());
+
+        // Personal Data - New fields
+        if (dto.getEducation() != null && !dto.getEducation().trim().isEmpty()) {
+            customer.setEducation(PersonalCustomer.Education.valueOf(dto.getEducation()));
+        }
+        if (dto.getReligion() != null && !dto.getReligion().trim().isEmpty()) {
+            customer.setReligion(PersonalCustomer.Religion.valueOf(dto.getReligion()));
+        }
+        if (dto.getMaritalStatus() != null && !dto.getMaritalStatus().trim().isEmpty()) {
+            customer.setMaritalStatus(PersonalCustomer.MaritalStatus.valueOf(dto.getMaritalStatus()));
+        }
+        customer.setDependents(dto.getDependents());
+
+        // Identity Information
         customer.setIdentityNumber(dto.getIdentityNumber());
         customer.setIdentityType(Customer.IdentityType.valueOf(dto.getIdentityType()));
-        
+        if (dto.getCitizenship() != null && !dto.getCitizenship().trim().isEmpty()) {
+            customer.setCitizenship(PersonalCustomer.Citizenship.valueOf(dto.getCitizenship()));
+        }
+        customer.setResidencyStatus(dto.getResidencyStatus());
+        customer.setIdentityExpiryDate(dto.getIdentityExpiryDate());
+        customer.setProvince(dto.getProvince());
+
+        // Employment Data - New fields
+        customer.setOccupation(dto.getOccupation());
+        customer.setCompanyName(dto.getCompanyName());
+        customer.setCompanyAddress(dto.getCompanyAddress());
+        customer.setBusinessField(dto.getBusinessField());
+        customer.setMonthlyIncome(dto.getMonthlyIncome());
+        customer.setSourceOfFunds(dto.getSourceOfFunds());
+        customer.setAccountPurpose(dto.getAccountPurpose());
+        customer.setEstimatedMonthlyTransactions(dto.getEstimatedMonthlyTransactions());
+        customer.setEstimatedTransactionAmount(dto.getEstimatedTransactionAmount());
+
         // Common fields
+        customer.setAliasName(dto.getAliasName());
         customer.setEmail(dto.getEmail());
         customer.setPhoneNumber(dto.getPhoneNumber());
         customer.setAddress(dto.getAddress());
         customer.setCity(dto.getCity());
         customer.setPostalCode(dto.getPostalCode());
         customer.setCountry(dto.getCountry());
-        
+
         // Set branch - TODO: Get from logged-in user's branch when authentication is implemented
         // For now, use the first active branch as default
         List<Branch> activeBranches = branchRepository.findActiveBranches();
@@ -402,7 +434,7 @@ public class CustomerController {
         }
         Branch branch = activeBranches.get(0);
         customer.setBranch(branch);
-        
+
         return customer;
     }
     

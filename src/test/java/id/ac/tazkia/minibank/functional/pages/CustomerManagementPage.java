@@ -24,6 +24,7 @@ public class CustomerManagementPage {
     private final Locator customerNumberInput;
     private final Locator customerNameInput;
     private final Locator lastNameInput;
+    private final Locator aliasNameInput;
     private final Locator branchSelect;
     private final Locator identityNumberInput;
     private final Locator identityTypeSelect;
@@ -38,6 +39,28 @@ public class CustomerManagementPage {
     private final Locator provinceInput;
     private final Locator postalCodeInput;
     private final Locator countryInput;
+
+    // FR.002 Personal Data fields
+    private final Locator educationSelect;
+    private final Locator religionSelect;
+    private final Locator maritalStatusSelect;
+    private final Locator dependentsSelect;
+
+    // FR.002 Identity fields
+    private final Locator citizenshipSelect;
+    private final Locator residencyStatusInput;
+    private final Locator identityExpiryDateInput;
+
+    // FR.002 Employment Data fields
+    private final Locator occupationInput;
+    private final Locator companyNamePersonalInput;
+    private final Locator companyAddressInput;
+    private final Locator businessFieldInput;
+    private final Locator monthlyIncomeInput;
+    private final Locator sourceOfFundsInput;
+    private final Locator accountPurposeInput;
+    private final Locator estimatedMonthlyTransactionsInput;
+    private final Locator estimatedTransactionAmountInput;
     
     // Corporate customer specific fields
     private final Locator companyNameInput;
@@ -71,6 +94,7 @@ public class CustomerManagementPage {
         this.customerNumberInput = page.locator("#customerNumber");
         this.customerNameInput = page.locator("#firstName"); // Use firstName as primary name field
         this.lastNameInput = page.locator("#lastName");
+        this.aliasNameInput = page.locator("#aliasName");
         this.branchSelect = page.locator("#branch");
         this.identityNumberInput = page.locator("#identityNumber");
         this.identityTypeSelect = page.locator("#identityType");
@@ -85,6 +109,28 @@ public class CustomerManagementPage {
         this.provinceInput = page.locator("#province");
         this.postalCodeInput = page.locator("#postalCode");
         this.countryInput = page.locator("#country");
+
+        // Initialize FR.002 Personal Data field locators
+        this.educationSelect = page.locator("#education");
+        this.religionSelect = page.locator("#religion");
+        this.maritalStatusSelect = page.locator("#maritalStatus");
+        this.dependentsSelect = page.locator("#dependents");
+
+        // Initialize FR.002 Identity field locators
+        this.citizenshipSelect = page.locator("#citizenship");
+        this.residencyStatusInput = page.locator("#residencyStatus");
+        this.identityExpiryDateInput = page.locator("#identityExpiryDate");
+
+        // Initialize FR.002 Employment Data field locators
+        this.occupationInput = page.locator("#occupation");
+        this.companyNamePersonalInput = page.locator("#companyName");
+        this.companyAddressInput = page.locator("#companyAddress");
+        this.businessFieldInput = page.locator("#businessField");
+        this.monthlyIncomeInput = page.locator("#monthlyIncome");
+        this.sourceOfFundsInput = page.locator("#sourceOfFunds");
+        this.accountPurposeInput = page.locator("#accountPurpose");
+        this.estimatedMonthlyTransactionsInput = page.locator("#estimatedMonthlyTransactions");
+        this.estimatedTransactionAmountInput = page.locator("#estimatedTransactionAmount");
         
         // Corporate specific fields
         this.companyNameInput = page.locator("#companyName");
@@ -169,17 +215,45 @@ public class CustomerManagementPage {
     }
     
     /**
-     * Fill personal customer form
+     * Fill personal customer form - Original method (backward compatibility)
+     * For tests that don't need FR.002 fields
      */
     public CustomerManagementPage fillPersonalCustomerForm(
-            String name, String identityNumber, String identityType, 
+            String name, String identityNumber, String identityType,
             String birthDate, String birthPlace, String gender,
-            String motherName, String email, String phone, 
+            String motherName, String email, String phone,
             String address, String city, String province, String postalCode) {
-        
-        // Handle name field - split for first/last name fields
+
+        // Call the extended version with null values for FR.002 fields
+        return fillPersonalCustomerFormExtended(
+            name, null, identityNumber, identityType, birthDate, birthPlace, gender,  motherName,
+            null, null, null, null,
+            null, null, null,
+            email, phone, address, city, province, postalCode,
+            null, null, null, null, null, null, null, null, null
+        );
+    }
+
+    /**
+     * Fill personal customer form - Extended version with FR.002 fields
+     */
+    public CustomerManagementPage fillPersonalCustomerFormExtended(
+            // Basic Personal Information
+            String name, String aliasName, String identityNumber, String identityType,
+            String birthDate, String birthPlace, String gender, String motherName,
+            // Personal Data (FR.002)
+            String education, String religion, String maritalStatus, String dependents,
+            // Identity Information (FR.002)
+            String citizenship, String residencyStatus, String identityExpiryDate,
+            // Contact Information
+            String email, String phone, String address, String city, String province, String postalCode,
+            // Employment Data (FR.002)
+            String occupation, String companyName, String companyAddress, String businessField,
+            String monthlyIncome, String sourceOfFunds, String accountPurpose,
+            String estimatedMonthlyTransactions, String estimatedTransactionAmount) {
+
+        // Basic Personal Information
         if (name != null) {
-            // Always split name for first/last name fields in personal customer form
             String[] nameParts = name.split(" ", 2);
             if (customerNameInput.isVisible()) {
                 customerNameInput.fill(nameParts[0]); // firstName field
@@ -188,30 +262,48 @@ public class CustomerManagementPage {
                 lastNameInput.fill(nameParts[1]); // lastName field
             }
         }
-        
-        if (identityNumber != null && identityNumberInput.isVisible()) identityNumberInput.fill(identityNumber);
-        
-        if (identityType != null && identityTypeSelect.isVisible()) {
-            identityTypeSelect.selectOption(identityType);
-        }
-        
+
+        if (aliasName != null && aliasNameInput.isVisible()) aliasNameInput.fill(aliasName);
         if (birthDate != null && birthDateInput.isVisible()) birthDateInput.fill(birthDate);
         if (birthPlace != null && birthPlaceInput.isVisible()) birthPlaceInput.fill(birthPlace);
-        
-        if (gender != null && genderSelect.isVisible()) {
-            genderSelect.selectOption(gender);
-        }
-        
+        if (gender != null && genderSelect.isVisible()) genderSelect.selectOption(gender);
         if (motherName != null && motherNameInput.isVisible()) motherNameInput.fill(motherName);
+
+        // Personal Data (FR.002)
+        if (education != null && educationSelect.isVisible()) educationSelect.selectOption(education);
+        if (religion != null && religionSelect.isVisible()) religionSelect.selectOption(religion);
+        if (maritalStatus != null && maritalStatusSelect.isVisible()) maritalStatusSelect.selectOption(maritalStatus);
+        if (dependents != null && dependentsSelect.isVisible()) dependentsSelect.selectOption(dependents);
+
+        // Identity Information
+        if (identityNumber != null && identityNumberInput.isVisible()) identityNumberInput.fill(identityNumber);
+        if (identityType != null && identityTypeSelect.isVisible()) identityTypeSelect.selectOption(identityType);
+        if (citizenship != null && citizenshipSelect.isVisible()) citizenshipSelect.selectOption(citizenship);
+        if (residencyStatus != null && residencyStatusInput.isVisible()) residencyStatusInput.fill(residencyStatus);
+        if (identityExpiryDate != null && identityExpiryDateInput.isVisible()) identityExpiryDateInput.fill(identityExpiryDate);
+
+        // Contact Information
         if (email != null && emailInput.isVisible()) emailInput.fill(email);
         if (phone != null && phoneNumberInput.isVisible()) phoneNumberInput.fill(phone);
         if (address != null && addressTextarea.isVisible()) addressTextarea.fill(address);
         if (city != null && cityInput.isVisible()) cityInput.fill(city);
-        // Personal customer form has province field - but template doesn't show it, so skip if not visible
         if (province != null && provinceInput.isVisible()) provinceInput.fill(province);
         if (postalCode != null && postalCodeInput.isVisible()) postalCodeInput.fill(postalCode);
-        
-        log.debug("Personal customer form filled for: {}", name);
+
+        // Employment Data (FR.002)
+        if (occupation != null && occupationInput.isVisible()) occupationInput.fill(occupation);
+        if (companyName != null && companyNamePersonalInput.isVisible()) companyNamePersonalInput.fill(companyName);
+        if (companyAddress != null && companyAddressInput.isVisible()) companyAddressInput.fill(companyAddress);
+        if (businessField != null && businessFieldInput.isVisible()) businessFieldInput.fill(businessField);
+        if (monthlyIncome != null && monthlyIncomeInput.isVisible()) monthlyIncomeInput.fill(monthlyIncome);
+        if (sourceOfFunds != null && sourceOfFundsInput.isVisible()) sourceOfFundsInput.fill(sourceOfFunds);
+        if (accountPurpose != null && accountPurposeInput.isVisible()) accountPurposeInput.fill(accountPurpose);
+        if (estimatedMonthlyTransactions != null && estimatedMonthlyTransactionsInput.isVisible())
+            estimatedMonthlyTransactionsInput.fill(estimatedMonthlyTransactions);
+        if (estimatedTransactionAmount != null && estimatedTransactionAmountInput.isVisible())
+            estimatedTransactionAmountInput.fill(estimatedTransactionAmount);
+
+        log.debug("Personal customer form filled (extended) for: {}", name);
         return this;
     }
     
