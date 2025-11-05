@@ -167,6 +167,23 @@ public class AccountService {
                 .toList();
     }
     
+    private String generateAccountNumber(Customer customer) {
+    if (customer.getCustomerType() == Customer.CustomerType.CORPORATE) {
+        return generateCorporateAccountNumber();
+    }
+    // Personal: pastikan unik walau ada data seed
+    String candidate;
+    int attempts = 0;
+    do {
+        candidate = sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "A");
+        attempts++;
+        if (attempts > 20) {
+            throw new IllegalStateException("Gagal membuat nomor rekening unik setelah banyak percobaan");
+        }
+    } while (accountRepository.existsByAccountNumber(candidate));
+    return candidate;
+}
+
     private Customer validateAndGetCustomer(UUID customerId) {
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (customerOpt.isEmpty()) {
