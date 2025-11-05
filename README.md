@@ -6,8 +6,10 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 
 ### Manajemen Nasabah
 - **Registrasi Nasabah:** Pendaftaran nasabah perorangan dan korporat dengan validasi lengkap
+- **🆕 Approval Workflow:** Sistem persetujuan 2 tingkat - Customer Service membuat, Branch Manager menyetujui
 - **Pencarian & Pengelolaan:** Sistem pencarian dan pengelolaan data nasabah yang efisien
 - **Validasi Data:** Validasi comprehensive untuk data nasabah dan constraint database
+- **Audit Trail:** Riwayat lengkap approval/rejection dengan alasan dan catatan
 
 ### Produk Perbankan Syariah
 - **Tabungan Syariah:** Tabungan Wadiah dan Tabungan Mudharabah dengan sistem bagi hasil
@@ -17,7 +19,9 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 
 ### Manajemen Rekening
 - **Pembukaan Rekening:** Proses pembukaan rekening untuk nasabah perorangan dan korporat
+- **🆕 Approval Queue:** Antrian approval untuk nasabah dan rekening baru dengan filter dan pencarian
 - **Status Rekening:** Pengelolaan status rekening (ACTIVE, INACTIVE, CLOSED, FROZEN)
+- **Dual Status System:** Pemisahan approval_status dan operational status
 - **Validasi Bisnis:** Business logic validation untuk operasional rekening
 
 ### Transaksi Perbankan
@@ -70,14 +74,19 @@ Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices
 
 ## 📚 Dokumentasi
 
+### 🆕 Panduan Pengguna (Version 2.0)
+- [📚 Panduan Approval Workflow](./docs/user-manual/panduan-approval-workflow.md) - **NEW!** Panduan lengkap workflow approval untuk CS dan Branch Manager
+- [📖 Daftar Panduan](./docs/user-manual/README.md) - Index semua panduan pengguna
+
 ### Dokumentasi Teknis
 - [📋 Panduan Setup Development](./docs/development-setup.md) - Setup environment dan instalasi
 - [👥 Panduan Pengguna](./docs/user-guide.md) - Panduan penggunaan aplikasi
-- [🧪 Panduan Testing](./docs/testing-guide.md) - Strategi dan panduan testing
+- [🧪 Panduan Testing](./docs/TESTING.md) - Strategi dan panduan testing
 - [🏗️ Praktik Teknis](./docs/technical-practices/index.md) - Arsitektur dan best practices
 - [🗃️ Dokumentasi Database](./docs/database-documentation.md) - Schema dan design database
 - [📈 Status Implementasi Fitur](./docs/feature-implementation-status.md) - Comprehensive feature status dan roadmap
 - [☁️ Remote Build Guide](./docs/remote-build-guide.md) - Panduan build dan testing di VPS remote
+- [🌐 GitHub Pages Setup](./docs/GITHUB_PAGES_SETUP.md) - Setup dokumentasi otomatis dengan GitHub Pages
 
 ### Skenario Testing
 - [🧩 Skenario Testing](./docs/test-scenarios/README.md) - Comprehensive test scenarios
@@ -228,18 +237,24 @@ aplikasi-minibank/
     └── GITHUB_PAGES_SETUP.md              # GitHub Pages configuration
 ```
 
-## 📚 Documentation
+## 📚 User Documentation Generation
 
-### User Manual Generation
+### Approval Workflow Documentation (V2.0)
 
 This project includes automated Indonesian user manual generation using Playwright:
 
 ```bash
-# Generate complete user documentation
-./scripts/generate-user-manual.sh --fast
+# Generate approval workflow documentation with screenshots
+mvn test -Dtest=ApprovalWorkflowTutorialTest \
+  -Dplaywright.headless=false \
+  -Dplaywright.slowmo=2000 \
+  -Dplaywright.record=true
+
+# Generate user manual from captured media
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGenerator"
 
 # View generated documentation
-open docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md
+open docs/user-manual/panduan-approval-workflow.md
 ```
 
 ### GitHub Pages Deployment
@@ -248,19 +263,27 @@ Documentation is automatically deployed to GitHub Pages on every push to main:
 
 - **Live Documentation**: `https://<username>.github.io/<repository>/`
 - **Setup Guide**: See `docs/GITHUB_PAGES_SETUP.md`
-- **Features**: 
-  - ✅ Auto-generated screenshots from Playwright tests
-  - ✅ Step-by-step video tutorials
-  - ✅ Professional Indonesian banking documentation
-  - ✅ Mobile-responsive web interface
+- **Features**:
+  - ✅ Auto-generated screenshots from Playwright tests (34 screenshots for approval workflow)
+  - ✅ Step-by-step video tutorials with descriptive filenames
+  - ✅ Professional Indonesian banking documentation with proper terminology
+  - ✅ Mobile-responsive web interface with Bootstrap styling
+  - 🆕 **NEW**: Complete approval workflow documentation (CS + Branch Manager)
 
-### Workflow Overview
+### Workflow Overview (Version 2.0)
 
 1. **Push to Main** → Triggers GitHub Actions
-2. **Run Tests** → Execute Playwright documentation tests
-3. **Capture Media** → Screenshots & videos of CS workflow
-4. **Generate Manual** → Indonesian user manual with proper terminology
+2. **Run Tests** → Execute `ApprovalWorkflowTutorialTest` (Playwright)
+3. **Capture Media** → 34 screenshots + videos covering complete CS and Branch Manager workflow
+4. **Generate Manual** → Indonesian user manual via `ApprovalWorkflowDocGenerator`
 5. **Deploy Pages** → Publish to GitHub Pages for public access
+
+**What's NEW in V2.0:**
+- 📋 Complete approval workflow documentation (11 detailed steps)
+- 🎯 Separate guides for Customer Service and Branch Manager roles
+- 📊 Approval status reference tables and workflow diagrams
+- 💡 Tips, troubleshooting, and best practices
+- 🔍 Detailed screenshots for every step of the approval process
 
 ## 🤝 Contributing
 

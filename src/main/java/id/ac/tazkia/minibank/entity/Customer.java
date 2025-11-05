@@ -68,7 +68,11 @@ public abstract class Customer {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     private CustomerStatus status = CustomerStatus.ACTIVE;
-    
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", length = 20, nullable = false)
+    private ApprovalStatus approvalStatus = ApprovalStatus.APPROVED;
+
     // Audit fields
     @CreationTimestamp
     @Column(name = "created_date", updatable = false)
@@ -109,8 +113,25 @@ public abstract class Customer {
     public enum CustomerStatus {
         ACTIVE, INACTIVE, CLOSED, FROZEN
     }
-    
+
+    public enum ApprovalStatus {
+        PENDING_APPROVAL, APPROVED, REJECTED
+    }
+
     public enum IdentityType {
         KTP, PASSPORT, SIM
+    }
+
+    // Helper methods for approval status
+    public boolean isPendingApproval() {
+        return this.approvalStatus == ApprovalStatus.PENDING_APPROVAL;
+    }
+
+    public boolean isApproved() {
+        return this.approvalStatus == ApprovalStatus.APPROVED;
+    }
+
+    public boolean isRejected() {
+        return this.approvalStatus == ApprovalStatus.REJECTED;
     }
 }

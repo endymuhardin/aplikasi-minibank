@@ -2,10 +2,11 @@
 
 ## Panduan Yang Tersedia
 
-1. **[Panduan Pembukaan Rekening Nasabah Personal](panduan-pembukaan-rekening-nasabah-personal.md)**
-   - Target: Customer Service (CS)
-   - Proses: Pembukaan rekening nasabah personal
+1. **[Panduan Approval Workflow](panduan-approval-workflow.md)** ⭐ NEW
+   - Target: Customer Service (CS) dan Branch Manager
+   - Proses: Membuat nasabah baru dengan approval workflow
    - Format: Panduan lengkap dengan screenshot dan video
+   - Versi: 2.0 (Updated with Approval Workflow)
 
 ## Cara Menggunakan Panduan
 
@@ -15,21 +16,34 @@
 4. Tonton video tutorial jika tersedia
 5. Gunakan bagian troubleshooting jika mengalami masalah
 
+## Perubahan dari Versi Sebelumnya
+
+### Versi 2.0 (05 November 2025)
+- ✨ **NEW:** Implementasi Approval Workflow
+- ✨ Customer baru memerlukan approval dari Branch Manager
+- ✨ Dual control untuk operasi penting
+- ✨ Audit trail lengkap untuk setiap approval/rejection
+- ⚠️ **BREAKING CHANGE:** Customer tidak langsung aktif setelah dibuat
+
+### Versi 1.0 (Obsolete)
+- Customer langsung aktif setelah dibuat (tanpa approval)
+- ❌ **DEPRECATED:** Panduan pembukaan rekening versi lama tidak berlaku lagi
+
 ## Pembaruan Panduan
 
 Panduan ini dibuat secara otomatis dari test dokumentasi. Untuk memperbarui:
 
 ```bash
-# 1. Jalankan test dokumentasi
-mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+# 1. Jalankan test dokumentasi (slow mode dengan recording)
+mvn test -Dtest=ApprovalWorkflowTutorialTest \
   -Dplaywright.headless=false \
   -Dplaywright.slowmo=2000 \
   -Dplaywright.record=true
 
 # 2. Generate ulang panduan
-mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGenerator"
 ```
 
 ---
 
-*Dibuat pada: 01 September 2025*
+*Dibuat pada: 05 November 2025*

@@ -18,6 +18,7 @@ import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.ProductRepository;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
+import id.ac.tazkia.minibank.service.ApprovalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +37,7 @@ public class AccountService {
     private final ProductRepository productRepository;
     private final TransactionRepository transactionRepository;
     private final SequenceNumberService sequenceNumberService;
+    private final ApprovalService approvalService;
     
     /**
      * Opens a new account with initial deposit transaction.
@@ -76,17 +78,29 @@ public class AccountService {
         log.info("Account created with number: {}", accountNumber);
         
         // Create initial deposit transaction
-        createInitialDepositTransaction(account, accountRequest.getInitialDeposit(), 
+        createInitialDepositTransaction(account, accountRequest.getInitialDeposit(),
                                       accountRequest.getCreatedBy());
-        
+
         // Use entity business method to deposit and update balance
         account.deposit(accountRequest.getInitialDeposit());
-        
-        // Save updated account balance
+
+        // Set approval status to PENDING_APPROVAL
+        account.setApprovalStatus(Account.ApprovalStatus.PENDING_APPROVAL);
+        account.setStatus(Account.AccountStatus.INACTIVE);
+
+        // Save updated account
         account = accountRepository.save(account);
-        log.info("Account opened successfully. Account Number: {}, Balance: {}", 
+
+        // Create approval request
+        // TODO: Get actual username from security context when authentication is implemented
+        String requestedBy = accountRequest.getCreatedBy() != null ?
+            accountRequest.getCreatedBy() : "customer-service";
+        approvalService.createAccountApprovalRequest(account, requestedBy,
+            "New account opening with initial deposit " + accountRequest.getInitialDeposit());
+
+        log.info("Account created and submitted for approval. Account Number: {}, Balance: {}",
                 accountNumber, account.getBalance());
-        
+
         return account;
     }
     
@@ -129,17 +143,29 @@ public class AccountService {
         log.info("Corporate account created with number: {}", accountNumber);
         
         // Create initial deposit transaction
-        createInitialDepositTransaction(account, accountRequest.getInitialDeposit(), 
+        createInitialDepositTransaction(account, accountRequest.getInitialDeposit(),
                                       accountRequest.getCreatedBy());
-        
+
         // Use entity business method to deposit and update balance
         account.deposit(accountRequest.getInitialDeposit());
-        
-        // Save updated account balance
+
+        // Set approval status to PENDING_APPROVAL
+        account.setApprovalStatus(Account.ApprovalStatus.PENDING_APPROVAL);
+        account.setStatus(Account.AccountStatus.INACTIVE);
+
+        // Save updated account
         account = accountRepository.save(account);
-        log.info("Corporate account opened successfully. Account Number: {}, Balance: {}", 
+
+        // Create approval request
+        // TODO: Get actual username from security context when authentication is implemented
+        String requestedBy = accountRequest.getCreatedBy() != null ?
+            accountRequest.getCreatedBy() : "customer-service";
+        approvalService.createAccountApprovalRequest(account, requestedBy,
+            "New corporate account opening with initial deposit " + accountRequest.getInitialDeposit());
+
+        log.info("Corporate account created and submitted for approval. Account Number: {}, Balance: {}",
                 accountNumber, account.getBalance());
-        
+
         return account;
     }
     
@@ -216,7 +242,7 @@ public class AccountService {
         }
     }
     
-    private Account createAccount(Customer customer, Product product, 
+    private Account createAccount(Customer customer, Product product,
                                 AccountOpeningRequest accountRequest, String accountNumber) {
         Account account = new Account();
         account.setCustomer(customer);
@@ -225,9 +251,10 @@ public class AccountService {
         account.setAccountNumber(accountNumber);
         account.setAccountName(accountRequest.getAccountName());
         account.setBalance(BigDecimal.ZERO); // Start with zero balance
-        account.setStatus(Account.AccountStatus.ACTIVE);
+        account.setStatus(Account.AccountStatus.INACTIVE); // Will be activated after approval
+        account.setApprovalStatus(Account.ApprovalStatus.PENDING_APPROVAL);
         // AuditorAware will automatically set createdBy
-        
+
         return account;
     }
     

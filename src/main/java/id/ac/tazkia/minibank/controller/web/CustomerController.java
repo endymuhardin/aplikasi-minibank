@@ -32,6 +32,7 @@ import id.ac.tazkia.minibank.repository.CorporateCustomerRepository;
 import id.ac.tazkia.minibank.repository.CustomerRepository;
 import id.ac.tazkia.minibank.repository.PersonalCustomerRepository;
 import id.ac.tazkia.minibank.service.SequenceNumberService;
+import id.ac.tazkia.minibank.service.ApprovalService;
 import id.ac.tazkia.minibank.dto.PersonalCustomerCreateDto;
 import id.ac.tazkia.minibank.dto.CorporateCustomerCreateDto;
 import jakarta.validation.Valid;
@@ -62,17 +63,20 @@ public class CustomerController {
     private final CorporateCustomerRepository corporateCustomerRepository;
     private final BranchRepository branchRepository;
     private final SequenceNumberService sequenceNumberService;
+    private final ApprovalService approvalService;
 
-    public CustomerController(CustomerRepository customerRepository, 
+    public CustomerController(CustomerRepository customerRepository,
                              PersonalCustomerRepository personalCustomerRepository,
                              CorporateCustomerRepository corporateCustomerRepository,
                              BranchRepository branchRepository,
-                             SequenceNumberService sequenceNumberService) {
+                             SequenceNumberService sequenceNumberService,
+                             ApprovalService approvalService) {
         this.customerRepository = customerRepository;
         this.personalCustomerRepository = personalCustomerRepository;
         this.corporateCustomerRepository = corporateCustomerRepository;
         this.branchRepository = branchRepository;
         this.sequenceNumberService = sequenceNumberService;
+        this.approvalService = approvalService;
     }
 
     @GetMapping("/list")
@@ -142,13 +146,26 @@ public class CustomerController {
         try {
             // Convert DTO to entity
             PersonalCustomer personalCustomer = convertToPersonalCustomer(personalCustomerDto);
-            
+
             // Auto-generate customer number
             String customerNumber = sequenceNumberService.generateNextSequence("CUSTOMER", "C");
             personalCustomer.setCustomerNumber(customerNumber);
-            
-            customerRepository.save(personalCustomer);
-            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Personal customer created successfully");
+
+            // Set approval status to PENDING_APPROVAL
+            personalCustomer.setApprovalStatus(Customer.ApprovalStatus.PENDING_APPROVAL);
+            personalCustomer.setStatus(Customer.CustomerStatus.INACTIVE);
+
+            // Save customer
+            Customer savedCustomer = customerRepository.save(personalCustomer);
+
+            // Create approval request
+            // TODO: Get actual username from security context when authentication is implemented
+            String requestedBy = "customer-service";
+            approvalService.createCustomerApprovalRequest(savedCustomer, requestedBy,
+                "New personal customer registration");
+
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR,
+                "Personal customer created and submitted for approval");
             return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
             log.error("Failed to create personal customer: " + e.getMessage(), e);
@@ -179,13 +196,26 @@ public class CustomerController {
         try {
             // Convert DTO to entity
             CorporateCustomer corporateCustomer = convertToCorporateCustomer(corporateCustomerDto);
-            
+
             // Auto-generate customer number
             String customerNumber = sequenceNumberService.generateNextSequence("CUSTOMER", "C");
             corporateCustomer.setCustomerNumber(customerNumber);
-            
-            customerRepository.save(corporateCustomer);
-            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR, "Corporate customer created successfully");
+
+            // Set approval status to PENDING_APPROVAL
+            corporateCustomer.setApprovalStatus(Customer.ApprovalStatus.PENDING_APPROVAL);
+            corporateCustomer.setStatus(Customer.CustomerStatus.INACTIVE);
+
+            // Save customer
+            Customer savedCustomer = customerRepository.save(corporateCustomer);
+
+            // Create approval request
+            // TODO: Get actual username from security context when authentication is implemented
+            String requestedBy = "customer-service";
+            approvalService.createCustomerApprovalRequest(savedCustomer, requestedBy,
+                "New corporate customer registration");
+
+            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGE_ATTR,
+                "Corporate customer created and submitted for approval");
             return CUSTOMER_LIST_REDIRECT;
         } catch (Exception e) {
             log.error("Failed to create corporate customer", e);

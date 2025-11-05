@@ -69,22 +69,17 @@ mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true
 # Run functional tests with custom recording directory
 mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true -Dplaywright.record.dir=test-recordings
 
-# Run documentation tutorial tests with screenshots and videos
-mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest -Dplaywright.headless=false -Dplaywright.slowmo=2000 -Dplaywright.record=true
+# Run approval workflow documentation tests with screenshots and videos (V2.0)
+mvn test -Dtest=ApprovalWorkflowTutorialTest -Dplaywright.headless=false -Dplaywright.slowmo=2000 -Dplaywright.record=true
+
+# Run approval workflow tests (includes success, rejection, queue management)
+mvn test -Dtest=ApprovalWorkflowSuccessTest
 
 # Run tests with both screenshots and videos enabled
 mvn test -Dtest=**/functional/**/*Test -Dplaywright.record=true -Dplaywright.screenshot.dir=target/screenshots
 
-# Generate complete Indonesian user manual (runs tests + generates docs)
-bash scripts/generate-user-manual.sh
-
-# Options for user manual generation
-bash scripts/generate-user-manual.sh --visible    # Slow, shows browser (default)
-bash scripts/generate-user-manual.sh --fast       # Fast headless mode
-bash scripts/generate-user-manual.sh --help       # Show help
-
-# Generate user manual directly with Java
-mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+# Generate approval workflow user manual (V2.0)
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGenerator"
 
 # Combined options for functional debugging
 mvn test -Dtest=**/functional/success/*Test -Dplaywright.headless=false -Dplaywright.browser=chromium
@@ -201,27 +196,31 @@ bash scripts/generate-user-manual.sh --help       # Show usage help
 
 **Manual Steps (if needed):**
 ```bash
-# 1. Generate test screenshots and videos
-mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+# 1. Generate approval workflow screenshots and videos (V2.0)
+mvn test -Dtest=ApprovalWorkflowTutorialTest \
   -Dplaywright.headless=false -Dplaywright.slowmo=2000 -Dplaywright.record=true
 
-# 2. Generate user manual from existing test results
-mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+# 2. Generate approval workflow user manual from captured media
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGenerator"
 ```
 
 **Generated Files:**
-- `docs/user-manual/README.md` - Index and overview
-- `docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md` - Complete tutorial
+- `docs/user-manual/README.md` - Index and overview (updated for V2.0)
+- `docs/user-manual/panduan-approval-workflow.md` - Complete approval workflow tutorial
 
-**Manual Contents:**
-1. Gambaran Umum (Overview)
-2. Prasyarat (Prerequisites) 
-3. 8 Langkah Detail (Detailed Steps) with screenshots
-4. Video Tutorial section
-5. Tips dan Catatan Penting (Important Tips)
-6. Pemecahan Masalah Umum (Common Troubleshooting)
+**Manual Contents (Version 2.0):**
+1. Gambaran Umum (Overview) - Including approval workflow benefits
+2. Prasyarat (Prerequisites) - For CS and Branch Manager
+3. Alur Kerja Approval (Approval workflow diagram with Mermaid)
+4. 11 Langkah Detail (Detailed Steps) with 34 screenshots
+   - Bagian 1: Customer Service (Steps 1-5)
+   - Bagian 2: Branch Manager (Steps 6-11)
+5. Video Tutorial section
+6. Status Approval reference tables
+7. Tips dan Catatan Penting (Important Tips) for both roles
+8. Pemecahan Masalah Umum (Common Troubleshooting)
 
-**Sample Output Size:** ~11KB Markdown with embedded screenshot references
+**Sample Output Size:** ~50KB Markdown with comprehensive approval workflow coverage
 
 ### Database Operations
 ```bash
@@ -235,27 +234,21 @@ docker exec -it aplikasi-minibank-postgres-1 psql -U minibank -d pgminibank
 docker compose down -v
 ```
 
-### Documentation Generation
+### Documentation Generation (Version 2.0 - Approval Workflow)
 
 ```bash
-# Generate user manual documentation with Playwright screenshots/videos
-./scripts/generate-user-manual.sh --fast
-
-# Generate with visible browser (for debugging)
-./scripts/generate-user-manual.sh --visible
-
-# Show help and available options
-./scripts/generate-user-manual.sh --help
-
-# Manual steps (if needed)
-# 1. Run documentation test to generate screenshots/videos
-mvn test -Dtest=PersonalCustomerAccountOpeningTutorialTest \
+# Manual steps for approval workflow documentation
+# 1. Run approval workflow documentation test to generate screenshots/videos
+mvn test -Dtest=ApprovalWorkflowTutorialTest \
   -Dplaywright.headless=false \
   -Dplaywright.slowmo=2000 \
   -Dplaywright.record=true
 
-# 2. Generate user manual from captured media
-mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
+# 2. Generate approval workflow user manual from captured media
+mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGenerator"
+
+# View generated documentation
+open docs/user-manual/panduan-approval-workflow.md
 ```
 
 ### GitHub Actions & Automated Documentation
@@ -268,13 +261,14 @@ The project includes automated documentation generation via GitHub Actions:
 # Output: GitHub Pages deployment with user documentation
 ```
 
-**Automated Process:**
+**Automated Process (Version 2.0):**
 1. **Build & Test**: Runs unit/integration tests with parallel execution
-2. **Documentation Generation**: 
+2. **Documentation Generation**:
    - Installs Playwright dependencies in CI environment
-   - Runs PersonalCustomerAccountOpeningTutorialTest in headless mode
-   - Captures screenshots and videos of complete CS workflow
-   - Generates comprehensive Indonesian user manual
+   - Runs `ApprovalWorkflowTutorialTest` in headless mode
+   - Captures 34 screenshots of complete CS + Branch Manager workflow
+   - Records videos of approval process
+   - Generates comprehensive Indonesian approval workflow manual
 3. **GitHub Pages Deployment**:
    - Creates web-friendly HTML versions of documentation
    - Deploys to GitHub Pages for public access
@@ -282,16 +276,20 @@ The project includes automated documentation generation via GitHub Actions:
 
 **Access Documentation:**
 - **Public URL**: `https://<username>.github.io/<repository>/` (after first deployment)
-- **Local Generated**: `docs/user-manual/panduan-pembukaan-rekening-nasabah-personal.md`
+- **Local Generated**: `docs/user-manual/panduan-approval-workflow.md`
 - **Download Artifacts**: Available in GitHub Actions runs
 
-**Features:**
-- ✅ Automated screenshot capture with human-readable filenames
-- ✅ Video tutorial generation (WebM format)
+**Features (Version 2.0):**
+- ✅ Automated screenshot capture with human-readable Indonesian filenames
+- ✅ Video tutorial generation (WebM format) for each approval step
+- ✅ Complete approval workflow documentation (CS + Branch Manager)
 - ✅ Indonesian banking documentation with proper terminology
 - ✅ Professional HTML styling with Bootstrap CSS
 - ✅ Mobile-responsive design for various devices
 - ✅ Automatic timestamp updates on each deployment
+- 🆕 **NEW**: Dual-role workflow documentation (Customer Service + Branch Manager)
+- 🆕 **NEW**: Approval queue management screenshots
+- 🆕 **NEW**: Approval/rejection flow with review notes
 
 ## Architecture Overview
 

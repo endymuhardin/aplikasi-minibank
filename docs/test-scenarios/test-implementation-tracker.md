@@ -243,4 +243,5 @@
 - Test methods prefixed with "should" follow BDD naming convention
 - Some tests cover multiple sub-scenarios implicitly
 - Advanced security tests provide additional coverage not mapped to specific scenarios
-- Documentation test (PersonalCustomerAccountOpeningTutorialTest) is for user manual generation
+- Documentation test (`ApprovalWorkflowTutorialTest`) generates approval workflow user manual (Version 2.0)
+- **BREAKING CHANGE (V2.0)**: All new customers require Branch Manager approval before activation

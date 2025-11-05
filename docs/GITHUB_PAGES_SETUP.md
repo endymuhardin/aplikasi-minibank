@@ -48,11 +48,13 @@ After the first successful workflow run:
 The automated workflow generates and deploys:
 
 - **index.html**: Landing page with modern styling
-- **panduan-pembukaan-rekening-nasabah-personal.html**: Main user manual
+- **panduan-approval-workflow.html**: Approval workflow user manual (V2.0)
 - **README.html**: Documentation index
-- **screenshots/**: All captured screenshots from Playwright tests  
+- **screenshots/**: All captured screenshots from Playwright tests
 - **videos/**: All captured videos from Playwright tests
 - **Original markdown files**: For direct access if needed
+
+> **Note**: Version 2.0 introduces approval workflow. All new customers require Branch Manager approval.
 
 ## Troubleshooting
 
@@ -91,9 +93,9 @@ Edit the index.html generation section in `.github/workflows/maven.yml` starting
 
 ### Add More Documentation
 
-1. Create new Playwright documentation tests
-2. Update UserManualGenerator.java to include new content
-3. Modify workflow to copy additional files
+1. Create new Playwright documentation tests (e.g., `ApprovalWorkflowTutorialTest.java`)
+2. Create corresponding documentation generator (e.g., `ApprovalWorkflowDocGenerator.java`)
+3. Modify workflow to run new tests and generators
 
 ### Custom Domain (Optional)
 
@@ -111,20 +113,19 @@ Edit the index.html generation section in `.github/workflows/maven.yml` starting
 ## File Structure
 
 ```
-GitHub Pages Site Structure:
-├── index.html (landing page)
-├── panduan-pembukaan-rekening-nasabah-personal.html
-├── panduan-pembukaan-rekening-nasabah-personal.md  
+GitHub Pages Site Structure (Version 2.0):
+├── index.html (landing page - redirects to approval workflow guide)
+├── panduan-approval-workflow.html (NEW - main user manual)
+├── panduan-approval-workflow.md
 ├── README.html
 ├── README.md
 ├── screenshots/
-│   ├── step_1_*.png
-│   ├── step_2_*.png
-│   └── ...
+│   ├── 01_halaman_login.png
+│   ├── 25_halaman_detail_approval.png
+│   └── ... (34 approval workflow screenshots)
 └── videos/
-    ├── step_1_*.webm
-    ├── step_2_*.webm
-    └── ...
+    ├── approval_workflow_*.webm
+    └── ... (step-by-step video recordings)
 ```
 
 ---

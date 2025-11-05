@@ -50,7 +50,11 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private AccountStatus status = AccountStatus.ACTIVE;
-    
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", length = 20, nullable = false)
+    private ApprovalStatus approvalStatus = ApprovalStatus.APPROVED;
+
     // Audit fields
     @Column(name = "opened_date")
     private LocalDate openedDate = LocalDate.now();
@@ -154,5 +158,22 @@ public class Account {
     // Enums
     public enum AccountStatus {
         ACTIVE, INACTIVE, CLOSED, FROZEN
+    }
+
+    public enum ApprovalStatus {
+        PENDING_APPROVAL, APPROVED, REJECTED
+    }
+
+    // Helper methods for approval status
+    public boolean isPendingApproval() {
+        return this.approvalStatus == ApprovalStatus.PENDING_APPROVAL;
+    }
+
+    public boolean isApproved() {
+        return this.approvalStatus == ApprovalStatus.APPROVED;
+    }
+
+    public boolean isRejected() {
+        return this.approvalStatus == ApprovalStatus.REJECTED;
     }
 }
