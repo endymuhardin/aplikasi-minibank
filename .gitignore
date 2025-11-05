@@ -41,3 +41,5 @@ db-minibank
 .do-session-id
 .do-session-ip
 .do-session-name
+
+src/main/resources/application.properties

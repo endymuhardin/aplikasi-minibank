@@ -68,7 +68,7 @@ public class CustomerRestController {
             customer.setLastName(request.getLastName());
             customer.setDateOfBirth(request.getDateOfBirth());
             customer.setIdentityNumber(request.getIdentityNumber());
-            customer.setIdentityType(Customer.IdentityType.valueOf(request.getIdentityType()));
+            customer.setIdentityType(PersonalCustomer.IdentityType.valueOf(request.getIdentityType()));
             customer.setEmail(request.getEmail());
             customer.setPhoneNumber(request.getPhoneNumber());
             customer.setAddress(request.getAddress());

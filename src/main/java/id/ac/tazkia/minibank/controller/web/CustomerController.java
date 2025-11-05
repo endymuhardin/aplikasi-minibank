@@ -112,13 +112,19 @@ public class CustomerController {
     
     @GetMapping("/create/personal")
     public String createPersonalForm(Model model) {
-        model.addAttribute(CUSTOMER_ATTR, new PersonalCustomerCreateDto());
+        PersonalCustomerCreateDto dto = new PersonalCustomerCreateDto();
+        // Set customer number for display (will be generated during actual creation)
+        dto.setCustomerNumber("AUTO-GENERATE");
+        model.addAttribute(CUSTOMER_ATTR, dto);
+        model.addAttribute("branches", branchRepository.findActiveBranches());
         return PERSONAL_FORM_VIEW;
     }
     
     @GetMapping("/create/corporate")
     public String createCorporateForm(Model model) {
         model.addAttribute(CUSTOMER_ATTR, new CorporateCustomerCreateDto());
+        // ✅ Add branches for dropdown
+        model.addAttribute("branches", branchRepository.findActiveBranches());
         return CORPORATE_FORM_VIEW;
     }
 
@@ -136,6 +142,8 @@ public class CustomerController {
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
             model.addAttribute(CUSTOMER_ATTR, personalCustomerDto);
+            // ✅ Re-add branches for dropdown repopulation
+            model.addAttribute("branches", branchRepository.findActiveBranches());
             return PERSONAL_FORM_VIEW;
         }
 
@@ -155,6 +163,8 @@ public class CustomerController {
             e.printStackTrace(); // Temporary debug output
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
             model.addAttribute(CUSTOMER_ATTR, personalCustomerDto);
+            // ✅ Re-add branches for dropdown repopulation
+            model.addAttribute("branches", branchRepository.findActiveBranches());
             return PERSONAL_FORM_VIEW;
         }
     }
@@ -173,6 +183,8 @@ public class CustomerController {
             }
             model.addAttribute(VALIDATION_ERRORS_ATTR, validationErrors);
             model.addAttribute(CUSTOMER_ATTR, corporateCustomerDto);
+            // ✅ Re-add branches for dropdown repopulation
+            model.addAttribute("branches", branchRepository.findActiveBranches());
             return CORPORATE_FORM_VIEW;
         }
 
@@ -191,6 +203,8 @@ public class CustomerController {
             log.error("Failed to create corporate customer", e);
             model.addAttribute(ERROR_MESSAGE_ATTR, "Failed to create customer: " + e.getMessage());
             model.addAttribute(CUSTOMER_ATTR, corporateCustomerDto);
+            // ✅ Re-add branches for dropdown repopulation
+            model.addAttribute("branches", branchRepository.findActiveBranches());
             return CORPORATE_FORM_VIEW;
         }
     }
@@ -373,36 +387,61 @@ public class CustomerController {
     // DTO to Entity conversion methods
     private PersonalCustomer convertToPersonalCustomer(PersonalCustomerCreateDto dto) {
         PersonalCustomer customer = new PersonalCustomer();
-        
-        // Personal customer specific fields
+
+        // === Data Nama & Alamat ===
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
-        customer.setDateOfBirth(dto.getDateOfBirth());
-        customer.setBirthPlace(dto.getBirthPlace());
-        if (dto.getGender() != null && !dto.getGender().trim().isEmpty()) {
-            customer.setGender(PersonalCustomer.Gender.valueOf(dto.getGender()));
-        }
-        customer.setMotherName(dto.getMotherName());
-        customer.setIdentityNumber(dto.getIdentityNumber());
-        customer.setIdentityType(Customer.IdentityType.valueOf(dto.getIdentityType()));
-        
-        // Common fields
+        customer.setAliasName(dto.getAliasName());
         customer.setEmail(dto.getEmail());
         customer.setPhoneNumber(dto.getPhoneNumber());
         customer.setAddress(dto.getAddress());
         customer.setCity(dto.getCity());
         customer.setPostalCode(dto.getPostalCode());
         customer.setCountry(dto.getCountry());
-        
-        // Set branch - TODO: Get from logged-in user's branch when authentication is implemented
-        // For now, use the first active branch as default
-        List<Branch> activeBranches = branchRepository.findActiveBranches();
-        if (activeBranches.isEmpty()) {
-            throw new IllegalStateException("No active branches found in the system");
+
+        // === Data Pribadi ===
+        customer.setDateOfBirth(dto.getDateOfBirth());
+        customer.setBirthPlace(dto.getBirthPlace());
+        customer.setEducationLevel(dto.getEducationLevel());
+        customer.setGender(dto.getGender());
+        customer.setReligion(dto.getReligion());
+        customer.setMaritalStatus(dto.getMaritalStatus());
+        customer.setMothersMaidenName(dto.getMothersMaidenName());
+        customer.setDependents(dto.getDependents());
+
+        // === Identitas ===
+        customer.setNationality(dto.getNationality());
+        customer.setResidenceCode(dto.getResidenceCode());
+        customer.setIdentityType(dto.getIdentityType());
+        customer.setIdentityNumber(dto.getIdentityNumber());
+        customer.setIdentityExpiryDate(dto.getIdentityExpiryDate());
+
+        // === Data Pekerjaan ===
+        customer.setJobTitle(dto.getJobTitle());
+        customer.setCompanyName(dto.getCompanyName());
+        customer.setCompanyAddress(dto.getCompanyAddress());
+        customer.setOfficePhone(dto.getOfficePhone());
+        customer.setOfficeEmail(dto.getOfficeEmail());
+        customer.setEmploymentStartDate(dto.getEmploymentStartDate());
+        customer.setOfficeFax(dto.getOfficeFax());
+        customer.setProfession(dto.getProfession());
+        customer.setProvince(dto.getProvince());
+
+        // Set branch location
+        Branch branch;
+        if (dto.getCustomerLocation() != null) {
+            branch = branchRepository.findById(dto.getCustomerLocation())
+                .orElseThrow(() -> new IllegalArgumentException("Branch not found with id: " + dto.getCustomerLocation()));
+        } else {
+            // Use the first active branch as default
+            List<Branch> activeBranches = branchRepository.findActiveBranches();
+            if (activeBranches.isEmpty()) {
+                throw new IllegalStateException("No active branches found in the system");
+            }
+            branch = activeBranches.get(0);
         }
-        Branch branch = activeBranches.get(0);
         customer.setBranch(branch);
-        
+
         return customer;
     }
     

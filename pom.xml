@@ -43,7 +43,7 @@
 		<sonar.tests>src/test/java</sonar.tests>
 		<sonar.java.binaries>target/classes</sonar.java.binaries>
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<thymeleaf.layout.dialect>3.4.0</thymeleaf.layout.dialect>
 		<karate.version>1.4.1</karate.version>
 		<jacoco.version>0.8.12</jacoco.version>
@@ -221,6 +221,20 @@
 						<include>**/*Test.java</include>
 						<include>**/*Runner.java</include>
 					</includes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<failOnNoGitDirectory>false</failOnNoGitDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

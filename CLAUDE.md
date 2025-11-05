@@ -18,8 +18,8 @@ npm install
 npm run watch
 
 # Access application
-# Web UI: http://localhost:8080/product/list
-# REST API: http://localhost:8080/api/customers/*
+# Web UI: http://localhost:10002/product/list
+# REST API: http://localhost:10002/api/customers/*
 ```
 
 ### Testing
@@ -35,12 +35,6 @@ mvn test -Dtest=AccountRepositoryTest
 
 # Run specific test method
 mvn test -Dtest=AccountRepositoryTest#shouldFindByCustomerId
-
-# Run specific feature test (Karate)
-mvn test -Dtest=DepositTest
-
-# Run single Karate test method
-mvn test -Dtest=DepositTest#testDeposit
 
 # Run functional tests (all scenarios - success and alternate)
 mvn test -Dtest=**/functional/**/*Test
@@ -215,7 +209,7 @@ mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.UserManualGenerator"
 
 **Manual Contents:**
 1. Gambaran Umum (Overview)
-2. Prasyarat (Prerequisites) 
+2. Prasyarat (Prerequisites)
 3. 8 Langkah Detail (Detailed Steps) with screenshots
 4. Video Tutorial section
 5. Tips dan Catatan Penting (Important Tips)
@@ -270,7 +264,7 @@ The project includes automated documentation generation via GitHub Actions:
 
 **Automated Process:**
 1. **Build & Test**: Runs unit/integration tests with parallel execution
-2. **Documentation Generation**: 
+2. **Documentation Generation**:
    - Installs Playwright dependencies in CI environment
    - Runs PersonalCustomerAccountOpeningTutorialTest in headless mode
    - Captures screenshots and videos of complete CS workflow
@@ -299,7 +293,7 @@ This is a **Spring Boot minibank application** using layered architecture with:
 
 - **Presentation Layer**: Thymeleaf web controllers + REST API endpoints
 - **Business Layer**: Rich domain entities with business logic
-- **Data Access Layer**: Spring Data JPA repositories  
+- **Data Access Layer**: Spring Data JPA repositories
 - **Database Layer**: PostgreSQL with Flyway migrations
 
 ### Key Architectural Patterns
@@ -354,14 +348,14 @@ id.ac.tazkia.minibank/
 
 ## Database Configuration
 
-- **URL**: `jdbc:postgresql://localhost:2345/pgminibank`
-- **Credentials**: minibank/minibank1234
+- **URL**: `jdbc:postgresql://localhost:5432/pgminibank`
+- **Credentials**: minibank/minibank@213$443 (default password: minibank1234 for Docker)
 - **Migrations**: Flyway-managed in `src/main/resources/db/migration/`
 - **Test DB**: Uses same database as main application
 
 ## Technology Stack
 
-- **Spring Boot 3.5.3** (Java 21)
+- **Spring Boot 3.5.5** (Java 17)
 - **PostgreSQL 17** (Docker)
 - **Spring Data JPA** + Hibernate
 - **Thymeleaf** + Tailwind CSS
@@ -411,7 +405,7 @@ src/test/java/id/ac/tazkia/minibank/
 ## Development Workflow
 
 1. **Start database**: `docker compose up -d`
-2. **Frontend build**: In `src/main/frontend/`, run `npm run watch` 
+2. **Frontend build**: In `src/main/frontend/`, run `npm run watch`
 3. **Backend**: `mvn spring-boot:run`
 4. **Database changes**: Add new migration file in `src/main/resources/db/migration/`
 

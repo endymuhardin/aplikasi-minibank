@@ -186,7 +186,7 @@ public class AccountRestController {
     }
 
     private String generateAccountNumber() {
-        return sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "ACC");
+        return sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "A");
     }
 
     @PostMapping("/statement/pdf")

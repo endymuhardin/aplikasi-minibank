@@ -262,12 +262,12 @@ public class AccountService {
     }
     
     private String generateAccountNumber(Customer customer) {
-        return customer.getCustomerType() == Customer.CustomerType.CORPORATE 
+        return customer.getCustomerType() == Customer.CustomerType.CORPORATE
             ? generateCorporateAccountNumber()
-            : sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "ACC");
+            : sequenceNumberService.generateNextSequence("ACCOUNT_NUMBER", "A");
     }
-    
+
     private String generateCorporateAccountNumber() {
-        return sequenceNumberService.generateNextSequence("CORPORATE_ACCOUNT_NUMBER", "CORP");
+        return sequenceNumberService.generateNextSequence("CORPORATE_ACCOUNT_NUMBER", "A");
     }
 }

@@ -2,17 +2,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/main}">
 <head>
-    <title>Personal Customer Registration - Minibank</title>
+    <title>Pendaftaran Nasabah Individu - Minibank</title>
 </head>
 <body>
     <div layout:fragment="content" class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
             <div class="flex justify-between items-center mb-6">
-                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Personal Customer Registration</h1>
-                <a href="/customer/create" 
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">Pendaftaran Nasabah Individu</h1>
+                <a href="/customer/create"
                    id="back-to-type-selection-link"
                    class="text-gray-600 hover:text-gray-800">
-                    ← Back to Type Selection
+                    ← Kembali ke Pilihan Jenis
                 </a>
             </div>
 
@@ -28,191 +28,465 @@
 
             <!-- Validation errors -->
             <div th:if="${validationErrors}" id="validation-errors" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <div class="font-medium mb-2">Please correct the following errors:</div>
+                <div class="font-medium mb-2">Silakan perbaiki kesalahan berikut:</div>
                 <ul class="list-disc list-inside space-y-1">
                     <li th:each="error : ${validationErrors}" th:text="${error}"></li>
                 </ul>
             </div>
 
-            <form th:action="'/customer/create/personal'" 
-                  th:object="${customer}" method="post" class="space-y-6">
-                <input type="hidden" name="customerType" value="PERSONAL">
-                
-                <!-- Customer Number not shown for creation -->
+            <form th:action="'/customer/create/personal'"
+                  th:object="${customer}" method="post" class="space-y-8">
 
-                <!-- Branch is automatically set based on logged-in user's branch -->
-
-                <!-- Personal Information -->
+                <!-- === Data Nama & Alamat === -->
                 <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">Personal Information</h3>
-                    
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1a1 1 0 100-2h1a4 4 0 014 4v6a4 4 0 01-4 4H6a4 4 0 01-4-4V7a4 4 0 014-4z"/>
+                        </svg>
+                        Data Nama & Alamat
+                    </h3>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
-                                First Name <span class="text-red-500">*</span>
+                            <label for="customerNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                                No. Nasabah
                             </label>
-                            <input type="text" id="firstName" name="firstName" 
+                            <input type="text" id="customerNumber" name="customerNumber"
+                                   th:field="*{customerNumber}" readonly
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
+                                   placeholder="Auto-generate">
+                            <p class="text-xs text-gray-500 mt-1">Akan dibuat otomatis</p>
+                        </div>
+                        <div>
+                            <label for="customerLocation" class="block text-sm font-medium text-gray-700 mb-1">
+                                Lokasi Nasabah <span class="text-red-500">*</span>
+                            </label>
+                            <select id="customerLocation" name="customerLocation"
+                                    th:field="*{customerLocation}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Cabang</option>
+                                <option th:each="branch : ${branches}"
+                                        th:value="${branch.id}"
+                                        th:text="${branch.branchName}">Kantor Pusat</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nama Lengkap <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="firstName" name="firstName"
                                    th:field="*{firstName}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    required>
                         </div>
                         <div>
                             <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">
-                                Last Name <span class="text-red-500">*</span>
+                                Nama Belakang <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="lastName" name="lastName" 
+                            <input type="text" id="lastName" name="lastName"
                                    th:field="*{lastName}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                    required>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">
-                            Date of Birth <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" id="dateOfBirth" name="dateOfBirth" 
-                               th:field="*{dateOfBirth}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               required>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="birthPlace" class="block text-sm font-medium text-gray-700 mb-1">
-                                Birth Place
+                            <label for="aliasName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nama Alias
                             </label>
-                            <input type="text" id="birthPlace" name="birthPlace" 
-                                   th:field="*{birthPlace}"
+                            <input type="text" id="aliasName" name="aliasName"
+                                   th:field="*{aliasName}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Opsional</p>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                                E-mail Pribadi <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" id="email" name="email"
+                                   th:field="*{email}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                                No. Telp <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber"
+                                   th:field="*{phoneNumber}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                Kode Pos
+                            </label>
+                            <input type="text" id="postalCode" name="postalCode"
+                                   th:field="*{postalCode}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">
-                                Gender
-                            </label>
-                            <select id="gender" name="gender" 
-                                    th:field="*{gender}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Gender</option>
-                                <option value="MALE">Male</option>
-                                <option value="FEMALE">Female</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="motherName" class="block text-sm font-medium text-gray-700 mb-1">
-                            Mother's Name
-                        </label>
-                        <input type="text" id="motherName" name="motherName" 
-                               th:field="*{motherName}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="identityNumber" class="block text-sm font-medium text-gray-700 mb-1">
-                                Identity Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="identityNumber" name="identityNumber" 
-                                   th:field="*{identityNumber}"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   required>
-                            <p class="text-sm text-gray-500 mt-1">National ID number</p>
-                        </div>
-                        <div>
-                            <label for="identityType" class="block text-sm font-medium text-gray-700 mb-1">
-                                Identity Type <span class="text-red-500">*</span>
-                            </label>
-                            <select id="identityType" name="identityType" 
-                                    th:field="*{identityType}"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required>
-                                <option value="">Select Identity Type</option>
-                                <option value="KTP">KTP (National ID)</option>
-                                <option value="PASSPORT">Passport</option>
-                                <option value="SIM">SIM (Driver License)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contact Information -->
-                <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">Contact Information</h3>
-                    
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-                            Email <span class="text-red-500">*</span>
-                        </label>
-                        <input type="email" id="email" name="email" 
-                               th:field="*{email}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                               required>
-                    </div>
-
-                    <div>
-                        <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-1">
-                            Phone Number <span class="text-red-500">*</span>
-                        </label>
-                        <input type="tel" id="phoneNumber" name="phoneNumber" 
-                               th:field="*{phoneNumber}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                               required>
-                    </div>
-
-                    <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
-                            Address
-                        </label>
-                        <textarea id="address" name="address" rows="3"
-                                  th:field="*{address}"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
                             <label for="city" class="block text-sm font-medium text-gray-700 mb-1">
-                                City
+                                Kota
                             </label>
-                            <input type="text" id="city" name="city" 
+                            <input type="text" id="city" name="city"
                                    th:field="*{city}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-1">
-                                Postal Code
+                            <label for="province" class="block text-sm font-medium text-gray-700 mb-1">
+                                Provinsi
                             </label>
-                            <input type="text" id="postalCode" name="postalCode" 
-                                   th:field="*{postalCode}"
+                            <input type="text" id="province" name="province"
+                                   th:field="*{province}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
+
                     <div>
-                        <label for="country" class="block text-sm font-medium text-gray-700 mb-1">
-                            Country
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
+                            Alamat <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="country" name="country" 
-                               th:field="*{country}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <textarea id="address" name="address" rows="3"
+                                  th:field="*{address}"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  required></textarea>
+                    </div>
+                </div>
+
+                <!-- === Data Pribadi === -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                        </svg>
+                        Data Pribadi
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dateOfBirth" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tanggal Lahir <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" id="dateOfBirth" name="dateOfBirth"
+                                   th:field="*{dateOfBirth}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="birthPlace" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tempat Lahir
+                            </label>
+                            <input type="text" id="birthPlace" name="birthPlace"
+                                   th:field="*{birthPlace}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="educationLevel" class="block text-sm font-medium text-gray-700 mb-1">
+                                Pendidikan <span class="text-red-500">*</span>
+                            </label>
+                            <select id="educationLevel" name="educationLevel"
+                                    th:field="*{educationLevel}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Pendidikan</option>
+                                <option th:each="level : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.EducationLevel).values()}"
+                                        th:value="${level}" th:text="${level.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">
+                                Jenis Kelamin <span class="text-red-500">*</span>
+                            </label>
+                            <select id="gender" name="gender"
+                                    th:field="*{gender}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option th:each="g : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.Gender).values()}"
+                                        th:value="${g}" th:text="${g.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="religion" class="block text-sm font-medium text-gray-700 mb-1">
+                                Agama <span class="text-red-500">*</span>
+                            </label>
+                            <select id="religion" name="religion"
+                                    th:field="*{religion}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Agama</option>
+                                <option th:each="r : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.Religion).values()}"
+                                        th:value="${r}" th:text="${r.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="maritalStatus" class="block text-sm font-medium text-gray-700 mb-1">
+                                Status Pernikahan <span class="text-red-500">*</span>
+                            </label>
+                            <select id="maritalStatus" name="maritalStatus"
+                                    th:field="*{maritalStatus}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Status</option>
+                                <option th:each="ms : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.MaritalStatus).values()}"
+                                        th:value="${ms}" th:text="${ms.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dependents" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tanggungan
+                            </label>
+                            <select id="dependents" name="dependents"
+                                    th:field="*{dependents}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option th:each="i : ${#numbers.sequence(0, 3)}" th:value="${i}" th:text="${i}"></option>
+                                <option value="4">3+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="mothersMaidenName" class="block text-sm font-medium text-gray-700 mb-1">
+                            Nama Gadis Ibu Kandung <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="mothersMaidenName" name="mothersMaidenName"
+                               th:field="*{mothersMaidenName}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               required>
+                    </div>
+                </div>
+
+                <!-- === Identitas === -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1 1 1v4a1 1 0 01-1.414 1.414L4 14l-1-1v-4l-.257-.257A6 6 0 1118 8zM6 8a4 4 0 100-8 4 4 0 000 8z"/>
+                        </svg>
+                        Identitas
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="nationality" class="block text-sm font-medium text-gray-700 mb-1">
+                                Kewarganegaraan <span class="text-red-500">*</span>
+                            </label>
+                            <select id="nationality" name="nationality"
+                                    th:field="*{nationality}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Kewarganegaraan</option>
+                                <option th:each="n : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.Nationality).values()}"
+                                        th:value="${n}" th:text="${n.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="residenceCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                Kode Kependudukan
+                            </label>
+                            <input type="text" id="residenceCode" name="residenceCode"
+                                   th:field="*{residenceCode}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="identityType" class="block text-sm font-medium text-gray-700 mb-1">
+                                Jenis Identitas Diri <span class="text-red-500">*</span>
+                            </label>
+                            <select id="identityType" name="identityType"
+                                    th:field="*{identityType}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required>
+                                <option value="">Pilih Jenis Identitas</option>
+                                <option th:each="it : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.IdentityType).values()}"
+                                        th:value="${it}" th:text="${it.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="identityNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nomor Identitas <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="identityNumber" name="identityNumber"
+                                   th:field="*{identityNumber}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   required>
+                        </div>
+                        <div>
+                            <label for="identityExpiryDate" class="block text-sm font-medium text-gray-700 mb-1">
+                                Berlaku Sampai
+                            </label>
+                            <input type="date" id="identityExpiryDate" name="identityExpiryDate"
+                                   th:field="*{identityExpiryDate}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Opsional</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- === Data Pekerjaan === -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a3 3 0 013 3v2a3 3 0 01-3 3H9a3 3 0 01-3-3V9a3 3 0 013-3h2zm8-5a1 1 0 00-1-1H9a1 1 0 00-1 1v1a1 1 0 001 1h4a1 1 0 001-1V6z"/>
+                            <path fill-rule="evenodd" d="M15 11v1a3 3 0 01-3 3H9a3 3 0 01-3-3v-1a3 3 0 013-3h4a3 3 0 013 3zm-6-1a1 1 0 00-1 1v1a1 1 0 001 1h4a1 1 0 001-1v-1a1 1 0 00-1-1H9z"/>
+                        </svg>
+                        Data Pekerjaan
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">
+                                Jabatan
+                            </label>
+                            <select id="jobTitle" name="jobTitle"
+                                    th:field="*{jobTitle}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih Jabatan</option>
+                                <option th:each="jt : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.JobTitle).values()}"
+                                        th:value="${jt}" th:text="${jt.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="profession" class="block text-sm font-medium text-gray-700 mb-1">
+                                Profesi
+                            </label>
+                            <select id="profession" name="profession"
+                                    th:field="*{profession}"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih Profesi</option>
+                                <option th:each="p : ${T(id.ac.tazkia.minibank.entity.PersonalCustomer.Profession).values()}"
+                                        th:value="${p}" th:text="${p.displayName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nama Perusahaan
+                            </label>
+                            <input type="text" id="companyName" name="companyName"
+                                   th:field="*{companyName}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="officePhone" class="block text-sm font-medium text-gray-700 mb-1">
+                                No. Telp Kantor
+                            </label>
+                            <input type="tel" id="officePhone" name="officePhone"
+                                   th:field="*{officePhone}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="officeEmail" class="block text-sm font-medium text-gray-700 mb-1">
+                                E-mail Kantor
+                            </label>
+                            <input type="email" id="officeEmail" name="officeEmail"
+                                   th:field="*{officeEmail}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="officeFax" class="block text-sm font-medium text-gray-700 mb-1">
+                                Facsimile Kantor
+                            </label>
+                            <input type="text" id="officeFax" name="officeFax"
+                                   th:field="*{officeFax}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="employmentStartDate" class="block text-sm font-medium text-gray-700 mb-1">
+                                Tanggal Mulai Bekerja
+                            </label>
+                            <input type="date" id="employmentStartDate" name="employmentStartDate"
+                                   th:field="*{employmentStartDate}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="companyPostalCode" class="block text-sm font-medium text-gray-700 mb-1">
+                                Kode Pos Perusahaan
+                            </label>
+                            <input type="text" id="companyPostalCode" name="companyPostalCode"
+                                   th:field="*{companyPostalCode}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="companyAddress" class="block text-sm font-medium text-gray-700 mb-1">
+                            Alamat Perusahaan
+                        </label>
+                        <textarea id="companyAddress" name="companyAddress" rows="3"
+                                  th:field="*{companyAddress}"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-end space-x-4 pt-6 border-t">
-                    <a href="/customer/create" 
+                    <a href="/customer/create"
                        id="cancel-button"
-                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                        Cancel
+                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200">
+                        Batal
                     </a>
                     <button type="submit" id="submit-button"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            th:text="'Create Personal Customer'">
-                        Create Personal Customer
+                            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 font-medium">
+                        Simpan Nasabah
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- JavaScript for form enhancements -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-calculate age when date of birth changes
+            const dateOfBirthInput = document.getElementById('dateOfBirth');
+            if (dateOfBirthInput) {
+                dateOfBirthInput.addEventListener('change', function() {
+                    const birthDate = new Date(this.value);
+                    const today = new Date();
+                    const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+
+                    // You could display age somewhere if needed
+                    console.log('Age:', age);
+                });
+            }
+
+            // Copy personal address to company address if company name is filled
+            const companyNameInput = document.getElementById('companyName');
+            const addressInput = document.getElementById('address');
+            const companyAddressInput = document.getElementById('companyAddress');
+
+            if (companyNameInput && addressInput && companyAddressInput) {
+                companyNameInput.addEventListener('change', function() {
+                    if (this.value && !companyAddressInput.value) {
+                        if (confirm('Apakah alamat perusahaan sama dengan alamat pribadi?')) {
+                            companyAddressInput.value = addressInput.value;
+                        }
+                    }
+                });
+            }
+
+            // Form validation enhancements
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            field.classList.add('border-red-500');
+                            isValid = false;
+                        } else {
+                            field.classList.remove('border-red-500');
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Mohon lengkapi semua field yang wajib diisi');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
