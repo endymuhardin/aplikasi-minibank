@@ -37,13 +37,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.AuditorAware;
 
 @Slf4j
 @Controller
 @RequestMapping("/transaction")
 @RequiredArgsConstructor
 public class TransactionController {
-    
+
     private static final String CASH_DEPOSIT_FORM_VIEW = "transaction/cash-deposit-form";
     private static final String CASH_WITHDRAWAL_FORM_VIEW = "transaction/cash-withdrawal-form";
     private static final String TRANSFER_FORM_VIEW = "transaction/transfer-form";
@@ -55,12 +56,13 @@ public class TransactionController {
     private static final String ERROR_MESSAGE_ATTR = "errorMessage";
     private static final String SUCCESS_MESSAGE_ATTR = "successMessage";
     private static final String ACCOUNT_NOT_FOUND_MSG = "Account not found";
-    
+
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final SequenceNumberService sequenceNumberService;
     private final TransferService transferService;
     private final TransactionReceiptPdfService receiptPdfService;
+    private final AuditorAware<String> auditorAware;
     
     @GetMapping("/list")
     public String transactionList(
@@ -178,15 +180,14 @@ public class TransactionController {
             transaction.setTransactionType(Transaction.TransactionType.DEPOSIT);
             transaction.setAmount(depositRequest.getAmount());
             transaction.setBalanceBefore(balanceBefore);
-            transaction.setDescription(depositRequest.getDescription() != null ? 
+            transaction.setDescription(depositRequest.getDescription() != null ?
                 depositRequest.getDescription() : "Setoran Tunai");
             transaction.setReferenceNumber(depositRequest.getReferenceNumber());
             transaction.setChannel(Transaction.TransactionChannel.TELLER);
             transaction.setTransactionDate(LocalDateTime.now());
             transaction.setProcessedDate(LocalDateTime.now());
-            transaction.setCreatedBy(depositRequest.getCreatedBy() != null ? 
-                depositRequest.getCreatedBy() : "SYSTEM");
-            
+            // createdBy will be set automatically by JPA auditing
+
             // Process deposit using business method
             account.deposit(depositRequest.getAmount());
             transaction.setBalanceAfter(account.getBalance());
@@ -310,15 +311,14 @@ public class TransactionController {
             transaction.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
             transaction.setAmount(withdrawalRequest.getAmount());
             transaction.setBalanceBefore(balanceBefore);
-            transaction.setDescription(withdrawalRequest.getDescription() != null ? 
+            transaction.setDescription(withdrawalRequest.getDescription() != null ?
                 withdrawalRequest.getDescription() : "Penarikan Tunai");
             transaction.setReferenceNumber(withdrawalRequest.getReferenceNumber());
             transaction.setChannel(Transaction.TransactionChannel.TELLER);
             transaction.setTransactionDate(LocalDateTime.now());
             transaction.setProcessedDate(LocalDateTime.now());
-            transaction.setCreatedBy(withdrawalRequest.getCreatedBy() != null ? 
-                withdrawalRequest.getCreatedBy() : "SYSTEM");
-            
+            // createdBy will be set automatically by JPA auditing
+
             // Process withdrawal using business method
             account.withdraw(withdrawalRequest.getAmount());
             transaction.setBalanceAfter(account.getBalance());

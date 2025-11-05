@@ -91,8 +91,8 @@ public class TransactionRestController {
             transaction.setChannel(Transaction.TransactionChannel.TELLER);
             transaction.setTransactionDate(LocalDateTime.now());
             transaction.setProcessedDate(LocalDateTime.now());
-            transaction.setCreatedBy(request.getCreatedBy());
-            
+            // createdBy will be set automatically by JPA auditing
+
             // Process deposit using business method
             account.deposit(request.getAmount());
             transaction.setBalanceAfter(account.getBalance());
@@ -185,8 +185,8 @@ public class TransactionRestController {
             transaction.setChannel(Transaction.TransactionChannel.TELLER);
             transaction.setTransactionDate(LocalDateTime.now());
             transaction.setProcessedDate(LocalDateTime.now());
-            transaction.setCreatedBy(request.getCreatedBy());
-            
+            // createdBy will be set automatically by JPA auditing
+
             // Process withdrawal using business method
             account.withdraw(request.getAmount());
             transaction.setBalanceAfter(account.getBalance());

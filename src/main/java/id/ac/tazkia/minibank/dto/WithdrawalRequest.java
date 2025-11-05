@@ -22,10 +22,7 @@ public class WithdrawalRequest {
     
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
-    
+
     @Size(max = 100, message = "Reference number cannot exceed 100 characters")
     private String referenceNumber;
-    
-    @Size(max = 100, message = "Created by cannot exceed 100 characters")
-    private String createdBy;
 }

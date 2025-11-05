@@ -582,11 +582,10 @@ class ApprovalWorkflowTutorialTest extends BasePlaywrightTest {
         page.waitForTimeout(500);
         captureScreenshot("65_keterangan_setoran_terisi");
 
-        page.locator("#createdBy").fill("teller1");
         page.waitForTimeout(500);
         captureScreenshot("66_form_deposit_lengkap");
 
-        log.info("✓ Form setoran berhasil diisi");
+        log.info("✓ Form setoran berhasil diisi (createdBy otomatis dari user login)");
 
         // ========================================
         // STEP 28: Proses Setoran
