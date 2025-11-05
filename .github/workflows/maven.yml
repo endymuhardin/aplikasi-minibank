@@ -313,14 +313,12 @@ jobs:
             echo '</script>' >> pages/mermaid-header.html
 
             # Create Lua filter for Mermaid diagrams
-            cat > pages/mermaid.lua << 'EOF'
-function CodeBlock(block)
-  if block.classes[1] == "mermaid" then
-    local html = '<div class="mermaid">' .. block.text .. '</div>'
-    return pandoc.RawBlock('html', html)
-  end
-end
-EOF
+            printf '%s\n' 'function CodeBlock(block)' > pages/mermaid.lua
+            printf '%s\n' '  if block.classes[1] == "mermaid" then' >> pages/mermaid.lua
+            printf '%s\n' '    local html = "<div class=\"mermaid\">" .. block.text .. "</div>"' >> pages/mermaid.lua
+            printf '%s\n' '    return pandoc.RawBlock("html", html)' >> pages/mermaid.lua
+            printf '%s\n' '  end' >> pages/mermaid.lua
+            printf '%s\n' 'end' >> pages/mermaid.lua
 
             # Create HTML with Mermaid support
             pandoc pages/panduan-customer-onboarding.md \
