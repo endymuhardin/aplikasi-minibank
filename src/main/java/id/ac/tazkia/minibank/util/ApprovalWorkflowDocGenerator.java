@@ -93,7 +93,7 @@ public class ApprovalWorkflowDocGenerator {
 
         return Files.walk(videoPath)
             .filter(path -> path.toString().endsWith(".webm"))
-            .filter(path -> path.toString().toLowerCase().contains("customeronboarding"))
+            .filter(path -> path.toString().toLowerCase().contains("approvalworkflowtutorialtest"))
             .sorted()
             .collect(Collectors.toList());
     }

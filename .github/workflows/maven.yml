@@ -313,11 +313,14 @@ jobs:
             echo '</script>' >> pages/mermaid-header.html
 
             # Create Lua filter for Mermaid diagrams
-            echo 'function CodeBlock(block)' > pages/mermaid.lua
-            echo '  if block.classes[1] == "mermaid" then' >> pages/mermaid.lua
-            echo '    return pandoc.RawBlock("html", "<div class=\"mermaid\">\\n" .. block.text .. "\\n</div>")' >> pages/mermaid.lua
-            echo '  end' >> pages/mermaid.lua
-            echo 'end' >> pages/mermaid.lua
+            cat > pages/mermaid.lua << 'EOF'
+function CodeBlock(block)
+  if block.classes[1] == "mermaid" then
+    local html = '<div class="mermaid">' .. block.text .. '</div>'
+    return pandoc.RawBlock('html', html)
+  end
+end
+EOF
 
             # Create HTML with Mermaid support
             pandoc pages/panduan-customer-onboarding.md \
@@ -330,8 +333,9 @@ jobs:
               --toc \
               --toc-depth=3 \
               --include-in-header=pages/mermaid-header.html \
-              --from markdown \
-              --to html5
+              --from markdown+hard_line_breaks \
+              --to html5 \
+              --wrap=preserve
         else
             echo "⚠️ Pandoc not available, keeping Markdown format"
             # Create a simple HTML wrapper for the markdown with responsive images
