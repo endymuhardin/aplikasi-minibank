@@ -62,48 +62,38 @@ END $$;
 
 -- Step 1: Delete all transactions (depends on accounts)
 DELETE FROM transactions;
-RAISE NOTICE '✓ Deleted all transactions';
 
 -- Step 2: Delete all approval requests (depends on customers/accounts)
 DELETE FROM approval_requests;
-RAISE NOTICE '✓ Deleted all approval requests';
 
 -- Step 3: Delete all accounts (depends on customers)
 DELETE FROM accounts;
-RAISE NOTICE '✓ Deleted all accounts';
 
 -- Step 4: Delete personal customers (joined table inheritance)
 DELETE FROM personal_customers;
-RAISE NOTICE '✓ Deleted all personal customers';
 
 -- Step 5: Delete corporate customers (joined table inheritance)
 DELETE FROM corporate_customers;
-RAISE NOTICE '✓ Deleted all corporate customers';
 
 -- Step 6: Delete base customers table
 DELETE FROM customers;
-RAISE NOTICE '✓ Deleted all base customers';
 
 -- Step 7: Reset sequence numbers for fresh start
 UPDATE sequence_numbers
 SET last_number = 1000010
 WHERE sequence_name = 'CUSTOMER';
-RAISE NOTICE '✓ Reset CUSTOMER sequence to 1000010 (next: C1000011)';
 
 UPDATE sequence_numbers
 SET last_number = 2000006
 WHERE sequence_name = 'ACCOUNT_NUMBER';
-RAISE NOTICE '✓ Reset ACCOUNT_NUMBER sequence to 2000006 (next: A2000007)';
 
 UPDATE sequence_numbers
 SET last_number = 0
 WHERE sequence_name = 'CORPORATE_ACCOUNT_NUMBER';
-RAISE NOTICE '✓ Reset CORPORATE_ACCOUNT_NUMBER sequence to 0 (next: CORP0000001)';
 
 UPDATE sequence_numbers
 SET last_number = 3000000
 WHERE sequence_name = 'TRANSACTION_NUMBER';
-RAISE NOTICE '✓ Reset TRANSACTION_NUMBER sequence to 3000000 (next: T3000001)';
 
 -- Verify final state
 DO $$
