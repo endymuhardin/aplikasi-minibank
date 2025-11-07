@@ -78,7 +78,7 @@
                                 th:value="${product.id}"
                                 th:text="${product.productName + ' (' + product.productCode + ')'}"
                                 th:data-type="${product.productType.name()}"
-                                th:data-category="${product.productCategory.name()}"
+                                th:data-category="${product.productCategory}"
                                 th:data-min-balance="${product.minimumOpeningBalance}"
                                 th:data-description="${product.description}">
                             Product Name
@@ -148,31 +148,42 @@
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- JavaScript for product information display -->
-    <script th:inline="javascript">
+        <!-- JavaScript for product information display -->
+        <script>
         function updateProductInfo() {
             const select = document.getElementById('productId');
             const selectedOption = select.options[select.selectedIndex];
-            
-            if (selectedOption.value) {
+
+            console.log('Selected option:', selectedOption);
+            console.log('Dataset:', selectedOption.dataset);
+
+            if (selectedOption && selectedOption.value) {
                 // Update product details from data attributes
-                document.getElementById('product-type').textContent = selectedOption.dataset.type || '-';
-                document.getElementById('product-category').textContent = selectedOption.dataset.category || '-';
-                document.getElementById('min-balance').textContent = 'IDR ' + (parseFloat(selectedOption.dataset.minBalance) || 0).toLocaleString('id-ID', {minimumFractionDigits: 2});
-                document.getElementById('product-description').textContent = selectedOption.dataset.description || 'No description available';
-                
+                const productType = selectedOption.dataset.type || selectedOption.getAttribute('data-type') || '-';
+                const productCategory = selectedOption.dataset.category || selectedOption.getAttribute('data-category') || '-';
+                const minBalance = parseFloat(selectedOption.dataset.minBalance || selectedOption.getAttribute('data-min-balance') || 0);
+                const description = selectedOption.dataset.description || selectedOption.getAttribute('data-description') || 'No description available';
+
+                console.log('Product Type:', productType);
+                console.log('Product Category:', productCategory);
+                console.log('Min Balance:', minBalance);
+                console.log('Description:', description);
+
+                document.getElementById('product-type').textContent = productType;
+                document.getElementById('product-category').textContent = productCategory;
+                document.getElementById('min-balance').textContent = 'IDR ' + minBalance.toLocaleString('id-ID', {minimumFractionDigits: 2});
+                document.getElementById('product-description').textContent = description;
+
                 // Update minimum deposit validation
                 const initialDepositInput = document.getElementById('initialDeposit');
-                const minBalance = parseFloat(selectedOption.dataset.minBalance) || 0;
                 initialDepositInput.min = minBalance;
-                
+
                 // Add event listener for deposit validation
                 initialDepositInput.addEventListener('input', function() {
                     const warning = document.getElementById('min-deposit-warning');
                     const currentValue = parseFloat(this.value) || 0;
-                    
+
                     if (currentValue < minBalance) {
                         warning.classList.remove('hidden');
                         warning.textContent = `Initial deposit must be at least IDR ${minBalance.toLocaleString('id-ID', {minimumFractionDigits: 2})}`;
@@ -184,16 +195,17 @@
                 // Reset product information to default values
                 document.getElementById('product-type').textContent = '-';
                 document.getElementById('product-category').textContent = '-';
-                document.getElementById('min-balance').textContent = 'IDR 0.00';
-                document.getElementById('product-description').textContent = 'Please select a product';
+                document.getElementById('min-balance').textContent = '-';
+                document.getElementById('product-description').textContent = '-';
                 document.getElementById('min-deposit-warning').classList.add('hidden');
             }
         }
-        
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateProductInfo();
         });
-    </script>
+        </script>
+    </div>
 </body>
 </html>
