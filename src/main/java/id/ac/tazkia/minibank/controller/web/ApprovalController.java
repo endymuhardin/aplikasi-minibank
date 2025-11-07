@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Web controller for approval workflow management.
  * Provides UI for branch managers to review and approve/reject customer and account requests.
+ *
+ * Security: All methods require APPROVAL_VIEW permission (Branch Manager only)
  */
 @Slf4j
 @Controller
 @RequestMapping("/approval")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('APPROVAL_VIEW')")
 public class ApprovalController {
 
     private static final String APPROVAL_QUEUE_VIEW = "approval/queue";
@@ -109,8 +113,10 @@ public class ApprovalController {
 
     /**
      * Approve a customer creation request
+     * Requires CUSTOMER_APPROVE permission
      */
     @PostMapping("/approve/customer/{id}")
+    @PreAuthorize("hasAuthority('CUSTOMER_APPROVE')")
     public String approveCustomer(@PathVariable UUID id,
                                   @RequestParam(required = false) String reviewNotes,
                                   RedirectAttributes redirectAttributes) {
@@ -140,8 +146,10 @@ public class ApprovalController {
 
     /**
      * Reject a customer creation request
+     * Requires CUSTOMER_APPROVE permission
      */
     @PostMapping("/reject/customer/{id}")
+    @PreAuthorize("hasAuthority('CUSTOMER_APPROVE')")
     public String rejectCustomer(@PathVariable UUID id,
                                  @RequestParam String rejectionReason,
                                  @RequestParam(required = false) String reviewNotes,
@@ -180,8 +188,10 @@ public class ApprovalController {
 
     /**
      * Approve an account opening request
+     * Requires ACCOUNT_APPROVE permission
      */
     @PostMapping("/approve/account/{id}")
+    @PreAuthorize("hasAuthority('ACCOUNT_APPROVE')")
     public String approveAccount(@PathVariable UUID id,
                                 @RequestParam(required = false) String reviewNotes,
                                 RedirectAttributes redirectAttributes) {
@@ -211,8 +221,10 @@ public class ApprovalController {
 
     /**
      * Reject an account opening request
+     * Requires ACCOUNT_APPROVE permission
      */
     @PostMapping("/reject/account/{id}")
+    @PreAuthorize("hasAuthority('ACCOUNT_APPROVE')")
     public String rejectAccount(@PathVariable UUID id,
                                @RequestParam String rejectionReason,
                                @RequestParam(required = false) String reviewNotes,
