@@ -74,11 +74,11 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             onchange="updateProductInfo()">
                         <option value="">-- Select a Product --</option>
-                        <option th:each="product : ${availableProducts}" 
-                                th:value="${product.id}" 
+                        <option th:each="product : ${availableProducts}"
+                                th:value="${product.id}"
                                 th:text="${product.productName + ' (' + product.productCode + ')'}"
-                                th:data-type="${product.productType}"
-                                th:data-category="${product.productCategory}"
+                                th:data-type="${product.productType.name()}"
+                                th:data-category="${product.productCategory.name()}"
                                 th:data-min-balance="${product.minimumOpeningBalance}"
                                 th:data-description="${product.description}">
                             Product Name
