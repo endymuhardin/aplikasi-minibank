@@ -118,8 +118,59 @@
             </div>
 
             <!-- Approval Actions (only show if status is PENDING) -->
-            <div th:if="${approvalRequest.approvalStatus == T(id.ac.tazkia.minibank.entity.ApprovalRequest$ApprovalStatus).PENDING}"
+            <!-- Customer Approval Actions - Requires CUSTOMER_APPROVE permission -->
+            <div th:if="${approvalRequest.approvalStatus == T(id.ac.tazkia.minibank.entity.ApprovalRequest$ApprovalStatus).PENDING
+                         && approvalRequest.entityType == T(id.ac.tazkia.minibank.entity.ApprovalRequest$EntityType).CUSTOMER}"
+                 sec:authorize="hasAuthority('CUSTOMER_APPROVE')"
                  id="approval-actions" class="bg-gray-50 p-6 rounded-lg">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">Approval Actions</h2>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Approve Form -->
+                    <form th:action="@{/approval/approve/{type}/{id}(type=${approvalRequest.entityType.toString().toLowerCase()}, id=${approvalRequest.id})}"
+                          method="post" id="approve-form" class="bg-white p-4 rounded-lg border border-green-200">
+                        <h3 class="font-semibold text-green-700 mb-3">Approve Request</h3>
+                        <div class="mb-4">
+                            <label for="approve-review-notes" class="block text-sm font-medium text-gray-700 mb-1">Review Notes (Optional)</label>
+                            <textarea id="approve-review-notes" name="reviewNotes" rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                                      placeholder="Add any notes about this approval..."></textarea>
+                        </div>
+                        <button id="approve-btn" type="submit"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium">
+                            Approve
+                        </button>
+                    </form>
+
+                    <!-- Reject Form -->
+                    <form th:action="@{/approval/reject/{type}/{id}(type=${approvalRequest.entityType.toString().toLowerCase()}, id=${approvalRequest.id})}"
+                          method="post" id="reject-form" class="bg-white p-4 rounded-lg border border-red-200">
+                        <h3 class="font-semibold text-red-700 mb-3">Reject Request</h3>
+                        <div class="mb-4">
+                            <label for="rejection-reason" class="block text-sm font-medium text-gray-700 mb-1">Rejection Reason *</label>
+                            <textarea id="rejection-reason" name="rejectionReason" rows="2" required
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                      placeholder="Required: Why is this request being rejected?"></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="reject-review-notes" class="block text-sm font-medium text-gray-700 mb-1">Additional Notes (Optional)</label>
+                            <textarea id="reject-review-notes" name="reviewNotes" rows="2"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                      placeholder="Add any additional notes..."></textarea>
+                        </div>
+                        <button id="reject-btn" type="submit"
+                                class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">
+                            Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Approval Actions - Requires ACCOUNT_APPROVE permission -->
+            <div th:if="${approvalRequest.approvalStatus == T(id.ac.tazkia.minibank.entity.ApprovalRequest$ApprovalStatus).PENDING
+                         && approvalRequest.entityType == T(id.ac.tazkia.minibank.entity.ApprovalRequest$EntityType).ACCOUNT}"
+                 sec:authorize="hasAuthority('ACCOUNT_APPROVE')"
+                 id="approval-actions-account" class="bg-gray-50 p-6 rounded-lg">
                 <h2 class="text-lg font-semibold mb-4 text-gray-800">Approval Actions</h2>
 
                 <div class="grid grid-cols-2 gap-6">
