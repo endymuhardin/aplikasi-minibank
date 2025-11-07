@@ -9,18 +9,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Start database (required first)
 docker compose up -d
 
-# Build and run application
+# Build and run application (Tailwind CSS is built automatically by Maven)
 mvn spring-boot:run
-
-# Build frontend assets (in separate terminal)
-cd src/main/frontend
-npm install
-npm run watch
 
 # Access application
 # Web UI: http://localhost:8080/product/list
 # REST API: http://localhost:8080/api/customers/*
 ```
+
+### Frontend Development (Optional - for active CSS development)
+If you're actively working on CSS/Tailwind styles and want hot-reload:
+```bash
+# In separate terminal, run Tailwind in watch mode
+cd src/main/frontend
+npm install  # Only needed first time
+npm run watch
+
+# This watches for changes and rebuilds CSS automatically
+# Refresh browser to see changes
+```
+
+**Note:** For normal development, Maven automatically builds Tailwind CSS during `mvn spring-boot:run`.
 
 ### Testing
 ```bash

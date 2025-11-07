@@ -98,10 +98,11 @@ Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 21+** 
+- **Java 21+**
 - **Maven 3.8+**
 - **Docker Desktop**
-- **Node.js 16+** (untuk frontend build)
+
+**Note:** Node.js and npm are **automatically installed** by Maven during build (via frontend-maven-plugin)
 
 ### 1. Setup Database
 ```bash
@@ -109,23 +110,17 @@ Untuk detail lebih lanjut, lihat [dokumentasi teknis](./docs/technical-practices
 docker compose up -d
 ```
 
-### 2. Build Frontend Assets
+### 2. Build & Run Application
 ```bash
-# Masuk ke direktori frontend
-cd src/main/frontend
-
-# Install dependencies
-npm install
-
-# Start watch mode untuk development
-npm run watch
-```
-
-### 3. Run Application
-```bash
-# Di terminal terpisah, jalankan Spring Boot application
+# Maven will automatically:
+# 1. Install Node.js and npm (if not present)
+# 2. Run npm install for frontend dependencies
+# 3. Build Tailwind CSS (compile to output.css)
+# 4. Start Spring Boot application
 mvn spring-boot:run
 ```
+
+**That's it!** No need to run separate `npm` commands. Maven handles everything.
 
 ### 4. Access Application
 - **Web Application:** [http://localhost:8080/product/list](http://localhost:8080/product/list)

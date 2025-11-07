@@ -49,6 +49,9 @@
 		<karate.version>1.4.1</karate.version>
 		<jacoco.version>0.8.14</jacoco.version>
 		<maven.surefire.version>3.2.5</maven.surefire.version>
+		<frontend.maven.plugin.version>1.15.1</frontend.maven.plugin.version>
+		<node.version>v20.18.1</node.version>
+		<npm.version>10.8.2</npm.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -175,6 +178,49 @@
 
 	<build>
 		<plugins>
+			<!-- Frontend Maven Plugin - Build Tailwind CSS automatically -->
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>${frontend.maven.plugin.version}</version>
+				<configuration>
+					<nodeVersion>${node.version}</nodeVersion>
+					<npmVersion>${npm.version}</npmVersion>
+					<workingDirectory>src/main/frontend</workingDirectory>
+				</configuration>
+				<executions>
+					<!-- Install Node and npm -->
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+					<!-- Run npm install -->
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
+					</execution>
+					<!-- Run npm build to compile Tailwind CSS -->
+					<execution>
+						<id>npm run build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>run build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

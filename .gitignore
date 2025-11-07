@@ -32,8 +32,10 @@ build/
 ### VS Code ###
 .vscode/
 
-### Tailwind ###
+### Tailwind & Frontend Build ###
 node_modules
+src/main/frontend/node/
+src/main/frontend/node_modules/
 
 db-minibank
 .DS_Store
