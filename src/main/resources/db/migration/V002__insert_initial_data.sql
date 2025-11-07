@@ -10,9 +10,12 @@ INSERT INTO branches (
 ('01234567-8901-2345-6789-012345678905', 'YGY01', 'Cabang Yogyakarta', 'Jl. Malioboro No. 56', 'Yogyakarta', '55213', '0274-562789', 'yogyakarta@bankbsi.co.id', 'Dr. Retno Wulandari', false, 'SYSTEM');
 
 -- Initialize sequence numbers
-INSERT INTO sequence_numbers (sequence_name, last_number, prefix) VALUES 
-    ('CUSTOMER_NUMBER', 1000010, 'C'),
-    ('ACCOUNT_NUMBER', 2000000, 'A'),
+-- Note: Prefix in seed data takes precedence over prefix passed in code
+-- Ensure sequence names match exactly what's used in application code
+INSERT INTO sequence_numbers (sequence_name, last_number, prefix) VALUES
+    ('CUSTOMER', 1000010, 'C'),                      -- Used by CustomerController (next: C1000011)
+    ('ACCOUNT_NUMBER', 2000006, 'A'),                 -- Used by AccountService for personal accounts (next: A2000007)
+    ('CORPORATE_ACCOUNT_NUMBER', 0, 'CORP'),          -- Used by AccountService for corporate accounts (next: CORP0000001)
     ('TRANSACTION_NUMBER', 3000000, 'T');
 
 -- Initialize Islamic banking products

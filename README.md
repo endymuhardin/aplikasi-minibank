@@ -132,6 +132,61 @@ mvn spring-boot:run
 - **REST API:** [http://localhost:8080/api/customers](http://localhost:8080/api/customers)
 - **Database:** `localhost:2345/pgminibank` (username: `minibank`, password: `minibank1234`)
 
+### 5. Sample Users
+Login dengan kredensial berikut (password semua: `minibank123`):
+- **Admin:** `admin` - Full system access
+- **Customer Service:** `cs1`, `cs2`, `cs3` - Create customers & accounts
+- **Branch Manager:** `manager1`, `manager2` - Approve/reject requests
+- **Teller:** `teller1`, `teller2`, `teller3` - Process transactions
+
+## 🎓 Practice Tutorial Setup
+
+### Deploying Fresh Application
+Untuk deployment aplikasi dari awal:
+
+```bash
+# 1. Stop dan hapus database lama (HATI-HATI: ini akan menghapus semua data!)
+docker compose down -v
+
+# 2. Start database baru
+docker compose up -d
+
+# 3. Jalankan aplikasi (Flyway akan membuat schema dan seed data)
+mvn spring-boot:run
+
+# 4. Access aplikasi di http://localhost:8080
+```
+
+### Reset Database untuk Latihan Tutorial
+
+Jika Anda ingin **berlatih tutorial dari awal** tanpa menghapus konfigurasi sistem (users, products, branches), gunakan script reset:
+
+```bash
+# Reset customer data sambil mempertahankan users, products, dan branches
+docker exec -i aplikasi-minibank-postgres-1 psql -U minibank -d pgminibank < scripts/reset-customer-data.sql
+```
+
+**Apa yang dihapus:**
+- ❌ Semua transaksi
+- ❌ Semua rekening
+- ❌ Semua nasabah (personal & corporate)
+- ❌ Semua approval requests
+- 🔄 Reset sequence numbers (Customer, Account, Transaction)
+
+**Apa yang dipertahankan:**
+- ✅ Users & authentication (admin, cs1-3, manager1-2, teller1-3)
+- ✅ Products (Islamic banking products)
+- ✅ Branches (branch information)
+- ✅ Roles & permissions (RBAC configuration)
+
+**Kapan menggunakan reset script:**
+- 🎯 Ingin berlatih tutorial approval workflow dari awal
+- 📚 Training untuk user baru tanpa menghapus konfigurasi sistem
+- 🧪 Testing ulang dengan data bersih
+- 🔄 Reset demo environment
+
+**Catatan:** Setelah reset, nomor nasabah berikutnya dimulai dari `C1000011` dan nomor rekening dari `A2000007`.
+
 ## 🧪 Testing Status & Coverage
 
 ### ✅ Test Implementation Progress  
