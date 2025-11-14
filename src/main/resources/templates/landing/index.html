@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tazkia Minibank</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+</head>
+<body class="min-h-screen bg-slate-100">
+
+<!-- Container full screen -->
+<div class="relative w-full h-screen overflow-hidden">
+
+    <!-- Background ilustrasi, memenuhi layar -->
+    <img th:src="@{/images/index_background.png}"
+         alt="Tazkia Minibank"
+         class="absolute inset-0 w-full h-full object-cover">
+
+    <!-- Layer untuk tombol (digeser ke bawah) -->
+    <div class="absolute inset-0 flex items-end justify-center pb-16 md:pb-24">
+        <div class="flex flex-col items-center gap-4 w-full max-w-xs px-4">
+
+            <!-- Tombol LOGIN -->
+            <a href="/login"
+               class="w-full py-3 rounded-full text-center font-semibold
+                      tracking-[0.2em] text-slate-800
+                      bg-white/40 border border-white/70
+                      backdrop-blur-md shadow-lg
+                      hover:bg-white/70 hover:shadow-xl transition">
+                LOGIN
+            </a>
+
+            <!-- Tombol SIGN UP -->
+            <a href="/login"
+               class="w-full py-3 rounded-full text-center font-semibold
+                      tracking-[0.2em] text-slate-800
+                      bg-white/30 border border-white/60
+                      backdrop-blur-md shadow
+                      hover:bg-white/60 hover:shadow-xl transition">
+                SIGN UP
+            </a>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
