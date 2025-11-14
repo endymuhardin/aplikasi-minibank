@@ -42,7 +42,7 @@ Aplikasi Mini Bank adalah sistem perbankan syariah berbasis Spring Boot yang men
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Java 21** - Programming language
+- **Java 25** - Programming language
 - **Spring Boot 3.5.3** - Application framework
 - **Spring Data JPA** - Data access layer
 - **Spring Security** - Authentication & authorization
