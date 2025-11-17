@@ -1,5 +1,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/main}">
 <head>
     <title>Customer Management</title>
@@ -101,27 +102,29 @@
                                        th:href="@{/customer/view/{id}(id=${customer.id})}" 
                                        class="text-blue-600 hover:text-blue-900">View</a>
                                     <a th:id="'edit-' + ${customer.customerNumber}"
-                                       th:href="@{/customer/edit/{id}(id=${customer.id})}" 
+                                       th:href="@{/customer/edit/{id}(id=${customer.id})}"
                                        class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                    <form th:if="${customer.status.name() == 'ACTIVE'}" 
-                                          th:action="@{/customer/deactivate/{id}(id=${customer.id})}" 
-                                          method="post" class="inline">
-                                        <button th:id="'deactivate-' + ${customer.customerNumber}"
-                                                type="submit" title="Deactivate"
-                                                class="text-red-600 hover:text-red-900"
-                                                onclick="return confirm('Are you sure you want to deactivate this customer?')">
-                                            Deactivate
-                                        </button>
-                                    </form>
-                                    <form th:if="${customer.status.name() == 'INACTIVE'}" 
-                                          th:action="@{/customer/activate/{id}(id=${customer.id})}" 
-                                          method="post" class="inline">
-                                        <button th:id="'activate-' + ${customer.customerNumber}"
-                                                type="submit" title="Activate"
-                                                class="text-green-600 hover:text-green-900">
-                                            Activate
-                                        </button>
-                                    </form>
+                                    <div sec:authorize="hasAuthority('CUSTOMER_ACTIVATE')">
+                                        <form th:if="${customer.status.name() == 'ACTIVE'}"
+                                              th:action="@{/customer/deactivate/{id}(id=${customer.id})}"
+                                              method="post" class="inline">
+                                            <button th:id="'deactivate-' + ${customer.customerNumber}"
+                                                    type="submit" title="Deactivate"
+                                                    class="text-red-600 hover:text-red-900"
+                                                    onclick="return confirm('Are you sure you want to deactivate this customer?')">
+                                                Deactivate
+                                            </button>
+                                        </form>
+                                        <form th:if="${customer.status.name() == 'INACTIVE'}"
+                                              th:action="@{/customer/activate/{id}(id=${customer.id})}"
+                                              method="post" class="inline">
+                                            <button th:id="'activate-' + ${customer.customerNumber}"
+                                                    type="submit" title="Activate"
+                                                    class="text-green-600 hover:text-green-900">
+                                                Activate
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

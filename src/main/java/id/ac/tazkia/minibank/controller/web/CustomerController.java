@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import id.ac.tazkia.minibank.entity.Branch;
 import id.ac.tazkia.minibank.entity.CorporateCustomer;
@@ -372,6 +373,7 @@ public class CustomerController {
         }
     }
 
+    @PreAuthorize("hasAuthority('CUSTOMER_ACTIVATE')")
     @PostMapping("/activate/{id}")
     public String activate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         Optional<Customer> customer = customerRepository.findById(id);
@@ -386,6 +388,7 @@ public class CustomerController {
         return CUSTOMER_LIST_REDIRECT;
     }
 
+    @PreAuthorize("hasAuthority('CUSTOMER_ACTIVATE')")
     @PostMapping("/deactivate/{id}")
     public String deactivate(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         Optional<Customer> customer = customerRepository.findById(id);
