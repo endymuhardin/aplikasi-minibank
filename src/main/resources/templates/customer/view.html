@@ -47,7 +47,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                            <p class="mt-1 text-gray-900" th:text="${customer.dateOfBirth}"></p>
+                            <p class="mt-1 text-gray-900" th:text="${T(id.ac.tazkia.minibank.util.DataMaskingUtil).maskBirthdate(customer.dateOfBirth)}"></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Gender</label>
@@ -55,7 +55,7 @@
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">ID Number</label>
-                            <p class="mt-1 text-gray-900" th:text="${customer.idNumber}"></p>
+                            <p class="mt-1 text-gray-900" th:text="${T(id.ac.tazkia.minibank.util.DataMaskingUtil).maskIdentityNumber(customer.identityNumber)}"></p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-                            <p class="mt-1 text-gray-900" th:text="${customer.phoneNumber}"></p>
+                            <p class="mt-1 text-gray-900" th:text="${T(id.ac.tazkia.minibank.util.DataMaskingUtil).maskPhoneNumber(customer.phoneNumber)}"></p>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700">Address</label>
