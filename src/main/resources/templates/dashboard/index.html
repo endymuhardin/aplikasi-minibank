@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/main}">
 
 <head>
@@ -193,21 +194,25 @@
                 </div>
                 <div id="quick-actions" class="p-6">
                     <div class="grid grid-cols-2 gap-4">
-                        <a href="#" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="new-customer-button" th:href="@{/customer/create}"
+                           sec:authorize="hasAnyAuthority('CUSTOMER_CREATE')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                             <span class="text-sm font-medium text-gray-900">New Customer</span>
                         </a>
 
-                        <a href="#" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="open-account-button" th:href="@{/account/open}"
+                           sec:authorize="hasAnyAuthority('ACCOUNT_CREATE')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             <span class="text-sm font-medium text-gray-900">Open Account</span>
                         </a>
 
-                        <a id="process-transaction-button" href="#" 
+                        <a id="process-transaction-button" th:href="@{/transaction/cash-deposit}"
                            sec:authorize="hasAnyAuthority('TRANSACTION_DEPOSIT', 'TRANSACTION_WITHDRAWAL')"
                            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +221,9 @@
                             <span class="text-sm font-medium text-gray-900">Transaction</span>
                         </a>
 
-                        <a href="#" class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="reports-button" th:href="@{/transaction/list}"
+                           sec:authorize="hasAnyAuthority('TRANSACTION_VIEW', 'REPORT_VIEW')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
@@ -224,37 +231,37 @@
                         </a>
 
                         <!-- Manager-specific quick actions -->
-                        <button id="create-product-button" 
-                                sec:authorize="hasAnyAuthority('PRODUCT_CREATE', 'USER_CREATE')"
-                                class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="create-product-button" th:href="@{/product/create}"
+                           sec:authorize="hasAnyAuthority('PRODUCT_CREATE')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                             </svg>
                             <span class="text-sm font-medium text-gray-900">Create Product</span>
-                        </button>
+                        </a>
 
-                        <button id="create-user-button" 
-                                sec:authorize="hasAnyAuthority('USER_CREATE')"
-                                class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="create-user-button" th:href="@{/rbac/users/create}"
+                           sec:authorize="hasAnyAuthority('USER_CREATE')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
                             <span class="text-sm font-medium text-gray-900">Create User</span>
-                        </button>
+                        </a>
 
                         <!-- Teller-specific quick actions -->
-                        <button id="account-lookup-button" 
-                                sec:authorize="hasAnyAuthority('ACCOUNT_VIEW', 'TRANSACTION_VIEW')"
-                                class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <a id="account-lookup-button" th:href="@{/account/list}"
+                           sec:authorize="hasAnyAuthority('ACCOUNT_VIEW', 'TRANSACTION_VIEW')"
+                           class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <span class="text-sm font-medium text-gray-900">Account Lookup</span>
-                        </button>
+                        </a>
 
                         <!-- Admin system config link -->
-                        <a id="system-config-link" href="#"
-                           sec:authorize="hasAnyAuthority('USER_CREATE', 'AUDIT_VIEW')"
+                        <a id="system-config-link" th:href="@{/rbac/users/list}"
+                           sec:authorize="hasAnyAuthority('USER_VIEW', 'AUDIT_VIEW')"
                            class="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
                             <svg class="h-8 w-8 text-bsi-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
