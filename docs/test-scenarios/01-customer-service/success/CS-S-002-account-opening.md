@@ -3,6 +3,8 @@
 ## Overview
 Dokumen ini berisi skenario test untuk fitur pembukaan rekening dalam aplikasi minibank Islam. Pembukaan rekening mencakup validasi data nasabah, pemilihan produk syariah, dan pembuatan nomor rekening.
 
+> **⚠️ Catatan Penting:** Pembukaan rekening di menu Customer Service **tidak lagi memerlukan setoran awal (initial deposit)**. Rekening dibuat dengan saldo nol (Rp 0), dan setoran awal dilakukan di menu **Teller** setelah rekening diapprove oleh Branch Manager.
+
 ## Preconditions
 - Database PostgreSQL berjalan
 - Aplikasi Spring Boot aktif  

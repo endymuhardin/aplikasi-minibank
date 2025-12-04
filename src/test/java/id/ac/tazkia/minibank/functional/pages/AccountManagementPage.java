@@ -22,7 +22,6 @@ public class AccountManagementPage {
     private final Locator customerSelect;
     private final Locator customerSearchInput;
     private final Locator productSelect;
-    private final Locator initialDepositInput;
     private final Locator accountPurposeTextarea;
     
     // Account details elements
@@ -58,7 +57,6 @@ public class AccountManagementPage {
         this.customerSelect = page.locator("#customer-select");
         this.customerSearchInput = page.locator("#customer-search");
         this.productSelect = page.locator("#productId");
-        this.initialDepositInput = page.locator("#initialDeposit");
         this.accountPurposeTextarea = page.locator("#accountName");
         
         // Account details locators
@@ -302,16 +300,6 @@ public class AccountManagementPage {
     }
     
     /**
-     * Enter initial deposit amount
-     */
-    public AccountManagementPage enterInitialDeposit(String amount) {
-        initialDepositInput.clear();
-        initialDepositInput.fill(amount);
-        log.debug("Entered initial deposit: {}", amount);
-        return this;
-    }
-    
-    /**
      * Enter account name
      */
     public AccountManagementPage enterAccountName(String accountName) {
@@ -333,12 +321,11 @@ public class AccountManagementPage {
     /**
      * Fill account opening form
      */
-    public AccountManagementPage fillAccountOpeningForm(String customer, String product, String initialDeposit, String purpose) {
+    public AccountManagementPage fillAccountOpeningForm(String customer, String product, String purpose) {
         selectCustomer(customer);
         // Wait for form to update after customer selection
         page.waitForLoadState();
         selectProduct(product);
-        enterInitialDeposit(initialDeposit);
         if (purpose != null) {
             enterAccountPurpose(purpose);
         }

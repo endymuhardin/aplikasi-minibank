@@ -53,7 +53,7 @@
 
             <!-- Accounts table -->
             <div id="account-count" th:attr="data-count=${#lists.size(accounts.content)}" style="display: none;"></div>
-            <div th:if="${accounts.content}" class="overflow-x-auto">
+            <div th:if="${hasSearchCriteria and not accounts.content.empty}" class="overflow-x-auto">
                 <table id="accounts-table" class="min-w-full table-auto border-collapse">
                     <thead>
                         <tr class="bg-gray-100 border-b">
@@ -123,8 +123,21 @@
                 </table>
             </div>
 
-            <!-- Empty state -->
-            <div th:if="${accounts.content.empty}" class="text-center py-8">
+            <!-- Initial state - prompt user to search -->
+            <div th:if="${!hasSearchCriteria}" class="text-center py-12">
+                <div class="text-gray-500 mb-4">
+                    <svg class="mx-auto h-16 w-16 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <h3 id="search-prompt-message" class="text-lg font-medium text-gray-900 mb-2">Search for Accounts</h3>
+                <p class="text-gray-500 mb-4">
+                    Enter account number or account name in the search box above to find accounts.
+                </p>
+            </div>
+
+            <!-- Empty state after search -->
+            <div th:if="${hasSearchCriteria and accounts.content.empty}" class="text-center py-8">
                 <div class="text-gray-500 mb-4">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -132,12 +145,8 @@
                 </div>
                 <h3 id="no-accounts-message" class="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
                 <p class="text-gray-500 mb-4">
-                    <span th:if="${not #strings.isEmpty(search) or not #strings.isEmpty(status)}">No accounts match your search criteria.</span>
-                    <span th:unless="${not #strings.isEmpty(search) or not #strings.isEmpty(status)}">There are no accounts in the system yet.</span>
+                    No accounts match your search criteria. Try a different search term.
                 </p>
-                <a href="/account/open" class="text-blue-600 hover:text-blue-800">
-                    Open your first account →
-                </a>
             </div>
 
             <!-- Pagination -->

@@ -378,15 +378,10 @@ class ApprovalWorkflowTutorialTest extends BasePlaywrightTest {
         page.waitForTimeout(500);
         captureScreenshot("40_produk_dipilih");
 
-        // Enter initial deposit
-        page.locator("#initialDeposit").fill("1000000");
-        page.waitForTimeout(500);
-        captureScreenshot("41_setoran_awal_terisi");
-
-        // Enter account purpose
+        // Enter account name
         page.locator("#accountName").fill("Tabungan Harian");
         page.waitForTimeout(500);
-        captureScreenshot("42_form_rekening_lengkap");
+        captureScreenshot("41_form_rekening_lengkap");
 
         log.info("✓ Form pembukaan rekening berhasil diisi");
 

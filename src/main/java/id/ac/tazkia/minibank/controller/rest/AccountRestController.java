@@ -1,5 +1,6 @@
 package id.ac.tazkia.minibank.controller.rest;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,13 +125,6 @@ public class AccountRestController {
                 }
             }
 
-            // Validate minimum opening balance
-            if (request.getInitialDeposit().compareTo(product.getMinimumOpeningBalance()) < 0) {
-                Map<String, String> error = new HashMap<>();
-                error.put("initialDeposit", "Initial deposit must be at least " + product.getMinimumOpeningBalance());
-                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-            }
-
             // Generate account number
             String accountNumber = generateAccountNumber();
 
@@ -141,8 +135,9 @@ public class AccountRestController {
             account.setBranch(customer.getBranch()); // Use customer's branch
             account.setAccountNumber(accountNumber);
             account.setAccountName(request.getAccountName());
-            account.setBalance(request.getInitialDeposit());
-            account.setStatus(Account.AccountStatus.ACTIVE);
+            account.setBalance(BigDecimal.ZERO);
+            account.setStatus(Account.AccountStatus.INACTIVE);
+            account.setApprovalStatus(Account.ApprovalStatus.PENDING_APPROVAL);
             // createdBy will be set automatically by JPA auditing
 
             Account savedAccount = accountRepository.save(account);

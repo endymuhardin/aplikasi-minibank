@@ -55,25 +55,24 @@ class AccountOpeningSuccessTest extends BasePlaywrightTest {
     }
     
     @Test
-    @DisplayName("Should successfully display account list page")
+    @DisplayName("Should successfully display account list page with search prompt")
     void shouldDisplayAccountListSuccessfully() {
         log.info("Integration Test: Account list page display");
-        
+
         // Navigate to account list
         accountPage.navigateToList(baseUrl);
-        
+
         // Verify list page loaded
         assertTrue(accountPage.isOnListPage(), "Should be on account list page");
-        
-        // Check if table exists or if there's a "no accounts" message
-        boolean tableVisible = page.locator("#accounts-table").isVisible();
-        boolean noDataMessage = page.locator("text=No accounts found").isVisible();
-        
-        // Either table should be visible (if accounts exist) OR no data message should be shown
-        assertTrue(tableVisible || noDataMessage, 
-                "Either account table should be visible or 'no accounts' message should be shown");
-        
-        log.info("✅ Account list page displayed successfully");
+
+        // On initial load, should show search prompt (not data)
+        boolean searchPromptVisible = page.locator("#search-prompt-message").isVisible();
+
+        // Search prompt should be visible on initial load
+        assertTrue(searchPromptVisible,
+                "Search prompt should be visible on initial load (data not displayed until search)");
+
+        log.info("✅ Account list page displayed successfully with search prompt");
     }
     
     @Test
@@ -100,25 +99,28 @@ class AccountOpeningSuccessTest extends BasePlaywrightTest {
     @DisplayName("Should successfully verify UI components are present")
     void shouldVerifyUIComponentsPresent() {
         log.info("Integration Test: UI components verification");
-        
+
         // Navigate to account opening
         accountPage.navigateToOpenAccount(baseUrl);
         page.waitForLoadState();
-        
+
         // Check if we can proceed to the form (either customers exist or we can search)
         boolean hasCustomers = page.locator(".customer-card").count() > 0;
         boolean hasSearchInput = page.locator("#search-input").isVisible();
-        
+
         assertTrue(hasCustomers || hasSearchInput,
                 "Should have either existing customers or search capability");
-        
+
         // Navigate to account list
         accountPage.navigateToList(baseUrl);
-        
-        // Verify core table structure exists
-        assertTrue(page.locator("#accounts-table, .no-data-message").count() > 0,
-                "Should have either account table or no-data message");
-        
+
+        // Verify search form and search prompt are present (initial load shows search prompt, not data)
+        boolean hasSearchButton = page.locator("#search-accounts-btn").isVisible();
+        boolean hasSearchPrompt = page.locator("#search-prompt-message").isVisible();
+
+        assertTrue(hasSearchButton && hasSearchPrompt,
+                "Should have search button and search prompt on initial load");
+
         log.info("✅ UI components verification successful");
     }
 }

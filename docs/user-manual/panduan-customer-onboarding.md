@@ -118,18 +118,18 @@ Akad sudah embedded dalam product type:
 CS melengkapi form pembukaan rekening:
 - **Account Name:** Nama untuk rekening (e.g., "John - Savings")
 - **Product:** Pilihan produk Islamic/conventional
-- **Initial Deposit:** Setoran awal (min. sesuai product requirement)
 - Sistem generate **Account Number** otomatis (contoh: ACC0000001)
 - Status rekening: **PENDING_APPROVAL** (INACTIVE)
 - Sistem membuat **ApprovalRequest** otomatis untuk Branch Manager
-- Initial deposit langsung masuk (balance recorded, but inactive)
+- **Catatan:** Rekening dibuat dengan saldo nol, setoran awal dilakukan di menu Teller setelah approval
 
 **Summary CS Flow:**
 ```
 CS Login → Select Customer Type → Input Data → Save (get C1000001)
        → Open Account → Search Customer → Select Product & Akad
-       → Initial Deposit → Save Account (get ACC0000001)
+       → Save Account (get ACC0000001)
        → Both waiting for Branch Manager approval
+       → Setoran awal dilakukan Teller setelah approval
 ```
 
 ---
@@ -195,14 +195,14 @@ Manager klik "View Details" pada request **ACCOUNT_OPENING**:
   - Request Type: ACCOUNT_OPENING
   - Entity Type: ACCOUNT
   - Requested By: CS username
-  - Request Notes: e.g., "New account opening with initial deposit 1,000,000"
+  - Request Notes: e.g., "New account opening for [Customer Name]"
 - **Account Details:**
   - Account Number: ACC0000001
   - Account Name: As per CS input
   - Customer: Link to customer (C1000001)
   - Product: Product name, type, category
   - Product Type: TABUNGAN_WADIAH, TABUNGAN_MUDHARABAH, etc.
-  - Initial Balance: Amount from initial deposit
+  - Balance: IDR 0 (setoran awal dilakukan di Teller)
   - Currency: IDR
   - Status: PENDING_APPROVAL
 
@@ -211,7 +211,6 @@ Manager melakukan review dan approval rekening:
 - **Review Checklist:**
   - ✅ Customer sudah APPROVED & ACTIVE
   - ✅ Product sesuai dengan customer type
-  - ✅ Initial deposit memenuhi minimum requirement
   - ✅ Account name dan details sesuai
 - **Action: Approve**
   - Isi "Review Notes"
@@ -221,7 +220,7 @@ Manager melakukan review dan approval rekening:
 - **Action: Reject**
   - **Wajib** isi "Rejection Reason"
   - Hasil: Account status → **REJECTED & INACTIVE**
-  - Initial deposit tetap recorded tapi tidak bisa digunakan
+  - Rekening tidak dapat digunakan
 
 **Summary Manager Flow:**
 ```
@@ -239,7 +238,9 @@ Manager Login → Approval Queue
 
 ### Teller: Transaksi & Layanan
 
-Setelah customer dan account diapprove, Teller dapat melayani transaksi:
+Setelah customer dan account diapprove, Teller dapat melayani transaksi.
+
+> **💡 Catatan Penting:** Setoran awal (initial deposit) dilakukan di menu Teller setelah rekening diapprove oleh Branch Manager. Rekening dibuat dengan saldo nol oleh Customer Service.
 
 #### 1. Cari Nasabah untuk Transaksi
 Teller login dan navigate ke menu transaksi:

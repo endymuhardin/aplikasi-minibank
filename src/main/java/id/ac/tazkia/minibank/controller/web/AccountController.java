@@ -71,24 +71,29 @@ public class AccountController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             Model model) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        Page<Account> accounts;
-        
-        if (search != null && !search.trim().isEmpty()) {
-            accounts = accountRepository.findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
-                search.trim(), search.trim(), pageable);
-        } else if (status != null && !status.trim().isEmpty()) {
-            accounts = accountRepository.findByStatus(Account.AccountStatus.valueOf(status), pageable);
-        } else {
-            accounts = accountRepository.findAll(pageable);
+
+        boolean hasSearchCriteria = (search != null && !search.trim().isEmpty()) ||
+                                    (status != null && !status.trim().isEmpty());
+
+        Page<Account> accounts = Page.empty();
+
+        if (hasSearchCriteria) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+
+            if (search != null && !search.trim().isEmpty()) {
+                accounts = accountRepository.findByAccountNumberContainingIgnoreCaseOrAccountNameContainingIgnoreCase(
+                    search.trim(), search.trim(), pageable);
+            } else if (status != null && !status.trim().isEmpty()) {
+                accounts = accountRepository.findByStatus(Account.AccountStatus.valueOf(status), pageable);
+            }
         }
-        
+
         model.addAttribute("accounts", accounts);
         model.addAttribute("search", search);
         model.addAttribute("status", status);
         model.addAttribute("accountStatuses", Account.AccountStatus.values());
-        
+        model.addAttribute("hasSearchCriteria", hasSearchCriteria);
+
         return "account/list";
     }
     
