@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import id.ac.tazkia.minibank.entity.Account;
+import id.ac.tazkia.minibank.entity.Passbook;
 import id.ac.tazkia.minibank.entity.Transaction;
 import id.ac.tazkia.minibank.repository.AccountRepository;
 import id.ac.tazkia.minibank.repository.TransactionRepository;
+import id.ac.tazkia.minibank.service.PassbookPrintService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,12 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/passbook")
 @RequiredArgsConstructor
 public class PassbookController {
-    
+
     private static final String ERROR_MESSAGE_ATTR = "errorMessage";
     private static final String ACCOUNT_NOT_FOUND_MSG = "Account not found";
-    
+
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final PassbookPrintService passbookPrintService;
     
     @Value("${minibank.logo.path:/images/bank-logo.png}")
     private String bankLogoPath;
@@ -167,7 +170,43 @@ public class PassbookController {
         model.addAttribute("bankLogoPath", bankLogoPath);
         model.addAttribute("bankName", bankName);
         model.addAttribute("bankAddress", bankAddress);
-        
+
         return "passbook/preview";
+    }
+
+    @GetMapping("/direct-print/{accountId}")
+    public String directPrintPassbook(@PathVariable UUID accountId,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes) {
+
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR, ACCOUNT_NOT_FOUND_MSG);
+            return "redirect:/passbook/select-account";
+        }
+
+        Account account = accountOpt.get();
+
+        // Check if account is active
+        if (account.getStatus() != Account.AccountStatus.ACTIVE) {
+            redirectAttributes.addFlashAttribute(ERROR_MESSAGE_ATTR,
+                "Cannot print passbook for inactive account");
+            return "redirect:/passbook/select-account";
+        }
+
+        // Get or create passbook for the account
+        Passbook passbook = passbookPrintService.getOrCreatePassbook(accountId);
+
+        // Get unprinted transactions count
+        List<Transaction> unprintedTransactions = passbookPrintService.getUnprintedTransactions(accountId);
+
+        model.addAttribute("account", account);
+        model.addAttribute("passbook", passbook);
+        model.addAttribute("unprintedCount", unprintedTransactions.size());
+        model.addAttribute("bankLogoPath", bankLogoPath);
+        model.addAttribute("bankName", bankName);
+        model.addAttribute("bankAddress", bankAddress);
+
+        return "passbook/direct-print";
     }
 }
