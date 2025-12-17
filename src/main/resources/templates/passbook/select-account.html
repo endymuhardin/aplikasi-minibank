@@ -115,6 +115,12 @@
                                        title="Preview passbook">
                                         Preview
                                     </a>
+                                    <a th:id="'initialize-passbook-' + ${account.accountNumber}"
+                                       th:href="@{/passbook/initialize/{id}(id=${account.id})}"
+                                       class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs"
+                                       title="Initialize non-empty passbook">
+                                        Initialize
+                                    </a>
                                     <a th:id="'direct-print-' + ${account.accountNumber}"
                                        th:href="@{/passbook/direct-print/{id}(id=${account.id})}"
                                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"

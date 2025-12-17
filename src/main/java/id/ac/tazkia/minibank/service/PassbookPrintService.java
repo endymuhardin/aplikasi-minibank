@@ -221,4 +221,22 @@ public class PassbookPrintService {
         }
         return printHistoryRepository.findByPassbookId(passbookOpt.get().getId());
     }
+
+    /**
+     * Initialize passbook state for non-empty passbook
+     */
+    public Passbook initializePassbook(UUID accountId, Integer currentPage, Integer lastPrintedLine,
+                                      Transaction lastPrintedTransaction) {
+        Passbook passbook = getOrCreatePassbook(accountId);
+
+        passbook.setCurrentPage(currentPage);
+        passbook.setLastPrintedLine(lastPrintedLine);
+        passbook.setLastPrintedTransaction(lastPrintedTransaction);
+
+        if (lastPrintedTransaction != null) {
+            passbook.setLastPrintDate(LocalDateTime.now());
+        }
+
+        return passbookRepository.save(passbook);
+    }
 }
