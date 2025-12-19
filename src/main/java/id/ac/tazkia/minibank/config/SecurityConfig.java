@@ -90,6 +90,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(LOGIN_PATH, "/assets/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/api/**").hasAnyAuthority("TRANSACTION_VIEW", "CUSTOMER_VIEW", "ACCOUNT_VIEW", "USER_VIEW")
                 .requestMatchers("/rbac/**").hasAnyAuthority("USER_VIEW", "USER_CREATE", "USER_UPDATE")
                 .requestMatchers("/product/**").hasAnyAuthority("PRODUCT_VIEW", "CUSTOMER_VIEW", "ACCOUNT_VIEW")

@@ -1,0 +1,44 @@
+---
+# Application deployment configuration template
+# Copy this file to deploy-vars.yml and update with your actual values
+
+# Application settings
+app_name: aplikasi-minibank
+app_jar_name: aplikasi-minibank-0.0.1-SNAPSHOT.jar
+app_symlink_name: minibank.jar
+app_install_dir: /var/lib/aplikasi-minibank
+app_backup_dir: /var/lib/aplikasi-minibank/backups
+app_user: minibank
+app_group: minibank
+
+# Java settings (using SDKMan managed Java)
+java_home: /var/lib/aplikasi-minibank/.sdkman/candidates/java/current
+
+# JVM memory settings
+jvm_min_heap: 512m
+jvm_max_heap: 1024m
+
+# Spring Boot settings
+spring_profiles_active: production
+server_port: 10002
+
+# Database settings (production)
+# IMPORTANT: Update these values with your actual database credentials
+db_host: localhost
+db_port: 5432
+db_name: db_minibank
+db_user: minibank
+db_password: CHANGE_THIS_PASSWORD  # Replace with actual database password
+
+# Backup settings
+backup_retention_days: 7
+max_backups: 10
+
+# Build settings (local)
+local_build_dir: "{{ playbook_dir }}/../target"
+local_jar_path: "{{ local_build_dir }}/{{ app_jar_name }}"
+
+# Service settings
+service_name: minibank
+service_enabled: true
+service_state: started

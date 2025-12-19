@@ -1,0 +1,25 @@
+[Unit]
+Description=Aplikasi Minibank
+After=syslog.target
+
+[Service]
+User={{ app_user }}
+WorkingDirectory={{ app_install_dir }}
+
+# Environment variables
+Environment="JAVA_HOME={{ java_home }}"
+Environment="PATH={{ java_home }}/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="SPRING_PROFILES_ACTIVE={{ spring_profiles_active }}"
+Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://{{ db_host }}:{{ db_port }}/{{ db_name }}"
+Environment="SPRING_DATASOURCE_USERNAME={{ db_user }}"
+Environment="SPRING_DATASOURCE_PASSWORD={{ db_password }}"
+
+# Application execution using symlink
+ExecStart={{ java_home }}/bin/java -jar {{ app_install_dir }}/{{ app_symlink_name }}
+
+# Restart policy
+SuccessExitStatus=143
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
