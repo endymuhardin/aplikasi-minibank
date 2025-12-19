@@ -110,14 +110,28 @@
                             <td class="px-4 py-3 text-sm text-center">
                                 <div class="flex justify-center space-x-2">
                                     <a th:id="'preview-passbook-' + ${account.accountNumber}"
-                                       th:href="@{/passbook/preview/{id}(id=${account.id})}" 
-                                       class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                                       th:href="@{/passbook/preview/{id}(id=${account.id})}"
+                                       class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs"
+                                       title="Preview passbook">
                                         Preview
                                     </a>
+                                    <a th:id="'initialize-passbook-' + ${account.accountNumber}"
+                                       th:href="@{/passbook/initialize/{id}(id=${account.id})}"
+                                       class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-xs"
+                                       title="Initialize non-empty passbook">
+                                        Initialize
+                                    </a>
+                                    <a th:id="'direct-print-' + ${account.accountNumber}"
+                                       th:href="@{/passbook/direct-print/{id}(id=${account.id})}"
+                                       class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
+                                       title="Print directly to Epson PLQ-20">
+                                        PLQ-20
+                                    </a>
                                     <a th:id="'print-passbook-' + ${account.accountNumber}"
-                                       th:href="@{/passbook/print/{id}(id=${account.id})}" 
-                                       class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
-                                        Print
+                                       th:href="@{/passbook/print/{id}(id=${account.id})}"
+                                       class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs"
+                                       title="Print to browser/PDF">
+                                        Browser
                                     </a>
                                 </div>
                             </td>

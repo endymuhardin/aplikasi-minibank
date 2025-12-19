@@ -1,0 +1,202 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Initialize Passbook - Minibank</title>
+</head>
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 id="page-title" class="text-2xl font-bold text-gray-800">
+                    <svg class="inline-block h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Initialize Passbook
+                </h1>
+                <a th:href="@{/passbook/select-account}" id="back-button"
+                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+                    Back to Selection
+                </a>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-blue-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-sm font-medium text-blue-800">Instructions</h3>
+                        <p class="text-sm text-blue-700 mt-1">
+                            Use this form to initialize a passbook that already has printed transactions. Select the last transaction that was printed,
+                            specify the current page number and line number. This allows the system to continue printing from the correct position.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Account Information</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Account Number</label>
+                        <p id="account-number" class="text-base text-gray-900" th:text="${account.accountNumber}">ACC2000001</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Account Name</label>
+                        <p id="account-name" class="text-base text-gray-900" th:text="${account.accountName}">Account Name</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Customer</label>
+                        <p id="customer-name" class="text-base text-gray-900" th:text="${account.customer.displayName}">Customer Name</p>
+                        <p class="text-sm text-gray-500" th:text="${account.customer.customerNumber}">C1000001</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-600">Balance</label>
+                        <p id="account-balance" class="text-base text-gray-900">
+                            IDR <span th:text="${#numbers.formatDecimal(account.balance, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Current Passbook Status -->
+                <div th:if="${passbook != null}" class="mt-4 pt-4 border-t border-gray-300">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Current Passbook Status</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Passbook Number</label>
+                            <p id="current-passbook-number" class="text-base text-gray-900" th:text="${passbook.passbookNumber}">PB0000001</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Current Page</label>
+                            <p id="current-page" class="text-base text-gray-900" th:text="${passbook.currentPage}">1</p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Last Printed Line</label>
+                            <p id="current-last-line" class="text-base text-gray-900" th:text="${passbook.lastPrintedLine}">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Initialization Form -->
+            <div class="bg-white border border-gray-300 rounded-lg p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Initialize Passbook State</h2>
+                <form id="initialize-form" method="post" th:action="@{/passbook/initialize/{id}(id=${account.id})}">
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label for="current-page-input" class="block text-sm font-medium text-gray-700 mb-1">
+                                Current Page Number <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number"
+                                   id="current-page-input"
+                                   name="currentPage"
+                                   min="1"
+                                   value="1"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Page where you want to continue printing</p>
+                        </div>
+                        <div>
+                            <label for="last-line-input" class="block text-sm font-medium text-gray-700 mb-1">
+                                Last Printed Line <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number"
+                                   id="last-line-input"
+                                   name="lastPrintedLine"
+                                   min="0"
+                                   max="30"
+                                   value="0"
+                                   required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Line number (0-30) of last printed entry</p>
+                        </div>
+                        <div>
+                            <label for="last-transaction-select" class="block text-sm font-medium text-gray-700 mb-1">
+                                Last Printed Transaction
+                            </label>
+                            <select id="last-transaction-select"
+                                    name="lastPrintedTransactionId"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- None (Start from beginning) --</option>
+                                <option th:each="tx : ${transactions}"
+                                        th:value="${tx.id}"
+                                        th:text="${#temporals.format(tx.transactionDate, 'dd/MM/yyyy') + ' - ' + tx.transactionNumber + ' - IDR ' + #numbers.formatDecimal(tx.amount, 0, 'COMMA', 2, 'POINT')}">
+                                    01/01/2024 - TXN0000001 - IDR 1,000,000.00
+                                </option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Optional: Select the last transaction that was printed</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <a th:href="@{/passbook/select-account}"
+                           id="cancel-button"
+                           class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded inline-block">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                                id="submit-button"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded">
+                            Initialize Passbook
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Transaction History Table -->
+            <div class="bg-white border border-gray-300 rounded-lg p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Transaction History</h2>
+                <div th:if="${transactions.empty}" class="text-center py-8">
+                    <p class="text-gray-500">No transactions found for this account.</p>
+                </div>
+                <div th:unless="${transactions.empty}" class="overflow-x-auto">
+                    <table class="min-w-full table-auto border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 border-b">
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Transaction #</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Description</th>
+                                <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Debit</th>
+                                <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Credit</th>
+                                <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table" class="divide-y divide-gray-200">
+                            <tr th:each="tx : ${transactions}"
+                                th:id="'tx-row-' + ${tx.transactionNumber}"
+                                class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-900"
+                                    th:text="${#temporals.format(tx.transactionDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                                <td class="px-4 py-3 text-sm text-gray-900" th:text="${tx.transactionNumber}">TXN0000001</td>
+                                <td class="px-4 py-3 text-sm text-gray-900" th:text="${tx.description}">Description</td>
+                                <td class="px-4 py-3 text-sm text-right text-red-600">
+                                    <span th:if="${tx.debitTransaction}"
+                                          th:text="${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 2, 'POINT')}"></span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-green-600">
+                                    <span th:unless="${tx.debitTransaction}"
+                                          th:text="${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 2, 'POINT')}"></span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right font-medium text-gray-900"
+                                    th:text="${#numbers.formatDecimal(tx.balanceAfter, 0, 'COMMA', 2, 'POINT')}">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

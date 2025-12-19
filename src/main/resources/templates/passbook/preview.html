@@ -14,9 +14,15 @@
                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
                         Back to Selection
                     </a>
+                    <a th:href="@{/passbook/direct-print/{id}(id=${account.id})}" id="direct-print-button"
+                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                       title="Print directly to Epson PLQ-20 passbook printer">
+                        Direct Print (PLQ-20)
+                    </a>
                     <a th:href="@{/passbook/print/{id}(id=${account.id})}" id="preview-print-button"
-                       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                        Print Passbook
+                       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                       title="Print to browser/PDF">
+                        Browser Print
                     </a>
                 </div>
             </div>

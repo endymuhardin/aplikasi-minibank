@@ -2,11 +2,18 @@
 
 ## Panduan Yang Tersedia
 
-1. **[Panduan Approval Workflow](panduan-approval-workflow.md)** ⭐ NEW
+1. **[Panduan Approval Workflow](panduan-approval-workflow.md)**
    - Target: Customer Service (CS) dan Branch Manager
    - Proses: Membuat nasabah baru dengan approval workflow
    - Format: Panduan lengkap dengan screenshot dan video
    - Versi: 2.0 (Updated with Approval Workflow)
+
+2. **[Panduan Cetak Buku Tabungan](panduan-cetak-buku-tabungan.md)** ⭐ NEW
+   - Target: Teller
+   - Proses: Setup printer, inisialisasi buku tabungan, dan cetak transaksi
+   - Printer: Epson PLQ-20 via Web Serial API
+   - Format: Panduan lengkap dengan troubleshooting
+   - Versi: 1.0
 
 ## Cara Menggunakan Panduan
 
@@ -46,4 +53,4 @@ mvn exec:java -Dexec.mainClass="id.ac.tazkia.minibank.util.ApprovalWorkflowDocGe
 
 ---
 
-*Dibuat pada: 05 November 2025*
+*Terakhir diperbarui: 17 Desember 2025*
