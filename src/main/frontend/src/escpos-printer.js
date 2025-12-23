@@ -15,26 +15,29 @@ class ESCPOSPrinter {
 		this.printerName = null;
 		this.connected = false;
 
-		// Print configuration (can be adjusted for different passbook formats)
+		// Print configuration - matches physical passbook layout
+		// Columns: Tanggal | Sandi | Mutasi Debit | Mutasi Kredit | Saldo | Petugas
 		this.config = {
 			// Column positions in characters
-			dateCol: 0,
-			descCol: 11,
-			debitCol: 32,
-			creditCol: 47,
-			balanceCol: 62,
+			dateCol: 0,          // DD/MM/YYYY (10 chars)
+			sandiCol: 11,        // Transaction code (12 chars)
+			debitCol: 24,        // Debit amount (13 chars)
+			creditCol: 38,       // Credit amount (13 chars)
+			balanceCol: 52,      // Balance (13 chars)
+			tellerCol: 66,       // Teller name (14 chars)
 
 			// Column widths
 			dateWidth: 10,
-			descWidth: 20,
-			amountWidth: 14,
+			sandiWidth: 12,
+			amountWidth: 13,
+			tellerWidth: 14,
 
 			// Lines per page
 			linesPerPage: 20,
 
 			// Header offset - number of lines to skip for passbook header
 			// Adjust this based on your passbook format
-			// Default: 3 lines (for header area)
+			// Default: 6 lines (for header area)
 			headerLines: 6,
 		};
 	}
@@ -180,16 +183,18 @@ class ESCPOSPrinter {
 
 	/**
 	 * Build a single transaction line for passbook
+	 * Layout: DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
 	 */
 	buildTransactionLine(transaction) {
 		const date = this.formatDate(transaction.transactionDate);
-		const desc = this.padString(transaction.description, this.config.descWidth);
+		const sandi = this.padString(transaction.sandiCode || '', this.config.sandiWidth);
 		const debit = this.formatAmount(transaction.debit, this.config.amountWidth);
 		const credit = this.formatAmount(transaction.credit, this.config.amountWidth);
 		const balance = this.formatAmount(transaction.balance, this.config.amountWidth);
+		const teller = this.padString(transaction.tellerName || '', this.config.tellerWidth);
 
-		// Build line: DATE | DESCRIPTION | DEBIT | CREDIT | BALANCE
-		return `${date} ${desc} ${debit} ${credit} ${balance}`;
+		// Build line: DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
+		return `${date} ${sandi} ${debit} ${credit} ${balance} ${teller}`;
 	}
 
 	/**

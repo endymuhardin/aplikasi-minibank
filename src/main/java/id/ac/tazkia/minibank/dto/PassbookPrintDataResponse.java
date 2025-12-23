@@ -73,6 +73,8 @@ public class PassbookPrintDataResponse {
         private LocalDateTime transactionDate;
         private String description;
         private String transactionType;
+        private String sandiCode;      // Transaction code for passbook (e.g., "52", "26")
+        private String tellerName;     // Teller/operator name (Petugas)
         private BigDecimal debit;
         private BigDecimal credit;
         private BigDecimal balance;
@@ -86,18 +88,25 @@ public class PassbookPrintDataResponse {
         private Integer charactersPerLine = 80;
         private Integer linesPerPage = 20;
 
-        // Column positions (in characters from left)
-        private Integer dateColumn = 0;
-        private Integer descriptionColumn = 11;
-        private Integer debitColumn = 35;
-        private Integer creditColumn = 50;
-        private Integer balanceColumn = 65;
+        // Column positions (in characters from left) - matches physical passbook layout
+        // Columns: Tanggal | Sandi | Mutasi Debit | Mutasi Kredit | Saldo | Petugas
+        private Integer dateColumn = 0;          // DD/MM/YYYY (10 chars)
+        private Integer sandiColumn = 11;        // Transaction code (13 chars)
+        private Integer debitColumn = 24;        // Debit amount (14 chars)
+        private Integer creditColumn = 38;       // Credit amount (14 chars)
+        private Integer balanceColumn = 52;      // Balance (14 chars)
+        private Integer tellerColumn = 66;       // Teller name (14 chars)
+
+        // Column widths
+        private Integer dateWidth = 10;
+        private Integer sandiWidth = 12;
+        private Integer amountWidth = 13;
+        private Integer tellerWidth = 14;
 
         // Date format for passbook
         private String dateFormat = "dd/MM/yyyy";
 
         // Amount format
-        private Integer amountWidth = 14;
         private Integer decimalPlaces = 2;
 
         // Line spacing (1/6 inch = 1, 1/8 inch = 0)

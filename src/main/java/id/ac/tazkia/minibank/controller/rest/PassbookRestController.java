@@ -276,6 +276,8 @@ public class PassbookRestController {
             line.setTransactionDate(tx.getTransactionDate());
             line.setDescription(truncateDescription(tx.getDescription(), 20));
             line.setTransactionType(tx.getTransactionType().name());
+            line.setSandiCode(getSandiCode(tx));
+            line.setTellerName(truncateDescription(tx.getCreatedBy(), 14));
 
             if (tx.isDebitTransaction()) {
                 line.setDebit(tx.getAmount());
@@ -301,6 +303,31 @@ public class PassbookRestController {
         if (description == null) return "";
         if (description.length() <= maxLength) return description;
         return description.substring(0, maxLength - 3) + "...";
+    }
+
+    /**
+     * Map transaction type and channel to Sandi code for passbook
+     * Based on standard bank transaction codes shown in passbook header
+     */
+    private String getSandiCode(Transaction tx) {
+        Transaction.TransactionType type = tx.getTransactionType();
+        Transaction.TransactionChannel channel = tx.getChannel();
+
+        return switch (type) {
+            case DEPOSIT -> switch (channel) {
+                case TELLER, ATM -> "52";           // Setor Tunai
+                case TRANSFER -> "61";              // Incoming WU/SWIFT/SKN
+                default -> "244";                   // Setoran Kliring
+            };
+            case WITHDRAWAL -> switch (channel) {
+                case TELLER, ATM -> "26";           // Penarikan Tunai
+                case TRANSFER -> "11";              // Outgoing WU/SWIFT/SKN
+                default -> "201";                   // Penarikan Kliring
+            };
+            case TRANSFER_IN -> "213";              // Transfer/Pemindahbukuan
+            case TRANSFER_OUT -> "213";             // Transfer/Pemindahbukuan
+            case FEE -> "961";                      // Biaya Administrasi
+        };
     }
 
     private ResponseEntity<Object> errorResponse(String message, HttpStatus status) {
