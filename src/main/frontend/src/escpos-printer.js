@@ -16,24 +16,28 @@ class ESCPOSPrinter {
 		this.connected = false;
 
 		// Print configuration - matches physical passbook layout
-		// Columns: Tanggal | Sandi | Mutasi Debit | Mutasi Kredit | Saldo | Petugas
+		// Columns: No | Tanggal | Sandi | Mutasi Debit | Mutasi Kredit | Saldo | Petugas
 		this.config = {
-			// Column positions in characters
-			dateCol: 0,          // DD/MM/YYYY (10 chars)
-			sandiCol: 11,        // Transaction code (12 chars)
-			debitCol: 24,        // Debit amount (13 chars)
-			creditCol: 38,       // Credit amount (13 chars)
-			balanceCol: 52,      // Balance (13 chars)
-			tellerCol: 66,       // Teller name (14 chars)
+			// Column positions (measured from ruler print)
+			noCol: 1, // Line number
+			dateCol: 5, // Date DD/MM/YYYY
+			sandiCol: 20, // Transaction code
+			debitCol: 29, // Debit amount (right-aligned)
+			creditCol: 49, // Credit amount (right-aligned)
+			balanceCol: 68, // Balance (right-aligned)
+			tellerCol: 91, // Teller name
 
-			// Column widths
-			dateWidth: 10,
-			sandiWidth: 12,
-			amountWidth: 13,
-			tellerWidth: 14,
+			// Column widths (adjusted for better fit)
+			noWidth: 2, // 2 digits for line number
+			dateWidth: 10, // DD/MM/YYYY = 10 chars
+			sandiWidth: 5, // Short code
+			debitWidth: 16, // Amount width
+			creditWidth: 16, // Amount width
+			balanceWidth: 20, // Balance width
+			tellerWidth: 14, // Teller name
 
 			// Lines per page
-			linesPerPage: 20,
+			linesPerPage: 30,
 
 			// Header offset - number of lines to skip for passbook header
 			// Adjust this based on your passbook format
@@ -53,7 +57,7 @@ class ESCPOSPrinter {
 				testPrinter.setServerUrl("http://localhost:8000");
 			}
 			const printers = await testPrinter.getPrinters();
-			console.log("ESC-POS Printer Manager check - printers found:", printers);
+			// console.log("ESC-POS Printer Manager check - printers found:", printers);
 			return printers && printers.length > 0;
 		} catch (error) {
 			console.error("ESC-POS Printer Manager check failed:", error);
@@ -73,7 +77,7 @@ class ESCPOSPrinter {
 				tempPrinter.setServerUrl("http://localhost:8000");
 			}
 			const printers = await tempPrinter.getPrinters();
-			console.log("Printers retrieved:", printers);
+			// console.log("Printers retrieved:", printers);
 			return printers || [];
 		} catch (error) {
 			console.error("Failed to get printers:", error);
@@ -182,19 +186,42 @@ class ESCPOSPrinter {
 	}
 
 	/**
-	 * Build a single transaction line for passbook
-	 * Layout: DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
+	 * Build a formatted transaction line
+	 * Layout: NO | DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
 	 */
 	buildTransactionLine(transaction) {
+		// Format each field
+		const no = this.padString(String(transaction.lineNumber || ""), this.config.noWidth, "right");
 		const date = this.formatDate(transaction.transactionDate);
-		const sandi = this.padString(transaction.sandiCode || '', this.config.sandiWidth);
-		const debit = this.formatAmount(transaction.debit, this.config.amountWidth);
-		const credit = this.formatAmount(transaction.credit, this.config.amountWidth);
-		const balance = this.formatAmount(transaction.balance, this.config.amountWidth);
-		const teller = this.padString(transaction.tellerName || '', this.config.tellerWidth);
+		const sandi = this.padString(transaction.sandiCode || "", this.config.sandiWidth);
+		const debit = this.formatAmount(transaction.debit, this.config.debitWidth);
+		const credit = this.formatAmount(transaction.credit, this.config.creditWidth);
+		const balance = this.formatAmount(transaction.balance, this.config.balanceWidth);
+		const teller = this.padString(transaction.tellerName || "", this.config.tellerWidth);
 
-		// Build line: DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
-		return `${date} ${sandi} ${debit} ${credit} ${balance} ${teller}`;
+		// Build line with absolute positioning
+		// Start with empty line of 100 spaces
+		let line = " ".repeat(100);
+
+		// Place each field at its absolute position
+		line = this.placeAt(line, this.config.noCol, no);
+		line = this.placeAt(line, this.config.dateCol, date);
+		line = this.placeAt(line, this.config.sandiCol, sandi);
+		line = this.placeAt(line, this.config.debitCol, debit);
+		line = this.placeAt(line, this.config.creditCol, credit);
+		line = this.placeAt(line, this.config.balanceCol, balance);
+		line = this.placeAt(line, this.config.tellerCol, teller);
+
+		return line.trimEnd(); // Remove trailing spaces
+	}
+
+	/**
+	 * Place text at absolute position in a line
+	 */
+	placeAt(line, position, text) {
+		const before = line.substring(0, position);
+		const after = line.substring(position + text.length);
+		return before + text + after;
 	}
 
 	/**
@@ -267,6 +294,59 @@ class ESCPOSPrinter {
 		}
 
 		return results;
+	}
+
+	/**
+	 * Print character ruler for calibration
+	 * Prints lines showing character positions (0-9 repeated)
+	 */
+	async printRuler() {
+		if (!this.connected || !this.printer) {
+			throw new Error("Printer not connected");
+		}
+
+		try {
+			// Print ruler line 1: Tens position (0, 10, 20, 30, ...)
+			let tensLine = "";
+			for (let i = 0; i < 100; i++) {
+				if (i % 10 === 0) {
+					tensLine += Math.floor(i / 10);
+				} else {
+					tensLine += " ";
+				}
+			}
+			this.printer.text(tensLine + "\n");
+
+			// Print ruler line 2: Ones position (0123456789 repeated)
+			let onesLine = "";
+			for (let i = 0; i < 100; i++) {
+				onesLine += i % 10;
+			}
+			this.printer.text(onesLine + "\n");
+
+			// Print ruler line 3: Position markers every 10 chars
+			let markerLine = "";
+			for (let i = 0; i < 100; i++) {
+				if (i % 10 === 0) {
+					markerLine += "|";
+				} else if (i % 5 === 0) {
+					markerLine += "+";
+				} else {
+					markerLine += ".";
+				}
+			}
+			this.printer.text(markerLine + "\n");
+
+			// Close and send to printer
+			this.printer.close();
+			await this.printer.print();
+
+			console.log("Ruler printed successfully");
+			return { success: true };
+		} catch (error) {
+			console.error("Ruler print error:", error);
+			throw error;
+		}
 	}
 
 	/**

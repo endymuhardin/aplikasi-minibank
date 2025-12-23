@@ -304,26 +304,38 @@ var PassbookPrinter = (() => {
       this.printerName = null;
       this.connected = false;
       this.config = {
-        // Column positions in characters
-        dateCol: 0,
-        // DD/MM/YYYY (10 chars)
-        sandiCol: 11,
-        // Transaction code (12 chars)
-        debitCol: 24,
-        // Debit amount (13 chars)
-        creditCol: 38,
-        // Credit amount (13 chars)
-        balanceCol: 52,
-        // Balance (13 chars)
-        tellerCol: 66,
-        // Teller name (14 chars)
-        // Column widths
+        // Column positions (measured from ruler print)
+        noCol: 1,
+        // Line number
+        dateCol: 5,
+        // Date DD/MM/YYYY
+        sandiCol: 20,
+        // Transaction code
+        debitCol: 29,
+        // Debit amount (right-aligned)
+        creditCol: 49,
+        // Credit amount (right-aligned)
+        balanceCol: 68,
+        // Balance (right-aligned)
+        tellerCol: 91,
+        // Teller name
+        // Column widths (adjusted for better fit)
+        noWidth: 2,
+        // 2 digits for line number
         dateWidth: 10,
-        sandiWidth: 12,
-        amountWidth: 13,
+        // DD/MM/YYYY = 10 chars
+        sandiWidth: 5,
+        // Short code
+        debitWidth: 16,
+        // Amount width
+        creditWidth: 16,
+        // Amount width
+        balanceWidth: 20,
+        // Balance width
         tellerWidth: 14,
+        // Teller name
         // Lines per page
-        linesPerPage: 20,
+        linesPerPage: 30,
         // Header offset - number of lines to skip for passbook header
         // Adjust this based on your passbook format
         // Default: 6 lines (for header area)
@@ -340,7 +352,6 @@ var PassbookPrinter = (() => {
           testPrinter.setServerUrl("http://localhost:8000");
         }
         const printers = await testPrinter.getPrinters();
-        console.log("ESC-POS Printer Manager check - printers found:", printers);
         return printers && printers.length > 0;
       } catch (error) {
         console.error("ESC-POS Printer Manager check failed:", error);
@@ -358,7 +369,6 @@ var PassbookPrinter = (() => {
           tempPrinter.setServerUrl("http://localhost:8000");
         }
         const printers = await tempPrinter.getPrinters();
-        console.log("Printers retrieved:", printers);
         return printers || [];
       } catch (error) {
         console.error("Failed to get printers:", error);
@@ -451,17 +461,34 @@ var PassbookPrinter = (() => {
       return str.padEnd(width);
     }
     /**
-     * Build a single transaction line for passbook
-     * Layout: DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
+     * Build a formatted transaction line
+     * Layout: NO | DATE | SANDI | DEBIT | CREDIT | BALANCE | TELLER
      */
     buildTransactionLine(transaction) {
+      const no = this.padString(String(transaction.lineNumber || ""), this.config.noWidth, "right");
       const date = this.formatDate(transaction.transactionDate);
       const sandi = this.padString(transaction.sandiCode || "", this.config.sandiWidth);
-      const debit = this.formatAmount(transaction.debit, this.config.amountWidth);
-      const credit = this.formatAmount(transaction.credit, this.config.amountWidth);
-      const balance = this.formatAmount(transaction.balance, this.config.amountWidth);
+      const debit = this.formatAmount(transaction.debit, this.config.debitWidth);
+      const credit = this.formatAmount(transaction.credit, this.config.creditWidth);
+      const balance = this.formatAmount(transaction.balance, this.config.balanceWidth);
       const teller = this.padString(transaction.tellerName || "", this.config.tellerWidth);
-      return `${date} ${sandi} ${debit} ${credit} ${balance} ${teller}`;
+      let line = " ".repeat(100);
+      line = this.placeAt(line, this.config.noCol, no);
+      line = this.placeAt(line, this.config.dateCol, date);
+      line = this.placeAt(line, this.config.sandiCol, sandi);
+      line = this.placeAt(line, this.config.debitCol, debit);
+      line = this.placeAt(line, this.config.creditCol, credit);
+      line = this.placeAt(line, this.config.balanceCol, balance);
+      line = this.placeAt(line, this.config.tellerCol, teller);
+      return line.trimEnd();
+    }
+    /**
+     * Place text at absolute position in a line
+     */
+    placeAt(line, position, text) {
+      const before = line.substring(0, position);
+      const after = line.substring(position + text.length);
+      return before + text + after;
     }
     /**
      * Print multiple transactions
@@ -516,6 +543,49 @@ var PassbookPrinter = (() => {
         results.error = error.message;
       }
       return results;
+    }
+    /**
+     * Print character ruler for calibration
+     * Prints lines showing character positions (0-9 repeated)
+     */
+    async printRuler() {
+      if (!this.connected || !this.printer) {
+        throw new Error("Printer not connected");
+      }
+      try {
+        let tensLine = "";
+        for (let i = 0; i < 100; i++) {
+          if (i % 10 === 0) {
+            tensLine += Math.floor(i / 10);
+          } else {
+            tensLine += " ";
+          }
+        }
+        this.printer.text(tensLine + "\n");
+        let onesLine = "";
+        for (let i = 0; i < 100; i++) {
+          onesLine += i % 10;
+        }
+        this.printer.text(onesLine + "\n");
+        let markerLine = "";
+        for (let i = 0; i < 100; i++) {
+          if (i % 10 === 0) {
+            markerLine += "|";
+          } else if (i % 5 === 0) {
+            markerLine += "+";
+          } else {
+            markerLine += ".";
+          }
+        }
+        this.printer.text(markerLine + "\n");
+        this.printer.close();
+        await this.printer.print();
+        console.log("Ruler printed successfully");
+        return { success: true };
+      } catch (error) {
+        console.error("Ruler print error:", error);
+        throw error;
+      }
     }
     /**
      * Helper delay function

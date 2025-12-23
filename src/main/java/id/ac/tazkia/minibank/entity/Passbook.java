@@ -39,7 +39,7 @@ public class Passbook {
     private Integer lastPrintedLine = 0;
 
     @Column(name = "lines_per_page", nullable = false)
-    private Integer linesPerPage = 20;
+    private Integer linesPerPage = 30;
 
     // Last printed transaction tracking
     @ManyToOne(fetch = FetchType.LAZY)
@@ -135,10 +135,10 @@ public class Passbook {
 
     // Enums
     public enum PassbookStatus {
-        ACTIVE,     // Can be used for printing
-        FULL,       // All pages used, needs replacement
-        LOST,       // Reported lost
-        REPLACED,   // Replaced with new passbook
-        CLOSED      // Account closed
+        ACTIVE, // Can be used for printing
+        FULL, // All pages used, needs replacement
+        LOST, // Reported lost
+        REPLACED, // Replaced with new passbook
+        CLOSED // Account closed
     }
 }
